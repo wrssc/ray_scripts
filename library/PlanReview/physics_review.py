@@ -34,6 +34,8 @@
              low dose serial oars from warnings regarding PRV usage
            * Moving the modulation complexity score to sandbox until plan-specific benchmarks for MCS
              are available.
+    1.0.2: Minor changes
+           *
 
 
     PRERELEASE:

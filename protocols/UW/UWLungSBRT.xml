@@ -46,7 +46,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -443,7 +443,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -840,7 +840,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1193,7 +1193,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1562,7 +1562,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1958,7 +1958,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2354,7 +2354,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2750,7 +2750,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -3150,7 +3150,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -3620,7 +3620,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
         </prescription>
         <goals>
             <roi>
