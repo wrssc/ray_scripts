@@ -460,7 +460,7 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
                     "Notes",
                     size=(20, 1),
                     enable_events=True,
-                    key=create_key(KEY_TX_INST + KEY_INPUT_TEXT + inst_text, inst['indx']),
+                    key=create_key(KEY_TX_INST + inst_text + KEY_INPUT_TEXT, inst['indx']),
                     visible=False,
                 )
             ]
@@ -480,7 +480,7 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
                     size=max_row_size(phrases),
                     tooltip='Select Appropriate Instruction',
                     enable_events=True,
-                    key=create_key(KEY_TX_INST + KEY_COMBO + inst_text, inst['indx']),
+                    key=create_key(KEY_TX_INST + inst_text + KEY_COMBO, inst['indx']),
                     visible=False
                 )
             ]
