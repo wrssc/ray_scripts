@@ -13455,7 +13455,41 @@
         <Export></Export>
         <FMAID>26660</FMAID>
         <Color red="251" green="47" blue="132" Hex="#FB2F84">PinkPiano</Color>
-        <Alias></Alias>
+        <Alias>bronchus</Alias>
+    </roi>
+    <roi>
+        <name>Bronchus_PRVxx</name>
+        <TG263PrimaryName>Bronchus_PRVxx</TG263PrimaryName>
+        <Description>Bilateral bronchus expanded by xx mm as a planning risk volume</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Lung</MajorCategory>
+        <MinorCategory>Bronchus</MinorCategory>
+        <AnatomicGroup>Thorax</AnatomicGroup>
+        <NCharacters>14</NCharacters>
+        <TG263ReverseOrderName>PRVxx_Bronchus</TG263ReverseOrderName>
+        <Export>False</Export>
+        <FMAID></FMAID>
+        <Color red="251" green="149" blue="191" Hex="#fb95bf">PastelMagenta</Color>
+        <Alias>bronchus_prvxx</Alias>
+    </roi>
+    <roi>
+        <name>Bronchus_PRV05</name>
+        <TG263PrimaryName>Bronchus_L_PRV05</TG263PrimaryName>
+        <Description>Bilateral bronchus expanded by 05 mm as a planning risk volume</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Lung</MajorCategory>
+        <MinorCategory>Bronchus</MinorCategory>
+        <AnatomicGroup>Thorax</AnatomicGroup>
+        <NCharacters>14</NCharacters>
+        <TG263ReverseOrderName>PRV05_Bronchus</TG263ReverseOrderName>
+        <Export>False</Export>
+        <FMAID></FMAID>
+        <Color red="251" green="149" blue="191" Hex="#fb95bf">PastelMagenta</Color>
+        <Alias>bronchus_prv05</Alias>
     </roi>
     <roi>
         <name>Bronchus_L</name>
@@ -13528,7 +13562,7 @@
     <roi>
         <name>Bronchus_Main_PRVxx</name>
         <TG263PrimaryName>Bronchus_Main_PRVxx</TG263PrimaryName>
-        <Description>A PRV expansion on the left Bronchus that is xx millimeters thick</Description>
+        <Description>A PRV expansion on the main Bronchus that is xx millimeters thick</Description>
         <NCIt></NCIt>
         <TargetType>Anatomic</TargetType>
         <RTROIInterpretedType>Organ</RTROIInterpretedType>
