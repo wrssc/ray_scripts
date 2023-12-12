@@ -419,23 +419,42 @@ def parse_high_risk_boolean(value, config):
 
 
 def parse_special_instructions(data):
+    """
+    Parse and extract special instructions from the given data.
+
+    This function iterates through a dictionary of data, where keys are tuples
+    and values are instruction details. It extracts and formats special instructions
+    based on predefined key patterns and conditions. Only unique instructions with
+    relevant values are included in the output.
+
+    Parameters:
+    data (dict): A dictionary containing keys as tuples and values as instruction details.
+
+    Returns:
+    str: A formatted string containing the extracted special instructions.
+
+    Notes:
+    - Handles 'radio' and 'combo' type instructions differently.
+    - Filters out instructions with empty, 'false', or duplicate values.
+    """
     special_instructions_text = ""
+
     for tuple_key, value in data.items():
         key, instruction_number = tuple_key
-        if key.startswith(KEY_TX_INST):
-            if KEY_RADIO in key:
-                # Extract the instruction name and type
-                _, instruction_name, response_type,radio_value = key.split('-')[1:]
-                if value == "false":
-                    continue
-                elif value == "true":
-                    if radio_value == "Yes":
-                        special_instructions_text += f"* {instruction_name}\n"
-                    else:
-                        continue
-            elif KEY_COMBO in key:
-                inst_key, _, comb_key, instruction_name = key.split('-')[1:]
-                special_instructions_text += f"* {instruction_name}: {value}\n"
+        # Check for 'radio' type instructions
+        if key.startswith(KEY_TX_INST) and KEY_RADIO in key:
+            _, instruction_name, response_type, radio_value = key.split('-')[1:]
+            # Check if the instruction is already seen or has 'false' value
+            if not value:
+                continue
+            special_instructions_text += f"* {instruction_name}\n"
+        # Check for 'combo' type instructions
+        elif KEY_COMBO in key:
+            _, instruction_name, response_type, _ = key.split('-')[1:]
+            # Ignore empty instructions
+            if not value.strip():
+                continue
+            special_instructions_text += f"* {instruction_name}: {value}\n"
     return special_instructions_text
 
 
@@ -560,6 +579,16 @@ def build_reviewer_table(data, config, col_fractions):
 
 
 def create_beamset_data_table(data, rso, config):
+    """
+    Creates a beamset data table based on input data, RSO object, and configuration.
+    Args:
+        data:
+        rso: (NamedTuple): Raystation Script Objects
+        config:
+
+    Returns:
+
+    """
     table_data = [["Beamset Summary", ""]]
     bold_rows = []
     nested_table_rows = []
