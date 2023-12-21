@@ -696,19 +696,21 @@ def is_valid_automated_test(window, failed_tests, response_required=True):
     is_valid = True
     if response_required:
         for test in failed_tests:
+            if test[KEY_OUT_DOMAIN_TYPE] == DOMAIN_TYPE['SANDBOX_KEY']:
+                continue
             window_key = create_key(test[KEY_OUT_DOMAIN_NAME], test[KEY_OUT_DESC],
                                     KEY_INPUT_TEXT)
             comment = window[window_key].get()
             if comment == FAILED_AUTOMATED_TEST:
-                update_window_error(window, window_key, bg=True)
+                new_update_window_error(window, [window_key], bg=True)
                 is_valid = False
             elif not comment or comment == FAILED_AUTOMATED_TEST:
-                update_window_error(window, window_key, bg=True)
+                new_update_window_error(window, [window_key], bg=True)
                 is_valid = False
     return is_valid
 
 
-def is_valid_manual_tab(window, values, check_boxes, failed_tests, response_required=True):
+def new_is_valid_manual_tab(window, values, check_boxes, failed_tests, response_required=True):
     is_valid = True
     is_valid_auto = True
     if response_required:
@@ -736,30 +738,104 @@ def is_valid_manual_tab(window, values, check_boxes, failed_tests, response_requ
     return all([is_valid, is_valid_auto])
 
 
-def copy_and_filter_checkbox_dict(dict1, dict2):
-    # Create filtered copies of dict1 and dict2 without the KEY_REVIEW_TYPE key
-    f_dict1 = {k: v for k, v in dict1.items() if k != KEY_REVIEW_TYPE}
-    f_dict2 = {k: v for k, v in dict2.items() if k != KEY_REVIEW_TYPE}
-    return f_dict1, f_dict2
+def new_update_window_error(window, keys, bg=False):
+    error_text_color = '#8B0000'
+    error_bg_color = '#8B0000'
+    error_bg_text = '#ffffff'
 
-
-def merge_dicts(dict1, dict2):
-    # Get filtered versions of the dictionaries
-    f_dict1, f_dict2 = copy_and_filter_checkbox_dict(dict1, dict2)
-    # Create a copy of f_dict1 to start merging
-    merged = f_dict1.copy()
-
-    for key, value in f_dict2.items():
-        if key in merged:
-            # Merge unique items from dict2[key] into merged[key]
-            # Filter out duplicate keys
-            merged[key] = [d for d in merged[key] if d not in value] + value
+    for key in keys:
+        if bg:
+            window[key].update(text_color=error_bg_text, background_color=error_bg_color)
         else:
-            # Add key and value from dict2 if not in dict1
-            merged[key] = value
+            window[key].update(text_color=error_text_color)
 
-    # Remove outer level keys with empty lists
-    merged = {k: v for k, v in merged.items() if v}
+
+def is_valid_manual_tab(window, values, check_boxes, failed_tests, response_required=True):
+    is_valid = True
+    is_valid_auto = True
+
+    if response_required:
+        for key, items in check_boxes.items():
+            for item in items:
+                if excluded_check_boxes(item, key, values) or key == REVIEW_LEVELS['SANDBOX']:
+                    continue
+                logging.debug(f'---Checkbox information:{key}: {item}')
+
+                options = ['Yes', 'No']
+                check_box_radio_keys = [
+                    create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}{o}') for o in options
+                ]
+                input_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_INPUT_TEXT}')
+
+                if not any(values[k] for k in check_box_radio_keys):
+                    new_update_window_error(window, check_box_radio_keys)
+                    is_valid = False
+
+                if values[check_box_radio_keys[1]] and not values[input_key]:
+                    new_update_window_error(window, [input_key], bg=True)
+                    is_valid = False
+
+        is_valid_auto = is_valid_automated_test(window, failed_tests)
+
+        if not is_valid or not is_valid_auto:
+            Sg.popup_error('Please fill in all the required fields.')
+
+    return all([is_valid, is_valid_auto])
+
+
+def copy_and_filter_checkbox_dict(checkbox_dict1, checkbox_dict2):
+    """
+    Create filtered copies of checkbox_dict1 and checkbox_dict2
+    without the KEY_REVIEW_TYPE key or empty REVIEW_LEVELS.
+
+    Args:
+        checkbox_dict1: First CHECK_BOX dictionary.
+        checkbox_dict2: Second CHECK_BOX dictionary.
+
+    Returns:
+        filtered_dict1: Filtered copy of checkbox_dict1.
+        filtered_dict2: Filtered copy of checkbox_dict2.
+    """
+    filtered_dict1 = {k: v for k, v in checkbox_dict1.items() if k != KEY_REVIEW_TYPE and v}
+    filtered_dict2 = {k: v for k, v in checkbox_dict2.items() if k != KEY_REVIEW_TYPE and v}
+    return filtered_dict1, filtered_dict2
+
+
+def merge_dicts(checkbox_dict1, checkbox_dict2):
+    """
+    Merges two CHECK_BOX dictionaries of the form:
+        {
+            REVIEW_LEVEL['LEVEL_KEY']: [
+                {
+                    KEY_OUT_TEST: 'Test Name',
+                    # Other test-related key-value pairs...
+                },
+                # Additional test dictionaries...
+            ],
+            # Additional review levels...
+        }
+
+    Args:
+        checkbox_dict1: a CHECK_BOX dictionary
+        checkbox_dict2: the CHECK_BOX dictionary to be merged into checkbox_dict1
+
+    Returns:
+        merged: a merged CHECK_BOX dictionary with the KEY_REVIEW_TYPE key removed and
+                duplicate tests removed
+
+    """
+    merged, checkbox_dict2_filtered = copy_and_filter_checkbox_dict(checkbox_dict1, checkbox_dict2)
+    keys_in_merged = [
+        item[KEY_OUT_TEST] for review_level, review_list in merged.items() for item in review_list]
+    for review_level, review_list in checkbox_dict2_filtered.items():
+        if review_level in merged:
+            for check_box_dict in review_list:
+                if check_box_dict[KEY_OUT_TEST] not in keys_in_merged:
+                    merged[review_level].append({k: v for k, v in check_box_dict.items()})
+                    keys_in_merged.append(check_box_dict[KEY_OUT_TEST])
+        elif review_list:
+            merged[review_level] = review_list
+            keys_in_merged.extend([item[KEY_OUT_TEST] for item in review_list])
 
     return merged
 
@@ -844,9 +920,12 @@ def build_manual_check_box_list(rso, beamsets, review_type="Physics", chars_per_
     # Add in technique-specific checklist
     for beamset_name in beamsets:
         technique = rso.plan.BeamSets[beamset_name].DeliveryTechnique
+        modality = rso.plan.BeamSets[beamset_name].Modality
         # Check if technique-specific checklist exists
         if "T3D" in beamset_name:
             technique_checklist = TECHNIQUE_MAP["T3D"][review_type]
+        elif "Electrons" in modality:
+            technique_checklist = TECHNIQUE_MAP["SMLC_Electrons"][review_type]
         elif technique in TECHNIQUE_MAP:
             technique_checklist = TECHNIQUE_MAP[technique][review_type]
         else:
