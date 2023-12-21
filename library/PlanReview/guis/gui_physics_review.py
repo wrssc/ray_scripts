@@ -285,7 +285,7 @@ def launch_physics_review_gui(rso):
                                          font=tab_font))
                 #
                 # Build next tab
-                check_box_copy = build_manual_check_box_list(rso, beamsets=[rso.beamset.DicomPlanLabel],
+                check_box_copy = build_manual_check_box_list(rso, beamsets=beamsets,
                                                              chars_per_line=check_character_width)
 
                 passing_tests, failed_tests = get_tests_from_tree(tree_children)
