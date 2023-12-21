@@ -1,5 +1,5 @@
 """ Physics Review with Document
-    --version 1.0.1--Run basic plan integrity checks and parse the log file.
+    --version 1.0.2--Run basic plan integrity checks and parse the log file.
 
     """
 
