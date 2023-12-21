@@ -58,9 +58,9 @@ def get_beamset_level_tests(rso, physics_review=True, log_messages=None):
             if rso.beamset.Beams[0].HasValidSegments:
                 beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Control Point Spacing"] = (
                     check_control_point_spacing, {'expected': 2.})
-                ## TODO: Add after more testing
-                ## beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
-                ##     compute_vmat_beam_properties, {})
+                # TODO: Add after more testing
+                #     beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
+                #     compute_vmat_beam_properties, {})
                 beamset_checks_dict[f"{REVIEW_LEVELS['OPTIMIZATION']}::Planning Risk Volume Assessment"] = \
                     (check_prv_status, {})
         except Exception as e:
@@ -69,8 +69,9 @@ def get_beamset_level_tests(rso, physics_review=True, log_messages=None):
     elif technique == 'SMLC':
         try:
             _ = rso.beamset.Beams[0].Segments[0]  # Determine if beams have segments
-            beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
-                compute_vmat_beam_properties, {})
+            # TODO: Add after more testing
+            #     beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
+            #     compute_vmat_beam_properties, {})
             beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::EDW MU Check"] = (
                 check_edw_mu, {})
             beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::EDW FieldSize Check"] = (
