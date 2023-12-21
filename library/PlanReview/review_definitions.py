@@ -401,12 +401,12 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
         },
-{
+        {
             KEY_OUT_TEST: 'prescription',
             KEY_OUT_DESC: 'Prescription matches TPO',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-    KEY_OUT_CHECK_GROUP: {'TEXT': "Prescription correct and correctly resolved by dose grid:",
-                          'KEY': 'rx_and_grid_consistent'},
+            KEY_OUT_CHECK_GROUP: {'TEXT': "Prescription correct and correctly resolved by dose grid:",
+                                  'KEY': 'rx_and_grid_consistent'},
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_fraction_size'],
@@ -670,7 +670,7 @@ CHECK_BOXES_PHYSICS_REVIEW_3D = {
             KEY_AUTOMATION: {},
         },
         {
-            KEY_OUT_TEST: 'beam_mu',
+            KEY_OUT_TEST: 'beam_mu_reasonable',
             KEY_OUT_DESC: 'Beam MU is reasonable',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
@@ -713,13 +713,13 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
                 KEY_AUTO_REVIEW_DATE: '02Oct2023'
             },
         },
-        #{
+        # {
         #    KEY_OUT_TEST: 'ptv_retracted',
         #    KEY_OUT_DESC: 'PTV is retracted from skin at least 3mm',
         #    KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
         #    KEY_OUT_OPTIONS: 'Yes,NA,No',
         #    KEY_AUTOMATION: {},
-        #},
+        # },
         {
             KEY_OUT_TEST: 'prv_volumes',
             KEY_OUT_DESC: 'PRV volumes are drawn for serial OARs',
@@ -780,7 +780,7 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
         },
 
         {
-            KEY_OUT_TEST: 'beam_mu',
+            KEY_OUT_TEST: 'beam_mu_reasonable',
             KEY_OUT_DESC: 'Beam MU is reasonable',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
@@ -902,7 +902,7 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
         },
         {
             KEY_OUT_TEST: 'beam_mu_reasonable',
-            KEY_OUT_DESC: 'Beam MU reasonable',
+            KEY_OUT_DESC: 'Beam MU is reasonable',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
@@ -921,22 +921,24 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
             KEY_AUTOMATION: {},
         },
     ],
-    REVIEW_LEVELS['PLAN_DESIGN']: [],
     REVIEW_LEVELS['PREPLAN_DATA']: [],
     REVIEW_LEVELS['PATIENT_MODEL']: [
         {
             KEY_OUT_TEST: 'electron_wires',
             KEY_OUT_DESC: "Wire ROIs don't overlap external",
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Contours influencing dose calculation are correct:',
+                                  'KEY': 'dose_contours_consistent'},
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'sim_fiducials_alignment',
-            KEY_OUT_DESC: 'SimFiducials localization point alignment matches'
-                          ' BBs, or AlignRT is noted '
-                          'in CT Sim',
+            KEY_OUT_DESC: 'SimFiducials localization point alignment matches BBs,'
+                          ' or AlignRT is noted in CT Sim',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'External geometry and support structures are correct:',
+                                  'KEY': 'external_and_supports'},
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
@@ -946,7 +948,6 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
         },
     ],
     REVIEW_LEVELS['OPTIMIZATION']: [],
-    REVIEW_LEVELS['PLAN_EVAL']: [],
     REVIEW_LEVELS['MOBIUS']: [],
 }
 CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
@@ -1848,27 +1849,27 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO3D = {
 }
 
 TECHNIQUE_MAP = {
-        'TomoHelical': {
-            "Physics": CHECK_BOXES_PHYSICS_REVIEW_TOMO,
-            "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_TOMO,
-        },
-        'ApplicatorAndCutout': {
-            "Physics": CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS,
-            "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_ELECTRONS,
-        },
-        'DynamicArc': {
-            "Physics": CHECK_BOXES_PHYSICS_REVIEW_VMAT,
-            "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_VMAT,
-        },
-        'SMLC': {
-            "Physics": CHECK_BOXES_PHYSICS_REVIEW_3D,
-            "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_3D,
-        },
-        'T3D': {
-            "Physics": CHECK_BOXES_PHYSICS_REVIEW_TOMO3D,
-            "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_TOMO3D,
-        }
+    'TomoHelical': {
+        "Physics": CHECK_BOXES_PHYSICS_REVIEW_TOMO,
+        "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_TOMO,
+    },
+    'SMLC_Electrons': {
+        "Physics": CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS,
+        "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_ELECTRONS,
+    },
+    'DynamicArc': {
+        "Physics": CHECK_BOXES_PHYSICS_REVIEW_VMAT,
+        "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_VMAT,
+    },
+    'SMLC': {
+        "Physics": CHECK_BOXES_PHYSICS_REVIEW_3D,
+        "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_3D,
+    },
+    'T3D': {
+        "Physics": CHECK_BOXES_PHYSICS_REVIEW_TOMO3D,
+        "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_TOMO3D,
     }
+}
 # LOG PARSING INFO
 LOG_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs"
 DEV_LOG_DIR = r"Q:\\RadOnc\RayStation\RayScripts\dev_logs"
@@ -1914,20 +1915,25 @@ PATIENT_ORIENTATIONS = {'HFS': 'Head First Supine',
 
 PLAN_NAMES = {'LUNG_SBRT':
                   ['LUL', 'LLL', 'RUL', 'RML', 'RLL', 'LunR_SBR', 'LunL_SBR',
-                   'LuLU_SBR', 'LuLL_SBR', 'LuRU_SBR', 'LuRM_SBR', 'LuRL_SBR'],
+                   'LuLU_SBR', 'LuLL_SBR', 'LuRU_SBR', 'LuRM_SBR', 'LuRL_SBR',
+                   ],
               'BREAST_SBRT':
                   ['BreR_SBR', 'BreL_SBR', ],
               'ABDOMEN_SBRT':
-                  ['Abdo_SBR', 'LivR_SBR', 'Panc_SBR', ],
+                  ['Abdo_SBR', 'LivR_SBR', 'Panc_SBR', 'AdrR_SBR', 'AdrL_SBR',
+                   'KidR_SBR', 'KidL_SBR', 'Stom_SBR', 'Sple_SBR', 'Gall_SBR', ],
               'PELVIS_SBRT':
                   ['Pelv_SBR', 'HipR_SBR', 'HipL_SBR'],
               'BRAIN_FSRT':
                   ['Brai_SBR', 'Brai_FSR', 'PTV1_FSR', 'PTV2_FSR', 'PTV3_FSR', 'PTV4_FSR',
                    'PTV5_FSR'],
               'SPINE_SBRT':
-                  ['SpiT_SBR', 'SpiC_SBR', 'SpiL_SBR'],
+                  ['SpiT_SBR', 'SpiC_SBR', 'SpiL_SBR',
+                   'SpC1_SBR', 'SpC2_SBR', 'SpC3_SBR', 'SpC4_SBR', 'SpC5_SBR', 'SpC6_SBR', 'SpC7_SBR',
+                   'SpT1_SBR', 'SpT2_SBR', 'SpT3_SBR', 'SpT' ],
               'HEAD_NECK_SBRT':
-                  ['NecB_SBR', 'NecR_SBR', 'NecL_SBR'],
+                  ['NecB_SBR', 'NecR_SBR', 'NecL_SBR', 'Neck_SBR',
+                   'EyeR_SBR', 'EyeL_SBR'],
               'SRS':
                   ['SRS'],
               'TBI':
@@ -1942,7 +1948,7 @@ PLAN_NAMES = {'LUNG_SBRT':
 
 GRID_PREFERENCES = {
     'SBRT': {
-        'PLAN_NAMES': PLAN_NAMES['LUNG_SBRT'] + PLAN_NAMES['BREAST_SBRT'] \
+        'PLAN_NAMES': PLAN_NAMES['LUNG_SBRT'] + PLAN_NAMES['BREAST_SBRT']
                       + PLAN_NAMES['ABDOMEN_SBRT'] + PLAN_NAMES['PELVIS_SBRT'],
         'DOSE_GRID': 0.15,  # 1.5 mm
         'FRACTION_SIZE_LIMIT': 801,  # cGy
@@ -2090,4 +2096,153 @@ TOMO_PREFERENCES = {
                            'MF_HIGH': 2.4, 'MF_LOW': 2.0},
     'TOMO_3D': {'ALIAS': ['T3D'],
                 'MF_HIGH': 2.2, 'MF_LOW': 1.1},
+}
+# PLAN/SITE CLASSIFICATION
+SITE_CLASSIFICATION = {
+    'Abdomen': {
+        'beamset_aliases': ['Abd'],
+        'site_aliases': ['Abdomen'],
+        'Subsites': {
+            'Liver': {
+                'beamset_aliases': ['Liver', 'Livr'],
+                'site_aliases': ['Liver', ],
+            },
+            'Pancreas': {
+                'beamset_aliases': ['AbdR', 'AbdL', 'Abdo', 'Ab12', 'Ab13', 'Abd1', 'Abd2', 'Abd3', 'Panc'],
+                'site_aliases': [],
+            },
+            'Misc': {
+                'beamset_aliases': ['KidR', 'KidL', 'Kid', 'AdrR', 'AdrL', 'Sple'],
+                'site_aliases': ['Kidney_Right', 'Rt Adrenal SBRT', 'Rt Adrenal Gland',
+                                 'Adrenal_Left', 'Kidney SBRT'],
+            },
+        },
+    },
+    'Thorax': {
+        'beamset_aliases': ['Bron', 'Ches', 'Hert'],
+        'site_aliases': ['Thorax'],
+        'Subsites': {
+            'Esophagus': {
+                'beamset_aliases': ['Esoph', 'EsoI', 'EsoS', 'Esop'],
+                'site_aliases': ['Esophagus'],
+                'Subsites': {},
+            },
+            'Lung': {
+                'beamset_aliases': ['Lung', 'LunL', 'LunR', 'LunB', 'LuLU', 'LuLL',
+                                    'LuRM', 'LuRI', 'LuRU', 'LuR1', 'LuRL', 'LuL1',
+                                    'LuL2', 'LuRS', 'Medi'],
+                'site_aliases': ['Lung', 'Bilateral Lungs', 'Lung_Bilateral',
+                                 'Lung_Right Upper Lobe', 'Lung_Right', 'Bilateral Lung',
+                                 'Bilat Lung', 'Lung_R', 'Lung_L', 'Lung_B', 'LunB', 'Lung SBRT',
+                                 'LT lung sbrt', 'LuL'],
+            },
+            'Breast': {
+                'beamset_aliases': ['BreL', 'BreR', 'ChwR', 'ChwL', 'AxiL', 'AxiR', 'ScvL', 'ScvR'],
+                'site_aliases': [],
+            },
+            'Bone': {
+                'beamset_aliases': ['RiL1', 'RiL2', 'RiL3', 'RiL4', 'RiL5', 'RiL6', 'RiL7', 'RiL8', 'RiL9',
+                                    'RiL10', 'RiL11', 'RiL12', 'RibR', 'RibL', 'RiR1', 'RiR2', 'RiR3',
+                                    'RiR4', 'RiR5', 'RiR6', 'RiR7', 'RiR8', 'RiR9', 'RiR10', 'RiR11', 'RiR12', ],
+                'site_aliases': ['Scapula_Left', 'Scapula R', 'Scapula_Right', 'Lt Scapula', 'Rt Scapula',
+                                 'Rib_Left', 'Ribs', 'Rib_R', 'Rib_Left', 'Scapula'],
+            },
+            'Thorax-Misc': {
+                'beamset_aliases': ['Bron', 'Ches', 'Hert'],
+                'site_aliases': [],
+            },
+        },
+    },
+    'Head and Neck': {
+        'beamset_aliases': [],
+        'site_aliases': [],
+        'Subsites': {
+            'HeadNeck-Left': {
+                'beamset_aliases': ['NecL', 'ParL'],
+                'site_aliases': ['Neck_Left'],
+            },
+            'HeadNeck-Right': {
+                'beamset_aliases': ['NecR', 'ParR'],
+                'site_aliases': ['Neck_Right'],
+            },
+            'HeadNeck-Bilateral': {
+                'beamset_aliases': ['NecB', 'Naso'],
+                'site_aliases': ['Neck_Bilateral'],
+            },
+            'HeadNeck-Misc': {
+                'beamset_aliases': ['EyeL', 'EyeR', 'Nose', 'Skul', 'Neck',
+                                    'Scal', 'TemR', 'TemL', 'NosL', 'CanL',
+                                    'CanR', 'MndL', 'Face', 'HeaL', 'HeaR'],
+                'site_aliases': ['Scalp', 'HN', 'Mandible', 'Paratracheal LN', 'Larynx'],
+            },
+        },
+    },
+    'Brain': {
+        'beamset_aliases': ['Brai', 'Pitu', 'Bra1', 'Bra2', 'Bra3',
+                            'Bra4', 'Bra5', 'Bra6', 'Bra7', 'Bra8', 'Bra9'],
+        'site_aliases': ['Brain', 'FSRT Brain', 'Temporal'],
+        'Subsites': {},
+    },
+    'Extremity': {
+        'beamset_aliases': ['ShoL', 'LegL', 'LegR', 'FemR', 'FemL',
+                            'HumL', 'HumR', 'FooL', 'FooR', 'HanR',
+                            'HanL', 'ArmR', 'ArmL', 'HeeR', 'HeeL'],
+        'site_aliases': ['Left Foot', 'Right Foot', 'Left Hand',
+                         'Right Hand', 'Hand_L', 'Hand_R', 'L Forearm'],
+        'Subsites': {},
+    },
+    'Pelvis': {
+        'beamset_aliases': ['Pelv', 'PelB', 'PelL', 'PelR', 'PelI',
+                            'PelS', 'Rect', 'Anus', 'Pel1', 'Pel2',
+                            'PelN', 'GroR', 'GroL', 'PeLN', 'GluR', 'GluL'],
+        'site_aliases': [],
+        'Subsites': {
+            'Bladder': {
+                'beamset_aliases': ['Blad'],
+                'site_aliases': ['Bladder'],
+            },
+            'Bone': {
+                'beamset_aliases': ['IliL', 'IliR', 'IscR', 'IscL',
+                                    'HipR', 'HipL', 'Sacr', 'AceR', 'AceL'],
+                'site_aliases': [''],
+            },
+            'Prostate': {
+                'beamset_aliases': ['Pros', ],
+                'site_aliases': ['Prostate'],
+            },
+            'Prostate-Nodes': {
+                'beamset_aliases': ['PrLN', 'PrFN', 'ProN'],
+                'site_aliases': [],
+            },
+            'Prostate-Fossa': {
+                'beamset_aliases': ['ProF'],
+                'site_aliases': [],
+            },
+            'Rectum': {
+                'beamset_aliases': ['Rect', 'Anus'],
+                'site_aliases': ['Rectum'],
+            },
+            'Pelvis-Misc': {
+                'beamset_aliases': ['Pelv', 'PelB', 'PelL', 'PelR', 'PelI',
+                                    'PelS', 'Pel1', 'Pel2', 'PelN', 'GroR',
+                                    'GroL', 'PeLN', 'GluR', 'GluL'],
+                'site_aliases': [],
+            },
+        },
+    },
+    'Spine': {
+        'beamset_aliases': ['SpiL', 'SpiT', 'SpiC', 'SpT8', 'SpC2',
+                            'SpLS', 'SpCT', 'SpTL', 'SpC1', 'SpC3', 'SpC4',
+                            'SpC5', 'SpC6', 'SpC7', 'Sp10', 'SpT1', 'SpT2',
+                            'SpT3', 'SpT4', 'SpT5', 'SpT6', 'SpT7', 'SpT9',
+                            'ST10', 'SpL1', 'SpL2', 'SpL3', 'SpL4', 'SpL5',
+                            'SpT10', 'SpT11', 'SpT12'],
+        'site_aliases': [],
+        'Subsites': {},
+    },
+    'TotalBody': {
+        'beamset_aliases': ['TBI'],
+        'site_aliases': [],
+        'Subsites': {},
+    },
 }
