@@ -34,12 +34,14 @@
              low dose serial oars from warnings regarding PRV usage
            * Moving the modulation complexity score to sandbox until plan-specific benchmarks for MCS
              are available.
-           * For multiple beamset plans the check lists from all plan types are now combined
     1.0.2: Minor changes
            * Added a sandbox test to check if the max dose point is within the PTVs and reports
              the value as a percentage of prescribed
            * Refactor of the comparison of user-entered and DICOM date to handle anonymized cases
            * Revised the way special instructions are parsed to handle unused instructions
+           * For multiple beamset plans the check lists from all plan types are now combined
+           * Exempted anything within the sandbox tab from required user input
+           * Changed the way empty review levels are handled to ensure tabs are ordered correctly
 
 
 

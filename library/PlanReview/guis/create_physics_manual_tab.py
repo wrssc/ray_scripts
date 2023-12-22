@@ -710,34 +710,6 @@ def is_valid_automated_test(window, failed_tests, response_required=True):
     return is_valid
 
 
-def new_is_valid_manual_tab(window, values, check_boxes, failed_tests, response_required=True):
-    is_valid = True
-    is_valid_auto = True
-    if response_required:
-        for key in check_boxes:
-            for item in check_boxes[key]:
-                # Check if this is a valid check box
-                if excluded_check_boxes(item, key, values):
-                    continue
-                options = ['Yes', 'No']
-                check_box_radio_keys = [
-                    create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}{o}')
-                    for o in options]
-                if not check_radio_on(values, check_box_radio_keys):
-                    for r in check_box_radio_keys:
-                        update_window_error(window, r)
-                    is_valid = False
-                else:
-                    input_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_INPUT_TEXT}')
-                    if values[check_box_radio_keys[1]] and not values[input_key]:
-                        update_window_error(window, input_key, bg=True)
-                        is_valid = False
-        is_valid_auto = is_valid_automated_test(window, failed_tests)
-        if not is_valid or not is_valid_auto:
-            Sg.popup_error('Please fill in all the required fields.')
-    return all([is_valid, is_valid_auto])
-
-
 def new_update_window_error(window, keys, bg=False):
     error_text_color = '#8B0000'
     error_bg_color = '#8B0000'
@@ -786,7 +758,7 @@ def is_valid_manual_tab(window, values, check_boxes, failed_tests, response_requ
 def copy_and_filter_checkbox_dict(checkbox_dict1, checkbox_dict2):
     """
     Create filtered copies of checkbox_dict1 and checkbox_dict2
-    without the KEY_REVIEW_TYPE key or empty REVIEW_LEVELS.
+    without the KEY_REVIEW_TYPE key.
 
     Args:
         checkbox_dict1: First CHECK_BOX dictionary.
@@ -796,8 +768,8 @@ def copy_and_filter_checkbox_dict(checkbox_dict1, checkbox_dict2):
         filtered_dict1: Filtered copy of checkbox_dict1.
         filtered_dict2: Filtered copy of checkbox_dict2.
     """
-    filtered_dict1 = {k: v for k, v in checkbox_dict1.items() if k != KEY_REVIEW_TYPE and v}
-    filtered_dict2 = {k: v for k, v in checkbox_dict2.items() if k != KEY_REVIEW_TYPE and v}
+    filtered_dict1 = {k: v for k, v in checkbox_dict1.items() if k != KEY_REVIEW_TYPE}
+    filtered_dict2 = {k: v for k, v in checkbox_dict2.items() if k != KEY_REVIEW_TYPE}
     return filtered_dict1, filtered_dict2
 
 
@@ -814,6 +786,7 @@ def merge_dicts(checkbox_dict1, checkbox_dict2):
             ],
             # Additional review levels...
         }
+    Removes empty review levels and duplicate tests.
 
     Args:
         checkbox_dict1: a CHECK_BOX dictionary
@@ -836,6 +809,8 @@ def merge_dicts(checkbox_dict1, checkbox_dict2):
         elif review_list:
             merged[review_level] = review_list
             keys_in_merged.extend([item[KEY_OUT_TEST] for item in review_list])
+    # Double check that there are no empty review levels
+    merged = {k: v for k, v in merged.items() if v}
 
     return merged
 
