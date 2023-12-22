@@ -305,8 +305,18 @@ def check_max_dose_point(rso):
 
     for roi in roi_list:
         if check_bounding_box_for_roi(rso, max_dose_point, roi):
-            contour = rso.case.PatientModel.StructureSets[rso.exam.Name] \
-                .RoiGeometries[roi].PrimaryShape.Contours
+            try:
+                contour = rso.case.PatientModel.StructureSets[rso.exam.Name] \
+                    .RoiGeometries[roi].PrimaryShape.Contours
+            except Exception as e:
+                if str(e).startswith('Object has no member'):
+                    logging.debug(f"ROI: {roi} has no contours most likely because it is derived.")
+                    # This structure is most likely derived from another structure
+                    # and does not have a Contours attribute.
+                    # TODO: Develop a method to check if the point is inside the derived structure
+                    #      (e.g., by copying the derived structure to a new contour with a "contour"
+                    #      attribute and then checking if the point is inside the contour).
+                    continue
             if find_contours_containing_point(contour, max_dose_point, slice_thickness):
                 return format_max_dose_message(maximum_dose, roi, max_dose_point, beamset_prescriptions)
 
