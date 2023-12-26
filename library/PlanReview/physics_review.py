@@ -42,6 +42,7 @@
            * For multiple beamset plans the check lists from all plan types are now combined
            * Exempted anything within the sandbox tab from required user input
            * Changed the way empty review levels are handled to ensure tabs are ordered correctly
+           * Fixed a bug causing user-indicated failed tests to be overriden to passing.
 
 
 

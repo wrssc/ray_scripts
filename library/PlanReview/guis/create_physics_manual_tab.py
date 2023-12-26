@@ -965,12 +965,12 @@ def get_tests_from_tree(tree_children):
     return passing_tests, failed_tests
 
 
-def get_key(components, window):
+def get_key(components, values):
     key_string = "".join(components)
-    if create_key(key_string) in window.AllKeysDict:
-        return True
-    else:
-        return False
+    logging.debug(f'---Getting the key {key_string}')
+
+    # Check if the radio button is selected based on its key
+    return values.get(create_key(key_string), False)
 
 
 def process_check_box_values(window, values, checks):
@@ -993,13 +993,13 @@ def process_check_box_values(window, values, checks):
             input_key = create_key(f"{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_INPUT_TEXT}")
             if excluded_check_boxes(item, test_level, values):
                 continue
-            if get_key([radio_pre, 'Yes'], window):
+            if get_key([radio_pre, 'Yes'], values):
                 parsed_item[KEY_OUT_RESULT] = PASS
                 parsed_item[KEY_OUT_ICON] = GREEN_CIRCLE
-            elif get_key([radio_pre, 'No'], window):
+            elif get_key([radio_pre, 'No'], values):
                 parsed_item[KEY_OUT_RESULT] = FAIL
                 parsed_item[KEY_OUT_ICON] = RED_CIRCLE
-            elif get_key([radio_pre, 'NA'], window):
+            elif get_key([radio_pre, 'NA'], values):
                 parsed_item[KEY_OUT_RESULT] = NA
                 parsed_item[KEY_OUT_ICON] = BLUE_CIRCLE
             else:
