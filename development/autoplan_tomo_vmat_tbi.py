@@ -179,6 +179,7 @@ FW = 39  # 39 cm of MLC based field
 CENTRAL_JUNCTION_WIDTH = 1.2 * 9
 # FFS_MAX_TREATMENT_LENGTH = 111.5
 FFS_MAX_TREATMENT_LENGTH = 99  # TODO - A fudge - based junction placement on packing HFS
+                               #  replace with a function of patient height
 FFS_OVERSHOOT = 3  # cm - Distance of overshoot of beam past toes
 FFS_SHIFT_BUFFER = 2
 FFS_TREATMENT_LENGTH = (FFS_MAX_TREATMENT_LENGTH
@@ -207,8 +208,8 @@ TARGET_HFS = "PTV_p_HFS"
 EVAL_SUFFIX = "_Eval"
 JUNCTION_PREFIX_FFS = "ffs_junction_"
 JUNCTION_PREFIX_HFS = "hfs_junction_"
-SKIN_AVOIDANCE = 'Avoid_Skin_PRV05'
-SKIN_AVOIDANCE_CONTRACT = 0.5  # cm contraction
+SKIN_AVOIDANCE = 'Avoid_Skin_PRV03'
+SKIN_AVOIDANCE_CONTRACT = 0.3  # cm contraction
 LUNG_AVOID_NAME = "Lungs_m07"
 LUNGS = "Lungs"
 LUNGS_EVAL_MARGIN = 1.0  # cm contraction for margin
@@ -1215,7 +1216,7 @@ def make_ptv(pdata, junction_prefix, avoid_name, color=None):
                            examination=pdata.exam, **temp_defs)
     # Make Eval structure
     # Boolean Definitions
-    roi_exclude.append('Avoid_Skin_PRV05')
+    roi_exclude.append(SKIN_AVOIDANCE)
     roi_exclude.append('Lungs')
     temp_defs = get_boolean_defs(
         roi_name=eval_name, a_sources=[external_name],
@@ -1677,7 +1678,7 @@ def load_normal_mbs(pd_hfs, pd_ffs, quiet=False):
 def make_derived_rois(pd_hfs, pd_ffs):
     """
     Make the derived structures for the plan:
-    Lungs, Avoid_Skin_PRV05, External_PRV10,
+    Lungs, Avoid_Skin_PRV03, External_PRV10,
     :param pd_hfs:
     :param pd_ffs:
     :return:
@@ -2883,7 +2884,13 @@ def main():
             # HFS protocol declarations
             hfs_multiplan, ffs_multiplan = multiplan_data(
                 pd_hfs, hfs_pois, ffs_pois, nfx=nfx, rx=rx)
-            tbi_hfs_protocol = multi_autoplan(hfs_multiplan)
+            try:
+                tbi_hfs_protocol = multi_autoplan(hfs_multiplan)
+            except Exception as e:
+                toggle_ptv_type(tbi_hfs_protocol['rso'],
+                                rois=[TARGET_FFS, TARGET_FFS + EVAL_SUFFIX],
+                                roi_type='Ptv')
+                raise RuntimeError(f'Error in multi_autoplan: {e}')
         else:
             raise RuntimeError(
                 'Plan selected that is not VMAT or TOMO. Exiting')
