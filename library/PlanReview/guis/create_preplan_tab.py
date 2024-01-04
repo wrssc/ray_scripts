@@ -46,23 +46,6 @@ def create_key(element_type, beamset_index=None, target_index=None):
     return unique_key
 
 
-def generate_event_key(*args):
-    """
-    Generates a unique event key for a GUI element.
-
-    This function constructs a string by joining the string representation of
-    each argument with underscores. This can be useful for creating unique event keys
-    for PySimpleGUI elements.
-
-    Args:
-        *args: A variable number of arguments that uniquely identify a GUI element.
-
-    Returns:
-        str: A unique event key for a GUI element.
-    """
-    return "_".join(str(arg) for arg in args)
-
-
 def create_beamset_layout(beamsets, targets):
     """
     Creates the layout for the beamset section in the GUI.
@@ -300,8 +283,8 @@ def calculate_preplan_dose_per_fraction(values, main_window, beamset_i, target_i
 def create_radio_buttons(radio_phrases, text, indx):
     phrases = radio_phrases.split(',')
     radio_buttons = [Sg.Radio(text=phrase,
-                              group_id=create_key(text + '-RADIO-', indx),
-                              key=create_key(text + '-RADIO-' + phrase, indx),
+                              group_id=create_key(text + KEY_RADIO, indx),
+                              key=create_key(text + KEY_RADIO + phrase, indx),
                               enable_events=True,
                               visible=False)
                      for phrase in phrases]
@@ -622,10 +605,24 @@ def create_tab_preplan_information(protocols, sites, orders,
                                   [Sg.Text('Patient Orientation: ', pad=(20, 0)),
                                    Sg.Combo(list(PATIENT_ORIENTATIONS.keys()),
                                             default_value=None, key=KEY_PATIENT_ORIENTATION), ],
+                                  # [Sg.Text('Implanted Medical Device Present: ', pad=(20, 0)),
+                                  #  Sg.Checkbox('Yes', key=KEY_IMD)],
                                   [Sg.Text('Implanted Medical Device Present: ', pad=(20, 0)),
-                                   Sg.Checkbox('Yes', key=KEY_IMD)],
+                                   Sg.Radio('Yes',
+                                            create_key(KEY_IMD+KEY_RADIO),
+                                            key=create_key(KEY_IMD+KEY_RADIO+'-YES')),
+                                   Sg.Radio('No',
+                                            create_key(KEY_IMD+KEY_RADIO),
+                                            key=create_key(KEY_IMD+KEY_RADIO+'-NO'))],
                                   [Sg.Text('History of Prior Radiotherapy: ', pad=(20, 0)),
-                                   Sg.Checkbox('Yes', key=KEY_PRIOR_RT)],
+                                   Sg.Radio('Yes',
+                                            create_key(KEY_PRIOR_RT+KEY_RADIO),
+                                            key=create_key(KEY_PRIOR_RT+KEY_RADIO+'-YES')),
+                                   Sg.Radio('No',
+                                            create_key(KEY_PRIOR_RT+KEY_RADIO),
+                                            key=create_key(KEY_PRIOR_RT+KEY_RADIO+'-NO'))],
+                                  # [Sg.Text('History of Prior Radiotherapy: ', pad=(20, 0)),
+                                  #  Sg.Checkbox('Yes', key=KEY_PRIOR_RT)],
                                   ],
                                  scrollable=scroll_for_small,
                                  vertical_scroll_only=True,
@@ -682,8 +679,26 @@ def create_tab_preplan_information(protocols, sites, orders,
 
 
 def validate_preplan_tab(window):
+    """
+    Validate the information entered in the CT Scan tab.
+    Required data includes:
+    - Number of beamsets
+    - CT scan date
+    - CT scan slices
+    - Patient orientation
+    - Implanted medical device indication
+    - History of prior radiotherapy indication
+
+    Args:
+        window: The main PySimpleGUI window object.
+
+    Returns: True if the information is valid, False otherwise.
+    """
+    # Extract the values from the window
     preplan_dict = extract_values_preplan_tab(window)
+    # Determine the number of beamsets
     num_beamsets = int(preplan_dict[KEY_BEAMSET][KEY_BEAMSET_COUNT])
+    # Beamset information is required
     if not num_beamsets:
         Sg.popup('Number of beamsets needed to proceed')
         return False
@@ -692,13 +707,25 @@ def validate_preplan_tab(window):
     if not all(beamsets):
         Sg.popup(f'All beamset names required for {num_beamsets} beamsets')
         return False
+    # CT slice information is required
     slices = preplan_dict[KEY_SIMULATION_DATA][KEY_SLICES]
     if not slices:
         Sg.popup('Select number of slices in planning scan')
         return False
+    # A CT scan date is required
     date = preplan_dict[KEY_SIMULATION_DATA][KEY_SIM_DATE]
     if not date:
         Sg.popup('Select Scan Date')
+        return False
+    # Pacemaker/ICD information is required
+    if not (window[create_key(KEY_IMD+KEY_RADIO+'-YES')].get() or
+            window[create_key(KEY_IMD+KEY_RADIO+'-NO')].get()):
+        Sg.popup('Please select if an Implanted Medical Device is present')
+        return False
+    # Prior RT is required
+    if not (window[create_key(KEY_PRIOR_RT+KEY_RADIO+'-YES')].get() or
+            window[create_key(KEY_PRIOR_RT+KEY_RADIO+'-NO')].get()):
+        Sg.popup('Please select if there is a History of Prior Radiotherapy')
         return False
     return True
 
@@ -725,11 +752,11 @@ def extract_values_preplan_tab(main_window):
             main_window[KEY_PATIENT_ORIENTATION].get()
             if main_window[KEY_PATIENT_ORIENTATION].get() else '',
         KEY_IMD:
-            main_window[KEY_IMD].get()
-            if main_window[KEY_IMD].get else '',
+            main_window[create_key(KEY_IMD+KEY_RADIO+'-YES')].get()
+            if main_window[create_key(KEY_IMD+KEY_RADIO+'-YES')].get else '',
         KEY_PRIOR_RT:
-            main_window[KEY_PRIOR_RT].get()
-            if main_window[KEY_PRIOR_RT].get else '',
+            main_window[create_key(KEY_PRIOR_RT+KEY_RADIO+'-YES')].get()
+            if main_window[create_key(KEY_PRIOR_RT+KEY_RADIO+'-YES')].get else '',
         # Get the Treatment Instructions values
         KEY_SITE_SELECT:
             main_window[KEY_SITE_SELECT].get()
@@ -828,6 +855,15 @@ def load_preplan(window, values, sites, protocols, instructions,
             update_preplan_frequencies(window, protocol, order_name)
             update_preplan_instructions(window, protocol, order_name, instructions)
             continue
+        # Handle the radio button for Implanted Medical Devices
+        elif key == KEY_IMD:
+            window[create_key(KEY_IMD + KEY_RADIO + '-YES')].update(value=value)
+            window[create_key(KEY_IMD + KEY_RADIO + '-NO')].update(value=not value)
+        # Handle the radio button for History of Prior Radiotherapy
+        elif key == KEY_PRIOR_RT:
+            window[create_key(KEY_PRIOR_RT + KEY_RADIO + '-YES')].update(value=value)
+            window[create_key(KEY_PRIOR_RT + KEY_RADIO + '-NO')].update(value=not value)
+
         else:
             window[key](value)
 
