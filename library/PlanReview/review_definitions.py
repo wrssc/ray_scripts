@@ -1894,7 +1894,7 @@ TRUEBEAM_MAX_DIAMETER = 80.0  # cm, the "pin" diameter of the TrueBeam
 HDA_MAX_DIAMETER = 85.0  # cm, the cover diameter of the Tomo HDA
 #
 # PLANNING DEFAULTS
-DOSE_FRACTION_PAIRS = [(5, 2000), (8, 800)]  # Often mixed up fractionations
+DOSE_FRACTION_PAIRS = [(4, 2000), (8, 800)]  # Often mixed up fractionations
 #
 # DOSE TOLERANCES
 NO_FLY_DOSE = 100.  # cGy
@@ -1930,7 +1930,7 @@ PLAN_NAMES = {'LUNG_SBRT':
               'SPINE_SBRT':
                   ['SpiT_SBR', 'SpiC_SBR', 'SpiL_SBR',
                    'SpC1_SBR', 'SpC2_SBR', 'SpC3_SBR', 'SpC4_SBR', 'SpC5_SBR', 'SpC6_SBR', 'SpC7_SBR',
-                   'SpT1_SBR', 'SpT2_SBR', 'SpT3_SBR', 'SpT' ],
+                   'SpT1_SBR', 'SpT2_SBR', 'SpT3_SBR', 'SpT'],
               'HEAD_NECK_SBRT':
                   ['NecB_SBR', 'NecR_SBR', 'NecL_SBR', 'Neck_SBR',
                    'EyeR_SBR', 'EyeL_SBR'],
@@ -1943,7 +1943,9 @@ PLAN_NAMES = {'LUNG_SBRT':
               'THI':
                   ['THI', 'T3D'],
               '3D':
-                  ['3DC', '3CA', 'BST', 'Bst']
+                  ['3DC', '3CA', 'BST', 'Bst'],
+              '2D':
+                  ['2DC'],
               }
 
 GRID_PREFERENCES = {
@@ -1986,6 +1988,12 @@ GRID_PREFERENCES = {
     },
     '3D': {
         'PLAN_NAMES': PLAN_NAMES['3D'],
+        'DOSE_GRID': 0.4,  # 3 mm
+        'FRACTION_SIZE_LIMIT': 800,  # cGy
+        'SLICE_THICKNESS': 0.4,  # 4 mm
+    },
+    '2D': {
+        'PLAN_NAMES': PLAN_NAMES['2D'],
         'DOSE_GRID': 0.4,  # 3 mm
         'FRACTION_SIZE_LIMIT': 800,  # cGy
         'SLICE_THICKNESS': 0.4,  # 4 mm

@@ -55,14 +55,12 @@ def check_fraction_size(rso: NamedTuple) -> Tuple[int, str]:
     cgy_to_gy_conversion = 100.0
 
     # Check for matching dose pairs in DOSE_FRACTION_PAIRS, which contains often mixed-up fractionations
-    # Check for matching dose pairs in DOSE_FRACTION_PAIRS, which contains often mixed-up fractionations
     if rx_dose is not None:
         for dose_fraction_pair in DOSE_FRACTION_PAIRS:
             if dose_fraction_pair[0] == num_fx and dose_fraction_pair[1] == rx_dose:
                 pass_result = ALERT
                 dose_per_fraction = int(rx_dose / cgy_to_gy_conversion / num_fx)
-                message_str = f'Potential fraction/dose transcription error,' \
-                              f'check with MD to confirm {num_fx} fractions should be ' \
-                              f'delivered and dose per fraction {dose_per_fraction:.2f} Gy'
+                message_str = f"Verify with MD: {num_fx} fractions at {dose_per_fraction:.2f}" \
+                              " Gy/fraction due to high risk of transcription error."
 
     return pass_result, message_str
