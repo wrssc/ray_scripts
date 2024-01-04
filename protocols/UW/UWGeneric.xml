@@ -23,7 +23,7 @@
         <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam">Electrons</technique>
     </prescription>
     <order>
-        <name>Single Target</name>
+        <name>Treatment Planning Order "x"</name>
         <prefix>Plan_</prefix>
         <prescription number="0" sequence="Primary">
             <roi>
@@ -39,6 +39,7 @@
             </treatment_frequency>
             <imaging_frequency>
                 <option default="true">Daily CBCT</option>
+                <option>Daily 2D</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
