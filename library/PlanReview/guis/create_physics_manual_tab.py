@@ -650,10 +650,10 @@ def is_visible_tab(tab, window):
     visible = True
     # Logic for determining if a tab should be visible or not
     if tab.__dict__.get('Key', None) == REVIEW_LEVELS['IMPLANTED_DEVICE']:
-        if not window[KEY_IMD].get():
+        if not window[create_key(KEY_IMD+KEY_RADIO+'-YES')].get():
             visible = False
     elif tab.__dict__.get('Key', None) == REVIEW_LEVELS['PRIOR_RT']:
-        if not window[KEY_PRIOR_RT].get():
+        if not window[create_key(KEY_PRIOR_RT+KEY_RADIO+'-YES')].get():
             visible = False
     return visible
 
