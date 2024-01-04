@@ -447,7 +447,7 @@ def parse_special_instructions(data):
             # Check if the instruction is already seen or has 'false' value
             if not value:
                 continue
-            special_instructions_text += f"* {instruction_name}\n"
+            special_instructions_text += f"* {instruction_name}: {radio_value}\n"
         # Check for 'combo' type instructions
         elif KEY_COMBO in key:
             _, instruction_name, response_type, _ = key.split('-')[1:]
