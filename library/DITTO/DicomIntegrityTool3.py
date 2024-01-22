@@ -610,67 +610,95 @@ def run_dicom_integrity_tool(
             for cp in control_point_sequence_list:
                 cp.remove_all_items_except(check_keys)
 
-        # This is necessary to perform check below, but may slow down program
+        return copied_tree
+
+    def check_dose_rate(dicom_match_tree):
+        # Determine the three-letter designation in the middle of the plan
+        plan_name_element = dicom_match_tree.get_element_from_key("RTPlanName")
+
+        plan_type = "UNKNOWN"
+        if plan_name_element.is_acceptable_match():
+            plan_name = plan_name_element.value_pair[0]
+            plan_name_parts = plan_name.split("_")
+            if (len(plan_name_parts) == 3) and (len(plan_name_parts[1]) == 3):
+                plan_type = plan_name_parts[1].upper()
+
+        copied_tree = deepcopy(dicom_match_tree)
+
+        copied_tree.tree_label = "Check Dose Rate"
+        copied_tree.remove_all_items_except("BeamSequence")
+
+        # Beam are isolated. Eliminate setup fields.
+        beam_sequence_list = copied_tree.get_element_from_key(
+            "BeamSequence"
+        ).sequence_list
+
+        # Delete setup fields
+        list_of_beams_to_delete = []
+        for beam in beam_sequence_list:
+            vp = beam.get_element_from_key("TreatmentDeliveryType").value_pair
+
+            if vp[1] != "TREATMENT":
+                list_of_beams_to_delete.append(beam)
+
+        for beam in list_of_beams_to_delete:
+            beam_sequence_list.remove(beam)
+
+        # Determine the radiation type for this plan
+        list_of_radiation_types = []
+        for beam in beam_sequence_list:
+            element = beam.get_element_from_key("RadiationType")
+            list_of_radiation_types.append(element.value_pair[0])
+            list_of_radiation_types.append(element.value_pair[1])
+
+        radiation_type = "UNKNOWN"
+        if all(rad_type == "ELECTRON" for rad_type in list_of_radiation_types):
+            radiation_type = "ELECTRON"
+        if all(rad_type == "PHOTON" for rad_type in list_of_radiation_types):
+            radiation_type = "PHOTON"
+
+        # Cycle though control points (collecting dose rates along the way)
+        list_of_aria_dose_rates = []
+        for beam in beam_sequence_list:
+            # Prune all but ControlPointSequence
+            beam.remove_all_items_except("ControlPointSequence")
+            control_point_sequence_list = beam.get_element_from_key(
+                "ControlPointSequence"
+            ).sequence_list
+
+            for cp in control_point_sequence_list:
+                cp.remove_all_items_except("DoseRateSet")
+                try:
+                    element = cp.get_element_from_key("DoseRateSet")
+                    list_of_aria_dose_rates.append(element.value_pair[1])
+                except:
+                    pass
+
         copied_tree.prune_empty_trees_and_sequences()
         copied_tree.update_match_result_recursive()
 
-        # The Dose Rate check may fail if the dose rate was intentionally changed
-        # Aria or modified during plan export by RayStation scripting. Doing so is
-        # standard for PRDR. If the plan name has the PRD designation and the dose
-        # rate value is 100, we will apply a warning.
-        if (not copied_tree.is_acceptable_match()) and (check_keys[0] == "DoseRateSet"):
-            # Condition 1: Plan is PRDR
-            plan_name_element = dicom_match_tree.get_element_from_key("RTPlanName")
-
-            c1_comment = ""
-            condition_1 = False
-            if not plan_name_element.is_acceptable_match():
-                c1_comment = (
-                    "Plan names do not match, so cannot determine if the plan is PRDR."
-                )
-            else:
-                plan_name = plan_name_element.value_pair[0]
-
-                # Determine if plan name is in standard format
-                plan_name_parts = plan_name.split("_")
-                if (len(plan_name_parts) != 3) or (len(plan_name_parts[1]) != 3):
-                    c1_comment = f"The plan name {plan_name} is not in standard format, so cannot determine if the plan is PRDR."
-                else:
-                    billing_part = plan_name_parts[1].lower()
-
-                    if billing_part == "prd":
-                        condition_1 = True
-                        c1_comment = f"The plan type '{billing_part}' is PRDR."
-                    else:
-                        c1_comment = f"The plan type '{billing_part}' is not PRDR."
-
-            # Condition 2: All control points have a dose rate = 100
-            # Cycle though control points
-
-            copied_tree.prune_empty_trees_and_sequences()
-            beam_sequence_list = copied_tree.get_element_from_key(
-                "BeamSequence"
-            ).sequence_list
-
-            list_of_dose_rates = []
-            for beam in beam_sequence_list:
-                control_point_sequence_list = beam.get_element_from_key(
-                    "ControlPointSequence"
+        if not copied_tree.is_acceptable_match():
+            # CASE 1: Plan is electrons and all dose rates are 1000 MU/min
+            if (radiation_type == "ELECTRON") and all(
+                rate == 1000 for rate in list_of_aria_dose_rates
+            ):
+                beam_sequence_list = copied_tree.get_element_from_key(
+                    "BeamSequence"
                 ).sequence_list
-                for cp in control_point_sequence_list:
-                    element = cp.get_element_from_key("DoseRateSet")
-                    list_of_dose_rates.append(element.value_pair[1])
+                for beam in beam_sequence_list:
+                    control_point_sequence_list = beam.get_element_from_key(
+                        "ControlPointSequence"
+                    ).sequence_list
+                    for cp in control_point_sequence_list:
+                        element = cp.get_element_from_key("DoseRateSet")
+                        element.match_result = Result.ELEMENT_WARNING
+                        element.comment = "Aria Dose Rate = 1000 MU/min, and the plan is Electron Radiotherapy"
+                copied_tree.comment = "Aria Dose Rate = 1000 MU/min, and the plan is Electron Radiotherapy"
 
-            condition_2 = all(rate == 100 for rate in list_of_dose_rates)
-            if condition_2:
-                c2_comment = "The Aria Dose Rate = 100 MU/min for all fields"
-            else:
-                c2_comment = (
-                    "The Aria Dose Rate does not equal 100 MU/min for all fields."
-                )
-
-            if condition_1 and condition_2:
-                # Cycle though control points
+            # CASE 2: Plan is PRD and all dose rates are 1000 MU/min
+            if (plan_type == "PRD") and all(
+                rate == 100 for rate in list_of_aria_dose_rates
+            ):
                 beam_sequence_list = copied_tree.get_element_from_key(
                     "BeamSequence"
                 ).sequence_list
@@ -684,8 +712,7 @@ def run_dicom_integrity_tool(
                         element.comment = (
                             "Aria Dose Rate = 100 MU/min, and the plan is PRDR"
                         )
-
-            copied_tree.comment = c1_comment + " " + c2_comment
+                copied_tree.comment = "Aria Dose Rate = 100 MU/min, and the plan is PRDR"
 
         return copied_tree
 
@@ -800,8 +827,8 @@ def run_dicom_integrity_tool(
             ["NominalBeamEnergy"],
             ["BeamLimitingDevicePositionSequence"],
             ["WedgePositionSequence"],
-            ["DoseRateSet"],
             ["CumulativeMetersetWeight"],
+            ["SourceToSurfaceDistance"],
         ],
         [
             "Check Gantry Angles",
@@ -812,8 +839,8 @@ def run_dicom_integrity_tool(
             "Check Beam Energy",
             "Check Jaws and MLCs",
             "Check Wedge Control Point Parameters",
-            "Check Dose Rate",
             "Check Relative Meterset Weight for Each Control Point",
+            "Check SSDs",
         ],
     )
 
@@ -825,6 +852,9 @@ def run_dicom_integrity_tool(
                 check_label=check_label,
             )
         )
+
+    # One last control point check
+    sequence_list.append(check_dose_rate(dicom_match_tree))
 
     # Update sequence and check matching
     aptr_sequence_pair.sequence_list = sequence_list

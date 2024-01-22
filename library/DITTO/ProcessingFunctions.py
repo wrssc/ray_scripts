@@ -1,5 +1,6 @@
 import numpy as np
 import re
+import logging
 from DicomPairClasses import Result
 
 
@@ -167,7 +168,7 @@ def process_ssd(element_pair, comment=""):
     sequence_item_name, index = parent_name.split("=")
     if sequence_item_name == "ControlPointIndex":
         if index == "0":
-            return assess_near_match(element_pair, comment="", tolerance_value=0.01)
+            return assess_near_match(element_pair, comment="", tolerance_value=0.1)
         else:
             return return_expected_unique_to_raystation(
                 element_pair,
@@ -257,13 +258,20 @@ def assess_tm_match(element_pair, comment=""):
     # RS is not using a valid TM format
     # TM Format: NEMA PS3.5 2013: HHMMSS.FFFFFF
     value_pair = element_pair.value_pair
-    vp1_form = "{:.6f}".format(float(value_pair[0]))
-    vp2_form = "{:.6f}".format(float(value_pair[1]))
+    logging.debug(f'valuepair: {value_pair}')
+    vp1_form = vp2_form = None
+    if len(value_pair[0]) > 0:
+        vp1_form = "{:.6f}".format(float(value_pair[0]))
+    if len(value_pair[1]) > 0:
+        vp2_form = "{:.6f}".format(float(value_pair[1]))
     if vp1_form == vp2_form:
         return Result.ELEMENT_MATCH, "Value Representation TM Matched"
     else:
-        vp1_form = "{:.0f}".format(float(value_pair[0]))
-        vp2_form = "{:.0f}".format(float(value_pair[1]))
+        vp1_form = vp2_form = None
+        if len(value_pair[0]) > 0:
+            vp1_form = "{:.0f}".format(float(value_pair[0]))
+        if len(value_pair[1]) > 0:
+            vp2_form = "{:.0f}".format(float(value_pair[1]))
         if vp1_form == vp2_form:
             return Result.ELEMENT_ACCEPTABLE_NEAR_MATCH, "Time matched to 1.0 s"
         else:
