@@ -309,7 +309,7 @@ def rs_beamset_list(rs_plan=plan):
 
 
 def gui_choose_plans(list_aria, list_raystation):
-    """
+    '''
     This method takes in two lists, a list of Aria plan names and a list
     of relevant RayStation beamset names. The GUI then asks the user to
     select one of each.
@@ -317,45 +317,69 @@ def gui_choose_plans(list_aria, list_raystation):
     The method returns a tuple (Aria plan name, RayStation beamset name)
 
     (aria_plan_name, raystation_beamset_name) = gui_choose_plans(list_aria, list_raystation)
-    """
-    keyAria = "keyAria"
-    keyRS = "keyRS"
+    '''
+    keyAria='keyAria'
+    keyRS='keyRS'
 
-    sg.theme("DefaultNoMoreNagging")
-    layout = [[sg.Text("Choose the plans to compare:", font=("Helvetica", 16, "bold"))]]
-    layout += [
-        [
-            sg.Column(
-                [[sg.Text("Aria Plan Name")], [sg.Combo(list_aria, key=keyAria)]]
-            ),
-            sg.Column(
-                [
-                    [sg.Text("RayStation Beamset Name")],
-                    [sg.Combo(list_raystation, key=keyRS)],
-                ]
-            ),
-        ]
-    ]
-    layout += [[sg.OK(), sg.Cancel()]]
+    default_aria = None
+    default_rs = None
+    run_gui = True
+    # Let's figure out if there are good default values for our drop-down boxes.
+    if len(list_aria)==1 and len(list_raystation)==1 and list_aria[0].lower()==list_raystation[0].lower():
+        # If there are only one option for both Aria and RayStation, 
+        # and those options match each other (at least lowercase match),
+        # select those options and don't even bother showing the GUI.
+        default_aria=list_aria[0]
+        default_rs=list_raystation[0]
+        run_gui=False
+    elif len(list_raystation)==1:
+        # If there only one RayStation beamset in the list, default to that.
+        default_rs=list_raystation[0]
+
+        # if there's a matching (lowercase match) plan in Aria for the selected RS plan, just default to that.
+        aria_match = [name for name in list_aria if name.lower()==default_rs.lower()]
+        if aria_match:
+            default_aria=aria_match
+    elif len(list_aria)==1:
+        # if we get here, then there is more than one RayStation plan, but there is only one Aria plan.
+        # so just default to the Aria plan.
+        default_aria=list_aria[0]
+
+        # if there's a matching (lowercase match) plan in RayStation for the selected Aria plan, default to it.
+        rs_match = [name for name in list_raystation if name.lower()==default_aria.lower()]
+        if rs_match:
+            default_rs=rs_match
+    
+    sg.theme('DefaultNoMoreNagging')
+    layout =  [ [sg.Text('Choose the plans to compare:',font=('Helvetica',16,'bold'))]]
+    layout += [ [sg.Column([[sg.Text('Aria Plan Name')], [sg.Combo(list_aria,key=keyAria)]]),
+        sg.Column([[sg.Text('RayStation Beamset Name') ],[sg.Combo(list_raystation,key=keyRS)] ])]]
+    layout += [ [sg.OK(), sg.Cancel()] ]
 
     # Create the Window
-    window = sg.Window("Plan Selector", layout)
+    window = sg.Window('Plan Selector', layout, finalize=True)
+
+    # If there are good default values (as found above), pre-select them for the drop-downs
+    if default_aria:
+        window[keyAria].update(default_aria)
+    if default_rs:
+        window[keyRS].update(default_rs)
+    guiEvent, guiValues = window.read(timeout=100)
     # Event Loop to process "events" and get the "values" of the inputs
-    guiEvent, guiValues = window.read()
-    while True:
-        if guiEvent in (sg.WIN_CLOSED, "Cancel"):  # if user closes window
+    while run_gui:
+        guiEvent, guiValues = window.read()
+        if guiEvent in (sg.WIN_CLOSED,'Cancel'): # if user closes window
             guiValues = None
             break
-        if guiEvent in ("OK"):
+        if guiEvent in ('OK'):
             break
     window.close()
 
     if guiValues == None:
-        return (None, None)
+        return (None,None)
     aria_plan_name = str(guiValues.pop(keyAria))
     rs_plan_name = str(guiValues.pop(keyRS))
-    return (aria_plan_name, rs_plan_name)
-
+    return (aria_plan_name,rs_plan_name)
 
 def aria_qr(root_dir=None):
     """
