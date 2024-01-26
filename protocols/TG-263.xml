@@ -134,6 +134,23 @@
         <Alias>Bowel_Bag,bowelbag,bagbowel,Perotineal_cavity</Alias>
     </roi>
     <roi>
+        <name>Bone_IGRT</name>
+        <TG263PrimaryName>Bone_IGRT</TG263PrimaryName>
+        <Description>Bone for IGRT</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>Bone</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Head</AnatomicGroup>
+        <NCharacters>10</NCharacters>
+        <TG263ReverseOrderName>Bone_IGRT</TG263ReverseOrderName>
+        <Export>True</Export>
+        <FMAID></FMAID>
+        <Color red="0" green="255" blue="0">#00FF00</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
         <name>Bowel_Critical_HighRisk</name>
         <TG263PrimaryName>Bowel_Critical_HighRisk</TG263PrimaryName>
         <Description>Bowel Bag or Peritoneal Cavity.
