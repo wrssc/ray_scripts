@@ -50,7 +50,7 @@
                     machine="TrueBeam">VMAT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
-                <option>Twice daily</option>
+                <option>2 to 3 times per week</option>
             </treatment_frequency>
             <imaging_frequency>
                 <option default="true">Daily CBCT</option>
