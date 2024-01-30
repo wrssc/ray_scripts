@@ -1,5 +1,5 @@
 from copy import deepcopy
-from DicomPairClasses import SequencePair, DicomTreePair
+from DicomPairClasses import SequencePair, DicomTreePair, ElementPair
 from DicomPairClasses import Result
 from DicomPairTreeFunctions import create_dicom_tree_pair
 
@@ -369,6 +369,60 @@ def check_mu(dicom_match_tree):
     return copied_tree
 
 
+def check_electron_cutout_code(dicom_match_tree):
+    """Verifies the electron cutout codes match between RayStation and Aria"""
+
+    copied_tree = deepcopy(dicom_match_tree)
+
+    copied_tree.tree_label = "Check Electron Cutout Code"
+    copied_tree.remove_all_items_except("BeamSequence")
+
+    # Beam are isolated. Eliminate setup fields.
+    beam_sequence_list = copied_tree.get_element_from_key("BeamSequence").sequence_list
+
+    # Delete setup fields
+    list_of_beams_to_delete = []
+    for beam in beam_sequence_list:
+        vp = beam.get_element_from_key("TreatmentDeliveryType").value_pair
+
+        if vp[1] != "TREATMENT":
+            list_of_beams_to_delete.append(beam)
+
+    for beam in list_of_beams_to_delete:
+        beam_sequence_list.remove(beam)
+
+    # Cycle though all beams again and isolate block sequence elements
+    for beam in beam_sequence_list:
+        # Prune all but BlockSequence
+        beam.remove_all_items_except("BlockSequence")
+        if len(beam.tree_list) > 0:
+            block_sequence_list = beam.get_element_from_key(
+                "BlockSequence"
+            ).sequence_list
+
+            for bs in block_sequence_list:
+                bs.remove_all_items_except(["BlockName", "AccessoryCode"])
+
+                value1 = bs.get_element_from_key("BlockName").value_pair[0]
+                value2 = bs.get_element_from_key("AccessoryCode").value_pair[1]
+                comment = "This is a synthesized data element in which the RayStation value is the DICOM Block Name and the Aria value is the DICOM Accessory Code"
+                bs.tree_list.append(
+                    ElementPair(
+                        parent=bs,
+                        attribute_name="Electron Block Code",
+                        value_pair=[value1, value2],
+                        comment=comment,
+                        depth=bs.depth + 1,
+                        process_func=None,
+                        process_func_kwargs=None,
+                        parent_key=bs.return_global_key,
+                    )
+                )
+                bs.remove_all_items_except(["Electron Block Code"])
+
+    return copied_tree
+
+
 def run_aria_plan_transfer_checks(ds1, ds2):
     aptr_dicom_tree_pair = DicomTreePair(
         parent=None,
@@ -439,6 +493,9 @@ def run_aria_plan_transfer_checks(ds1, ds2):
                 check_label=check_label,
             )
         )
+
+    # One last beam check
+    sequence_list.append(check_electron_cutout_code(dicom_match_tree))
 
     # Each Control Point
     zipped_parameters = zip(
