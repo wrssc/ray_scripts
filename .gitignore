@@ -25,3 +25,4 @@ codestyles/*
 *.history
 .env
 .pylintrc
+Thumbs.db
