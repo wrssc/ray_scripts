@@ -30,7 +30,6 @@ ATTRIBUTE_MATCH_DICT = {
     "WedgePositionSequence": "ReferencedWedgeNumber",  # contrived,
     "PlannedVerificationImageSequence": "XRayImageReceptorAngle",  # contrived, one of a kind
 }
-# Need to add Applicator Sequence, Block Sequence, ReferencedReferenceImageSequence, PlannedVerificationImageSequence
 
 
 def create_dicom_tree_pair(ds1, ds2, parent, depth=0, parent_key="", tree_label=""):
