@@ -131,8 +131,8 @@ def build_target_inputs(protocol_targets, plan_targets):
     i = 1
     for p in protocol_targets:
         k = str(i).zfill(2)
-        k_name = f'{k}Aname_{p}'
-        k_dose = f'{k}Bdose_{p}'
+        k_name = f'{k}Aname%{p}'
+        k_dose = f'{k}Bdose%{p}'
         target_inputs[k_name] = f'Match a plan target to {p}'
         target_inputs[k_dose] = f'Provide dose for protocol target: {p} Dose in cGy'
         target_options[k_name] = plan_targets
@@ -145,13 +145,12 @@ def build_target_inputs(protocol_targets, plan_targets):
     return target_inputs, target_initial, target_datatype, target_options, target_required
 
 
-def process_target_dialog_response(response, target_required):
+def process_target_dialog_response(response):
     """
     Processes the user's response from the target dialog.
 
     Args:
         response (dict): User response from the dialog.
-        target_required (list): List of required fields in the dialog.
 
     Returns:
         tuple: Processed site, number of fractions, and translation map.
@@ -167,8 +166,8 @@ def process_target_dialog_response(response, target_required):
             num_fx = int(v)
         elif k == '00_site':
             site = str(v)
-        elif k in target_required and v:
-            i, p = k.split("_", 1)
+        elif v:
+            i, p = k.split("%", 1)
             if p not in translation_map:
                 translation_map[p] = [None] * 3
             if 'name' in i:
@@ -176,6 +175,7 @@ def process_target_dialog_response(response, target_required):
             if 'dose' in i:
                 translation_map[p][1] = float(v) / 100.0
                 translation_map[p][2] = 'Gy'
+    logging.debug('Translation map: {}'.format(translation_map))
     return site, num_fx, translation_map
 
 
@@ -212,7 +212,7 @@ def target_dialog(case, protocol, order, use_orders=True):
 
     # Process dialog response
     response = target_dose_level_dialog.show()
-    return process_target_dialog_response(response, target_required)
+    return process_target_dialog_response(response)
 
 
 def find_beamset_element(protocol, beamset_name):
@@ -883,11 +883,15 @@ def autoplan(autoplan_parameters, **kwargs):
     if not ignore_status:
         auto_status.next_step(text=script_steps[status_index][1])
         status_index += 1
-    strip_roi_support = beamset_etree.find('roi_support').text
-    strip_roi_support = strip_roi_support.replace(" ", "")
-    strip_roi_support = strip_roi_support.strip()
-    beamset_defs.support_roi = strip_roi_support.split(",")
-    if user_prompts:
+    try:
+        strip_roi_support = beamset_etree.find('roi_support').text
+    except AttributeError:
+        sys.exit('No support structures specified beamset template')
+    if strip_roi_support:
+        strip_roi_support = strip_roi_support.replace(" ", "")
+        strip_roi_support = strip_roi_support.strip()
+        beamset_defs.support_roi = strip_roi_support.split(",")
+    if user_prompts and strip_roi_support:
         AutoPlanOperations.load_supports(rso=rso,
                                          supports=beamset_defs.support_roi,
                                          quiet=user_prompts)
