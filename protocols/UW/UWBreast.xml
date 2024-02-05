@@ -114,10 +114,6 @@
                 <option default="true">Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -3438,6 +3434,15 @@
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
+            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
         </prescription>
@@ -3664,8 +3669,17 @@
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
+            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
             <motion>Free breathing</motion>
-            <motion default="true">AlignRt</motion>
+            <motion default="true">RPM MIBH gating</motion>
         </prescription>
         <goals>
             <roi>

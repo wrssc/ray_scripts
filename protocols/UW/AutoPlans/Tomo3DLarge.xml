@@ -21,7 +21,6 @@
         <imaging>Pre-treatment CBCT</imaging>
         <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0488">TomoHelical</technique>
     </prescription>
-
     <order>
         <name>Multiple Target Tomo3D</name>
         <prefix>Site</prefix>
