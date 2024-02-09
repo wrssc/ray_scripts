@@ -1,0 +1,702 @@
+<!--
+  ~ __copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
+  -->
+
+<protocol>
+    <name>UW SRS</name>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <ct>
+        <protocol institution="UWHC">XRT_HEAD_NECK</protocol>
+        <protocol institution="UWHC">XRT_HEAD_NECK_WITH_CONTRAST</protocol>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <diagnoses></diagnoses>
+    <prescription>
+        <frequency>Daily</frequency>
+        <imaging>Pre-treatment CBCT</imaging>
+        <technique modality="Photons" technique="VMAT" code="SRS" machine="TrueBeam">VMAT</technique>
+        <technique modality="Photons" technique="VMAT" code="SRS" machine="TrueBeamSTx">VMAT</technique>
+    </prescription>
+    <order>
+        <name>Brain_SRS</name>
+        <prefix>Brai</prefix>
+        <prescription number="0" sequence="Primary">
+            <roi>
+                <name>PTV1</name>
+                <type>DX</type>
+                <volume units="%">98</volume>
+                <dose units="Gy" idl="100">21</dose>
+            </roi>
+            <roi>
+                <name>PTV2</name>
+                <type>DX</type>
+                <volume units="%">98</volume>
+                <dose units="Gy" idl="100">21</dose>
+            </roi>
+            <roi>
+                <name>PTV3</name>
+                <type>DX</type>
+                <volume units="%">98</volume>
+                <dose units="Gy" idl="100">21</dose>
+            </roi>
+            <fractions>21</fractions>
+            <technique modality="Photons" technique="VMAT" code="SRS" machine="TrueBeamSTx">VMAT</technique>
+        </prescription>
+        <validation>
+            <validation_status>True</validation_status>
+            <author>Adam Bayliss</author>
+            <validation_range>
+                <fraction_dose upper="21" lower="128">False</fraction_dose>
+            </validation_range>
+            <final_dose>False</final_dose>
+        </validation>
+        <goals>
+            <roi>
+                <name>PTV1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV1">100</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV1">100</dose>
+                <index>0.5</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV1">50</dose>
+                <index>0.25</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Brain-CTVs</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">12</dose>
+                <volume units="cc">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Brain-GTVs</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">12</dose>
+                <volume units="cc">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Brain-GTV</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">12</dose>
+                <volume units="cc">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Brainstem</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Brainstem</name>
+                <type>Max</type>
+                <dose units="Gy">10</dose>
+                <volume units="cc">0.5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Brainstem</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
+                <volume units="cc">0.01</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <dose units="Gy">14</dose>
+                <volume units="cc">0.01</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticChiasm</name>
+                <type>Max</type>
+                <dose units="Gy">8</dose>
+                <volume units="cc">0.01</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_L</name>
+                <type>Max</type>
+                <dose units="Gy">8</dose>
+                <volume units="cc">0.01</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_R</name>
+                <type>Max</type>
+                <dose units="Gy">8</dose>
+                <volume units="cc">0.01</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Max</type>
+                <dose units="Gy">9</dose>
+                <volume units="cc">0.01</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">3</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Max</type>
+                <dose units="Gy">9</dose>
+                <volume units="cc">0.01</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">3</dose>
+                <priority>1</priority>
+            </roi>
+            <goalset>
+                <name>QUANTEC-SRS</name>
+                <priority>5</priority>
+            </goalset>
+            <!--
+            <goalset>
+                <name>TG-101</name>
+                <priority>5</priority>
+            </goalset>
+            -->
+        </goals>
+        <objectives>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV1">120</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV1">100</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV_1</name>
+                <type dir="gt">DX</type>
+                <volume units="%">99</volume>
+                <dose units="Gy" roi="PTV_p">100</dose>
+                <weight>1000</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV1">100</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV1">100</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTVu1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV1">100</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring1_</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>8e-5</weight>
+            </roi>
+            <roi>
+                <name>ring1_</name>
+                <type dist="0.2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV1" low="95">100</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
+                <name>ring1_</name>
+                <type dist="0.5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV1" low="45">100</dose>
+                <weight>2</weight>
+            </roi>
+            <roi>
+                <name>ring1_</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV1" low="20">100</dose>
+                <weight>0.01</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV2">120</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>PTV2</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV2">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV2">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV2">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTVu2_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV2">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring2_</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-3</weight>
+            </roi>
+            <roi>
+                <name>ring2_</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV2" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV3">123</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>PTV3</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV3">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV3">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV3_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV3">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTVu3_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV3">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring3_</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-3</weight>
+            </roi>
+            <roi>
+                <name>ring3_</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV3" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV4">123</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>PTV4</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV4">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV4">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV4_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV4">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTVu4_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV4">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring4_</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-3</weight>
+            </roi>
+            <roi>
+                <name>ring4_</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV4" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV5_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV5">123</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>PTV5</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV5">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV5_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV5">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV5_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV5">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTVu5_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV5">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring5_</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-3</weight>
+            </roi>
+            <roi>
+                <name>ring5_</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV5" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <!-- Organs at Risk -->
+            <roi>
+                <name>Brain-GTVs</name>
+                <type>Max</type>
+                <volume units="cc">10</volume>
+                <dose units="Gy">12</dose>
+                <weight>2000</weight>
+            </roi>
+            <roi>
+                <name>Brainstem</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>Brainstem</name>
+                <type>Max</type>
+                <dose units="Gy">10</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Max</type>
+                <dose units="Gy">9</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Max</type>
+                <dose units="Gy">9</dose>
+                <weight>100</weight>
+            </roi>
+
+
+            <roi>
+                <name>Ring_HD</name>
+                <type dist="2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV1" low="20">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>Ring_LD</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV1">50</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Ring_LD</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV1">25</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Ring_LD</name>
+                <type dist="2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV1" low="5">40</dose>
+                <weight>0.01</weight>
+            </roi>
+            <roi>
+                <name>Normal_2cm</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV1">20</dose>
+                <weight>1</weight>
+            </roi>
+        </objectives>
+    </order>
+    <beamset>
+        <name>Brai SRS UW 5Arc Full</name>
+        <technique>VMAT</technique>
+        <DicomName>XXXX_SRS_R_</DicomName>
+        <description>SRS Arc set for a single target
+        </description>
+        <roi_support></roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc1</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>170</GantryAngle>
+            <GantryStopAngle>015</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>270</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc2</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>015</GantryAngle>
+            <GantryStopAngle>170</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>310</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc3</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>170</GantryAngle>
+            <GantryStopAngle>015</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>350</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc4</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>345</GantryAngle>
+            <GantryStopAngle>190</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>010</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc5</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>190</GantryAngle>
+            <GantryStopAngle>340</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>050</CouchAngle>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>Brai SRS UW 2Target 10 Arc Full</name>
+        <technique>VMAT</technique>
+        <DicomName>XXXX_SRS_R_</DicomName>
+        <description>SRS Arc set for a two targets</description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc1-1</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>170</GantryAngle>
+            <GantryStopAngle>015</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>270</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc1-2</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>015</GantryAngle>
+            <GantryStopAngle>170</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>270</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc2-1</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>170</GantryAngle>
+            <GantryStopAngle>015</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>310</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc2-2</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>015</GantryAngle>
+            <GantryStopAngle>170</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>310</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc3-1</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>170</GantryAngle>
+            <GantryStopAngle>015</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>350</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>6</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc3-2</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>015</GantryAngle>
+            <GantryStopAngle>170</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>350</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>7</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc4-1</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>345</GantryAngle>
+            <GantryStopAngle>190</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>010</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>8</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc4-2</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>190</GantryAngle>
+            <GantryStopAngle>345</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>010</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>9</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc5-1</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>340</GantryAngle>
+            <GantryStopAngle>190</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>050</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>10</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>Arc5-2</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>190</GantryAngle>
+            <GantryStopAngle>340</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>030</CollimatorAngle>
+            <CouchAngle>050</CouchAngle>
+        </beam>
+    </beamset>
+    <planning_structure_set>
+        <name>Multitarget SRS</name>
+        <description>A typical 3 Target planning structure configuration for HN planning
+        </description>
+        <number_of_targets>1</number_of_targets>
+        <first_target_number>1</first_target_number>
+        <uniform_dose_structs standoff="0.4"></uniform_dose_structs>
+        <underdose_structs standoff="0.2">Brainstem,OpticChiasm,OpticNrv_L,OpticNrv_R</underdose_structs>
+        <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
+        </skin_structure>
+        <normal>Normal_2cm</normal>
+        <ring_hd standoff="0.0" margin_type="Expand" margin_sup="2" margin_inf="2"
+                 margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD
+        </ring_hd>
+        <ring_ld standoff="0.0" margin_type="Expand" margin_sup="5" margin_inf="5"
+                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD
+        </ring_ld>
+        <ring_targets standoff="0.0" margin_type="Expand" margin_sup="1" margin_inf="1"
+                      margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring
+        </ring_targets>
+        <inner_air></inner_air>
+        <superficial_target standoff="0.15" margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
+                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin
+        </superficial_target>
+        <otv standoff="0.2" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
+        </otv>
+    </planning_structure_set>
+    <optimization_config>
+        <name>4 warmstarts</name>
+        <description>4 warmstart optimization with varying dose grid</description>
+        <technique>VMAT</technique>
+        <initial max_it="40" int_it="15">Iteration 0</initial>
+        <warmstart max_it="30" int_it="5" n="4">Iteration_1to4</warmstart>
+        <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+    </optimization_config>
+</protocol>
