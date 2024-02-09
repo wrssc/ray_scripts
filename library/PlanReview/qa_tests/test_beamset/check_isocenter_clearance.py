@@ -969,7 +969,7 @@ def check_isocenter_clearance(rso):
             pass_result = FAIL
         else:
             pass_result = PASS
-            message_str = f'AT COUCH ZERO: [{[external] + supports}] are ≥' \
+            message_str = f'{[external] + supports} are ≥' \
                           + f' {SUPPORT_TOLERANCE} cm from {clearance_diameter_roi_name}'
     # Delete script contours
     delete_rois(rso, rois_to_delete)

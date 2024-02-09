@@ -9,7 +9,8 @@ from .check_prv_status import check_prv_status
 from .check_common_isocenter import check_common_isocenter
 from .check_bolus_included import check_bolus_included
 from .check_dose_grid import check_dose_grid
-from PlanReview.qa_tests.test_sandbox.compute_vmat_beam_properties import compute_vmat_beam_properties
+# from PlanReview.qa_tests.test_sandbox.compute_vmat_beam_properties import compute_vmat_beam_properties
+from .check_isocenter_clearance import check_isocenter_clearance
 from .check_tomo_isocenter import check_tomo_isocenter
 from .check_mod_factor import check_mod_factor
 from .check_fraction_size import check_fraction_size
@@ -38,6 +39,8 @@ def get_beamset_level_tests(rso, physics_review=True, log_messages=None):
             (check_fraction_size, {}),
         f"{REVIEW_LEVELS['PATIENT_MODEL']}::Couch Type Correct":
             (check_couch_type, {}),
+        f"{REVIEW_LEVELS['PLAN_DESIGN']}::Clearance Check":
+            (check_isocenter_clearance, {}),
         f"{REVIEW_LEVELS['PLAN_DESIGN']}::Slice Thickness Comparison":
             (check_slice_thickness, {}),
         f"{REVIEW_LEVELS['PATIENT_MODEL']}::Bolus Application":
