@@ -34,6 +34,8 @@
              low dose serial oars from warnings regarding PRV usage
            * Moving the modulation complexity score to sandbox until plan-specific benchmarks for MCS
              are available.
+
+
     1.0.2: Minor changes
            * Added a sandbox test to check if the max dose point is within the PTVs and reports
              the value as a percentage of prescribed
@@ -43,10 +45,30 @@
            * Exempted anything within the sandbox tab from required user input
            * Changed the way empty review levels are handled to ensure tabs are ordered correctly
            * Fixed a bug causing user-indicated failed tests to be overriden to passing.
+           * Fixed a bug with treatment instructions to include the radio-response, e.g.
+             "Full Bladder: No"
+           * Rephrased the comment in the fraction size check to make clear that the intent of the
+             check is to ensure the fraction size is appropriate with the MD.
+           * Fixed a bug preventing the order finding script from matching on the appropriate entry in
+             the log file.
+           * Updated the UW Prostate SBRT template to remove the twice-daily fractionation option
+           * Remove the 8 Gy x 1 and 4 Gy x 5 from the check for commonly mistyped fraction sizes
+           * Reformatted the gui-handling to exist as a class. This is the first step to restoring the
+             test tree during a load.
+           * Made the Prior RT and IMD checkboxes Radio buttons, and made them a mandatory entry
+           * Modified the clearance testing function to account for whether or not the gantry passes through
+             the problem areas in the plan.
+           * Modified the clearance testing function to assume a direction to static gantry beams then
+             check for collisions in that direction.
+           * Enhanced the clearance testing function to account for non-coplanar beams.
+
+
+
 
 
 
     PRERELEASE:
+    TODO: Fix the slice spacing check to pick just the pertinent technique
     TODO: Need a required prompt for all entries in the first tab
     TESTS:
     TODO: Clearance check: LOOK AT WHERE THE BEAM WILL GO!
@@ -255,7 +277,8 @@ def physics_review(do_physics_review=True):
         # Gui
         review_data = launch_physics_review_gui(rso)
         if not review_data:
-            sys.exit('Physics review canceled')
+            return 'Physics review canceled'
+            # sys.exit('Physics review canceled')
 
     if do_physics_review:
         # generate_doc(rso, ata=header, test_mode=doc_only)
