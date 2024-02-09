@@ -202,13 +202,14 @@ def extract_num_fx(rx_elem):
 def extract_rois_and_nominal_dose(order_targets):
     """
     Extracts ROI names and doses, identifies the target with the highest dose,
-    and marks targets with '_Eval' in their name.
+    and marks targets with '_Eval_' in their name.
 
     Args:
         order_targets (list): A list of ROI XML elements.
 
     Returns:
-        tuple: A tuple containing the target name, volume, nominal plan dose, a dictionary of ROIs with their doses, and a list of '_Eval' targets.
+        tuple: A tuple containing the target name, volume, nominal plan dose, a dictionary of ROIs with their doses,
+        and a list of '_Eval' targets.
     """
     rois = {}
     highest_dose = 0
@@ -220,10 +221,10 @@ def extract_rois_and_nominal_dose(order_targets):
 
         dose = float(t.find('dose').text) * 100.0  # Gy to cGy
         rois[name] = dose
-        if '_Eval' in name:
+        if '_Eval_' in name:
             # Target is an '_Eval' target
             eval_target = name
-            name = str(name.replace('_Eval', ''))
+            name = str(name.replace('_Eval_', ''))
 
         if dose > highest_dose:
             highest_dose = dose
@@ -241,7 +242,8 @@ def find_rx(order):
         order (Element): The treatment order XML element.
 
     Returns:
-        namedtuple: A namedtuple containing the target, isodose line percentage, number of fractions, nominal plan dose, ROIs, and '_Eval' targets.
+        namedtuple: A namedtuple containing the target, isodose line percentage, number of fractions,
+                    nominal plan dose, ROIs, and '_Eval' targets.
     """
     Rx = namedtuple('Rx', ['target', 'idl', 'fx', 'dose', 'rois', 'eval_targets'])
     rx_elem = order.find('prescription')
