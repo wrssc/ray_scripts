@@ -2,11 +2,11 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 from dateutil import parser
 from collections import namedtuple
-from PlanReview.review_definitions import STAFF_XML_PATH
 
 
 # Function to read XML into a DataFrame
 def read_xml_to_dataframe():
+    from PlanReview.review_definitions import STAFF_XML_PATH
     xml_path = STAFF_XML_PATH
     tree = ET.parse(xml_path)
     root = tree.getroot()
