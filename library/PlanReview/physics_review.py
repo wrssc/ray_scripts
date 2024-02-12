@@ -61,6 +61,9 @@
            * Modified the clearance testing function to assume a direction to static gantry beams then
              check for collisions in that direction.
            * Enhanced the clearance testing function to account for non-coplanar beams.
+    1.0.3: Last update before release
+           * Add an option to the radio selection of special instructions to include "None". This gets ignored
+             in the report.
 
 
 
@@ -71,7 +74,6 @@
     TODO: Fix the slice spacing check to pick just the pertinent technique
     TODO: Need a required prompt for all entries in the first tab
     TESTS:
-    TODO: Clearance check: LOOK AT WHERE THE BEAM WILL GO!
     TODO: Add a check on MU/rx in cGy and flag over the 5
     TODO: For GTV, and CTV types. Are these all within a PTV?
     POST RELEASE
@@ -89,10 +91,6 @@
            checkboxes and into automated checks
     TODO:: Experiment with very long tool tips for a help prompt under automated checks
     TODO:: DOSIMETRY REVIEW
-        -Previous Treatment check boxes along with
-        0 Yes: Please refer to D-Evaluation for Prior Radiotherapy document
-        -CIED Pacemaker check box:
-        0 Yes: Please refer to D-Implantable Cardiac Device Note
         -In the plan, the target is in a Choose One
         location in the patient.  This Choose One   the TPO.
         -'test_name': 'Beam added with no collision via machine geometry'
@@ -106,8 +104,6 @@
        different beamsets, and flag for merge
     TODO:
        Check bad regions of Frame
-    TODO: For a given couch angle, check the arc direction for a kick toward
-           gantry rotation
     TODO:
        def check_plan_name(bs):
          Check plan name for appropriate
@@ -135,11 +131,6 @@
          Pelvis; 1.8 - 2.4
          Prostate(low; risk)    1.6 - 2.2
          Prostate(high; risk)    2.0 - 2.4
-    TODO: Check collisions
-       put a circle down at isocenter equal in dimension to ganty (collimator
-       pin)/bore clearance
-       union patient/supports
-       determine gantry positions
     TODO:
        def - check the front edges of the couch and suspended headboard
     TODO:

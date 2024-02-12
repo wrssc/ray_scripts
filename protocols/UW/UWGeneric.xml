@@ -45,7 +45,7 @@
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
                          comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="None,Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
         </prescription>
         <objectives>
             <roi>

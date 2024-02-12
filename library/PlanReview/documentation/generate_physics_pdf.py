@@ -452,7 +452,7 @@ def parse_special_instructions(data):
         elif KEY_COMBO in key:
             _, instruction_name, response_type, _ = key.split('-')[1:]
             # Ignore empty instructions
-            if not value.strip():
+            if not value.strip() or value.strip() == 'None':
                 continue
             special_instructions_text += f"* {instruction_name}: {value}\n"
     return special_instructions_text
