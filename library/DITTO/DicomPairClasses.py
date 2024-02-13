@@ -10,6 +10,7 @@ image_root = Path(__file__).parent / "images"
 RED_CIRCLE = image_root / "red_circle_icon.png"
 GREEN_CIRCLE = image_root / "green_circle_icon.png"
 BLUE_CIRCLE = image_root / "blue_circle_icon.png"
+YELLOW_CIRCLE = image_root / "yellow_circle_icon.png"
 
 
 class Result(Flag):
@@ -21,24 +22,28 @@ class Result(Flag):
     ELEMENT_ACCEPTABLE_NEAR_MATCH = 5
     ELEMENT_EXPECTED_UNIQUE_TO_1 = 6
     ELEMENT_EXPECTED_UNIQUE_TO_2 = 7
-    ELEMENT_BOTH_NONE = 6
+    ELEMENT_BOTH_NONE = 8
+    ELEMENT_WARNING = 9
 
     SEQUENCE_MATCH = 10
     SEQUENCE_MISMATCH = 11
     SEQUENCE_UNIQUE_TO_1 = 12
     SEQUENCE_UNIQUE_TO_2 = 13
     SEQUENCE_EMPTY = 14
+    SEQUENCE_WARNING = 15
 
     DICOM_TREE_MATCH = 20
     DICOM_TREE_MISMATCH = 21
     DICOM_TREE_UNIQUE_TO_1 = 22
     DICOM_TREE_UNIQUE_TO_2 = 23
+    DICOM_TREE_WARNING = 24
 
     SKIPPED = 99
     UNKNOWN = 100
 
 
 class ElementPair:
+
     DEFAULT_ACCEPTABLE_RESULTS = [
         Result.ELEMENT_MATCH,
         Result.SEQUENCE_MATCH,
@@ -50,15 +55,15 @@ class ElementPair:
     ]
 
     def __init__(
-            self,
-            parent,
-            attribute_name,
-            value_pair,
-            comment="",
-            depth=0,
-            process_func=None,
-            process_func_kwargs=None,
-            parent_key="",
+        self,
+        parent,
+        attribute_name,
+        value_pair,
+        comment="",
+        depth=0,
+        process_func=None,
+        process_func_kwargs=None,
+        parent_key="",
     ):
         self.parent = parent
         self.attribute_name = attribute_name
@@ -68,7 +73,7 @@ class ElementPair:
         self._process_func = process_func
         self._process_func_kwargs = process_func_kwargs
         self.parent_key = parent_key
-        self._update_match_result()
+        self.update_match_result()
 
     def get_name(self):
         return self.attribute_name
@@ -94,7 +99,7 @@ class ElementPair:
     def update_process_func(self, process_func=None, process_func_kwargs=None):
         self._process_func = process_func
         self._process_func_kwargs = process_func_kwargs
-        self._update_match_result()
+        self.update_match_result()
 
     def is_acceptable_match(self, acceptable_results=DEFAULT_ACCEPTABLE_RESULTS):
         return self.match_result in acceptable_results
@@ -108,7 +113,10 @@ class ElementPair:
     def is_unique_to_dataset2(self):
         return self.match_result == Result.ELEMENT_UNIQUE_TO_2
 
-    def get_treedata(self, treedata=None):
+    def is_warning(self):
+        return self.match_result == Result.ELEMENT_WARNING
+
+    def get_treedata(self, treedata=None, show_matches=False):
 
         if treedata is None:
             treedata = sg.TreeData()
@@ -116,9 +124,10 @@ class ElementPair:
         return treedata
 
     def return_global_key(self):
-        return f"{self.parent_key}>{self.attribute_name}"
+        parent_key = self.parent.return_global_key()
+        return f"{parent_key}>{self.attribute_name}"
 
-    def _update_match_result(self):
+    def update_match_result(self):
         """
         Uses the value_pair and _process_func to update the match result and comment.
         """
@@ -142,6 +151,12 @@ class ElementPair:
                 self, **self._process_func_kwargs
             )
 
+    def update_match_result_recursive(self):
+        pass
+
+    def prune_empty_trees_and_sequences(self):
+        pass
+
     def __str__(self):
         depth_str = self.depth * "  "
         out_str = ""
@@ -153,9 +168,10 @@ class ElementPair:
             out_str += Fore.RED
 
         out_str += (
-                depth_str
-                + f"ElementPair(attribute_name='{self.attribute_name}'"
-                + f", result='{self.match_result}')"
+            depth_str
+            + f"ElementPair(attribute_name='{self.attribute_name}'"
+            + f", result='{self.match_result}')"
+            + f", key='{self.return_global_key()}'"
         )
 
         out_str += Style.RESET_ALL
@@ -164,12 +180,13 @@ class ElementPair:
 
 
 class SequencePair:
+
     DEFAULT_ACCEPTABLE_RESULTS = [
         Result.SEQUENCE_MATCH,
     ]
 
     def __init__(
-            self, parent, attribute_name, sequence_list, comment="", depth=0, parent_key="",
+        self, parent, attribute_name, sequence_list, comment="", depth=0, parent_key="",
     ):
         self.attribute_name = attribute_name
         self.parent = parent
@@ -193,8 +210,6 @@ class SequencePair:
             # Split the key apart
             key_parts = key.split(">")
             next_part = key_parts[0]
-
-            print(key_parts, next_part)
 
             for item in self.sequence_list:
                 if item.tree_label == next_part:
@@ -229,7 +244,7 @@ class SequencePair:
 
     def update_match_result(self):
         """
-        There are five possible match statuses:
+        There are six possible match statuses:
 
         We will test them in the following order.
         SEQUENCE_EMPTY
@@ -240,6 +255,8 @@ class SequencePair:
             All items in sequence_list are unique to dataset 2
         SEQUENCE_MATCH
             All items in sequence_list are True on is_acceptable_match()
+        SEQUENCE_WARNING
+            ALL items in sequence_list are True on is_acceptable_match or is_warning()
         SEQUENCE_MISMATCH
             Anything else
         """
@@ -254,6 +271,10 @@ class SequencePair:
         acceptable_match_list = [
             item.is_acceptable_match() for item in self.sequence_list
         ]
+        acceptable_match_or_warning_list = [
+            (item.is_warning() or item.is_acceptable_match())
+            for item in self.sequence_list
+        ]
 
         if all(unique_1_list):
             self.match_result = Result.SEQUENCE_UNIQUE_TO_1
@@ -261,8 +282,31 @@ class SequencePair:
             self.match_result = Result.SEQUENCE_UNIQUE_TO_2
         elif all(acceptable_match_list):
             self.match_result = Result.SEQUENCE_MATCH
+        elif all(acceptable_match_or_warning_list):
+            self.match_result = Result.SEQUENCE_WARNING
         else:
             self.match_result = Result.SEQUENCE_MISMATCH
+
+    def update_match_result_recursive(self):
+
+        for item in self.sequence_list:
+            item.update_match_result_recursive()
+
+        self.update_match_result()
+
+    def prune_empty_trees_and_sequences(self):
+
+        pruned_items = []
+        for item in self.sequence_list:
+            if isinstance(item, DicomTreePair):
+                item.prune_empty_trees_and_sequences()
+
+                # Check to see if item is now empty.
+                if len(item.tree_list) == 0:
+                    pruned_items.append(item)
+
+        for item in pruned_items:
+            self.sequence_list.remove(item)
 
     def is_acceptable_match(self, acceptable_results=DEFAULT_ACCEPTABLE_RESULTS):
         return self.match_result in acceptable_results
@@ -276,7 +320,10 @@ class SequencePair:
     def is_unique_to_dataset2(self):
         return self.match_result == Result.SEQUENCE_UNIQUE_TO_2
 
-    def get_treedata(self, treedata=None):
+    def is_warning(self):
+        return self.match_result == Result.SEQUENCE_WARNING
+
+    def get_treedata(self, treedata=None, show_matches=False):
 
         if treedata is None:
             treedata = sg.TreeData()
@@ -285,6 +332,8 @@ class SequencePair:
 
             if item.is_unique_to_dataset1() or item.is_unique_to_dataset2():
                 icon = BLUE_CIRCLE
+            elif item.is_warning():
+                icon = YELLOW_CIRCLE
             elif item.is_acceptable_match():
                 icon = GREEN_CIRCLE
             else:
@@ -292,27 +341,30 @@ class SequencePair:
 
             match_text = item.match_result.name
 
-            treedata.Insert(
-                parent=item.parent_key,
-                key=item.return_global_key(),
-                text=item.tree_label,
-                values=[match_text, item.comment],
-                icon=icon,
-            )
-            item.get_treedata(treedata)
+            if show_matches or not item.is_acceptable_match():
+                treedata.Insert(
+                    parent=item.parent.return_global_key(),
+                    key=item.return_global_key(),
+                    text=item.tree_label,
+                    values=[match_text, item.comment],
+                    icon=icon,
+                )
+                item.get_treedata(treedata, show_matches=show_matches)
 
         return treedata
 
     def return_global_key(self):
-        return f"{self.parent_key}>{self.attribute_name}"
+        parent_key = self.parent.return_global_key()
+        return f"{parent_key}>{self.attribute_name}"
 
     def __str__(self):
         depth_str = self.depth * "  "
 
         out_str = (
-                depth_str
-                + f"SequencePair(attribute_name='{self.attribute_name}'"
-                + f", result='{self.match_result}')"
+            depth_str
+            + f"SequencePair(attribute_name='{self.attribute_name}'"
+            + f", result='{self.match_result}')"
+            + f", key='{self.return_global_key()}'"
         )
         for item in self.sequence_list:
             out_str += f"\n{str(item)}"
@@ -321,12 +373,13 @@ class SequencePair:
 
 
 class DicomTreePair:
+
     DEFAULT_ACCEPTABLE_RESULTS = [
         Result.DICOM_TREE_MATCH,
     ]
 
     def __init__(
-            self, parent, tree_list, comment="", depth=0, parent_key="", tree_label="",
+        self, parent, tree_list, comment="", depth=0, parent_key="", tree_label="",
     ):
         self.parent = parent
         self.tree_list = tree_list
@@ -380,8 +433,52 @@ class DicomTreePair:
                         return item.get_element_from_key(">".join(key_parts[1:]))
 
             raise RuntimeError(
-                f"get_valuepair_from_key could not find child with key {key_parts[0]}"
+                f"get_element_from_key could not find child with key {key_parts[0]}"
             )
+
+    def get_subtree_that_excludes(self, name_list, in_place=False):
+        """
+        Returns a subtree that excludes name_list
+
+        name_list : list of str
+            The list of names to remove
+        """
+        # Make a copy of tree_list
+        if not in_place:
+            new_tree_list = self.tree_list.copy()
+
+        for item in name_list:
+            new_tree_list.remove(item)
+
+        new_dicom_tree = DicomTreePair(
+            parent=self.parent,
+            tree_list=new_tree_list,
+            comment=self.comment,
+            depth=self.depth,
+            parent_key=self.parent_key,
+            tree_label=self.tree_label,
+        )
+
+        return new_dicom_tree
+
+    def remove_all_items_except(self, name_list):
+        """
+        Returns a subtree that includes name_list
+
+        name_list : list of str
+            The list of names to include
+        """
+
+        # Make a list all items to exclude:
+        excluded_items = []
+        for item in self.tree_list:
+            if item.get_name() not in name_list:
+                excluded_items.append(item)
+
+        for item in excluded_items:
+            self.tree_list.remove(item)
+
+        self.update_match_result()
 
     def update_match_result(self):
         """
@@ -394,6 +491,8 @@ class DicomTreePair:
             All items in tree_list are unique to dataset 2
         DICOM_TREE_MATCH
             All items in tree_list are True on is_acceptable_match()
+        DICOM_TREE_WARNING
+            ALL items in tree_list are True on is_acceptable_match or is_warning()
         DICOM_TREE_MISMATCH
             Anything else
         """
@@ -401,6 +500,9 @@ class DicomTreePair:
         unique_1_list = [item.is_unique_to_dataset1() for item in self.tree_list]
         unique_2_list = [item.is_unique_to_dataset2() for item in self.tree_list]
         acceptable_match_list = [item.is_acceptable_match() for item in self.tree_list]
+        acceptable_match_or_warning_list = [
+            (item.is_warning() or item.is_acceptable_match()) for item in self.tree_list
+        ]
 
         if all(unique_1_list):
             self.match_result = Result.DICOM_TREE_UNIQUE_TO_1
@@ -408,8 +510,31 @@ class DicomTreePair:
             self.match_result = Result.DICOM_TREE_UNIQUE_TO_2
         elif all(acceptable_match_list):
             self.match_result = Result.DICOM_TREE_MATCH
+        elif all(acceptable_match_or_warning_list):
+            self.match_result = Result.DICOM_TREE_WARNING
         else:
             self.match_result = Result.DICOM_TREE_MISMATCH
+
+    def update_match_result_recursive(self):
+
+        for item in self.tree_list:
+            item.update_match_result_recursive()
+
+        self.update_match_result()
+
+    def prune_empty_trees_and_sequences(self):
+
+        pruned_items = []
+        for item in self.tree_list:
+            if isinstance(item, SequencePair):
+                item.prune_empty_trees_and_sequences()
+
+                # Check to see if item is now empty.
+                if len(item.sequence_list) == 0:
+                    pruned_items.append(item)
+
+        for item in pruned_items:
+            self.tree_list.remove(item)
 
     def is_acceptable_match(self, acceptable_results=DEFAULT_ACCEPTABLE_RESULTS):
         return self.match_result in acceptable_results
@@ -423,13 +548,17 @@ class DicomTreePair:
     def is_unique_to_dataset2(self):
         return self.match_result == Result.DICOM_TREE_UNIQUE_TO_2
 
-    def return_global_key(self):
-        if self.parent_key == "":
-            return ""
-        else:
-            return f"{self.parent_key}>{self.tree_label}"
+    def is_warning(self):
+        return self.match_result == Result.DICOM_TREE_WARNING
 
-    def get_treedata(self, treedata=None):
+    def return_global_key(self):
+        if self.parent is None:
+            return self.tree_label
+        else:
+            parent_key = self.parent.return_global_key()
+            return f"{parent_key}>{self.tree_label}"
+
+    def get_treedata(self, treedata=None, show_matches=False):
 
         if treedata is None:
             treedata = sg.TreeData()
@@ -438,6 +567,8 @@ class DicomTreePair:
 
             if item.is_unique_to_dataset1() or item.is_unique_to_dataset2():
                 icon = BLUE_CIRCLE
+            elif item.is_warning():
+                icon = YELLOW_CIRCLE
             elif item.is_acceptable_match():
                 icon = GREEN_CIRCLE
             else:
@@ -445,23 +576,24 @@ class DicomTreePair:
 
             match_text = item.match_result.name
 
-            treedata.Insert(
-                parent=item.parent_key,
-                key=item.return_global_key(),
-                text=item.attribute_name,
-                values=[match_text, item.comment],
-                icon=icon,
-            )
-            item.get_treedata(treedata)
+            if show_matches or not item.is_acceptable_match():
+                treedata.Insert(
+                    parent=item.parent.return_global_key(),
+                    key=item.return_global_key(),
+                    text=item.attribute_name,
+                    values=[match_text, item.comment],
+                    icon=icon,
+                )
+                item.get_treedata(treedata, show_matches=show_matches)
 
         return treedata
 
     def __str__(self):
         depth_str = self.depth * "  "
         out_str = (
-                depth_str
-                + f"DicomTreePair(result='{self.match_result}'"
-                + f", comment='{self.comment}')"
+            depth_str
+            + f"DicomTreePair(result='{self.match_result}'"
+            + f", key='{self.return_global_key()}')"
         )
         for item in self.tree_list:
             out_str += f"\n{str(item)}"

@@ -1,6 +1,7 @@
-from pathlib import Path
 import pydicom
-import PySimpleGUI as sg
+from DicomPairClasses import ElementPair, SequencePair, DicomTreePair
+from ProcessingFunctions import PROCESS_FUNCTION_DICT
+
 
 ATTRIBUTE_MATCH_DICT = {
     "BeamSequence": "BeamNumber",
@@ -14,29 +15,20 @@ ATTRIBUTE_MATCH_DICT = {
     "FractionGroupSequence": "FractionGroupNumber",
     "ReferencedBeamSequence": "ReferencedBeamNumber",
     "PatientSetupSequence": "PatientSetupNumber",
-    "ReferencedStructureSetSequence": "ReferencedSOPInstanceUID",  # ClassID??
+    "ReferencedStructureSetSequence": "ReferencedSOPClassUID",  # ClassID??
     "ToleranceTableSequence": "ToleranceTableNumber",
     "BeamLimitingDeviceToleranceSequence": "RTBeamLimitingDeviceType",
     "BlockSequence": "BlockNumber",
     "ApplicatorSequence": "ApplicatorType",
     "ApplicatorGeometrySequence": "ApplicatorOpening",
     "ReferencedReferenceImageSequence": "ReferenceImageNumber",
+    "WedgeSequence": "WedgeNumber",
+    "WedgePositionSequence": "ReferencedWedgeNumber",  # contrived,
+    "PlannedVerificationImageSequence": "XRayImageReceptorAngle",  # contrived, one of a kind
 }
 
 
-# Need to add Applicator Sequence, Block Sequence, ReferencedReferenceImageSequence, PlannedVerificationImageSequence
-
-
-def create_dicom_tree_pair(
-        ds1,
-        ds2,
-        parent,
-        depth=0,
-        parent_key="",
-        tree_label=""
-):
-    from library.DITTO.DicomPairClasses import ElementPair, SequencePair, DicomTreePair
-    from library.DITTO.ProcessingFunctions import PROCESS_FUNCTION_DICT
+def create_dicom_tree_pair(ds1, ds2, parent, depth=0, parent_key="", tree_label=""):
     dicom_tree_pair = DicomTreePair(
         parent=parent,
         tree_list=[],
@@ -54,7 +46,6 @@ def create_dicom_tree_pair(
 
     # Loop over all keywords in the first DICOM file
     for ds1_keyword in ds1.dir():
-
         if ds1_keyword in PROCESS_FUNCTION_DICT:
             process_func, kwargs = PROCESS_FUNCTION_DICT[ds1_keyword]
         else:
@@ -62,7 +53,6 @@ def create_dicom_tree_pair(
 
         # CASE 1: The item is not a Sequence
         if ds1[ds1_keyword].VR != "SQ":
-
             if ds1_keyword not in ds2.dir():
                 value_pair = (ds1[ds1_keyword].value, None)
             else:
@@ -114,14 +104,13 @@ def create_dicom_tree_pair(
         # and we want to preserve that information for analysis.
         match_keyword = ATTRIBUTE_MATCH_DICT[ds1_keyword]
         if ds1_keyword not in ds2.dir():
-
             sequence_pair = SequencePair(
                 parent=dicom_tree_pair,
                 attribute_name=ds1_keyword,
                 sequence_list=[],
                 comment="Sequence is unique to the first dataset.",
                 depth=depth + 1,
-                parent_key=childs_parent_key
+                parent_key=childs_parent_key,
             )
 
             sequence_list = []
@@ -157,7 +146,7 @@ def create_dicom_tree_pair(
             sequence_list=[],
             comment="",
             depth=depth + 1,
-            parent_key=childs_parent_key
+            parent_key=childs_parent_key,
         )
 
         sequence_list = []
@@ -231,7 +220,6 @@ def create_dicom_tree_pair(
             process_func, kwargs = None, None
 
         if ds2[ds2_keyword].VR != "SQ":
-
             # Address Unique attributes in ds2
             if ds2_keyword not in ds1.dir():
                 value_pair = (None, ds2[ds2_keyword].value)
@@ -252,7 +240,9 @@ def create_dicom_tree_pair(
             continue
 
         # CASE 2a: Sequence ds2_keyword is not in our match sequence dictionary
-        if (ds2_keyword not in ATTRIBUTE_MATCH_DICT.keys()) and (ds2_keyword not in ds1.dir()):
+        if (ds2_keyword not in ATTRIBUTE_MATCH_DICT.keys()) and (
+            ds2_keyword not in ds1.dir()
+        ):
             sequence_pair = SequencePair(
                 parent=dicom_tree_pair,
                 attribute_name=ds2_keyword,
@@ -262,7 +252,7 @@ def create_dicom_tree_pair(
                     "was not found in ATTRIBUTE_MATCH_DICT"
                 ),
                 depth=depth + 1,
-                parent_key=childs_parent_key
+                parent_key=childs_parent_key,
             )
 
             tree_list.append(sequence_pair)
@@ -280,7 +270,7 @@ def create_dicom_tree_pair(
                 sequence_list=[],
                 comment="Sequence is unique to the second dataset.",
                 depth=depth + 1,
-                parent_key=childs_parent_key
+                parent_key=childs_parent_key,
             )
             sequence_list = []
 
@@ -312,7 +302,7 @@ def create_dicom_tree_pair(
 
 
 def compare_dicomrt_plans(filepath1, filepath2):
-    """ Compares two DICOM-RT Plan files
+    """Compares two DICOM-RT Plan files
 
     PARAMETERS
     ----------
@@ -330,83 +320,3 @@ def compare_dicomrt_plans(filepath1, filepath2):
     # print_pair_tree_results(dicom_pair_tree)
 
     return dicom_pair_tree
-
-
-def run_dicom_integrity_tool(
-        filename1,
-        filename2,
-        file_label1="DICOM File 1",
-        file_label2="DICOM File 2",
-):
-    dicom_match_tree = compare_dicomrt_plans(filename1, filename2)
-
-    treedata = dicom_match_tree.get_treedata()
-
-    layout = [
-        [
-            sg.Tree(
-                data=treedata,
-                headings=['Result', 'Comments', ],
-                auto_size_columns=False,
-                col0_width=50,
-                col_widths=[30, 60, ],
-                num_rows=30,
-                key='-TREE-',
-                show_expanded=False,
-                enable_events=True,
-                # expand_x=True,
-                # expand_y=True,
-
-            ),
-        ],
-        [
-            sg.Text(f'{file_label1} Value: '),
-            sg.Text('Value 1', key="-VALUE1-", size=(100, None)),
-        ],
-        [
-            sg.Text(f'{file_label2} Value: '),
-            sg.Text('Value 2', key="-VALUE2-", size=(100, None)),
-        ],
-        [
-            sg.Text(f'{file_label2} Debug Value: '),
-            sg.Text('Debug', key="-DEBUG-", size=(100, None)),
-        ],
-    ]
-
-    window = sg.Window('Dicom Integrity Tool', layout, resizable=True)
-
-    while True:  # Event Loop
-        event, values = window.read()
-        if event in (sg.WIN_CLOSED, 'Cancel'):
-            break
-
-        tree_key = values["-TREE-"][0]
-
-        value1, value2 = dicom_match_tree.get_valuepair_from_key(tree_key[1:])
-        element = dicom_match_tree.get_element_from_key(tree_key[1:])
-
-        if value1 is None:
-            value1 = ""
-
-        if value2 is None:
-            value2 = ""
-
-        if element.parent is None:
-            name = ""
-        else:
-            name = element.parent.get_name()
-
-        window["-VALUE1-"].update(value1)
-        window["-VALUE2-"].update(value2)
-        window["-DEBUG-"].update(name)
-
-    window.close()
-
-
-if __name__ == "__main__":
-    file_path = Path(r"U:\UWHealth\RadOnc\ShareAll\Users\ZEL\DICOM_Compare_Files\3164588")
-    raystation_filename = r"RP1.2.752.243.1.1.20220110105336812.2000.10016.dcm"
-    aria_filename = r"Bol_ARIA1.2.246.352.71.5.137378053967.332155.20220111111326.dcm"
-    # aria_filename = r"NoB_ARIA1.2.246.352.71.5.137378053967.332249.20220111111326.dcm"
-
-    run_dicom_integrity_tool(file_path / raystation_filename, file_path / aria_filename)

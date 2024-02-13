@@ -25,6 +25,7 @@ codestyles/*
 *.history
 .env
 .pylintrc
+Thumbs.db
 conf.py
 index.rst
 make.bat
