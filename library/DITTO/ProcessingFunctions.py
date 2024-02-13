@@ -199,9 +199,17 @@ def process_wedge_position_sequence(element_pair, comment=""):
 
 def process_block_data(element_pair, comment=""):
     # ARIA connects the last and first point in an electron block whereaas RS drops it
+    logging.debug("Starting process_block_data")
     value_pair = element_pair.value_pair
     ds1_array = np.array(value_pair[0]).reshape(-1, 2)
+    logging.debug(f'ds1_array has shape: {ds1_array.shape}')
     ds2_array = np.array(value_pair[1]).reshape(-1, 2)
+    logging.debug(f'ds2_array has shape: {ds2_array.shape}')
+
+    if (ds1_array.shape[0]) != (ds2_array.shape[0] + 1):
+        # The array do not have the number of points and cannot match
+        return Result.ELEMENT_MISMATCH, "Blocks do not have the same number of points"
+
     # Check if the last point is equal to the first in the ARIA block
     if np.array_equal(ds1_array, ds2_array):
         return Result.ELEMENT_MATCH, "Blocks identical"

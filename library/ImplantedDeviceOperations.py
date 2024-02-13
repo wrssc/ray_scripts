@@ -280,15 +280,7 @@ def convert_roi_geometries_to_list_of_points(roi_geometries):
 
     PARAMETERS
     ----------
-    list_of_points : np.array
-        An Nx3 numpy array containing N points. Each row is a point in
-        Cartesian coordinates.
-    gantry_angle : float
-        The planned gantry angle in degrees (IEC 61217) (default is 0)
-    collimator_angle : float
-        The planned collimator angle in degrees (IEC 61217) (default is 0)
-    SAD : float
-        The machine source-to-axis distance in cm (default is 100)
+    roi_geometries
 
     RETURNS
     -------
@@ -586,7 +578,12 @@ def distance_from_jaws(x, y, list_of_rectangles):
     return np.sqrt(dx * dx + dy * dy)
 
 
-def get_device_dist_to_field_edge(case, beam_set, examination, roi_name):
+def get_device_dist_to_field_edge(
+    case,
+    beam_set,
+    examination,
+    roi_name,
+):
     list_of_cp_descriptions = []
     list_of_gant_angles = []
     list_of_coll_angles = []
@@ -602,7 +599,7 @@ def get_device_dist_to_field_edge(case, beam_set, examination, roi_name):
         Y1, Y2 = Y_LEAF_BOUNDS[machine_name]
 
         for segment in beam.Segments:
-            segment_desc = segment.SegmentNumber
+            segment_desc = segment.SegmentNumber + 1 # +1 since CPs start at 1 in RS
             segment_string = f"{beam_desc}, Control Point {segment_desc}: "
             segment_string += (
                 f"Gantry = {beam.GantryAngle + segment.DeltaGantryAngle} deg, "
@@ -652,7 +649,16 @@ def get_device_dist_to_field_edge(case, beam_set, examination, roi_name):
     )
 
     rect_dist = distance_from_jaws(u, v, list_of_jaw_positions)
-    return np.min(rect_dist)
+
+    # Construct string
+    min_dist = np.min(rect_dist, axis=None)
+    roi_point, control_point = np.unravel_index(
+        np.argmin(rect_dist, axis=None), rect_dist.shape
+    )
+
+    min_dist_description = f"The minimum distance of {min_dist} cm occurred for {list_of_cp_descriptions[control_point]}. The DICOM location of nearest approach is {organ_coords[roi_point]+iso_np}"
+
+    return np.min(rect_dist), min_dist_description
 
 
 def get_device_D0_03cc(case, beam_set, examination, roi_name):

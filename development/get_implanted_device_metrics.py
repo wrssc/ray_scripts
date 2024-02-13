@@ -68,6 +68,10 @@ def main():
             sg.Text("Default Text", size=(20, 1), key="-NEUTRONS TEXT-"),
         ],
         [
+            sg.Text("Diagnostics:"),
+            sg.Multiline("Default Text", size=(40, 6), key="-DIAG TEXT-"),
+        ],
+        [
             sg.Button("Calculate"),
             sg.Cancel(),
         ],
@@ -87,14 +91,18 @@ def main():
             break
         elif event == "Calculate":
             roi_name = values["-SELECTED ROI-"]
+
             max_dose = ido.get_device_D0_03cc(
                 case=case, beam_set=beam_set, examination=examination, roi_name=roi_name
             )
             window["-MAX DOSE TEXT-"].update(f"{max_dose:.3f} Gy")
-            min_dist = ido.get_device_dist_to_field_edge(
+
+            min_dist, dist_desc = ido.get_device_dist_to_field_edge(
                 case=case, beam_set=beam_set, examination=examination, roi_name=roi_name
             )
             window["-MIN DIST TEXT-"].update(f"{min_dist:.3f} cm")
+            window["-DIAG TEXT-"].update(dist_desc)
+
             quality_df = ido.get_beamset_beam_quality(beam_set)
             if quality_df["Beam Has Neutrons"].any():
                 window["-NEUTRONS TEXT-"].update("Yes")
