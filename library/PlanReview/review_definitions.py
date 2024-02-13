@@ -1923,7 +1923,7 @@ PLAN_NAMES = {'LUNG_SBRT':
                   ['Abdo_SBR', 'LivR_SBR', 'Panc_SBR', 'AdrR_SBR', 'AdrL_SBR',
                    'KidR_SBR', 'KidL_SBR', 'Stom_SBR', 'Sple_SBR', 'Gall_SBR', ],
               'PELVIS_SBRT':
-                  ['Pelv_SBR', 'HipR_SBR', 'HipL_SBR'],
+                  ['Pelv_SBR', 'HipR_SBR', 'HipL_SBR', 'Pros_SBR'],
               'BRAIN_FSRT':
                   ['Brai_SBR', 'Brai_FSR', 'PTV1_FSR', 'PTV2_FSR', 'PTV3_FSR', 'PTV4_FSR',
                    'PTV5_FSR'],
