@@ -382,7 +382,7 @@ def gui_choose_plans(list_aria, list_raystation):
     return (aria_plan_name, rs_plan_name)
 
 
-def aria_qr(root_dir=None):
+def aria_qr(root_dir=None, beamset_name=None):
     """
     General outline:
     1. Echo Aria to make sure it works
@@ -421,7 +421,7 @@ def aria_qr(root_dir=None):
         if beamset_name in dict_aria_plans:
             selected_aria = selected_rs = beamset_name
         else:
-            return (None, None, None)
+            return None, None, None
     else:
         # Ask the user to select the plan and beamset of choice, and fail if not selected
         list_aria_plans = list(dict_aria_plans.keys())
@@ -445,7 +445,7 @@ def aria_qr(root_dir=None):
             "You must save to run the APTR tool. Do you want to save the patient?"
         )
         if yes_or_no == "Yes":
-            get_current("Patient").Save()
+            get_current("Patient").Save()  # type: ignore #pylint: disable=undefined-variable
 
             case.ScriptableDicomExport(
                 ExportFolderPath=str(root_dir),
