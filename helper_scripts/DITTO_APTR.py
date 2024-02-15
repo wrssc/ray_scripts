@@ -7,8 +7,8 @@ from pathlib import Path
 
 ditto_path = Path(__file__).parent.parent / "library" / "DITTO"
 sys.path.insert(1, str(ditto_path))
-import AriaRTPlanQR
-import DicomIntegrityTool_APTR
+import DITTO.AriaRTPlanQR as AriaRTPlanQR
+import DITTO.DicomIntegrityTool_APTR as DicomIntegrityTool_APTR
 import logging
 
 
