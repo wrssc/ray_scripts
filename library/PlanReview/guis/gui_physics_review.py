@@ -381,7 +381,8 @@ def launch_physics_review_gui(rso, relaunch=False):
             handle_start_event(gui_state_manager, beamsets, values)
         # Update to Ditto
         # Check if the event starts with '-DITTO_TREE_' and if there are beamsets to process
-        if 'DITTO_TREE_' in event and beamsets and match_trees:
+        print(event)
+        if '-APTR_TREE_' in event and beamsets and match_trees:
             on_ditto_element_click(gui_state_manager.window, values, event, beamsets, match_trees)
         #
         # Plan Revision Events

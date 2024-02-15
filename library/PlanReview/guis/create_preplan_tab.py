@@ -4,6 +4,7 @@ Create the information entry prompt for the dose and physics review
 
 import PySimpleGUI as Sg
 import sys
+import logging
 from PlanReview.utils.protocol_loading import get_order_instructions, \
     site_protocol_list, order_dict, load_plan_names, get_frequencies
 from PlanReview.utils.constants import *
@@ -870,7 +871,20 @@ def load_preplan(window, values, sites, protocols, instructions,
     # Handle the radio keys and other elements in the Treatment Planning Order Information frame
     treatment_instructions = values.get(KEY_TX_INST_SET, {})
     for key, value in treatment_instructions.items():
-        window[key].update(value=value)
+        try:
+            if key in window.key_dict:
+                window[key].update(value=value)
+            else:
+                # If an xml protocol is changed, then the instruction number may be different
+                # The key is a tuple, so see if there is a match on the first element in keys
+                # then match to whatever second element is in the tuple
+                for k in window.key_dict:
+                    if k[0] == key[0]:
+                        window[k].update(value=value)
+                        break
+        except KeyError:
+            continue
+            logging.warning(f'Key {key} not found in window')
     if order_name and protocol:
         update_preplan_instructions(window, protocol, order_name, instructions)
     #

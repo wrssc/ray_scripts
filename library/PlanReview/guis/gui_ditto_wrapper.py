@@ -1,11 +1,16 @@
 import PySimpleGUI as Sg
 import pydicom
-import AriaRTPlanQR
-import DicomIntegrityTool_APTR
+import sys
+from pathlib import Path
+# Similarly, point to the DITTO folder where more magic happens
 
 
 def run_dicom_integrity_tool_physics_review(tab_width: int, tab_height: int,
                                             beamset_name: str = None, use_progress_bar: bool = False):
+    ditto_path = Path(__file__).parent.parent / "library" / "DITTO"
+    sys.path.insert(1, str(ditto_path))
+    import DITTO.AriaRTPlanQR as AriaRTPlanQR
+    import DITTO.DicomIntegrityTool_APTR as DicomIntegrityTool_APTR
     """
     Runs the DICOM Integrity Tool for Physics Review.
 

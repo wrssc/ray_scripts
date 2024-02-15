@@ -181,7 +181,7 @@
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '2023-Nov-20'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 __status__ = 'Clinical'
 __deprecated__ = False
 __reviewer__ = 'Someone else'
@@ -191,7 +191,7 @@ __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __help__ = ''
-__copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2024, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
 import sys
