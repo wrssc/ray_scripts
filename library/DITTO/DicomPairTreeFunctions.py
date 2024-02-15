@@ -1,6 +1,6 @@
 import pydicom
-from DicomPairClasses import ElementPair, SequencePair, DicomTreePair
-from ProcessingFunctions import PROCESS_FUNCTION_DICT
+from .DicomPairClasses import ElementPair, SequencePair, DicomTreePair
+from .ProcessingFunctions import PROCESS_FUNCTION_DICT
 
 
 ATTRIBUTE_MATCH_DICT = {
