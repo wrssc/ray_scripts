@@ -3,8 +3,8 @@ import datetime
 from pathlib import Path
 import pydicom
 import PySimpleGUI as sg
-from .DicomPairTreeFunctions import compare_dicomrt_plans
-from .AriaPlanTransferReviewChecks import run_aria_plan_transfer_checks
+from DicomPairTreeFunctions import compare_dicomrt_plans
+from AriaPlanTransferReviewChecks import run_aria_plan_transfer_checks
 
 
 def report_failing_test_func(aptr_dicom_tree_pair, mrn="0000000", plan_name="Plan"):

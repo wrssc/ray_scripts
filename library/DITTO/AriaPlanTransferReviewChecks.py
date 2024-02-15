@@ -1,7 +1,7 @@
 from copy import deepcopy
-from .DicomPairClasses import SequencePair, DicomTreePair, ElementPair
-from .DicomPairClasses import Result
-from .DicomPairTreeFunctions import create_dicom_tree_pair
+from DicomPairClasses import SequencePair, DicomTreePair, ElementPair
+from DicomPairClasses import Result
+from DicomPairTreeFunctions import create_dicom_tree_pair
 
 
 def check_plan_names_match(dicom_match_tree):

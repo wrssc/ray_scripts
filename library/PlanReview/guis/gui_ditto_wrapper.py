@@ -1,6 +1,7 @@
 import PySimpleGUI as Sg
-import library.DITTO.AriaRTPlanQR as AriaRTPlanQR
-import library.DITTO.DicomIntegrityTool as DicomIntegrityTool
+import pydicom
+import AriaRTPlanQR
+import DicomIntegrityTool_APTR
 
 
 def run_dicom_integrity_tool_physics_review(tab_width: int, tab_height: int,
@@ -26,7 +27,7 @@ def run_dicom_integrity_tool_physics_review(tab_width: int, tab_height: int,
         from PlanReview.guis import display_progress_bar
         progress_window, progress_bar, progress_text = display_progress_bar(
             title_text='Dicom Integrity Tool', progress_bar_text='Running DITTO...')
-        update_progress_bar(progress_bar, progress_window, progress_text, 1, 'Checking for DICOM data')
+        update_progress_bar(progress_bar, progress_text, 1, 'Checking for DICOM data')
     else:
         progress_window, progress_bar, progress_text = None, None, None
 
@@ -35,42 +36,46 @@ def run_dicom_integrity_tool_physics_review(tab_width: int, tab_height: int,
 
     # Update progress bar after querying
     if use_progress_bar:
-        update_progress_bar(progress_bar, progress_window, progress_text, 50,
+        update_progress_bar(progress_bar,  progress_text, 50,
                             'Aria/RayStation Match found. Comparing...')
 
     # Check if DICOM data is available
     if aria_file_location is None and rs_file_location is None and selected_rs is None:
         if use_progress_bar:
-            update_progress_bar(progress_bar, progress_window, progress_text, 99, 'Dicom Data Unavailable')
+            update_progress_bar(progress_bar, progress_text, 99, 'Dicom Data Unavailable')
             progress_window.close()
         return None, None
 
     # Compare DICOM RT plans
-    dicom_match_tree = DicomIntegrityTool.compare_dicomrt_plans(rs_file_location, aria_file_location)
+    # Get ARIA and RAYSTATION Tree Pairs
+    ds1 = pydicom.dcmread(rs_file_location, force=True)
+    ds2 = pydicom.dcmread(aria_file_location, force=True)
+
+    aptr_dicom_tree_pair = DicomIntegrityTool_APTR.run_aria_plan_transfer_checks(ds1, ds2)
+    aptr_treedata = aptr_dicom_tree_pair.get_treedata(show_matches=True)
 
     # Update progress bar after comparison
     if use_progress_bar:
-        update_progress_bar(progress_bar, progress_window, progress_text, 99, 'Dicom Data Comparison Complete')
+        update_progress_bar(progress_bar, progress_text, 99, 'Dicom Data Comparison Complete')
 
     # Prepare tree data for display
-    treedata = dicom_match_tree.get_treedata()
-    layout = create_gui_layout(treedata, beamset_name, tab_width, tab_height)
+    # treedata = dicom_match_tree.get_treedata()
+    layout = create_gui_layout(aptr_treedata, beamset_name, tab_width, tab_height)
 
     # Finalize the progress bar if present
     if use_progress_bar:
-        update_progress_bar(progress_bar, progress_window, progress_text, 100, '')
+        update_progress_bar(progress_bar, progress_text, 100, '')
         progress_window.close()
 
-    return layout, dicom_match_tree
+    return layout, aptr_treedata #dicom_match_tree
 
 
-def update_progress_bar(progress_bar, progress_window, progress_text, steps_performed, message):
+def update_progress_bar(progress_bar, progress_text, steps_performed, message):
     """
     Updates the progress bar with a new value and message.
 
     Args:
         progress_bar: The progress bar object.
-        progress_window: The window containing the progress bar.
         progress_text: The text object displaying progress information.
         steps_performed (int): The current progress in percentage (0-100).
         message (str): The message to display on the progress bar.
@@ -109,7 +114,7 @@ def create_gui_layout(treedata, beamset_name, tab_width, tab_height):
                             col0_width=c0_width,
                             col_widths=[c1_width, c2_width, ],
                             num_rows=n_rows,
-                            key=f'-DITTO_TREE_{beamset_name}',
+                            key=f'-APTR_TREE_{beamset_name}',
                             show_expanded=False,
                             enable_events=True,
 
@@ -117,15 +122,15 @@ def create_gui_layout(treedata, beamset_name, tab_width, tab_height):
                     ],
                     [
                         Sg.Text(f'{file_label1} Value: '),
-                        Sg.Text('Value 1', key=f"-DITTO_TREE_VALUE1_{beamset_name}", size=(100, None)),
+                        Sg.Text('Value 1', key=f"-APTR_VALUE1_{beamset_name}", size=(100, None)),
                     ],
                     [
                         Sg.Text(f'{file_label2} Value: '),
-                        Sg.Text('Value 2', key=f"-DITTO_TREE_VALUE2_{beamset_name}", size=(100, None)),
+                        Sg.Text('Value 2', key=f"-APTR_VALUE2_{beamset_name}", size=(100, None)),
                     ],
                     [
-                        Sg.Text(f'{file_label2} Debug Value: '),
-                        Sg.Text('Debug', key=f"-DITTO_TREE_DEBUG_{beamset_name}", size=(100, None)),
+                        Sg.Text(f'{file_label2} Comment: '),
+                        Sg.Text('Comment', key=f"-APTR_COMMENT_{beamset_name}", size=(100, None)),
                     ],
                 ],
                 size=(tab_width, tab_height),
@@ -158,6 +163,7 @@ def on_ditto_element_click(window, values, event, beamsets, match_trees):
     # Extract the beamset name from the event key
     beamset_parts = event.split('_')
     beamset_name = '_'.join(beamset_parts[-3:])  # Join the last three parts to form the beamset name
+    print(f'Event is {event} with values {values[event]} and beamset name {beamset_name}')
     if beamset_name in beamsets:  # Check if the extracted name is in the list of beamsets
         tree_key = values[event][0]
         dicom_match_tree = match_trees[beamset_name]
@@ -165,6 +171,6 @@ def on_ditto_element_click(window, values, event, beamsets, match_trees):
         element = dicom_match_tree.get_element_from_key(tree_key[1:])
 
         # Update the values in the window
-        window[f"-DITTO_TREE_VALUE1_{beamset_name}"].update(value1 if value1 is not None else "")
-        window[f"-DITTO_TREE_VALUE2_{beamset_name}"].update(value2 if value2 is not None else "")
-        window[f"-DITTO_TREE_DEBUG_{beamset_name}"].update(element.parent.get_name() if element.parent else "")
+        window[f"-APTR_VALUE1_{beamset_name}"].update(value1 if value1 is not None else "")
+        window[f"-APTR_VALUE2_{beamset_name}"].update(value2 if value2 is not None else "")
+        window[f"-APTR_COMMENT_{beamset_name}"].update(element.parent.get_name() if element.parent else "")
