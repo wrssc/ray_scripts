@@ -168,6 +168,25 @@ def handle_already_started_tests(gui_state_manager, values):
         return False
 
 
+def get_ditto_tab_list(gui_state_manager, beamsets):
+    """
+    Get the ditto tab list and match trees.
+    Args:
+        gui_state_manager:
+        beamsets:
+
+    Returns:
+
+    """
+    ditto_tab_list = []
+    match_trees = {}
+    for beamset in gui_state_manager.rso.plan.BeamSets:
+        if "Tomo" not in beamset.DeliveryTechnique:
+            ditto_tab_list, match_trees = get_ditto_tab(gui_state_manager.gui_dict['tab_width'],
+                                                        gui_state_manager.gui_dict['tab_height'], beamsets)
+    return ditto_tab_list, match_trees
+
+
 def handle_start_event(gui_state_manager, beamsets, values):
     """
     Handle the '-START-' event in the GUI.
@@ -187,8 +206,7 @@ def handle_start_event(gui_state_manager, beamsets, values):
             gui_state_manager.rso, do_physics_review=True, values=values,
             display_progress=True, beamsets=beamsets)
         gui_state_manager.rso.patient.Save()
-        ditto_tab_list, match_trees = get_ditto_tab(gui_state_manager.gui_dict['tab_width'],
-                                                    gui_state_manager.gui_dict['tab_height'], beamsets)
+        ditto_tab_list, match_trees = get_ditto_tab_list(gui_state_manager, beamsets)
         tab_group = gui_state_manager.window['tab_group']
         tab1 = on_submit_build_tree(tree_data, gui_state_manager.gui_dict['tab_width'],
                                     gui_state_manager.gui_dict['tab_height'],
@@ -327,6 +345,9 @@ def launch_physics_review_gui(rso, relaunch=False):
         elif event == '-LOAD-':
             load_review(gui_state_manager, sites, protocols, instructions,
                         maximum_target_number, max_beamset_count, review_file_name)
+            # import sys
+            # print(values)
+            # sys.exit()
         elif event == '-PAUSE-':
             connect.await_user_input('Review Paused. Resume Script Execution to Continue')
         elif event == '-ERROR-':
