@@ -345,9 +345,6 @@ def launch_physics_review_gui(rso, relaunch=False):
         elif event == '-LOAD-':
             load_review(gui_state_manager, sites, protocols, instructions,
                         maximum_target_number, max_beamset_count, review_file_name)
-            # import sys
-            # print(values)
-            # sys.exit()
         elif event == '-PAUSE-':
             connect.await_user_input('Review Paused. Resume Script Execution to Continue')
         elif event == '-ERROR-':

@@ -104,12 +104,12 @@ def create_manual_check_row(item, word_wrap_limit, user_text_length=80, ):
     return row, line_count
 
 
-def excluded_check_boxes(check_dict, key, values):
+def excluded_check_boxes(key, values):
     # Check if conditions are met to include the key in the extracted values
     exclude_check = False
     # Check if prior rt was selected
-    prior_rt = values.get(KEY_PRIOR_RT, False)
-    imd = values.get(KEY_IMD, False)
+    prior_rt = values.get(create_key(KEY_PRIOR_RT+KEY_RADIO+'-YES'), False)
+    imd = values.get(create_key(KEY_IMD+KEY_RADIO+'-YES'), False)
     if key == REVIEW_LEVELS['PRIOR_RT'] and not prior_rt:
         exclude_check = True
     if key == REVIEW_LEVELS['IMPLANTED_DEVICE'] and not imd:
@@ -122,7 +122,7 @@ def extract_values_manual_tab(values, passing, failed, check_boxes):
     for key in check_boxes:
         sorted_values[key] = {}
         for item in check_boxes[key]:
-            if excluded_check_boxes(item, key, values):
+            if excluded_check_boxes(key, values):
                 continue
             phrases = item[KEY_OUT_OPTIONS].split(',')
             for p in phrases:
@@ -729,7 +729,7 @@ def is_valid_manual_tab(window, values, check_boxes, failed_tests, response_requ
     if response_required:
         for key, items in check_boxes.items():
             for item in items:
-                if excluded_check_boxes(item, key, values) or key == REVIEW_LEVELS['SANDBOX']:
+                if excluded_check_boxes(key, values) or key == REVIEW_LEVELS['SANDBOX']:
                     continue
                 logging.debug(f'---Checkbox information:{key}: {item}')
 
@@ -991,7 +991,7 @@ def process_check_box_values(window, values, checks):
             parsed_item = {KEY_OUT_DESC: item[KEY_OUT_DESC]}
             radio_pre = f"{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}"
             input_key = create_key(f"{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_INPUT_TEXT}")
-            if excluded_check_boxes(item, test_level, values):
+            if excluded_check_boxes(test_level, values):
                 continue
             if get_key([radio_pre, 'Yes'], values):
                 parsed_item[KEY_OUT_RESULT] = PASS

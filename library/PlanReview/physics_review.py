@@ -64,6 +64,10 @@
     1.0.3: Last update before release
            * Add an option to the radio selection of special instructions to include "None". This gets ignored
              in the report.
+           * Incorporated the latest DITTO check for Aria plan transfer
+               * Specifically exclude TomoTherapy beamsets from DITTO checks
+           * Fixed a bug preventing PriorRT and IMD selections from being included in PDF report
+
 
 
 
