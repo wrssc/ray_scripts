@@ -428,6 +428,12 @@ def aria_qr(root_dir=None, beamset_name=None):
     Input: root_dir: root directory used to store the temp files written to disk
     If empty, defaults to a tempdir selected automatically.
     Should be a pathlike object.
+
+    Input2: beamset_name:
+    This is a string to auto-run this whole routine. If this string matches a 
+    RayStation beamset name (the current beamset) as well as an available Aria
+    plan name, then the user isn't presented with a GUI to select anything, this
+    just runs.
     """
     # Key for the field we want to use as the aria plan list value
     list_key = "RTPlanLabel"
@@ -450,14 +456,25 @@ def aria_qr(root_dir=None, beamset_name=None):
 
     if beamset_name:
         if beamset_name in list_aria_plans:
-            selected_aria = selected_rs = beamset_name
-            # this will almost certainly lead to sadness and disaster if there are multiple
-            # plans in Aria with the same exact RTPlanLabel. But it should work otherwise.
+            #raystation selection is still by string, beamset name key
+            selected_rs = beamset_name
+
+            #aria needs to be converted to the index position in the list
+            # this is most problematic if Aria has multiple plans with the same name.
+            # Not much we can do about that...just basically need to either pick the
+            # first or the last occurrence of the plan in the list.
+
+            #option 1: find the FIRST match of this in the aria list.
+            # standard python method "index" returns first occurrence.
+            selected_aria = list_aria_plans.index(beamset_name)
+
+            # option 2: find the LAST match of this in the aria list.
+            # selected_aria = len(list_aria_plans)-1-list_aria_plans[::-1].index(beamset_name)
         else:
             return None, None, None
     else:
         # Ask the user to select the plan and beamset of choice, and fail if not selected
-        (selected_aria, selected_rs) = gui_choose_plans(list_aria_plans, list_rs_bs, aria_return_type='index')
+        (selected_aria, selected_rs) = gui_choose_plans(list_aria_plans, list_rs_bs)
         if not selected_aria or not selected_rs:
             return None, None, None
 
