@@ -606,8 +606,6 @@ def create_tab_preplan_information(protocols, sites, orders,
                                   [Sg.Text('Patient Orientation: ', pad=(20, 0)),
                                    Sg.Combo(list(PATIENT_ORIENTATIONS.keys()),
                                             default_value=None, key=KEY_PATIENT_ORIENTATION), ],
-                                  # [Sg.Text('Implanted Medical Device Present: ', pad=(20, 0)),
-                                  #  Sg.Checkbox('Yes', key=KEY_IMD)],
                                   [Sg.Text('Implanted Medical Device Present: ', pad=(20, 0)),
                                    Sg.Radio('Yes',
                                             create_key(KEY_IMD+KEY_RADIO),
@@ -622,8 +620,6 @@ def create_tab_preplan_information(protocols, sites, orders,
                                    Sg.Radio('No',
                                             create_key(KEY_PRIOR_RT+KEY_RADIO),
                                             key=create_key(KEY_PRIOR_RT+KEY_RADIO+'-NO'))],
-                                  # [Sg.Text('History of Prior Radiotherapy: ', pad=(20, 0)),
-                                  #  Sg.Checkbox('Yes', key=KEY_PRIOR_RT)],
                                   ],
                                  scrollable=scroll_for_small,
                                  vertical_scroll_only=True,
@@ -871,6 +867,8 @@ def load_preplan(window, values, sites, protocols, instructions,
     # Handle the radio keys and other elements in the Treatment Planning Order Information frame
     treatment_instructions = values.get(KEY_TX_INST_SET, {})
     for key, value in treatment_instructions.items():
+        logging.debug(f'Key is {key} and value is {value}')
+        logging.debug(f'Window key dict is {window.key_dict}')
         try:
             if key in window.key_dict:
                 window[key].update(value=value)
@@ -879,12 +877,13 @@ def load_preplan(window, values, sites, protocols, instructions,
                 # The key is a tuple, so see if there is a match on the first element in keys
                 # then match to whatever second element is in the tuple
                 for k in window.key_dict:
+                    print(f'During load_preplan, key in file is {key}: reviewing {k}')
                     if k[0] == key[0]:
                         window[k].update(value=value)
                         break
         except KeyError:
-            continue
             logging.warning(f'Key {key} not found in window')
+            continue
     if order_name and protocol:
         update_preplan_instructions(window, protocol, order_name, instructions)
     #
