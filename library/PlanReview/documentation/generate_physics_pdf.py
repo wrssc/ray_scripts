@@ -90,8 +90,6 @@ def generate_pdf(rso, review_data, test_mode=False):
     tests_df = read_data(tests)
 
     # Output file
-    # output_file = generate_file_path(
-    #     patient_output_dir, patient_output_prefix, ".pdf")
     output_file = generate_file_path(
         report_output_dir, patient_output_prefix, ".pdf"
       )
