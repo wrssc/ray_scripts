@@ -1,49 +1,17 @@
 import numpy as np
 import math
 from functools import reduce
+from PlanReview.utils.contour_utilities import (create_roi, unique_roi_name, copy_roi,
+                                                roi_has_contours)
 import logging
 
 tomotherapy_clearance = 130  # Conservative estimate of tomo couch throw
-truebeam_clearance = 99  # Measured from scale drawings of the TrueBeam at Couch=0
+truebeam_clearance = 200 # Measured from scale drawings of the TrueBeam at Couch=0
+# TODO: Need a special alert when the patient will collide with the TrueBeam laser guard covers
+truebeam_iso_to_laserguard = 100 # Distance from isocenter to the laser guard on the TrueBeam
 
 
 # ================= RayStation Utilities =================
-def roi_has_contours(rso, roi_name):
-    """
-    Check if an ROI has contours.
-
-    Args:
-        rso: RayStation object containing beamset information.
-        roi_name (str): Name of the ROI to check for contours.
-
-    Returns:
-        bool: True if the ROI has contours, otherwise False.
-    """
-    try:
-        return rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi_name].HasContours()
-    except Exception as e:
-        logging.warning(f"An error occurred while checking for contours in {roi_name}: {e}")
-        return False
-
-
-def unique_roi_name(rso, desired_name):
-    """
-    Generate a unique ROI name by appending a number to the desired name.
-
-    Args:
-        rso: RayStation object containing beamset information.
-        desired_name (str): The desired name for the ROI.
-
-    Returns:
-        str: A unique ROI name.
-    """
-    try:
-        return rso.case.PatientModel.GetUniqueRoiName(DesiredName=desired_name)
-    except Exception as e:
-        logging.warning(f"An error occurred while generating a unique ROI name: {e}")
-        return None
-
-
 def get_couch_angle(rso, beam_name):
     """
     Get the couch angle for a beam in the beamset.
@@ -112,15 +80,12 @@ def create_cylinder_roi(rso, roi_name, diameter, z_extent, center=None):
     """
     if center is None:
         center = {'x': 0, 'y': 0, 'z': 0}
+    # Create the ROI
+    roi_created = create_roi(rso, roi_name, roi_type='Undefined', color="192, 192, 192")
+    if not roi_created:
+        return False
+    # Create the cylinder geometry
     try:
-        rso.case.PatientModel.CreateRoi(
-            Name=roi_name,
-            Color="192, 192, 192",
-            Type='Undefined',
-            TissueName=None,
-            RbeCellTypeName=None,
-            RoiMaterial=None,
-        )
         rso.case.PatientModel.RegionsOfInterest[roi_name].CreateCylinderGeometry(
             Radius=(diameter / 2.),
             Axis={"x": 0, "y": 0, "z": 1},
@@ -218,7 +183,7 @@ def convert_to_contours(rso, roi_name):
     except Exception as e:
         error_message = f"An error occurred while converting {roi_name} to contours: {e}"
         logging.warning(error_message)
-        return error_message
+        return None
     return get_contour_points(rso, roi_name)
 
 
@@ -238,7 +203,7 @@ def get_contour_points(rso, contour_name):
     except Exception as e:
         error_message = f"An error occurred while getting contour points for {contour_name}: {e}"
         logging.warning(error_message)
-        return error_message
+        return None
 
 
 def delete_rois(rso, rois_to_delete):
@@ -402,16 +367,6 @@ def translate_roi(rso, roi_name, isocenter):
         logging.warning(f"Translation failed for ROI: {roi_name} to isocenter: {isocenter}")
     return roi_translated
 
-    # try:
-    #     rso.case.PatientModel.RegionsOfInterest[roi_name].TransformROI3D(
-    #         Examination=rso.exam,
-    #         TransformationMatrix=translation_matrix,
-    #     )
-    #     return True
-    # except Exception as e:
-    #     logging.warning(f"An error occurred during translation: {e}")
-    #     return False
-
 
 def transform_roi(rso, roi_name, couch_angle, isocenter):
     """
@@ -433,16 +388,6 @@ def transform_roi(rso, roi_name, couch_angle, isocenter):
     # Apply translation
     roi_translated = translate_roi(rso, roi_name, isocenter)
     return roi_rotated and roi_translated
-    # if not rotate_roi(rso, roi_name, couch_angle):
-    #     logging.warning(f"Rotation failed for ROI: {roi_name} with couch angle: {couch_angle}")
-    #     return False
-
-    # Apply translation
-    # if not translate_roi(rso, roi_name, isocenter):
-    #     logging.warning(f"Translation failed for ROI: {roi_name} to isocenter: {isocenter}")
-    #     return False
-
-    # return True
 
 
 # ================= Gantry Angle Calculations =================
@@ -558,8 +503,6 @@ def make_clearance_volumes(rso, clearance_name, diameter):
         z_extent = determine_cylinder_length(rso)
         # Create the unique name for the clearance volume
         unique_name = get_clearance_roi_name(rso, clearance_name, couch_angle)
-        # clearance_couch_name = clearance_name + f"_c{str(int(couch_angle)).zfill(3)}"
-        # unique_name = unique_roi_name(rso, roi_name=clearance_couch_name)
         #
         # Create the clearance volume
         cylinder_created = create_cylinder_roi(rso, unique_name, diameter, z_extent)
@@ -572,36 +515,6 @@ def make_clearance_volumes(rso, clearance_name, diameter):
             return None
         clearance_volumes[beam_name] = (unique_name, couch_angle)
         couch_done[couch_angle] = unique_name
-
-        # try:
-        # Create the cylinder ROI
-        # rso.case.PatientModel.CreateRoi(
-        #     Name=unique_name,
-        #     Color="192, 192, 192",
-        #     Type='Undefined',
-        #     TissueName=None,
-        #     RbeCellTypeName=None,
-        #     RoiMaterial=None,
-        #  )
-        #  rso.case.PatientModel.RegionsOfInterest[unique_name].CreateCylinderGeometry(
-        #      Radius=(diameter / 2.) - tolerance,  # Radius of max permissible - tolerance
-        #      Axis={"x": 0, "y": 0, "z": 1},
-        #      Length=z_extent,
-        #      Examination=rso.exam,
-        #      Center={'x': 0, 'y': 0, 'z': 0},  # Center at DICOM origin
-        #      Representation="Voxels",
-        #      VoxelSize=1)
-
-        #     # Transform the ROI
-        #     if transform_roi(rso, unique_name, couch_angle, isocenter):
-        #         clearance_volumes[beam_name] = (unique_name, couch_angle)
-        #         couch_done[couch_angle] = unique_name
-        #     else:
-        #         clearance_volumes[beam_name] = None
-
-        # except Exception as e:
-        #     logging.warning(f"An error occurred while creating clearance volume for {beam_name}: {e}")
-        #     clearance_volumes[beam_name] = None
 
     return clearance_volumes
 
@@ -810,12 +723,18 @@ def check_for_overlap(rso, rois_checked, diam_name_dict, rois_to_delete):
 
 def detect_collisions(rso, violation_rois):
     bad_gantry = {}
+    additional_contours = []
 
     for bn, contours in violation_rois.items():
         for contour_name in contours:
             contour_points = convert_to_contours(rso, contour_name)
-            if type(contour_points) is str:
-                return contour_points
+            if not contour_points:
+                # Contour conversion failed. Try creating an unapproved copy and repeating
+                copied_roi = copy_roi(rso, contour_name, suffix="_contour", representation="Contours")
+                contour_points = convert_to_contours(rso, copied_roi)
+                additional_contours.append(copied_roi)
+                if not contour_points:
+                    return None, additional_contours
             contour_ranges = contour_angle_ranges(rso, contour_points, bn)
 
             if not contour_ranges:
@@ -834,7 +753,7 @@ def detect_collisions(rso, violation_rois):
                         bad_gantry[contour_name] = {}
                     bad_gantry[contour_name][beam_name] = overlapping_angles, clockwise
 
-    return bad_gantry
+    return bad_gantry, additional_contours
 
 
 def detect_tomo_collisions(violations, external_roi, support_rois, target_roi, tolerance):
@@ -961,7 +880,9 @@ def check_isocenter_clearance(rso):
             tolerance=SUPPORT_TOLERANCE)
     else:
         # Check the beams for VMAT or Static Field
-        bad_gantry_angles = detect_collisions(rso, rois_outside_clearance)
+        bad_gantry_angles, copied_contours = detect_collisions(rso, rois_outside_clearance)
+        # If the conversion of the contours failed, then copies were made and need to be deleted
+        rois_to_delete.extend(copied_contours)
         if type(bad_gantry_angles) == str:
             return ALERT, bad_gantry_angles
         elif bad_gantry_angles:
