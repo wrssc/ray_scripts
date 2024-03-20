@@ -336,6 +336,7 @@ def gui_choose_plans(list_aria, list_raystation, aria_return_type='index'):
 
     default_aria = None
     default_rs = None
+    aria_index = None
     run_gui = True
     # Let's figure out if there are good default values for our drop-down boxes.
     if len(list_aria)==1 and len(list_raystation)==1 and list_aria[0].lower()==list_raystation[0].lower():
@@ -345,6 +346,7 @@ def gui_choose_plans(list_aria, list_raystation, aria_return_type='index'):
         default_aria=list_aria[0]
         default_rs=list_raystation[0]
         run_gui=False
+        aria_index=0 # the only available selection, since we won't read the combobox again later.
     elif len(list_raystation)==1:
         # If there only one RayStation beamset in the list, default to that.
         default_rs=list_raystation[0]
@@ -374,12 +376,16 @@ def gui_choose_plans(list_aria, list_raystation, aria_return_type='index'):
 
     # If there are good default values (as found above), pre-select them for the drop-downs
     if default_aria:
-        window[keyAria].update(default_aria)
+        # there might be more than one Aria plan with the same name. Select the LAST match.
+        selected_aria = len(list_aria)-1-list_aria[::-1].index(default_aria)
+        # attempt to set directly through the tkinter method
+        window[keyAria].widget.current(newindex=selected_aria)
+        # window[keyAria].update(list_aria[selected_aria]) # prior attempted method
     if default_rs:
-        window[keyRS].update(default_rs)
+        window[keyRS].update(list_raystation[list_raystation.index(default_rs)])
     guiEvent, guiValues = window.read(timeout=100)
+
     # Event Loop to process "events" and get the "values" of the inputs
-    aria_index = None
     while run_gui:
         guiEvent, guiValues = window.read()
         if guiEvent in (sg.WIN_CLOSED,'Cancel'): # if user closes window
@@ -405,6 +411,7 @@ def gui_choose_plans(list_aria, list_raystation, aria_return_type='index'):
         raise ValueError('Input type "'+aria_return_type+'" for Aria return type not known.')
     
     rs_plan_name = str(guiValues.pop(keyRS))
+    print('Selected Aria plan index: '+str(aria_return)+'\nSelected RayStation beamset name: '+str(rs_plan_name))
     return (aria_return, rs_plan_name)
 
 
@@ -466,16 +473,17 @@ def aria_qr(root_dir=None, beamset_name=None):
 
             #option 1: find the FIRST match of this in the aria list.
             # standard python method "index" returns first occurrence.
-            selected_aria = list_aria_plans.index(beamset_name)
+            # selected_aria = list_aria_plans.index(beamset_name)
 
             # option 2: find the LAST match of this in the aria list.
-            # selected_aria = len(list_aria_plans)-1-list_aria_plans[::-1].index(beamset_name)
+            selected_aria = len(list_aria_plans)-1-list_aria_plans[::-1].index(beamset_name)
         else:
             return None, None, None
     else:
         # Ask the user to select the plan and beamset of choice, and fail if not selected
         (selected_aria, selected_rs) = gui_choose_plans(list_aria_plans, list_rs_bs)
-        if not selected_aria or not selected_rs:
+        if (selected_aria is None) or not selected_rs:
+            print('Nothing selected! Cancelling.')
             return None, None, None
 
     # Export the Aria RTPlan file
