@@ -67,6 +67,7 @@
            * Incorporated the latest DITTO check for Aria plan transfer
                * Specifically exclude TomoTherapy beamsets from DITTO checks
            * Fixed a bug preventing PriorRT and IMD selections from being included in PDF report
+           * Fixed a bug causing TomoTherapy optimization checklists to not be grouped.
 
 
 

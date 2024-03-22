@@ -1215,6 +1215,8 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
         {
             KEY_OUT_TEST: 'objective_type_correct',
             KEY_OUT_DESC: 'Objective type is correct for targets/OAR',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
+                                  'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
@@ -1223,6 +1225,8 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
             KEY_OUT_TEST: 'protect_entry_exit_blocking',
             KEY_OUT_DESC: 'Protect: "Entry" and "Entry/Exit" used'
                           ' to block appropriate OARs',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
+                                  'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
@@ -1230,6 +1234,8 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
         {
             KEY_OUT_TEST: 'fov_artifacts_addressed_blocked',
             KEY_OUT_DESC: 'FOV artifacts are addressed or blocked',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
+                                  'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
@@ -1241,6 +1247,8 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
             KEY_OUT_TEST: 'low_reproducibility_anatomy_blocked',
             KEY_OUT_DESC: 'Low reproducibility anatomy is blocked'
                           ' with a margin of > 2 cm',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
+                                  'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
@@ -1248,6 +1256,8 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
         {
             KEY_OUT_TEST: 'review_beams_eye_view',
             KEY_OUT_DESC: "Review Beam's eye view",
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
+                                  'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
@@ -1695,6 +1705,8 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
     REVIEW_LEVELS['OPTIMIZATION']: [
         {KEY_OUT_TEST: 'clinical_goals_script',
          KEY_OUT_DESC: 'Clinical goals script used and matches TPO template name',
+         KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
+                               'KEY': 'tomo_imrt_opt'},
          KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
          KEY_OUT_OPTIONS: 'Yes,NA,No',
          KEY_AUTOMATION: {},
@@ -1702,6 +1714,8 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
         {
             KEY_OUT_TEST: 'dynamic_jaws',
             KEY_OUT_DESC: 'Dynamic Jaws used on 2.5 and 5 cm plans',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
+                                  'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
@@ -1709,6 +1723,8 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
         {
             KEY_OUT_TEST: 'field_width',
             KEY_OUT_DESC: 'Field width < Target length',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
+                                  'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
@@ -1716,6 +1732,8 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
         {
             KEY_OUT_TEST: 'pitch',
             KEY_OUT_DESC: 'Pitch appropriate for plan',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
+                                  'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
@@ -1723,6 +1741,8 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
         {
             KEY_OUT_TEST: 'modulation_factor',
             KEY_OUT_DESC: 'Modulation factor appropriate for plan',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
+                                  'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
@@ -1730,6 +1750,8 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
         {
             KEY_OUT_TEST: 'treatment_time',
             KEY_OUT_DESC: 'Treatment time appropriate for plan',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
+                                  'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
@@ -1737,6 +1759,8 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
         {
             KEY_OUT_TEST: 'structures_blocked',
             KEY_OUT_DESC: 'Structures are blocked per protocol if applicable',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
+                                  'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
@@ -1744,6 +1768,8 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
         {
             KEY_OUT_TEST: 'plan_optimization_script',
             KEY_OUT_DESC: 'Plan optimization script used',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
+                                  'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
