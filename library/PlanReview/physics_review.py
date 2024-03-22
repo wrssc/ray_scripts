@@ -68,6 +68,7 @@
                * Specifically exclude TomoTherapy beamsets from DITTO checks
            * Fixed a bug preventing PriorRT and IMD selections from being included in PDF report
            * Fixed a bug causing TomoTherapy optimization checklists to not be grouped.
+           * Ironically, if the PRV check passes, no message was displayed. I did not have a test for this.
 
 
 

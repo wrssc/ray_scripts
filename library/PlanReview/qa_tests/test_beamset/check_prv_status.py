@@ -144,6 +144,8 @@ def check_prv_status(rso: NamedTuple) -> Tuple[str, str]:
                 message_str += f"Unused OARS have negligible dose"\
                                f" \u2264 {int(tolerance)}% clinical goal: "\
                                + format_oars_dict(serial_negligible)
+        else:
+            message_str += 'All PRVs used in optimization. '
     return pass_result, message_str
 
 
