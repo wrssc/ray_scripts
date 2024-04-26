@@ -69,6 +69,8 @@
            * Fixed a bug preventing PriorRT and IMD selections from being included in PDF report
            * Fixed a bug causing TomoTherapy optimization checklists to not be grouped.
            * Ironically, if the PRV check passes, no message was displayed. I did not have a test for this.
+           * Corrected an error that arises if the check_fov_overlap_script is run, interrupted, then the plan is locked
+             preventing creation of new structures.
 
 
 

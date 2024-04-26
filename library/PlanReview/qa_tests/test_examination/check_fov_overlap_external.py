@@ -1,5 +1,6 @@
 import re
 import numpy as np
+import logging
 from PlanReview.review_definitions import (
     FIELD_OF_VIEW_PREFERENCES, PASS, FAIL, )
 from .get_targets_si_extent import get_targets_si_extent
@@ -77,8 +78,10 @@ def make_fov(rso, fov_name, inner_fov_name):
                 Center=center,
                 Representation="Voxels",
                 VoxelSize=1)
+            logging.debug('Made FOV: {}'.format(name))
         return True
-    except:
+    except Exception as e:
+        logging.error(f'Error making FOV: {e}')
         return False
 
 
@@ -225,12 +228,14 @@ def check_fov_overlap_external(rso, **kwargs):
                Pass: TODO
                Fail: TODO
     """
+    pm = rso.case.PatientModel
     target_extent = kwargs.get('TARGET_EXTENT')
-    fov_name = FIELD_OF_VIEW_PREFERENCES['NAME']
-    inner_fov_name = fov_name + '_Inner'
+    fov_name = pm.GetUniqueRoiName(DesiredName=FIELD_OF_VIEW_PREFERENCES['NAME'])
+    inner_fov_name = pm.GetUniqueRoiName(DesiredName=fov_name + '_Inner')
     wall_suffix = FIELD_OF_VIEW_PREFERENCES['WALL_SUFFIX']
     contraction = FIELD_OF_VIEW_PREFERENCES['CONTRACTION']
-    name_intersection_roi = FIELD_OF_VIEW_PREFERENCES['NAME_INTERSECTION']
+    name_intersection_roi = pm.GetUniqueRoiName(
+        DesiredName=FIELD_OF_VIEW_PREFERENCES['NAME_INTERSECTION'])
     message_str = None
     pass_result = None
     sources = [inner_fov_name]
@@ -238,13 +243,11 @@ def check_fov_overlap_external(rso, **kwargs):
     # Find external
     ext_name = get_external(rso)
     #
-    # Check if pre-existing FOV
-    fov = get_roi_geometries(rso.case, rso.exam.Name, roi_names=[fov_name])
-    if fov:
-        fov_exists = True
-    else:
-        fov_exists = make_fov(rso, fov_name, inner_fov_name)
-        sources.append(fov_name)
+    fov_exists = make_fov(rso, fov_name, inner_fov_name)
+    if not fov_exists:
+        logging.error(f'Making FOV failed using {fov_name} and {inner_fov_name}')
+        raise ValueError('Making FOV failed')
+    sources.append(fov_name)
     #
     # Check initial inputs
     if not ext_name:
@@ -257,16 +260,15 @@ def check_fov_overlap_external(rso, **kwargs):
         #
         # Build walls (sources)
         walls = [
-            {'Name': fov_name + wall_suffix,
+            {'Name': pm.GetUniqueRoiName(DesiredName=fov_name + wall_suffix),
              'Outer_Source': fov_name,
              'Inner_Source': inner_fov_name,
              'In_Expand': [0.] * 6},
-            {'Name': ext_name + wall_suffix,
+            {'Name': pm.GetUniqueRoiName(DesiredName=ext_name + wall_suffix),
              'Outer_Source': ext_name,
              'Inner_Source': ext_name,
              'In_Expand': [contraction] * 6},
         ]
-        pm = rso.case.PatientModel
         for w in walls:
             w_name = pm.GetUniqueRoiName(DesiredName=w['Name'])
             make_wall(rso, name=w_name, outer_name=w['Outer_Source'], inner_name=w['Inner_Source'],
