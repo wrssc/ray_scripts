@@ -3,8 +3,8 @@ import numpy as np
 import logging
 from PlanReview.review_definitions import (
     FIELD_OF_VIEW_PREFERENCES, PASS, FAIL, )
-from .get_targets_si_extent import get_targets_si_extent
-from .get_roi_list import get_roi_list
+from get_targets_si_extent import get_targets_si_extent
+from get_roi_list import get_roi_list
 
 
 def match_roi_name(roi_names, roi_list):
@@ -224,9 +224,8 @@ def check_fov_overlap_external(rso, **kwargs):
            Returns:
                 (Pass/Fail/Alert, Message to Display)
            Test Patient:
-
-               Pass: TODO
-               Fail: TODO
+                Pass: check_fov_overlap_external^test : ZZUWQA_PhysicsReview_001: Case: Pass : Plan: Pros_THI_R0A0
+                Fail: check_fov_overlap_external^test : ZZUWQA_PhysicsReview_001: Case: Fail : Plan: Pros_THI_R0A0
     """
     pm = rso.case.PatientModel
     target_extent = kwargs.get('TARGET_EXTENT')
