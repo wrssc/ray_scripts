@@ -3,8 +3,8 @@ import numpy as np
 import logging
 from PlanReview.review_definitions import (
     FIELD_OF_VIEW_PREFERENCES, PASS, FAIL, )
-from get_targets_si_extent import get_targets_si_extent
-from get_roi_list import get_roi_list
+from .get_targets_si_extent import get_targets_si_extent
+from .get_roi_list import get_roi_list
 
 
 def match_roi_name(roi_names, roi_list):
