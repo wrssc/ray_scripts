@@ -277,20 +277,19 @@ def check_fov_overlap_external(rso, **kwargs):
         #
         # Intersect the walls
         intersect_name = pm.GetUniqueRoiName(DesiredName=name_intersection_roi)
-        intersect_sources(rso, intersect_name, sources)
+        intersect_sources(rso, intersect_name, [s['Name'] for s in walls])
         #
         # Get the extent of the targets
         if not target_extent:
             target_extent = get_targets_si_extent(rso)
         #
         # Check if any slices of the intersection are on target slices
-        contours = pm.StructureSets[rso.exam.Name].RoiGeometries[
-            intersect_name].PrimaryShape.Contours
+        contours = pm.StructureSets[rso.exam.Name].RoiGeometries[intersect_name].PrimaryShape.Contours
         vertices = np.array([[g.x, g.y, g.z] for s in contours for g in s])
         if vertices.size > 0:
             suspect_vertices = np.where(np.logical_and(
-                vertices[:, 2] > target_extent[1] - FIELD_OF_VIEW_PREFERENCES['SI_PTV_BUFFER'],
-                vertices[:, 2] < target_extent[0] + FIELD_OF_VIEW_PREFERENCES['SI_PTV_BUFFER']))
+                vertices[:, 2] < target_extent[1] + FIELD_OF_VIEW_PREFERENCES['SI_PTV_BUFFER'],
+                vertices[:, 2] > target_extent[0] - FIELD_OF_VIEW_PREFERENCES['SI_PTV_BUFFER']))
             suspect_slices = np.unique(vertices[suspect_vertices][:, 2])
         else:
             # No overlap of FOV and External
