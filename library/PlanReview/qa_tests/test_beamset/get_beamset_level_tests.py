@@ -17,11 +17,13 @@ from .check_fraction_size import check_fraction_size
 from .check_no_fly import check_no_fly
 from .check_pacemaker import check_pacemaker
 from .parse_beamset_selection import parse_beamset_selection
+from .compare_rx_to_preplan import match_fractions_to_preplan
+from .compare_rx_to_preplan import match_rx_to_preplan
 from PlanReview.review_definitions import REVIEW_LEVELS
 from PlanReview.qa_tests.analyze_logs import retrieve_logs
 
 
-def get_beamset_level_tests(rso, physics_review=True, log_messages=None):
+def get_beamset_level_tests(rso, physics_review=True, log_messages=None, values=None):
     if log_messages is None:
         log_messages = retrieve_logs(rso)
     # Don't proceed if no beamset is defined
@@ -52,6 +54,13 @@ def get_beamset_level_tests(rso, physics_review=True, log_messages=None):
         f"{REVIEW_LEVELS['PLAN_DESIGN']}::Dose Grid Size Check":
             (check_dose_grid, {}),
     }
+    if values:
+        beamset_checks_dict.update({
+            f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset fractionation vs TPO":
+                (match_fractions_to_preplan, {'VALUES': values}),
+            f"{REVIEW_LEVELS['PLAN_DESIGN']}::Target Doses Match Treatment Planning Order":
+                (match_rx_to_preplan, {'VALUES': values}),
+                })
 
     # Plan check for VMAT
     #
