@@ -867,8 +867,6 @@ def load_preplan(window, values, sites, protocols, instructions,
     # Handle the radio keys and other elements in the Treatment Planning Order Information frame
     treatment_instructions = values.get(KEY_TX_INST_SET, {})
     for key, value in treatment_instructions.items():
-        logging.debug(f'Key is {key} and value is {value}')
-        logging.debug(f'Window key dict is {window.key_dict}')
         try:
             if key in window.key_dict:
                 window[key].update(value=value)
@@ -877,7 +875,6 @@ def load_preplan(window, values, sites, protocols, instructions,
                 # The key is a tuple, so see if there is a match on the first element in keys
                 # then match to whatever second element is in the tuple
                 for k in window.key_dict:
-                    print(f'During load_preplan, key in file is {key}: reviewing {k}')
                     if k[0] == key[0]:
                         window[k].update(value=value)
                         break
