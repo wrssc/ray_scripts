@@ -81,11 +81,11 @@ import logging
 import sys
 import PySimpleGUI as sg
 
-import connect
-import UserInterface
-import OptimizationOperations
-from GeneralOperations import logcrit as logcrit
-from GeneralOperations import find_scope as find_scope
+# import connect
+# import UserInterface
+# import library.OptimizationOperations
+from library.api.api_utils import find_scope
+from library.OptimizationOperations import optimize_plan
 
 
 def set_frame_visibility(window, visible_frame, frames_list):
@@ -405,7 +405,7 @@ def main():
         'n_iterations': None, }
     optimization_inputs = optimization_gui(beamset, optimization_inputs)
 
-    (status, message) = OptimizationOperations.optimize_plan(patient=patient,
+    (status, message) = optimize_plan(patient=patient,
                                                              case=case,
                                                              exam=exam,
                                                              plan=plan,
