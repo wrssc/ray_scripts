@@ -159,12 +159,12 @@ class MatchDialog:
 
         # Executes when OK is pressed
         def ok(_s, _e):
-            self.form.DialogResult = True
+            self.form.DialogResult = System.Windows.Forms.DialogResult.OK
             self.status = True
 
         # Executes when cancel is pressed
         def cancel(_s, _e):
-            self.form.DialogResult = True
+            self.form.DialogResult = System.Windows.Forms.DialogResult.OK
             self.status = False
 
         # OK/Cancel buttons

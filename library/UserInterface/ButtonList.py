@@ -82,7 +82,7 @@ class ButtonList:
         # Executes when OK is pressed
         def go(s, _e):
             self.value = s.Text
-            self.form.DialogResult = True
+            self.form.DialogResult = System.Windows.Forms.DialogResult.OK
             self.status = True
 
         # Loop through inputs
