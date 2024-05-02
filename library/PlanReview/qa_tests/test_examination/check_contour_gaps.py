@@ -1,7 +1,7 @@
 from typing import NamedTuple, Tuple
 import numpy as np
 import math
-from PlanReview.review_definitions import PASS, FAIL
+from library.PlanReview.review_definitions import PASS, FAIL
 
 
 def get_slice_positions(rso):

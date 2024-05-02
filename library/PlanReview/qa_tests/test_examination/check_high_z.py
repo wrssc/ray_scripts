@@ -1,4 +1,4 @@
-
+from library.api.api_structures import delete_geometry
 def check_structure_exists(
         case, structure_name, roi_list=None,
         option="Check", exam=None):
@@ -38,9 +38,10 @@ def check_structure_exists(
 
         if option == "Delete":
             if structure_has_contours_on_exam:
-                case.PatientModel.StructureSets[exam.Name].RoiGeometries[
-                    structure_name
-                ].DeleteGeometry()
+                delete_geometry(case, exam, structure_name)
+                # case.PatientModel.StructureSets[exam.Name].RoiGeometries[
+                #     structure_name
+                # ].DeleteGeometry()
                 return False
             else:
                 case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()

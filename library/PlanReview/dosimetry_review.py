@@ -153,7 +153,7 @@ import os
 import PySimpleGUI as Sg
 import logging
 from collections import namedtuple
-from GeneralOperations import find_scope
+from api.api_utils import find_scope
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '.'))
 from PlanReview.guis import (gui_dosimetry_safety_review)
 from PlanReview.utils.get_user_name import get_user_name
