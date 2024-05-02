@@ -39,7 +39,6 @@ import sys
 import os
 import logging
 import xml.etree.ElementTree
-from collections import OrderedDict
 import re
 import math
 import UserInterface
@@ -47,7 +46,7 @@ import StructureOperations
 import Goals
 import connect
 from GeneralOperations import logcrit as logcrit
-from GeneralOperations import find_scope as find_scope
+from api.api_objectives import add_optimization_function
 
 GENERIC_PLANNING_STRUCTURE_NAMES = ['OTV1_', 'sOTVu1_', 'OTV1_EZ_',
                                     'PTV1_', 'PTV1_Eval_', 'PTV1_EZ_',
@@ -510,8 +509,8 @@ def add_objective(obj, exam, case, plan, beamset,
             low_dose_dist = float(obj.find('type').attrib['dist'])
         else:
             logging.warning('Unknown low dose distance for Dose Fall Off')
-        logging.debug('DFO object found.  High Dose: {}, Low Dose: {}, Distance: {}'.format(
-            high_dose, low_dose, low_dose_dist))
+        logging.debug(f'DFO object found.  High Dose: {high_dose}, '
+                      f'Low Dose: {low_dose}, Distance: {low_dose_dist}')
     if 'robust' in obj.find('type').attrib:
         if obj.find('type').attrib['robust'] == 'False':
             robust = False
@@ -519,22 +518,21 @@ def add_objective(obj, exam, case, plan, beamset,
             robust = True
         else:
             logging.warning(
-                'Unsupported robustness type {}'.format(obj.find('type').attrib['robust']))
+                f'Unsupported robustness type {obj.find("type").attrib["robust"]}')
     else:
         robust = False
 
     OptIndex = find_optimization_index(plan=plan, beamset=beamset)
     plan_optimization = plan.PlanOptimizations[OptIndex]
 
-    # Add the objective
-    o = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
-                                                  RoiName=roi,
-                                                  IsConstraint=constraint,
-                                                  RestrictAllBeamsIndividually=False,
-                                                  RestrictToBeam=None,
-                                                  IsRobust=robust,
-                                                  RestrictToBeamSet=restrict_beamset,
-                                                  UseRbeDose=False)
+    o = add_optimization_function(plan_optimization=plan_optimization,
+                                  function_type=function_type,
+                                  roi_name=roi,
+                                  restricted_to_beamset=restrict_beamset,
+                                  is_constraint=constraint,
+                                  is_robust=robust,
+                                  restrict_to_beams=[],
+                                  use_rbe_dose=False)
     o.DoseFunctionParameters.Weight = weight
     if volume:
         o.DoseFunctionParameters.PercentVolume = volume
@@ -917,7 +915,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
     __help__ = 'https://github.com/wrssc/ray_scripts/wiki/CreateGoals'
     __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
-    derived_suffixes = ["_Eval","_EZ"]
+    derived_suffixes = ["_Eval", "_EZ"]
     # Adding error handling
     error_message = []
     # Potential inputs, patient, case, exam, beamset, protocol path, filename
@@ -1204,7 +1202,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
             suffixes = [ds for ds in derived_suffixes if ds in p_n]
             if len(suffixes) == 1:
                 suffix = suffixes[0]
-                p_parent = p_n.replace(suffix,"")
+                p_parent = p_n.replace(suffix, "")
             elif len(suffixes) > 1:
                 suffix = ""
                 p_parent = ""
@@ -1222,7 +1220,6 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                 g.find('name').text = translation_map[p_parent][0] + suffix
                 logging.debug('Reassigned derived protocol target name:{} to {}'.format(
                     p_n, g.find('name').text))
-
 
             # TODO: Exception catching in here for an unresolved reference
             # If the goal is relative change the name of the dose attribution
@@ -1373,7 +1370,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                 else:
                     logging.debug(
                         'No match found protocol roi: {}, with a relative dose requiring protocol roi: {}'
-                            .format(o_n, o_r))
+                        .format(o_n, o_r))
                     s_dose = 0
                     pass
             else:

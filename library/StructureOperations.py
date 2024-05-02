@@ -62,6 +62,7 @@ import clr
 import System.Drawing
 import sys
 from os import path, listdir
+from api.api_structures import delete_geometry
 
 rab_git = "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts"
 sys.path.append(
@@ -867,9 +868,9 @@ def check_structure_exists(
 
         if option == "Delete":
             if structure_has_contours_on_exam:
-                case.PatientModel.StructureSets[exam.Name].RoiGeometries[
-                    structure_name
-                ].DeleteGeometry()
+                delete_geometry(
+                    case=case, exam=exam, structure_name=structure_name
+                )
                 logging.warning(f"{structure_name} found - deleting geometry")
                 return False
             else:
@@ -2141,7 +2142,7 @@ def structure_approved(case, roi_name, examination=None):
     :return: True if structure is approved somewhere
     """
     struct_exists = exists_roi(case=case, rois=roi_name)
-    # If the structure is undefined, then is is not approved
+    # If the structure is undefined, then is not approved
     if not struct_exists:
         return False
     else:
@@ -2156,7 +2157,6 @@ def structure_approved(case, roi_name, examination=None):
                                 if r.OfRoi.Name == roi_name:
                                     return True
                     except AttributeError:
-                        logging.debug(f"A is none {a}")
                         continue
         return False
 
@@ -2319,12 +2319,11 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
                     if delete_existing:
                         # Delete the existing geometry and return
                         # the empty geometry on the current exam
-                        _ = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
-                            roi_name_ci
-                        ].DeleteGeometry
-                        return case.PatientModel.StructureSets[
-                            examination.Name
-                        ].RoiGeometries[roi_name_ci]
+                        delete_geometry(case=case, exam=examination, roi_name=roi_name_ci)
+                        # _ = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
+                        #     roi_name_ci
+                        # ].DeleteGeometry
+                        return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name_ci]
                     else:
                         # We don't want to delete the existing geometry, so we'll need to append
                         if suffix is None:
@@ -2507,6 +2506,40 @@ def make_wall(wall, sources, delta, patient, case, examination,
     )
 
 
+def target_bounds(patient, case, exam, PTVlist):
+    """
+    Args: PTVlist: list of target structures to combine
+    Returns: bounds: dictionary of bounding box coordinates
+    """
+    # Generate the All_PTVs combined PTV from
+    # sources: a list of source roi names
+    roi_name = case.PatientModel.GetUniqueRoiName(DesiredName="ptv_list")
+    all_ptv_defs = {
+        "StructureName": roi_name,
+        "ExcludeFromExport": True,
+        "VisualizeStructure": False,
+        "StructColor": [222, 47, 80],
+        "OperationA": "Union",
+        "SourcesA": PTVlist,
+        "MarginTypeA": "Expand",
+        "ExpA": [0] * 6,
+        "OperationB": "Union",
+        "SourcesB": [],
+        "MarginTypeB": "Expand",
+        "ExpB": [0] * 6,
+        "OperationResult": "None",
+        "MarginTypeR": "Expand",
+        "ExpR": [0] * 6,
+        "StructType": "Ptv",
+    }
+    make_boolean_structure(patient=patient, case=case, examination=exam, **all_ptv_defs)
+    # return the bounding box
+    bounding_box = case.PatientModel.StructureSets[exam.Name].RoiGeometries[roi_name].GetBoundingBox()
+    # Delete the temporary ROI
+    case.PatientModel.RegionsOfInterest[roi_name].DeleteRoi()
+    return bounding_box
+
+
 def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-900):
     """
 
@@ -2553,13 +2586,14 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
     # A volume reduction without further steps seems to result in a crash.
     # Eliminate the air voxels outside the patient
     # Make a temporary external that we can use to get rid of supports
-    i = 0
-    temp_air_name = air_name + str(i)
-    while check_structure_exists(
-            case=case, structure_name=temp_air_name, exam=examination, option="Check"
-    ):
-        i += 1
-        temp_air_name = air_name + str(i)
+    temp_air_name = case.PatientModel.GetUniqueRoiName(DesiredName=air_name)
+    # i = 0
+    # temp_air_name = air_name + str(i)
+    # while check_structure_exists(
+    #         case=case, structure_name=temp_air_name, exam=examination, option="Check"
+    # ):
+    #     i += 1
+    #     temp_air_name = air_name + str(i)
     temp_air_geom = create_roi(
         case=case,
         examination=examination,
@@ -2568,37 +2602,14 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
         suffix=None,
     )
     temp_air_roi = case.PatientModel.RegionsOfInterest[temp_air_name]
-    # TODO: This is taking too long. Suggest making a bounding box on all targets to speed this up
     # Function would get a bounding box for each target
-    #    b = []
-    #    a = None
-    # funct absolute_max(a,b):
-    #    if abs(a) < abs(b)
-    #       return b
-    #    else:
-    #       return a
+    # and then expand the bounding box to include the air
+    bounds = target_bounds(patient, case, examination, PTVlist)
+    # Expand the bounding box by 2 cm in all directions
+    d = 2
+    expanded_bounds = {'MinCorner': {'x': bounds[0].x - d, 'y': bounds[0].y - d, 'z': bounds[0].z - d},
+                       'MaxCorner': {'x': bounds[1].x + d, 'y': bounds[1].y + d, 'z': bounds[1].z + d}}
 
-    # for p in PTV_List:
-    #    target_geom = case.PatientModel.StructureSets[exam.Name].RoiGeometries[p]
-    #    b = target_geom.GetBoundingBox()
-    #    if not a:
-    #       a = b
-    #    a[0].x = absolute_max(a[0].x,b[0].x)
-    #    a[1].x = absolute_max(a[1].x,b[1].x)
-    #    a[0].y = absolute_max(a[0].y,b[0].y)
-    #    a[1].y = absolute_max(a[1].y,b[1].y)
-    #    a[0].z = absolute_max(a[0].z,b[0].z)
-    #    a[1].z = absolute_max(a[1].z,b[1].z)
-    # box_geom.OfRoi.CreateBoxGeometry(Size={'x': abs(b[0].x - b[1].x)+1.,
-    #                                            'y': abs(b[0].y - b[1].y)+1.,
-    #                                           'z': abs(z1-z0)},
-    #                                     Examination=exam,
-    #                                     Center=c,
-    #                                     Representation='Voxels',
-    #                                     VoxelSize=None)
-    # Find the maximum in each direction
-    # Add/Subtract a fixed value away from the targets
-    # This bounding box would be fed into the GrayLevel thresholding below
     # Build the temporary air volume
     temp_air_roi.GrayLevelThreshold(
         Examination=examination,
@@ -2606,7 +2617,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
         HighThreshold=inner_air_HU,
         PetUnit="",
         CbctUnit=None,
-        BoundingBox=None,
+        BoundingBox=expanded_bounds,
     )
     # Build the arguments for the Boolean Air construction
     air_defs = {
@@ -2929,7 +2940,8 @@ def trim_supports(patient, case, exam):
         make_boolean_structure(
             patient=patient, case=case, examination=exam, **temp_defs)
         # Delete existing s - geometry
-        s_g.DeleteGeometry()
+        delete_geometry(case=case, exam=exam, roi_name=s)
+        # s_g.DeleteGeometry()
         # Copy the geometry of the trimmed s using a margin struct
         s_g.OfRoi.CreateMarginGeometry(
             Examination=exam,
@@ -4522,9 +4534,10 @@ def planning_structures(
             logging.warning(
                 "Structure " + StructureName + " exists. Geometry will be redefined"
             )
-            case.PatientModel.StructureSets[examination.Name].RoiGeometries[
-                "InnerAir"
-            ].DeleteGeometry()
+            delete_geometry(case, examination, "InnerAir")
+            # case.PatientModel.StructureSets[examination.Name].RoiGeometries[
+            #     "InnerAir"
+            # ].DeleteGeometry()
             # TODO Move to an internal create call
             case.PatientModel.CreateRoi(
                 Name="InnerAir",

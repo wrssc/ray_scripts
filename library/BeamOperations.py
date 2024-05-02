@@ -52,8 +52,8 @@ __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
 
-__reviewed__ = '2018-Sep-05'
-__raystation__ = '7.0.0.19'
+__reviewed__ = '2024-Apr-29'
+__raystation__ = '2024A'
 __maintainer__ = 'Adam Bayliss'
 
 __email__ = 'rabayliss@wisc.edu'
@@ -76,7 +76,8 @@ import Beams
 import datetime
 import os
 import xml
-from UW_Definitions import *
+from library.api.api_beamsets import get_source_to_surface_distance
+from library.api.api_utils import get_machine
 
 PROTOCOL_FOLDER = r'../protocols'
 INSTITUTION_FOLDER = r'UW'
@@ -1005,21 +1006,6 @@ def rename_isocenter(plan, beamset):
         b.Isocenter.Annotation.Name = iso_name
 
 
-# def check_clearance(beamset):
-#     """Currently looking only at PA fields for whether the pa function should be flipped
-#     return: dict: {Beam.Name: 'PA_Check': {'No_Collision':True, 'Change_Gantry': 180.1}}"""
-#     beam_status = {}
-#     for b in beamset.Beams:
-#         rec_gantry_angle = check_pa(beam=b)
-#         if rec_gantry_angle is not None:
-#             logging.debug('Beam {} potential gantry clearance issue. Recommend changing gantry
-#             angle from {} to {}'
-#                           .format(b.Name, b.GantryAngle, rec_gantry_angle))
-#             if b.Name not in beam_status:
-#                 beam_status[b.Name] = {'PA_Check':}
-#             beam_status[b.Name] = ['PA_Clear']
-
-
 def validate_setup_fields(beamset):
     """For the current beamset check all SSD's and return a list of any beams with infinite SSD's.
     :param beamset: RS beamset object
@@ -1027,12 +1013,13 @@ def validate_setup_fields(beamset):
     """
     invalid_gantry_angles = []
     for setup_beam in beamset.PatientSetup.SetupBeams:
-        if setup_beam.GetSSD() != float('inf'):
-            logging.debug('Valid SSD {} detected on setup beam with gantry angle {}'.format(
-                setup_beam.GetSSD(), setup_beam.GantryAngle))
+        ssd = get_source_to_surface_distance(setup_beam)
+        if ssd != float('inf'):
+            logging.debug(
+                f'Valid SSD {ssd} detected on setup beam with gantry angle {setup_beam.GantryAngle}')
         else:
-            logging.debug('Invalid SSD {} detected on setup beam with gantry angle {}'.format(
-                setup_beam.GetSSD(), setup_beam.GantryAngle))
+            logging.debug(
+                f'Invalid SSD {ssd} detected on setup beam with gantry angle {setup_beam.GantryAngle}')
             invalid_gantry_angles.append(float(setup_beam.GantryAngle))
     return invalid_gantry_angles
 
@@ -1757,7 +1744,7 @@ class mlc_properties:
 
         if self.has_segments:
             current_machine_name = self.beam.MachineReference.MachineName
-            current_machine = GeneralOperations.get_machine(current_machine_name)
+            current_machine = get_machine(current_machine_name)
             # If the plan is imported then the MlcPhysics methods will not be defined
             try:
                 mlc_physics = current_machine.Physics.MlcPhysics
@@ -2440,7 +2427,7 @@ def rounded_jaw_positions(beam):
         use_round_open = True
     # For some bizzare reason, the __init__ method of beam does not pull the data from
     # the MLC MachineReference physics. So we are searching for the machine directly here.
-    current_machine = GeneralOperations.get_machine(machine_name=beam.MachineReference.MachineName)
+    current_machine = get_machine(machine_name=beam.MachineReference.MachineName)
     # Maximum jaw overtravel (minimum) position
     current_mlc_physics = current_machine.Physics.MlcPhysics
 
