@@ -53,8 +53,8 @@ import connect
 
 # import math
 import UserInterface
-from GeneralOperations import find_scope as find_scope
-from GeneralOperations import logcrit as logcrit
+from library.api.api_utils import find_scope as find_scope
+from library.GeneralOperations import logcrit
 import StructureOperations
 
 

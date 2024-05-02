@@ -58,7 +58,7 @@ import re
 # Local imports
 import connect
 import StructureOperations
-from GeneralOperations import find_scope
+from library.api.api_utils import find_scope
 
 
 def custom_color(roi_name, template):
