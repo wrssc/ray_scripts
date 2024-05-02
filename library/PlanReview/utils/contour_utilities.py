@@ -156,6 +156,7 @@ def copy_roi(rso, source_roi_name, suffix='', representation='Contours'):
     except Exception as e:
         logging.warning(f"An error occurred while deleting the derived geometry of {copied_roi}: {e}")
         return None
+    logging.info(f"ROI {source_roi_name} copied to {copied_roi}")
     # Set representation
     try:
         rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[copied_roi]\

@@ -5,10 +5,10 @@ Create the information entry prompt for the dose and physics review
 import PySimpleGUI as Sg
 import sys
 import logging
-from PlanReview.utils.protocol_loading import get_order_instructions, \
+from library.PlanReview.utils.protocol_loading import get_order_instructions, \
     site_protocol_list, order_dict, load_plan_names, get_frequencies
-from PlanReview.utils.constants import *
-from PlanReview.review_definitions import PROTOCOL_DIR, PATIENT_ORIENTATIONS
+from library.PlanReview.utils.constants import *
+from library.PlanReview.review_definitions import PROTOCOL_DIR, PATIENT_ORIENTATIONS
 
 
 def create_key(element_type, beamset_index=None, target_index=None):
@@ -867,8 +867,6 @@ def load_preplan(window, values, sites, protocols, instructions,
     # Handle the radio keys and other elements in the Treatment Planning Order Information frame
     treatment_instructions = values.get(KEY_TX_INST_SET, {})
     for key, value in treatment_instructions.items():
-        logging.debug(f'Key is {key} and value is {value}')
-        logging.debug(f'Window key dict is {window.key_dict}')
         try:
             if key in window.key_dict:
                 window[key].update(value=value)
@@ -877,7 +875,6 @@ def load_preplan(window, values, sites, protocols, instructions,
                 # The key is a tuple, so see if there is a match on the first element in keys
                 # then match to whatever second element is in the tuple
                 for k in window.key_dict:
-                    print(f'During load_preplan, key in file is {key}: reviewing {k}')
                     if k[0] == key[0]:
                         window[k].update(value=value)
                         break
