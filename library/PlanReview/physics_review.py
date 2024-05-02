@@ -205,11 +205,11 @@ import os
 import PySimpleGUI as Sg
 import logging
 from collections import namedtuple
-from GeneralOperations import find_scope
+from library.api.api_utils import find_scope
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '.'))
-from PlanReview.guis import launch_physics_review_gui
-from PlanReview.utils.get_user_name import get_user_name
-from PlanReview.documentation.generate_physics_pdf import generate_pdf
+from library.PlanReview.guis.gui_physics_review import launch_physics_review_gui
+from library.PlanReview.utils.get_user_name import get_user_name
+from library.PlanReview.documentation.generate_physics_pdf import generate_pdf
 
 
 def physics_review(do_physics_review=True):
