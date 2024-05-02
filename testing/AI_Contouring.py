@@ -30,7 +30,7 @@ __credits__ = []
 
 import PySimpleGUI as Sg
 import re
-from GeneralOperations import find_scope
+from library.api.api_utils import find_scope
 import DicomExport
 
 OAR_LIBRARY = {

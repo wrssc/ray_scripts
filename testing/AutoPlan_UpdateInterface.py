@@ -71,14 +71,14 @@ import re
 import csv
 import connect
 import UserInterface
-import GeneralOperations
-from GeneralOperations import logcrit as logcrit
+from library.GeneralOperations import logcrit as logcrit
 import StructureOperations
 import Objectives
 import BeamOperations
 import AutoPlanOperations
 from PlanOperations import find_optimization_index
 import autoplan_whole_brain
+from library.api.api_utils import get_all_commissioned, find_scope
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
 import FinalDose
@@ -522,9 +522,9 @@ def beamset_dialog(protocol, order_targets):
         beamset_name = beamsets[0]
         beamset_etree = find_beamset_element(protocol, beamset_name=beamset_name)
         if 'Tomo' in beamset_etree.find('technique').text:
-            machines = GeneralOperations.get_all_commissioned(machine_type='Tomo')
+            machines = get_all_commissioned(machine_type='Tomo')
         else:
-            machines = GeneralOperations.get_all_commissioned(machine_type='VMAT')
+            machines = get_all_commissioned(machine_type='VMAT')
         inputs = {'m': 'Select Machine'}
         datatype = {'m': 'combo'}
         initial = {}
@@ -536,7 +536,7 @@ def beamset_dialog(protocol, order_targets):
         logging.debug('options {}'.format(options))
     else:
         beamset_name = None
-        machines = GeneralOperations.get_all_commissioned()
+        machines = get_all_commissioned()
         inputs = {'bs': 'Select Beamset', 'm': 'Select Machine'}
         datatype = {'bs': 'combo', 'm': 'combo'}
         initial = {'bs': beamsets[0]}
@@ -647,10 +647,10 @@ def autoplan(testing_bypass_dialogs={}):
     Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
     # Get current patient, case, exam
     pd = Pd(error=[],
-            patient=GeneralOperations.find_scope(level='Patient'),
-            case=GeneralOperations.find_scope(level='Case'),
-            exam=GeneralOperations.find_scope(level='Examination'),
-            db=GeneralOperations.find_scope(level='PatientDB'),
+            patient=find_scope(level='Patient'),
+            case=find_scope(level='Case'),
+            exam=find_scope(level='Examination'),
+            db=find_scope(level='PatientDB'),
             plan=None,
             beamset=None)
 
@@ -723,7 +723,7 @@ def autoplan(testing_bypass_dialogs={}):
     # TODO: Move to a select function like that one above
     # TODO: Sort machines by technique
     # Machines
-    machines = GeneralOperations.get_all_commissioned(machine_type=None)
+    machines = get_all_commissioned(machine_type=None)
     auto_status.next_step(text=script_steps[i][1])
     i += 1
     #
@@ -1032,10 +1032,10 @@ def autoplan(testing_bypass_dialogs={}):
     # Create the return variable noting that people get whiny about _replace and we should
     # eventually get around to using dataclasses
     pd_out = Pd(error=[],
-                patient=GeneralOperations.find_scope(level='Patient'),
-                case=GeneralOperations.find_scope(level='Case'),
-                exam=GeneralOperations.find_scope(level='Examination'),
-                db=GeneralOperations.find_scope(level='PatientDB'),
+                patient=find_scope(level='Patient'),
+                case=find_scope(level='Case'),
+                exam=find_scope(level='Examination'),
+                db=find_scope(level='PatientDB'),
                 plan=pd.case.TreatmentPlans[new_plan_name],
                 beamset=pd.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name])
     # Update doses

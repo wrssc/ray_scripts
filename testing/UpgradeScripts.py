@@ -4,7 +4,7 @@
 import os
 import connect
 from collections import namedtuple
-from GeneralOperations import find_scope
+from library.api.api_utils import find_scope
 import logging
 
 STRUCTURE_TEMPLATE_LOCATION = r'U:\\UWHealth\\RadOnc\\ShareAll\\RayStation\\11B\\Templates\\Structure\\11B\\'

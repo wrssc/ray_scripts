@@ -45,7 +45,8 @@ import UserInterface
 import BeamOperations
 from os import path, listdir
 from collections import namedtuple
-from GeneralOperations import get_all_commissioned, find_scope, get_machine, logcrit
+from library.api.api_utils import find_scope, get_machine
+from library.GeneralOperations import logcrit
 from StructureOperations import find_types
 import PySimpleGUI as sg
 
