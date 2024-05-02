@@ -31,6 +31,7 @@
     1.0.5 Repaired local template structures to reflect S-Frame location
     1.1.0 Update to Python 3.6 and RS 10A SP1
     1.1.1 Update to Python 3.8 and RS 11B. Eliminated second dummy plan.
+    1.1.2 Update to Python 3.11 and RS 2024A. Added bypass_dialogs to allow for automated execution
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -47,17 +48,17 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '13-June-2022'
-__version__ = '1.1.1'
+__date__ = '30-Apr-2024'
+__version__ = '1.1.2'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
-__raystation__ = '11B'
+__raystation__ = '2024A'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2024, University of Wisconsin Board of Regents'
 __help__ = ''
 __credits__ = []
 
@@ -69,6 +70,7 @@ import sys
 import BeamOperations
 import PlanOperations
 import StructureOperations
+from library.api.api_beamsets import add_dose_prescription_to_roi
 
 
 def check_external(roi_list):
@@ -84,13 +86,13 @@ def check_external(roi_list):
             return False
 
 
-def check_structure_exists(case, structure_name, roi_list, option):
+def check_structure_exists(case, structure_name, roi_list, option,bypass_dialogs=False):
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
         if option == 'Delete':
             case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
             logging.warning("check_structure_exists: " +
                             structure_name + 'found - deleting and creating')
-        elif option == 'Check':
+        elif option == 'Check' and not bypass_dialogs:
             connect.await_user_input(
                 'Contour {} Exists - Verify its accuracy and continue script'.format(
                     structure_name))
@@ -101,7 +103,7 @@ def check_structure_exists(case, structure_name, roi_list, option):
         return False
 
 
-def main():
+def main(bypass_dialogs=False):
     # Script will run through the following steps.  We have a logical inconsistency here with making a plan
     # this is likely an optional step
     status = UserInterface.ScriptStatus(
@@ -177,8 +179,9 @@ def main():
     if sim_point_found:
         logging.warning("POI SimFiducials Exists")
         status.next_step(text="SimFiducials Point found, ensure that it is placed properly")
-        connect.await_user_input(
-            'Ensure Correct placement of the SimFiducials Point and continue script.')
+        if not bypass_dialogs:
+            connect.await_user_input(
+             'Ensure Correct placement of the SimFiducials Point and continue script.')
     else:
         poi_status = StructureOperations.create_poi(
             case=case, exam=examination, coords=[0., 0., 0.],
@@ -188,13 +191,14 @@ def main():
             sys.exit('Error detected creating SimFiducial point{}'.format(poi_status))
         else:
             status.next_step(text="SimFiducials POI created, ensure that it is placed properly")
-            connect.await_user_input(
-                'Ensure Correct placement of the SimFiducials Point and continue script.')
+            if not bypass_dialogs:
+                connect.await_user_input(
+                    'Ensure Correct placement of the SimFiducials Point and continue script.')
 
     # Generate the target based on an MBS brain contour
     status.next_step(text="The PTV_WB_xxxx target is being generated")
     if not check_structure_exists(case=case, structure_name='PTV_WB_xxxx', roi_list=rois,
-                                  option='Check'):
+                                  option='Check', bypass_dialogs=bypass_dialogs):
         case.PatientModel.MBSAutoInitializer(
             MbsRois=[{'CaseType': "HeadNeck",
                       'ModelName': "Brain",
@@ -242,8 +246,9 @@ def main():
     except:
         logging.debug("Could not click on the patient modeling window")
 
-    connect.await_user_input(
-        'Ensure the PTV_WB_xxxx encompasses the brain and C1 and continue playing the script')
+    if not bypass_dialogs:
+        connect.await_user_input(
+            'Ensure the PTV_WB_xxxx encompasses the brain and C1 and continue playing the script')
 
     # Get some user data
     status.next_step(text="Complete plan information - check the TPO for doses " +
@@ -271,9 +276,16 @@ def main():
         required=['input2_number_fractions',
                   'input3_dose',
                   'input4_choose_machine'])
-
-    # Launch the dialog
-    response = input_dialog.show()
+    if not bypass_dialogs:
+        # Launch the dialog
+        response = input_dialog.show()
+    else:
+        response = {'input0_make_plan': 'Make Plan',
+                    'input1_plan_name': 'Brai_3DC_R0A0',
+                    'input2_number_fractions': '10',
+                    'input3_dose': '3000',
+                    'input4_choose_machine': 'TrueBeam'}
+        input_dialog.values = response
     # Close on cancel
     if response == {}:
         logging.info('autoplan whole brain cancelled by user')
@@ -300,7 +312,8 @@ def main():
     brain_exists = check_structure_exists(case=case,
                                           structure_name='Brain',
                                           roi_list=rois,
-                                          option='Check')
+                                          option='Check',
+                                          bypass_dialogs=bypass_dialogs)
     if not brain_exists:
         case.PatientModel.MBSAutoInitializer(
             MbsRois=[{'CaseType': "HeadNeck",
@@ -319,7 +332,8 @@ def main():
                 'OnlyRigidAdaptation': False,
                 'ConvergenceCheck': False}])
     if any(roi.OfRoi.Name == 'Eye_L' for roi in rois):
-        connect.await_user_input('Eye_L Contour Exists - Verify its accuracy and continue script')
+        if not bypass_dialogs:
+            connect.await_user_input('Eye_L Contour Exists - Verify its accuracy and continue script')
     else:
         case.PatientModel.MBSAutoInitializer(
             MbsRois=[{'CaseType': "HeadNeck",
@@ -346,7 +360,8 @@ def main():
                 'OnlyRigidAdaptation': False,
                 'ConvergenceCheck': False}])
     if any(roi.OfRoi.Name == 'Eye_R' for roi in rois):
-        connect.await_user_input('Eye_R Contour Exists - Verify its accuracy and continue script')
+        if not bypass_dialogs:
+            connect.await_user_input('Eye_R Contour Exists - Verify its accuracy and continue script')
     else:
         case.PatientModel.MBSAutoInitializer(
             MbsRois=[{'CaseType': "HeadNeck",
@@ -374,7 +389,8 @@ def main():
                 'ConvergenceCheck': False}])
 
     if not check_structure_exists(case=case, structure_name='Lens_L', roi_list=rois,
-                                  option='Check'):
+                                  option='Check',
+                                  bypass_dialogs=bypass_dialogs):
         case.PatientModel.CreateRoi(Name='Lens_L',
                                     Color="Purple",
                                     Type="Organ",
@@ -384,7 +400,8 @@ def main():
         connect.await_user_input('Draw the LEFT Lens then continue playing the script')
 
     if not check_structure_exists(case=case, structure_name='Lens_R', roi_list=rois,
-                                  option='Check'):
+                                  option='Check',
+                                  bypass_dialogs=bypass_dialogs):
         case.PatientModel.CreateRoi(Name="Lens_R",
                                     Color="Purple",
                                     Type="Organ",
@@ -394,7 +411,8 @@ def main():
         connect.await_user_input('Draw the RIGHT Lens then continue playing the script')
 
     if not check_structure_exists(case=case, structure_name='External', roi_list=rois,
-                                  option='Check'):
+                                  option='Check',
+                                  bypass_dialogs=bypass_dialogs):
         case.PatientModel.CreateRoi(Name="External",
                                     Color="Blue",
                                     Type="External",
@@ -411,7 +429,8 @@ def main():
             sys.exit
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete',
-                                  structure_name='Lens_L_PRV05'):
+                                  structure_name='Lens_L_PRV05',
+                                  bypass_dialogs=bypass_dialogs):
         logging.info('Lens_L_PRV05 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(
@@ -435,7 +454,8 @@ def main():
 
     # The Lens_R prv will always be "remade"
     if not check_structure_exists(case=case, roi_list=rois, option='Delete',
-                                  structure_name='Lens_R_PRV05'):
+                                  structure_name='Lens_R_PRV05',
+                                  bypass_dialogs=bypass_dialogs):
         logging.info('Lens_R_PRV05 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(
@@ -459,7 +479,8 @@ def main():
         Algorithm="Auto")
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete',
-                                  structure_name='Avoid'):
+                                  structure_name='Avoid',
+                                  bypass_dialogs=bypass_dialogs):
         logging.info('Avoid not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="Avoid",
@@ -508,11 +529,13 @@ def main():
     # This operation is not supported in RS7, however, when we convert to RS8, this should work
     try:
         if check_structure_exists(case=case, roi_list=rois, option='Check',
-                                  structure_name='S-frame'):
+                                  structure_name='S-frame',
+                                  bypass_dialogs=bypass_dialogs):
             logging.info('S-frame found, bugging user')
-            connect.await_user_input(
-                'S-frame present. ' +
-                'Ensure placed correctly then continue script')
+            if not bypass_dialogs:
+                connect.await_user_input(
+                    'S-frame present. ' +
+                    'Ensure placed correctly then continue script')
         else:
             support_template = patient_db.LoadTemplatePatientModel(
                 templateName=institution_inputs_support_structure_template,
@@ -527,9 +550,10 @@ def main():
                 TargetExamination=examination,
                 InitializationOption='AlignImageCenters'
             )
-            connect.await_user_input(
-                'S-frame automatically loaded. ' +
-                'Ensure placed correctly then continue script')
+            if not bypass_dialogs:
+                connect.await_user_input(
+                    'S-frame automatically loaded. ' +
+                    'Ensure placed correctly then continue script')
 
         status.next_step(
             text='S-frame has been loaded. Ensure its alignment and continue the script.')
@@ -548,7 +572,7 @@ def main():
 
     status.next_step(text='Building planning structures')
 
-    case.PatientModel.CreateRoi(Name="BTV_Brain", Color="128, 0, 64", Type="Ptv", TissueName=None,
+    case.PatientModel.CreateRoi(Name="BTV_Brain", Color="128, 0, 64", Type="Undefined", TissueName=None,
                                 RbeCellTypeName=None, RoiMaterial=None)
 
     case.PatientModel.RegionsOfInterest['BTV_Brain'].SetMarginExpression(
@@ -600,7 +624,7 @@ def main():
 
     case.PatientModel.CreateRoi(Name="BTV_Flash_20",
                                 Color="128, 0, 64",
-                                Type="Ptv",
+                                Type="Undefined",
                                 TissueName=None,
                                 RbeCellTypeName=None,
                                 RoiMaterial=None)
@@ -643,7 +667,7 @@ def main():
         logging.info('BTV not found, generating from expansion')
 
     if make_plan:
-        btv_temporary_type = "Fixation"
+        btv_temporary_type = "Bolus"
     else:
         btv_temporary_type = "Ptv"
 
@@ -700,11 +724,6 @@ def main():
                                      IsVisible=False)
         except:
             logging.debug("Structure: {} was not found".format(s))
-    # Exclude these from export
-    case.PatientModel.ToggleExcludeFromExport(
-        ExcludeFromExport=True,
-        RegionOfInterests=export_exclude_structs,
-        PointsOfInterests=[])
 
     if make_plan:
         try:
@@ -765,30 +784,31 @@ def main():
             )
 
             patient.Save()
+            add_dose_prescription_to_roi(beamset,
+                                         roi_name='PTV_WB_xxxx',
+                                         dose_volume=80,
+                                         prescription_type='DoseAtVolume',
+                                         dose_value=total_dose,
+                                         relative_dose_prescription_value=1,
+                                         auto_scale_dose=True)
 
             # TODO Eliminate try after RS 11
-            try:
-                # RS 10
-                beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
-                                                 DoseVolume=80,
-                                                 PrescriptionType='DoseAtVolume',
-                                                 DoseValue=total_dose,
-                                                 RelativePrescriptionLevel=1,
-                                                 AutoScaleDose=True)
-            except AttributeError:
-                beamset.AddRoiPrescriptionDoseReference(RoiName='PTV_WB_xxxx',
-                                                        DoseVolume=80,
-                                                        PrescriptionType='DoseAtVolume',
-                                                        DoseValue=total_dose,
-                                                        RelativePrescriptionLevel=1)
+            # try:
+            #     # RS 10
+            #     beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
+            #                                      DoseVolume=80,
+            #                                      PrescriptionType='DoseAtVolume',
+            #                                      DoseValue=total_dose,
+            #                                      RelativePrescriptionLevel=1,
+            #                                      AutoScaleDose=True)
+            # except AttributeError:
+            #     beamset.AddRoiPrescriptionDoseReference(RoiName='PTV_WB_xxxx',
+            #                                             DoseVolume=80,
+            #                                             PrescriptionType='DoseAtVolume',
+            #                                             DoseValue=total_dose,
+            #                                             RelativePrescriptionLevel=1)
 
-            # Set the BTV type above to allow dose grid to cover
-            case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
-            case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
 
-            beamset.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
-                                                  'y': 0.2,
-                                                  'z': 0.2})
             try:
                 isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
                     RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
@@ -824,6 +844,14 @@ def main():
                                          CouchRotationAngle=beam_couch[i],
                                          CollimatorAngle=beam_col[i])
             beamset.PatientSetup.UseSetupBeams = True
+            # Update the BTV type
+            beamset.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
+                                                  'y': 0.2,
+                                                  'z': 0.2})
+            # Set the BTV type above to allow dose grid to cover
+            case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
+            case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
+            
             # Set treat/protect and minimum MU
             for beam in beamset.Beams:
                 beam.BeamMU = 1
@@ -877,6 +905,11 @@ def main():
         ComputeBeamDoses=True,
         DoseAlgorithm="CCDose",
         ForceRecompute=True)
+    # Exclude these from export
+    case.PatientModel.ToggleExcludeFromExport(
+        ExcludeFromExport=True,
+        RegionOfInterests=export_exclude_structs,
+        PointsOfInterests=[])
     patient.Save()
 
 if __name__ == '__main__':
