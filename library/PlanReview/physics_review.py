@@ -71,6 +71,7 @@
            * Ironically, if the PRV check passes, no message was displayed. I did not have a test for this.
            * Corrected an error that arises if the check_fov_overlap_script is run, interrupted, then the plan is locked
              preventing creation of new structures.
+           * Added a check for the front page data of the number of fractions and the prescription dose
 
 
 

@@ -20,6 +20,8 @@ OUTPUT_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs"
 ERROR_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs\Errors\ReviewScript"
 PROTECTED_DIR = r"Q:\\RadOnc\RayStation\RayScripts\Protect"
 DOSIMETRY_OUTPUT_DIR = r"Q:\\RadOnc\RayStation\RayScripts\Reports\DosimetrySafetySheets"
+DATA_GATHERING_DIR = r"Q:\\RadOnc\RayStation\RayScripts\Reports\DataGathering"
+DATAFILE_TARGET_MATCH_STATISTICS = os.path.join(DATA_GATHERING_DIR, "TargetMatchStatistics.csv")
 # From ARIA User Admin in the ARIA Web Portal Export all users to a
 # non-GitSync directory
 STAFF_XML_PATH = os.path.join(PROTECTED_DIR, "VAUsersandGroupsExport_30Sep2023.xml")
@@ -51,7 +53,7 @@ ICON_SAVE = os.path.join(icon_dir, "save_icon.png")
 ICON_LOAD = os.path.join(icon_dir, "load_icon.png")
 ICON_ERROR = os.path.join(icon_dir, "error_icon.png")
 ICON_CHECKER = os.path.join(icon_dir, "checker_icon.png")
-# RESULT STRINGS
+# RESULT STRING
 PASS = "Pass"
 FAIL = "Fail"
 ALERT = "Alert"
@@ -1949,7 +1951,7 @@ PLAN_NAMES = {'LUNG_SBRT':
                   ['Abdo_SBR', 'LivR_SBR', 'Panc_SBR', 'AdrR_SBR', 'AdrL_SBR',
                    'KidR_SBR', 'KidL_SBR', 'Stom_SBR', 'Sple_SBR', 'Gall_SBR', ],
               'PELVIS_SBRT':
-                  ['Pelv_SBR', 'HipR_SBR', 'HipL_SBR', 'Pros_SBR'],
+                  ['Pelv_SBR', 'HipR_SBR', 'HipL_SBR', 'Pros_SBR', 'Sacr_SBR'],
               'BRAIN_FSRT':
                   ['Brai_SBR', 'Brai_FSR', 'PTV1_FSR', 'PTV2_FSR', 'PTV3_FSR', 'PTV4_FSR',
                    'PTV5_FSR'],
