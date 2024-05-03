@@ -3,7 +3,6 @@ from PlanReview.qa_tests.test_examination import get_exam_level_tests
 from PlanReview.qa_tests.test_plan import get_plan_level_tests
 from PlanReview.qa_tests.test_beamset import get_beamset_level_tests
 from PlanReview.qa_tests.test_sandbox import get_sandbox_level_tests
-from PlanReview.qa_tests.test_beamset import parse_beamset_selection
 from PlanReview.qa_tests.test_plan import parse_order_selection
 from PlanReview.qa_tests.analyze_logs import retrieve_logs
 
@@ -25,7 +24,7 @@ def perform_automated_checks(rso, do_physics_review,
             A tuple containing the tree data and tree children.
     """
     from PlanReview.guis import (
-        build_tree_element, build_review_tree, display_progress_bar,load_rsos)
+        build_tree_element, build_review_tree, display_progress_bar, load_rsos)
     # Show progress bar
     if display_progress:
         progress_window, progress_bar, progress_text = display_progress_bar()
@@ -66,7 +65,9 @@ def perform_automated_checks(rso, do_physics_review,
     Gather BeamSet Level Checks
     """
     beamset_checks = {
-        r.beamset.DicomPlanLabel: get_beamset_level_tests(r, do_physics_review, message_logs)
+        r.beamset.DicomPlanLabel: get_beamset_level_tests(
+            r, do_physics_review, message_logs,
+            values=values)
         for r in rsos}
     """
     Gather SandBox Level Checks
