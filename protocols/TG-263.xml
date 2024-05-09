@@ -3366,7 +3366,7 @@
         <Export></Export>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="255">#</Color>
-        <Alias></Alias>
+        <Alias>Implant</Alias>
     </roi>
     <roi>
         <name>Scar</name>
