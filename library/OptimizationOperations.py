@@ -1272,10 +1272,25 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     elif any(a in beamset.DicomPlanLabel for a in large_field_names):
         dose_dim_initial = 0.4
         logging.debug(f'Large field name is in use {beamset.DicomPlanLabel}')
+        beamset.SetDefaultDoseGrid(
+            VoxelSize={
+                'x': dose_dim_initial,
+                'y': dose_dim_initial,
+                'z': dose_dim_initial})
     elif any(a in beamset.DicomPlanLabel for a in small_field_names):
         dose_dim_initial = 0.15
+        beamset.SetDefaultDoseGrid(
+            VoxelSize={
+                'x': dose_dim_initial,
+                'y': dose_dim_initial,
+                'z': dose_dim_initial})
     else:
         dose_dim_initial = 0.2
+        beamset.SetDefaultDoseGrid(
+            VoxelSize={
+                'x': dose_dim_initial,
+                'y': dose_dim_initial,
+                'z': dose_dim_initial})
 
     # Start the clock on the script at this time
     # Timing
