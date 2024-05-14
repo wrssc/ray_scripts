@@ -32,8 +32,8 @@ __license__ = "GPLv3"
 __copyright__ = "Copyright (C) 2024, University of Wisconsin Board of Regents"
 
 import logging
-import connect
-from api.api_utils import detect_api_version, find_scope
+from api.api_utils import find_scope
+from api.api_beamsets import get_unique_id_beamset, get_unique_id_plan
 
 
 class InvalidDataException(Exception):
@@ -46,25 +46,16 @@ def logcrit(message):
     level = ""
 
     # Construct the log message with '|' separator
-    rs_version, rs_subversion = detect_api_version()
-    if rs_version < 12:
-        if current_scope["Case"] is not None:
-            level += "Case: " + current_scope["Case"].CaseName + " | "
-        if current_scope["Examination"] is not None:
-            level += "Exam: " + current_scope["Examination"].Name + " | "
-        if current_scope["Plan"] is not None:
-            level += f"Plan: {current_scope['Plan'].Name} | PlanId: {current_scope['Plan'].UniqueId} | "
-        if current_scope["BeamSet"] is not None:
-            level += f"Beamset: {current_scope['BeamSet'].DicomPlanLabel} | BeamsetId: {current_scope['BeamSet'].UniqueId} | "
-    elif rs_version > 12:
-        if current_scope["Case"] is not None:
-            level += "Case: " + current_scope["Case"].CaseName + " | "
-        if current_scope["Examination"] is not None:
-            level += "Exam: " + current_scope["Examination"].Name + " | "
-        if current_scope["Plan"] is not None:
-            level += f"Plan: {current_scope['Plan'].Name} | "
-        if current_scope["BeamSet"] is not None:
-            level += f"Beamset: {current_scope['BeamSet'].DicomPlanLabel} | "
+    plan_uuid = get_unique_id_plan(current_scope["Plan"])
+    beamset_uuid = get_unique_id_beamset(current_scope["BeamSet"])
+    if current_scope["Case"] is not None:
+        level += "Case: " + current_scope["Case"].CaseName + " | "
+    if current_scope["Examination"] is not None:
+        level += "Exam: " + current_scope["Examination"].Name + " | "
+    if current_scope["Plan"] is not None:
+        level += f"Plan: {current_scope['Plan'].Name} | PlanId: {plan_uuid} | "
+    if current_scope["BeamSet"] is not None:
+        level += f"Beamset: {current_scope['BeamSet'].DicomPlanLabel} | BeamsetId: {beamset_uuid} | "
 
     # Append the actual message to the log level information
     message = level + message

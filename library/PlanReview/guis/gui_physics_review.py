@@ -31,6 +31,7 @@ from PlanReview.guis.create_physics_manual_tab import (
     extract_values_manual_tab, load_manual, process_auto_tests,
     process_check_box_values, is_valid_manual_tab, is_visible_tab)
 from PlanReview.guis.gui_top_buttons import build_top_buttons
+from PlanReview.guis.gui_bottom_buttons import build_bottom_buttons
 from PlanReview.guis.gui_ditto_wrapper import get_ditto_tab, on_ditto_element_click
 
 
@@ -139,8 +140,11 @@ def initialize_gui_dict():
     gui_dict['top_height'] = 2 * pix_per_char_height
     gui_dict['top_width'] = gui_dict['tab_width'] + int(5.1 * pix_per_char_width)
     gui_dict['tab_font'] = ('Helvetica', '8', 'bold') if save_space else None
+    gui_dict['bottom_height'] = 2 * pix_per_char_height
+    gui_dict['bottom_width'] = gui_dict['tab_width'] + int(5.1 * pix_per_char_width)
     # Tab sizing
-    gui_dict['tab_height'] = window_height - gui_dict['top_height'] - 4 * pix_per_char_height
+    gui_dict['tab_height'] = window_height - gui_dict['top_height'] - 4 * pix_per_char_height - gui_dict[
+        'bottom_height']
     return gui_dict
 
 
@@ -299,9 +303,9 @@ def launch_physics_review_gui(rso, relaunch=False):
     else:
         maximum_target_number = 10
     # Top frame
-    top = build_top_buttons(gui_state_manager.gui_dict['top_width'],
-                            gui_state_manager.gui_dict['top_height'],
-                            gui_state_manager.gui_dict['save_space'])
+    top = build_top_buttons(gui_state_manager.gui_dict['save_space'])
+    # Top frame
+    bottom = build_bottom_buttons(gui_state_manager.gui_dict['save_space'])
     # Gather the layout
     layout = [
         [
@@ -319,7 +323,9 @@ def launch_physics_review_gui(rso, relaunch=False):
                                               'which will be used in subsequent automated tests.')
                                ]],
                              key='tab_group')],
-            ], ),
+                [bottom]
+            ],
+            ),
             # Side Panel declaration
             Sg.Column(create_side_panel(
                 gui_state_manager.gui_dict['comment_width_chars'],

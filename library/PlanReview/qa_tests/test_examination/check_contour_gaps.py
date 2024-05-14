@@ -1,7 +1,9 @@
 from typing import NamedTuple, Tuple
 import numpy as np
 import math
+import re
 from library.PlanReview.review_definitions import PASS, FAIL
+import logging
 
 
 def get_slice_positions(rso):
@@ -63,6 +65,8 @@ def find_gaps(rg, voxel_size, slice_positions):
     # Determine a bounding box for the contour
     bb = rg.GetBoundingBox()
     roi_voxels = extract_grid(rg, bb, voxel_size, slice_positions)
+    if roi_voxels is None:
+        return None
     empty_slices = np.where(~np.any(roi_voxels[:-1], axis=1))[0]
     if empty_slices.size > 0:
         return empty_slices * voxel_size['z'] + bb[0]['z']
@@ -74,19 +78,28 @@ def consecutive(data, stepsize=1):
     return np.split(data, np.where(np.diff(data) >= stepsize)[0] + 1)
 
 
+def check_for_valid_contours(rso):
+    geom_list = []
+    for rg in rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries:
+        if rg.HasContours() and hasattr(rg.PrimaryShape, 'Contours'):
+            geom_list.append(rg)
+    return geom_list
+
 def get_contour_list(rso):
     contour_list = []
     # All Rois with contours
-    rois_with_contours = [rg for rg in
-                          rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries if
-                          rg.HasContours()]
+    rois_with_contours = check_for_valid_contours(rso)
     organ_types = ['Target', 'OrganAtRisk']
     roi_types = ['Ptv', 'Ctv', 'Gtv', 'Organ']
+    # Define exclusion patterns
+    exclude_from_contour_analysis = ['NoFlyZone_PRV', '^OTV.*', '^PTV.*_Eval$']
+
     # ROI names if they have a type match in review_types
     for rg in rois_with_contours:
         if rg.OfRoi.OrganData.OrganType in organ_types and \
                 rg.OfRoi.Type in roi_types:
-            contour_list.append(rg.OfRoi.Name)
+            if not any(re.search(pattern, rg.OfRoi.Name) for pattern in exclude_from_contour_analysis):
+                contour_list.append(rg.OfRoi.Name)
     return contour_list
 
 
@@ -139,6 +152,7 @@ def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
     gaps = {}
     for roi in rois_to_check:
         # Get the roi geometry
+        logging.debug(f'Checking {roi}')
         roi_geometry = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi]
         # Find any gaps
         roi_gaps = find_gaps(roi_geometry, voxel_size, slice_positions=slices)

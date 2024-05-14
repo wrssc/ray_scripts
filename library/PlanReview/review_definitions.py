@@ -38,6 +38,7 @@ GREEN_CIRCLE = os.path.join(icon_dir, "green_circle_icon.png")
 YELLOW_CIRCLE = os.path.join(icon_dir, "yellow_circle_icon.png")
 BLUE_CIRCLE = os.path.join(icon_dir, "blue_circle_icon.png")
 UW_HEALTH_LOGO = os.path.join(icon_dir, "UW_Health_Logo.png")
+# ICONS 90 px horizontal
 ICON_SMALL_PRINT = os.path.join(icon_dir, "print_icon_small.png")
 ICON_SMALL_START = os.path.join(icon_dir, "start_icon_small.png")
 ICON_SMALL_CANCEL = os.path.join(icon_dir, "cancel_icon_small.png")
@@ -45,6 +46,8 @@ ICON_SMALL_PAUSE = os.path.join(icon_dir, "pause_icon_small.png")
 ICON_SMALL_SAVE = os.path.join(icon_dir, "save_icon_small.png")
 ICON_SMALL_LOAD = os.path.join(icon_dir, "load_icon_small.png")
 ICON_SMALL_ERROR = os.path.join(icon_dir, "error_icon_small.png")
+ICON_SMALL_SCALE_ISODOSE = os.path.join(icon_dir, "scale_small_icon.png")  # 90 px
+# ICONS 110 px horizontal
 ICON_PRINT = os.path.join(icon_dir, "print_icon.png")
 ICON_START = os.path.join(icon_dir, "start_icon.png")
 ICON_CANCEL = os.path.join(icon_dir, "cancel_icon.png")
@@ -53,6 +56,7 @@ ICON_SAVE = os.path.join(icon_dir, "save_icon.png")
 ICON_LOAD = os.path.join(icon_dir, "load_icon.png")
 ICON_ERROR = os.path.join(icon_dir, "error_icon.png")
 ICON_CHECKER = os.path.join(icon_dir, "checker_icon.png")
+ICON_SCALE_ISODOSE = os.path.join(icon_dir, "scale_icon.png")
 # RESULT STRING
 PASS = "Pass"
 FAIL = "Fail"

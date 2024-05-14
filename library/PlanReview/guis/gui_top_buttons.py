@@ -6,7 +6,7 @@ from PlanReview.review_definitions import (
 )
 
 
-def build_top_buttons(top_width, top_height, save_space):
+def build_top_buttons(save_space):
     # Top dimensions
     top_image_size = (90, 25) if save_space else (110, 30)
     top_subsample = 1 if save_space else 1

@@ -3,6 +3,29 @@ from library.api.dispatcher import APIDispatcher
 
 dispatcher = APIDispatcher()  # Create an instance of the dispatcher
 
+
+#
+# Beamset and Plan UID calls
+def get_unique_id_beamset_v12(beamset):
+    # Version 12 specific code
+    return beamset.UniqueId
+
+
+def get_unique_id_beamset_v15(beamset):
+    # Version 15 specific code - use the DICOM UID
+    return beamset.GetRadiationSetUuid()
+
+
+def get_unique_id_plan_v12(plan):
+    # Version 12 specific code
+    return plan.UniqueId
+
+
+def get_unique_id_plan_v15(plan):
+    # Version 15 specific code - use the DICOM UID
+    return plan.GetPlanUuid()
+
+
 # Treat and Protect ROI functions
 def set_treat_or_protect_roi_all_beams_v12(beamset, roi_name):
     # Version 12 specific code
@@ -83,6 +106,14 @@ def add_dose_prescription_to_roi_v15(beamset, roi_name, dose_volume, prescriptio
 
 
 # Register these functions with the dispatcher
+dispatcher.register('get_unique_id_beamset', 12, get_unique_id_beamset_v12)
+dispatcher.register('get_unique_id_beamset', 15, get_unique_id_beamset_v15)
+
+
+dispatcher.register('get_unique_id_plan', 12, get_unique_id_plan_v12)
+dispatcher.register('get_unique_id_plan', 15, get_unique_id_plan_v15)
+
+
 dispatcher.register('set_treat_or_protect_roi_all_beams', 12, set_treat_or_protect_roi_all_beams_v12)
 dispatcher.register('set_treat_or_protect_roi_all_beams', 15, set_treat_or_protect_roi_all_beams_v15)
 
@@ -96,6 +127,16 @@ dispatcher.register('get_source_to_surface_distance', 15, get_source_to_surface_
 dispatcher.register('add_dose_prescription_to_roi', 11, add_dose_prescription_to_roi_v11)
 dispatcher.register('add_dose_prescription_to_roi', 12, add_dose_prescription_to_roi_v12)
 dispatcher.register('add_dose_prescription_to_roi', 15, add_dose_prescription_to_roi_v15)
+
+
+@dispatcher.dispatch('get_unique_id_beamset')
+def get_unique_id_beamset(beamset):
+    pass
+
+
+@dispatcher.dispatch('get_unique_id_plan')
+def get_unique_id_plan(plan):
+    pass
 
 
 @dispatcher.dispatch('set_treat_or_protect_roi_all_beams')

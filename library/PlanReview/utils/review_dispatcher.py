@@ -1,7 +1,7 @@
-# dispatcher.py
+# review_dispatcher.py
 import functools
 import logging
-from library.api.api_utils import detect_api_version
+from .review_api_utils import detect_api_version
 
 
 class APIDispatcher:
