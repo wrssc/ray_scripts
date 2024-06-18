@@ -25,11 +25,17 @@ def get_review_gui_values(gui_state_manager, values):
     preplan_values = extract_values_preplan_tab(gui_state_manager.window)
 
     # Get values from the side tab
-    side_frame_values = extract_values_side_panel(gui_state_manager.window)
+    if gui_state_manager.side_panel:
+        side_frame_values = extract_values_side_panel(gui_state_manager.window, gui_state_manager.review_type)
+    else:
+        side_frame_values = {}
 
     # Get the data from the first tab
-    manual_values = extract_values_manual_tab(values, gui_state_manager.passing_tests,
-                                              gui_state_manager.failed_tests, gui_state_manager.check_box_copy)
+    if gui_state_manager.manual_tabs:
+        manual_values = extract_values_manual_tab(values, gui_state_manager.passing_tests,
+                                                  gui_state_manager.failed_tests, gui_state_manager.check_box_copy)
+    else:
+        manual_values = {}
 
     # Merge them into a single dictionary
     sorted_values = merge_dicts(side_frame_values, preplan_values)
@@ -54,7 +60,6 @@ def get_header_checklist_qa_values(gui_state_manager, values):
     - check_boxes: dictionary of completed check boxes the user has filled in
 
     Returns:
-    - sorted_values: dictionary of values sorted by keys
     """
 
     #
@@ -71,10 +76,8 @@ def get_header_checklist_qa_values(gui_state_manager, values):
     # Retrieve data from the first tab and side panel
     preplan_data = extract_values_preplan_tab(gui_state_manager.window)
     if gui_state_manager.qa_form_accessible:
-        qa_form_data = build_qa_form(gui_state_manager.rso, gui_state_manager.window)
+        gui_state_manager.qa_form_data = build_qa_form(gui_state_manager.rso, gui_state_manager.window)
     else:
-        qa_form_data = None
-    sidepanel_data = extract_values_side_panel(gui_state_manager.window)
-    header_data = merge_dicts(preplan_data, sidepanel_data)
-
-    return header_data,
+        gui_state_manager.qa_form_data = {}
+    sidepanel_data = extract_values_side_panel(gui_state_manager.window, gui_state_manager.review_type)
+    gui_state_manager.header_data = merge_dicts(preplan_data, sidepanel_data)
