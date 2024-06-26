@@ -1,3 +1,4 @@
+import logging
 from .review_dispatcher import APIDispatcher
 
 
@@ -58,6 +59,28 @@ def get_prescription_dose_references_v12(beamset):
     return beamset.Prescription.DosePrescription
 
 
+def get_number_of_emc_histories_v12(beamset):
+    return beamset.FractionDose.DoseValues.AlgorithmProperties.MonteCarloHistoriesPerAreaFluence
+
+
+def get_number_of_emc_histories_v15(beamset):
+    return beamset.FractionDose.DoseValues.MCTotalNumberOfHistories
+
+
+def ui_click_plan_optimization_v12(ui):
+    try:
+        ui.TitleBar.MenuItem['Plan Optimization'].Button_Plan_Optimization.Click()
+    except Exception as e:
+        logging.debug(f'Unable to change viewing windows: {e}')
+
+
+def ui_click_plan_optimization_v15(ui):
+    try:
+        ui.TitleBar.MenuItem['Plan optimization'].Button_Plan_Optimization.Click()
+    except Exception as e:
+        logging.debug(f'Unable to change viewing windows: {e}')
+
+
 # REGISTER THESE FUNCTIONS WITH THE DISPATCHER
 dispatcher.register('get_unique_id_beamset', 12, get_unique_id_beamset_v12)
 dispatcher.register('get_unique_id_beamset', 15, get_unique_id_beamset_v15)
@@ -73,6 +96,12 @@ dispatcher.register('get_beamset_reviewer_name', 15, get_beamset_reviewer_name_v
 
 dispatcher.register('get_prescription_dose_references', 12, get_prescription_dose_references_v12)
 dispatcher.register('get_prescription_dose_references', 15, get_prescription_dose_references_v15)
+
+dispatcher.register('get_number_of_emc_histories', 12, get_number_of_emc_histories_v12)
+dispatcher.register('get_number_of_emc_histories', 15, get_number_of_emc_histories_v15)
+
+dispatcher.register('ui_click_plan_optimization', 12, ui_click_plan_optimization_v12)
+dispatcher.register('ui_click_plan_optimization', 15, ui_click_plan_optimization_v15)
 
 
 @dispatcher.dispatch('get_unique_id_beamset')
@@ -97,4 +126,14 @@ def get_beamset_reviewer_name(beamset):
 
 @dispatcher.dispatch('get_prescription_dose_references')
 def get_prescription_dose_references(beamset):
+    pass
+
+
+@dispatcher.dispatch('get_number_of_emc_histories')
+def get_number_of_emc_histories(beamset):
+    pass
+
+
+@dispatcher.dispatch('ui_click_plan_optimization')
+def ui_click_plan_optimization(ui):
     pass

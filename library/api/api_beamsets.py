@@ -8,22 +8,34 @@ dispatcher = APIDispatcher()  # Create an instance of the dispatcher
 # Beamset and Plan UID calls
 def get_unique_id_beamset_v12(beamset):
     # Version 12 specific code
-    return beamset.UniqueId
+    if beamset:
+        return beamset.UniqueId
+    else:
+        return None
 
 
 def get_unique_id_beamset_v15(beamset):
     # Version 15 specific code - use the DICOM UID
-    return beamset.GetRadiationSetUuid()
+    if beamset:
+        return beamset.GetRadiationSetUuid()
+    else:
+        return None
 
 
 def get_unique_id_plan_v12(plan):
     # Version 12 specific code
-    return plan.UniqueId
+    if plan:
+        return plan.UniqueId
+    else:
+        return None
 
 
 def get_unique_id_plan_v15(plan):
     # Version 15 specific code - use the DICOM UID
-    return plan.GetPlanUuid()
+    if plan:
+        return plan.GetPlanUuid()
+    else:
+        return None
 
 
 # Treat and Protect ROI functions
@@ -102,7 +114,21 @@ def add_dose_prescription_to_roi_v15(beamset, roi_name, dose_volume, prescriptio
                                      DoseValue=dose_value,
                                      RelativePrescriptionLevel=relative_dose_prescription_value)
 
-# Version for RS Version 10
+
+def get_number_of_emc_histories_v12(beamset):
+    return beamset.FractionDose.DoseValues.AlgorithmProperties.MonteCarloHistoriesPerAreaFluence
+
+
+def get_number_of_emc_histories_v15(beamset):
+    return beamset.FractionDose.DoseValues.MCTotalNumberOfHistories
+
+
+def adjust_emc_calculation_v12(beamset, histories=1e6, uncertainty=0.005):
+    beamset.AccurateDoseAlgorithm.MonteCarloHistoriesPerAreaFluence = histories
+
+
+def adjust_emc_calculation_v15(beamset, histories=1e6, uncertainty=0.005):
+    beamset.AccurateDoseAlgorithm.MCStatisticalUncertaintyForFinalDose = uncertainty
 
 
 # Register these functions with the dispatcher
@@ -127,6 +153,13 @@ dispatcher.register('get_source_to_surface_distance', 15, get_source_to_surface_
 dispatcher.register('add_dose_prescription_to_roi', 11, add_dose_prescription_to_roi_v11)
 dispatcher.register('add_dose_prescription_to_roi', 12, add_dose_prescription_to_roi_v12)
 dispatcher.register('add_dose_prescription_to_roi', 15, add_dose_prescription_to_roi_v15)
+
+
+dispatcher.register('get_number_of_emc_histories', 12, get_number_of_emc_histories_v12)
+dispatcher.register('get_number_of_emc_histories', 15, get_number_of_emc_histories_v15)
+
+dispatcher.register('adjust_emc_calculation', 12, adjust_emc_calculation_v12)
+dispatcher.register('adjust_emc_calculation', 15, adjust_emc_calculation_v15)
 
 
 @dispatcher.dispatch('get_unique_id_beamset')
@@ -158,4 +191,14 @@ def get_source_to_surface_distance(beam):
 def add_dose_prescription_to_roi(beamset, roi_name, dose_volume, prescription_type,
                                  dose_value, relative_dose_prescription_value,
                                  auto_scale_dose=False):
+    pass
+
+
+@dispatcher.dispatch('get_number_of_emc_histories')
+def get_number_of_emc_histories(beamset):
+    pass
+
+
+@dispatcher.dispatch('adjust_emc_calculation')
+def adjust_emc_calculation(beamset, histories=1e6, uncertainty=0.005):
     pass
