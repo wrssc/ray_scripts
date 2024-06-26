@@ -19,10 +19,11 @@
 
     1.2.0 Update to python 3.8 and RS 3.8
 
-    2.0.0 Added intregration of the review script in to replace some of the checks performed in
+    2.0.0 Added integration of the review script in to replace some of the checks performed in
           FinalDose steps
 
     2.0.1 Reformatted import of FinalDose to move the launching function to OldPlanReview
+    2.0.2 Eliminated jaw rounding and MU rounding since they are default in 2024A
 
 
     Validation Notes:
@@ -33,6 +34,10 @@
         MR# ZZUWQA_ScTest_06Jan2021, Name: Script_testing^Final Dose
     Test Patient: MR# ZZUWQA_ScTest_09Jun2022_FinalDose,
                   Name: Script_testing^Final Dose
+
+    TODO:
+        -Move the selection of the machine to the main raystation scripts
+
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -72,9 +77,12 @@ import BeamOperations
 import PlanQualityAssuranceTests
 import GeneralOperations
 from GeneralOperations import logcrit as logcrit
+from PlanOperations import find_beamset
 import StructureOperations
 import clr
 import os
+from api.api_beamsets import adjust_emc_calculation
+from api.api_ui import ui_click_plan_optimization
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library/OldPlanReview'))
 import init_physics_19Jun2023
@@ -219,20 +227,35 @@ def process_rois_for_export(plan, case):
     logging.debug(f'For Export Structures Excluded: {successful_exclusion}')
 
 
-def final_dose(site=None, technique=None):
-    # Get current patient, case, exam, and plan
-    # note that the interpreter handles a missing plan as an Exception
-    patient = GeneralOperations.find_scope(level='Patient')
-    case = GeneralOperations.find_scope(level='Case')
-    exam = GeneralOperations.find_scope(level='Examination')
-    plan = GeneralOperations.find_scope(level='Plan')
-    beamset = GeneralOperations.find_scope(level='BeamSet')
+def final_dose(site=None, technique=None, rso=None, beamset_name=None):
+    """Final Dose
+    Args:
+        site (str): The site name
+        technique (str): The treatment technique
+        rso (object): The RS object
+        beamset_name (str): The beamset name
+    """
     ui = GeneralOperations.find_scope(level='ui')
-    # TODO put in more sophisticated InvalidOperationException Catch here.
-    try:
-        ui.TitleBar.MenuItem['Plan Optimization'].Button_Plan_Optimization.Click()
-    except Exception as e:
-        logging.debug(f'Unable to change viewing windows: {e}')
+    # Get current patient, case, exam, and plan
+    if not rso:
+        patient = GeneralOperations.find_scope(level='Patient')
+        case = GeneralOperations.find_scope(level='Case')
+        exam = GeneralOperations.find_scope(level='Examination')
+        plan = GeneralOperations.find_scope(level='Plan')
+        beamset = GeneralOperations.find_scope(level='BeamSet')
+    else:
+        patient = rso.patient
+        case = rso.case
+        exam = rso.exam
+        plan = rso.plan
+        beamset = rso.beamset
+    if beamset_name:
+        beamset = find_beamset(plan=plan, beamset_name=beamset_name)
+        patient.Save()
+        beamset.SetCurrent()
+
+    # Change the viewing windows to Plan Optimization
+    ui_click_plan_optimization(ui)
 
     # Institution specific plan names and dose grid settings
     fine_grid_names = ['_SBR_']
@@ -247,6 +270,7 @@ def final_dose(site=None, technique=None):
     tomo_couch_test = False  # This gets flagged to True if the plan technique does not contain 'Tomo'
     check_lateral_pa = False
     cps_test = False
+    review_script = False
     # Set up the workflow steps.
     steps = ['Exclude irrelevant rois from export']
     if 'Tomo' not in beamset.DeliveryTechnique and beamset.Modality != 'Electrons':
@@ -258,8 +282,8 @@ def final_dose(site=None, technique=None):
         # steps.append('Check the dose grid size')
         # steps.append('Check for control Point Spacing')
         steps.append('Compute Dose if necessary')
-        steps.append('Round MU')
-        steps.append('Round Jaws')
+        # steps.append('Round MU')
+        # steps.append('Round Jaws')
         steps.append('Set DSP')
         steps.append('Recompute Dose')
         cps_test = True
@@ -300,10 +324,13 @@ def final_dose(site=None, technique=None):
 
     if rename_beams:
         # Rename the beams
-        BeamOperations.rename_beams(site_name=site, input_technique=technique)
+        BeamOperations.rename_beams(site_name=site, input_technique=technique,
+                                    beamset_name=beamset.DicomPlanLabel)
         status.next_step('Renamed Beams, checking external integrity')
 
-    init_physics_19Jun2023.main(physics_review=False)
+    # Run the review script
+    if review_script:
+        init_physics_19Jun2023.main(physics_review=False)
     # EXTERNAL OVERLAP WITH COUCH OR SUPPORTS
     if external_test:
         external_error = True
@@ -409,13 +436,13 @@ def final_dose(site=None, technique=None):
 
             # Round MU
             beamset.SetAutoScaleToPrimaryPrescription(AutoScale=False)
-            BeamOperations.round_mu(beamset)
-            status.next_step('Rounded MU, Rounding jaws')
+            # BeamOperations.round_mu(beamset)
+            # status.next_step('Rounded MU, Rounding jaws')
 
             # Round jaws to nearest mm
-            logging.debug('Checking for jaw rounding')
-            BeamOperations.round_jaws(beamset=beamset)
-            status.next_step('Jaws Rounded. Setting DSP')
+            # logging.debug('Checking for jaw rounding')
+            # BeamOperations.round_jaws(beamset=beamset)
+            status.next_step('Setting DSP')
 
             # Recompute dose if needed
             _ = compute_dose(beamset=beamset, dose_algorithm=dose_algorithm)
@@ -448,17 +475,18 @@ def final_dose(site=None, technique=None):
         # Set the DSP and TODO: add rx surface
         BeamOperations.set_dsp(plan=plan, beam_set=beamset, percent_rx=98., method='Centroid')
         status.next_step('DSP set, checking statistics')
-        mc_histories = 500000
+        mc_histories = 1e6  # RS 11 Cannot exceed 1e6 without long computation times
         # Make sure electron monte carlo statistical uncertainty is clinical
         emc_result = BeamOperations.check_emc(beamset, stat_limit=0.005, histories=mc_histories)
         # If the test returns an insufficient uncertainty, change the number of histories
         if emc_result.bool is False:
-            beamset.AccurateDoseAlgorithm.MonteCarloHistoriesPerAreaFluence = emc_result.hist
+            adjust_emc_calculation(beamset, histories=emc_result.hist, uncertainty=0.005)
+            beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
         # Autoscale must be turned off to round the MU.
         # Round MU
         beamset.SetAutoScaleToPrimaryPrescription(AutoScale=False)
-        BeamOperations.round_mu(beamset)
-        status.next_step('Rounded MU, recomputing doses')
+        # BeamOperations.round_mu(beamset)
+        # status.next_step('Rounded MU, recomputing doses')
         # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)
         beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
         status.next_step('Script Complete')
