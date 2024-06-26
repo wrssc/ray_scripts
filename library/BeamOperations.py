@@ -76,8 +76,11 @@ import Beams
 import datetime
 import os
 import xml
+
 from library.api.api_beamsets import get_source_to_surface_distance
 from library.api.api_utils import get_machine
+from library.api.api_beamsets import get_number_of_emc_histories
+from library.api.api_optimization_settings import edit_beam_optimization_settings
 
 PROTOCOL_FOLDER = r'../protocols'
 INSTITUTION_FOLDER = r'UW'
@@ -114,23 +117,23 @@ class Beam(object):
 
     def __eq__(self, other):
         return other and \
-               self.iso == other.iso \
-               and self.gantry_start_angle == other.gantry_start_angle \
-               and self.gantry_stop_angle == other.gantry_stop_angle \
-               and self.energy == other.energy \
-               and self.dsp == other.dsp \
-               and self.couch_angle == other.couch_angle \
-               and self.collimator_angle == other.collimator_angle \
-               and self.rotation_dir == other.rotation_dir \
-               and self.technique == other.technique \
-               and self.field_width == other.field_width \
-               and self.pitch == other.pitch \
-               and self.jaw_mode == other.jaw_mode \
-               and self.back_jaw_position == other.back_jaw_position \
-               and self.front_jaw_position == other.front_jaw_position \
-               and self.max_delivery_time == other.max_delivery_time \
-               and self.max_delivery_time_factor == other.max_delivery_time_factor \
-               and self.max_gantry_period == other.max_gantry_period
+            self.iso == other.iso \
+            and self.gantry_start_angle == other.gantry_start_angle \
+            and self.gantry_stop_angle == other.gantry_stop_angle \
+            and self.energy == other.energy \
+            and self.dsp == other.dsp \
+            and self.couch_angle == other.couch_angle \
+            and self.collimator_angle == other.collimator_angle \
+            and self.rotation_dir == other.rotation_dir \
+            and self.technique == other.technique \
+            and self.field_width == other.field_width \
+            and self.pitch == other.pitch \
+            and self.jaw_mode == other.jaw_mode \
+            and self.back_jaw_position == other.back_jaw_position \
+            and self.front_jaw_position == other.front_jaw_position \
+            and self.max_delivery_time == other.max_delivery_time \
+            and self.max_delivery_time_factor == other.max_delivery_time_factor \
+            and self.max_gantry_period == other.max_gantry_period
 
     def __hash__(self):
         return hash((
@@ -165,10 +168,10 @@ class BeamSet(object):
 
     def __eq__(self, other):
         return other and self.iso == other.iso and self.number_of_fractions \
-               == other.number_of_fractions and self.total_dose == other.total_dose \
-               and self.machine == other.machine and self.modality == other.modality \
-               and self.technique == other.technique and self.rx_target == other.rx_target \
-               and self.rx_volume == other.rx_volume and self.support_roi == other.support_roi
+            == other.number_of_fractions and self.total_dose == other.total_dose \
+            and self.machine == other.machine and self.modality == other.modality \
+            and self.technique == other.technique and self.rx_target == other.rx_target \
+            and self.rx_volume == other.rx_volume and self.support_roi == other.support_roi
 
     def __hash__(self):
         return hash((
@@ -1057,7 +1060,7 @@ def update_set_up(beamset, set_up):
         i += 1
 
 
-def rename_beams(site_name=None, input_technique=None):
+def rename_beams(site_name=None, input_technique=None, beamset_name=None):
     supported_rs_techniques = [
         'SMLC',
         'DynamicArc',
@@ -1114,7 +1117,8 @@ def rename_beams(site_name=None, input_technique=None):
     initial_sitename = beamset.DicomPlanLabel[:4]
     if not site_name and not input_technique:
         # Prompt the user for Site Name and Billing technique
-        dialog = UserInterface.InputDialog(inputs={'Site': 'Enter a Site name, e.g. BreL',
+        dialog = UserInterface.InputDialog(inputs={'Site':
+                                                       f'Enter a Site name, e.g. BreL for beamset {beamset.DicomPlanLabel}',
                                                    'Technique': 'Select Treatment Technique ('
                                                                 'Billing)'},
                                            datatype={'Technique': 'combo'},
@@ -1147,7 +1151,7 @@ def rename_beams(site_name=None, input_technique=None):
     logging.debug(
         'Renaming and adding set up fields to Beam Set with name {}, patdelivery_time_factor {}, '
         'technique {}'.
-            format(beamset.DicomPlanLabel, beamset.PatientPosition, beamset.DeliveryTechnique))
+        format(beamset.DicomPlanLabel, beamset.PatientPosition, beamset.DeliveryTechnique))
     # Rename isocenters
     rename_isocenter(plan, beamset)
     #
@@ -2255,15 +2259,16 @@ def lock_jaws(plan, beamset, beam_name, limits):
             if b.ForBeam.Name == beam_name:
                 try:
                     # Uncomment to automatically set jaw limits
-                    b.EditBeamOptimizationSettings(
-                        JawMotion=jaw_rule_mon,
-                        LeftJaw=limits['x1'],
-                        RightJaw=limits['x2'],
-                        TopJaw=limits['y1'],
-                        BottomJaw=limits['y2'],
-                        SelectCollimatorAngle='False',
-                        AllowBeamSplit='False',
-                        OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                    edit_beam_optimization_settings(
+                        beam_settings=b,
+                        jaw_motion=jaw_rule_mon,
+                        left_jaw=limits['x1'],
+                        right_jaw=limits['x2'],
+                        top_jaw=limits['y1'],
+                        bottom_jaw=limits['y2'],
+                        select_collimator_angle='False',
+                        allow_beam_split='False',
+                        optimization_types=['SegmentOpt', 'SegmentMU'])
                     message += f"Beam {beam_name} locked to " \
                                + "[{x1},{x2},{y1},{y2}]".format(
                         x1=limits['x1'],
@@ -2305,15 +2310,16 @@ def lock_jaws_to_current(plan_opt):
             b_name = b.ForBeam.Name
             try:
                 # Uncomment to automatically set jaw limits
-                b.EditBeamOptimizationSettings(
-                    JawMotion='Lock to limits',
-                    LeftJaw=jaw_positions[b_name]['x1'],
-                    RightJaw=jaw_positions[b_name]['x2'],
-                    TopJaw=jaw_positions[b_name]['y1'],
-                    BottomJaw=jaw_positions[b_name]['y2'],
-                    SelectCollimatorAngle='False',
-                    AllowBeamSplit='False',
-                    OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                edit_beam_optimization_settings(
+                    beam_settings=b,
+                    jaw_motion='Lock to limits',
+                    left_jaw=jaw_positions[b_name]['x1'],
+                    right_jaw=jaw_positions[b_name]['x2'],
+                    top_jaw=jaw_positions[b_name]['y1'],
+                    bottom_jaw=jaw_positions[b_name]['y2'],
+                    select_collimator_angle='False',
+                    allow_beam_split='False',
+                    optimization_types=['SegmentOpt', 'SegmentMU'])
                 message += f"Beam {b_name} locked to " \
                            + "[{x1},{x2},{y1},{y2}]\n".format(
                     x1=jaw_positions[b_name]['x1'],
@@ -2451,9 +2457,9 @@ def rounded_jaw_positions(beam):
             # compute leaf difference
             max_open = beam_mlc.max_opening()
             [max_open_x1, max_open_x2, max_open_y1, max_open_y2] = max_open['max_open_x1'], \
-                                                                   max_open['max_open_x2'], \
-                                                                   max_open['max_open_y1'], \
-                                                                   max_open['max_open_y2']
+                max_open['max_open_x2'], \
+                max_open['max_open_y1'], \
+                max_open['max_open_y2']
             x1_jaw_standoff = math.floor(10 * (max_open_x1 - x_jaw_offset)) / 10
             x2_jaw_standoff = math.ceil(10 * (max_open_x2 + x_jaw_offset)) / 10
             y1_jaw_standoff = math.floor(10 * (max_open_y1 - y_jaw_offset)) / 10
@@ -3095,8 +3101,8 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
                 logging.debug(
                     ('aperture limits found on beam {} of initial jaw positions: x1 = {}, ' +
                      'x2 = {}, y1 = {}, y2 = {}')
-                        .format(beam_name, existing_limits[0], existing_limits[1],
-                                existing_limits[2], existing_limits[3]))
+                    .format(beam_name, existing_limits[0], existing_limits[1],
+                            existing_limits[2], existing_limits[3]))
         else:
             existing_limits = [None] * 4
             if verbose_logging:
@@ -3149,22 +3155,23 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
                     'without reset')
             return False
         if change:
-            current_beam.EditBeamOptimizationSettings(
-                JawMotion='Use limits as max',
-                LeftJaw=modified_limit[0],
-                RightJaw=modified_limit[1],
-                TopJaw=modified_limit[2],
-                BottomJaw=modified_limit[3],
-                SelectCollimatorAngle='False',
-                AllowBeamSplit='False',
-                OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+            edit_beam_optimization_settings(
+                beam_settings=current_beam,
+                jaw_motion='Use limits as max',
+                left_jaw=modified_limit[0],
+                right_jaw=modified_limit[1],
+                top_jaw=modified_limit[2],
+                bottom_jaw=modified_limit[3],
+                select_collimator_angle='False',
+                allow_beam_split='False',
+                optimization_types=['SegmentOpt', 'SegmentMU'])
             logging.info(
                 'Beam {}: Changed jaw limits x1: {} => {}, x2: {} = {}, y1: {} => {}, y2: {} => {}'
-                    .format(beam_name,
-                            existing_limits[0], current_beam.ForBeam.InitialJawPositions[0],
-                            existing_limits[1], current_beam.ForBeam.InitialJawPositions[1],
-                            existing_limits[2], current_beam.ForBeam.InitialJawPositions[2],
-                            existing_limits[3], current_beam.ForBeam.InitialJawPositions[3]))
+                .format(beam_name,
+                        existing_limits[0], current_beam.ForBeam.InitialJawPositions[0],
+                        existing_limits[1], current_beam.ForBeam.InitialJawPositions[1],
+                        existing_limits[2], current_beam.ForBeam.InitialJawPositions[2],
+                        existing_limits[3], current_beam.ForBeam.InitialJawPositions[3]))
             return True
         else:
             logging.info(('Aperture check shows that limit on {} are not current. Limits should be '
@@ -3182,17 +3189,15 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
 def emc_calc_params(beamset):
     """
     For each beam, go through the beam doses, and return the statistical uncertainty and the
-    MC histories used in beam beam dose. Return the maximum uncertainty and minimum MC histories.
+    MC histories used in beam dose. Return the maximum uncertainty and minimum MC histories.
     :param beamset: RS beamset
     :return: NormUnc (the maximum normalized uncertainty) and number of histories used in calc
     """
     max_uncertainty = 0
-    min_histories = 1e10
     # Return electron monte carlo computational parameters
     for bd in beamset.FractionDose.BeamDoses:
         max_uncertainty = max(max_uncertainty, bd.DoseValues.RelativeStatisticalUncertainty)
-        min_histories = min(min_histories,
-                            bd.DoseValues.AlgorithmProperties.MonteCarloHistoriesPerAreaFluence)
+    min_histories = get_number_of_emc_histories(beamset)
 
     return {'NormUnc': max_uncertainty, 'MinHist': min_histories}
 
@@ -3217,6 +3222,7 @@ def check_emc(beamset, stat_limit=0.01, histories=5e5):
     number of histories
     """
     eval_current_emc = emc_calc_params(beamset)
+    print(f'Current EMC: {eval_current_emc}, and stat limit: {stat_limit} and histories: {histories}')
     if eval_current_emc['MinHist'] < histories or eval_current_emc['NormUnc'] > stat_limit:
         EmcTest.bool = False
         stat_limit_hist = int(
@@ -3225,12 +3231,12 @@ def check_emc(beamset, stat_limit=0.01, histories=5e5):
         logging.info(
             'Electron MC check showed an uncertainty of {} recommend increasing histories from {} '
             'to {}'
-                .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist'], EmcTest.hist))
+            .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist'], EmcTest.hist))
     else:
         EmcTest.bool = True
         logging.info(
             'Electron MC check showed clinically-acceptable uncertainty {} and histories {}'
-                .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist']))
+            .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist']))
 
     return EmcTest
 
