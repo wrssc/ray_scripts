@@ -417,9 +417,11 @@ def send(case,
 
                     if 'TreatmentDeliveryType' in b and b.TreatmentDeliveryType == 'SETUP':
                         # Change Dose rate for set-up fields to 100 MU/min
+                        c = b.ControlPointSequence[0]
                         for c in b.ControlPointSequence:
-                            c.DoseRateSet = 100
-                            expected.add(c[0x300a0115], beam=b, cp=c)
+                            if 'DoseRateSet' in c and c.DoseRateSet != 100:
+                                c.DoseRateSet = 100
+                                expected.add(c[0x300a0115], beam=b, cp=c)  # Dose Rate modified
                             # Change the nominal beam energy
                             if 'NominalBeamEnergy' in c and c.NominalBeamEnergy != 6:
                                 c.NominalBeamEnergy = 6
@@ -437,8 +439,9 @@ def send(case,
                     # Change Dose rate for electron fields to 1000 MU/min
                     if 'RadiationType' in b and b.RadiationType == 'ELECTRON' and 'ControlPointSequence' in b:
                         for c in b.ControlPointSequence:
-                            c.DoseRateSet = 1000
-                            expected.add(c[0x300a0115], beam=b, cp=c)
+                            if 'DoseRateSet' in c and c.DoseRateSet != 1000:
+                                c.DoseRateSet = 1000
+                                expected.add(c[0x300a0115], beam=b, cp=c)
 
                         # The following lines add a new accessory for the electron block which is unnecessary in ARIA
                         # If converting electron block into accessory (note, accessory ID tags are currently hard coded
@@ -840,6 +843,8 @@ def send(case,
                             logging.debug('File {} edits are consistent with expected'.format(m))
 
                         else:
+                            logging.warning(f'File {m} edits are inconsistent with expected')
+                            logging.warning(f'result: {edited[m].matches(compare(ds, dso))}')
                             status = False
                             if not ignore_errors:
                                 if isinstance(bar, UserInterface.ProgressBar):
