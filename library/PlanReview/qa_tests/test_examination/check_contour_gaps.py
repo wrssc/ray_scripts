@@ -78,29 +78,43 @@ def consecutive(data, stepsize=1):
     return np.split(data, np.where(np.diff(data) >= stepsize)[0] + 1)
 
 
-def check_for_valid_contours(rso):
+def check_for_valid_contours(rso,contour_list):
     geom_list = []
     for rg in rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries:
+        if rg.OfRoi.Name not in contour_list:
+            continue
         if rg.HasContours() and hasattr(rg.PrimaryShape, 'Contours'):
-            geom_list.append(rg)
+            geom_list.append(rg.OfRoi.Name)
+        else:
+            logging.debug(f"Excluded: {rg.OfRoi.Name} on the basis of missing contours")
     return geom_list
+
 
 def get_contour_list(rso):
     contour_list = []
-    # All Rois with contours
-    rois_with_contours = check_for_valid_contours(rso)
+    # Find all ROIs
+    roi_list = [roi.Name for roi in rso.case.PatientModel.RegionsOfInterest]
+    # Exclude rois that do not meet our criteria
     organ_types = ['Target', 'OrganAtRisk']
     roi_types = ['Ptv', 'Ctv', 'Gtv', 'Organ']
     # Define exclusion patterns
-    exclude_from_contour_analysis = ['NoFlyZone_PRV', '^OTV.*', '^PTV.*_Eval$']
+    exclude_from_contour_analysis = ['NoFlyZone_PRV', '^OTV.*', '^PTV.*_Eval$', '^sOTV.*', '^External.*', '^Skin.*',
+                                     '^Normal.*', '^Lungs.*','^Parotids.*','^Ring.*']
+    for roi_name in roi_list:
+        roi = rso.case.PatientModel.RegionsOfInterest[roi_name]
+        if roi.OrganData.OrganType not in organ_types or roi.Type not in roi_types:
+            logging.debug(f"Excluded: {roi_name} on the basis of type")
+            continue
+        exclude_match = any(re.search(pattern, roi_name) for pattern in exclude_from_contour_analysis)
+        if exclude_match:
+            logging.debug(f"Excluded: {roi_name} on the basis of excluded name pattern")
+            continue
+        contour_list.append(roi_name)
 
-    # ROI names if they have a type match in review_types
-    for rg in rois_with_contours:
-        if rg.OfRoi.OrganData.OrganType in organ_types and \
-                rg.OfRoi.Type in roi_types:
-            if not any(re.search(pattern, rg.OfRoi.Name) for pattern in exclude_from_contour_analysis):
-                contour_list.append(rg.OfRoi.Name)
-    return contour_list
+    # All Rois with contours
+    rois_with_contours = check_for_valid_contours(rso, contour_list)
+
+    return rois_with_contours
 
 
 def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
@@ -142,6 +156,7 @@ def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
     # Look through all available rois that have contours for gaps
     message_str = ""
     rois_to_check = get_contour_list(rso)
+    logging.debug(f'Checking {len(rois_to_check)} ROIs for gaps')
     # Get slice positions
     slices = get_slice_positions(rso)
     # Get the slice thickness of the CT
