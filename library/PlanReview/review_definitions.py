@@ -40,15 +40,19 @@ BLUE_CIRCLE = os.path.join(icon_dir, "blue_circle_icon.png")
 UW_HEALTH_LOGO = os.path.join(icon_dir, "UW_Health_Logo.png")
 # ICONS 90 px horizontal
 ICON_SMALL_PRINT = os.path.join(icon_dir, "print_icon_small.png")
+ICON_SMALL_FINAL = os.path.join(icon_dir, "final_icon_small.png")
 ICON_SMALL_START = os.path.join(icon_dir, "start_icon_small.png")
 ICON_SMALL_CANCEL = os.path.join(icon_dir, "cancel_icon_small.png")
 ICON_SMALL_PAUSE = os.path.join(icon_dir, "pause_icon_small.png")
 ICON_SMALL_SAVE = os.path.join(icon_dir, "save_icon_small.png")
 ICON_SMALL_LOAD = os.path.join(icon_dir, "load_icon_small.png")
 ICON_SMALL_ERROR = os.path.join(icon_dir, "error_icon_small.png")
-ICON_SMALL_SCALE_ISODOSE = os.path.join(icon_dir, "scale_small_icon.png")  # 90 px
+ICON_SMALL_SCALE_ISODOSE = os.path.join(icon_dir, "scale_icon_small.png")  # 90 px
+ICON_SMALL_MATERIAL = os.path.join(icon_dir, "material_icon_small.png")
+ICON_SMALL_WINDOW_LEVEL = os.path.join(icon_dir, "windowlevel_icon_small.png")
 # ICONS 110 px horizontal
 ICON_PRINT = os.path.join(icon_dir, "print_icon.png")
+ICON_FINAL = os.path.join(icon_dir, "final_icon.png")
 ICON_START = os.path.join(icon_dir, "start_icon.png")
 ICON_CANCEL = os.path.join(icon_dir, "cancel_icon.png")
 ICON_PAUSE = os.path.join(icon_dir, "pause_icon.png")
@@ -57,6 +61,8 @@ ICON_LOAD = os.path.join(icon_dir, "load_icon.png")
 ICON_ERROR = os.path.join(icon_dir, "error_icon.png")
 ICON_CHECKER = os.path.join(icon_dir, "checker_icon.png")
 ICON_SCALE_ISODOSE = os.path.join(icon_dir, "scale_icon.png")
+ICON_MATERIAL = os.path.join(icon_dir, "material_icon.png")
+ICON_WINDOW_LEVEL = os.path.join(icon_dir, "windowlevel_icon.png")
 # RESULT STRING
 PASS = "Pass"
 FAIL = "Fail"
@@ -103,7 +109,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_TEST: 'ct_images_match',
             KEY_OUT_DESC: 'CT images match RayStation Modality/Patient Name/MRN',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_exam_data'],
                 KEY_STATUS: REPLACED,
@@ -113,7 +119,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_TEST: 'ct_images_number',
             KEY_OUT_DESC: 'Number of CT images matches CT simulation document',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.compare_exam_data_to_preplan'],
                 KEY_STATUS: REPLACED,
@@ -123,7 +129,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_TEST: 'ct_images_scan_datetime',
             KEY_OUT_DESC: 'CT images Scan Date/Time matches CT simulation report',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.compare_exam_data_to_preplan',
                                       'qa_tests.text_examination.compare_exam_date', ],
@@ -134,7 +140,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_TEST: 'ct_orientation',
             KEY_OUT_DESC: 'CT orientation matches report',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_axial_orientation',
                                       'qa_tests.test_examination.compare_patient_orientation_to_preplan'],
@@ -147,7 +153,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Simulation consistent with intended treatment '
                                           'and accurately incorporated into treatment plan',
                                   'KEY': 'sim_consistent_accurate'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
 
         },
@@ -158,7 +164,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Simulation consistent with intended treatment '
                                           'and accurately incorporated into treatment plan',
                                   'KEY': 'sim_consistent_accurate'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -168,14 +174,14 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Simulation consistent with intended treatment '
                                           'and accurately incorporated into treatment plan',
                                   'KEY': 'sim_consistent_accurate'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'slice_thickness',
             KEY_OUT_DESC: 'Slice thickness appropriate for plan type',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_slice_thickness'],
                 KEY_STATUS: REPLACED,
@@ -190,7 +196,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Data in MIM is consistent with treatment plan:',
                                   'KEY': 'mim_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -199,7 +205,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Data in MIM is consistent with treatment plan:',
                                   'KEY': 'mim_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -208,7 +214,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Data in MIM is consistent with treatment plan:',
                                   'KEY': 'mim_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -217,7 +223,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Anatomical and target contours appear correct:',
                                   'KEY': 'contours_correct'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_contour_gaps'],
                 KEY_STATUS: 'Extended - check in place to look for contours with gaps',
@@ -229,7 +235,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Anatomical and target contours appear correct:',
                                   'KEY': 'contours_correct'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -238,7 +244,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Anatomical and target contours appear correct:',
                                   'KEY': 'contours_correct'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -247,7 +253,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Contours influencing dose calculation are correct:',
                                   'KEY': 'dose_contours_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -256,7 +262,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Contours influencing dose calculation are correct:',
                                   'KEY': 'dose_contours_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -265,7 +271,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'External geometry and support structures are correct:',
                                   'KEY': 'external_and_supports'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_support_material'],
                 KEY_STATUS: 'Enhanced - check takes place on common supports, but not all override scenarios',
@@ -279,7 +285,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Contours influencing dose calculation are correct:',
                                   'KEY': 'dose_contours_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -288,7 +294,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'External geometry and support structures are correct:',
                                   'KEY': 'external_and_supports'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -297,7 +303,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'External geometry and support structures are correct:',
                                   'KEY': 'external_and_supports'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_couch_type',
                                       'qa_tests.test_examination.check_couch_extent'],
@@ -311,7 +317,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Contours influencing dose calculation are correct:',
                                   'KEY': 'dose_contours_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_bolus_included'],
                 KEY_STATUS: 'Needs Review',
@@ -326,7 +332,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Plan level data consistent and approved',
                                   'KEY': 'plan_level_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -335,7 +341,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Plan level data consistent and approved',
                                   'KEY': 'plan_level_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_beamset_approved',
                                       'qa_tests.text_plan.check_plan_approved'],
@@ -350,7 +356,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'SOP followed in beam configuration:',
                                   'KEY': 'sop_for_beams'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -359,7 +365,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'SOP followed in beam configuration:',
                                   'KEY': 'sop_for_beams'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -368,7 +374,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_common_isocenter'],
                 KEY_STATUS: 'Needs Review',
@@ -381,7 +387,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam modifiers and collimation verified:',
                                   'KEY': 'modifiers_collimation_verified'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_no_fly',
                                       'qa_tests.test_examination.check_image_extent'],
@@ -395,7 +401,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam modifiers and collimation verified:',
                                   'KEY': 'modifiers_collimation_verified'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -404,7 +410,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam modifiers and collimation verified:',
                                   'KEY': 'modifiers_collimation_verified'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -413,7 +419,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': "Prescription correct and correctly resolved by dose grid:",
                                   'KEY': 'rx_and_grid_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_fraction_size'],
                 KEY_STATUS: 'Enhanced: 5Gy x 4, and 1Gy x 8 transcription error reviewed',
@@ -426,7 +432,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': "Prescription correct and correctly resolved by dose grid:",
                                   'KEY': 'rx_and_grid_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -435,7 +441,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': "Prescription correct and correctly resolved by dose grid:",
                                   'KEY': 'rx_and_grid_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_dose_grid'],
                 KEY_STATUS: REPLACED,
@@ -448,7 +454,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': "Prescription correct and correctly resolved by dose grid:",
                                   'KEY': 'rx_and_grid_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
 
@@ -461,7 +467,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Dose distribution and clinical goals consistent with intended treatment:',
                                   'KEY': 'dose_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -471,7 +477,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Dose distribution and clinical goals consistent with intended treatment:',
                                   'KEY': 'dose_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -540,7 +546,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': '2nd check calculation acceptable:',
                                   'KEY': 'mobius_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -549,7 +555,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': '2nd check calculation acceptable:',
                                   'KEY': 'mobius_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -558,7 +564,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': '2nd check calculation acceptable:',
                                   'KEY': 'mobius_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -567,7 +573,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': '2nd check calculation acceptable:',
                                   'KEY': 'mobius_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         #
@@ -576,21 +582,21 @@ CHECK_BOXES_PHYSICS_REVIEW = {
         #     KEY_OUT_TEST: 'couch_removal_height',
         #     KEY_OUT_DESC: 'Confirm couch removal height',
         #     KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-        #     KEY_OUT_OPTIONS: 'Yes,NA,No',
+        #     KEY_OUT_OPTIONS: 'Yes,No',
         #     KEY_AUTOMATION: {},
         # },
         # {
         #     KEY_OUT_TEST: 'target_identification',
         #     KEY_OUT_DESC: 'Target identification is correct',
         #     KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-        #     KEY_OUT_OPTIONS: 'Yes,NA,No',
+        #     KEY_OUT_OPTIONS: 'Yes,No',
         #     KEY_AUTOMATION: {},
         # },
         # {
         #     KEY_OUT_TEST: 'structure_classification',
         #     KEY_OUT_DESC: 'Classification of each structure is correct',
         #     KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-        #     KEY_OUT_OPTIONS: 'Yes,NA,No',
+        #     KEY_OUT_OPTIONS: 'Yes,No',
         #     KEY_AUTOMATION: {},
         # },
     ],
@@ -599,7 +605,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_TEST: 'sandbox_tests',
             KEY_OUT_DESC: 'Did these experimental tests work for this case?',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['SANDBOX_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -616,7 +622,7 @@ CHECK_BOXES_PHYSICS_REVIEW_3D = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'External geometry and support structures are correct:',
                                   'KEY': 'external_and_supports'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
                 KEY_STATUS: 'Enhanced - Localization checked for existence but not correctness',
@@ -631,7 +637,7 @@ CHECK_BOXES_PHYSICS_REVIEW_3D = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -640,7 +646,7 @@ CHECK_BOXES_PHYSICS_REVIEW_3D = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -649,7 +655,7 @@ CHECK_BOXES_PHYSICS_REVIEW_3D = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'SOP followed in beam configuration:',
                                   'KEY': 'sop_for_beams'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -658,7 +664,7 @@ CHECK_BOXES_PHYSICS_REVIEW_3D = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam modifiers and collimation verified:',
                                   'KEY': 'modifiers_collimation_verified'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_edw_field_size'],
                 KEY_STATUS: 'Enhanced - EDW field size compliance checked',
@@ -672,7 +678,7 @@ CHECK_BOXES_PHYSICS_REVIEW_3D = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam modifiers and collimation verified:',
                                   'KEY': 'modifiers_collimation_verified'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -681,7 +687,7 @@ CHECK_BOXES_PHYSICS_REVIEW_3D = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_edw_mu'],
                 KEY_STATUS: 'Enhanced - EDW MU compliance checked',
@@ -694,7 +700,7 @@ CHECK_BOXES_PHYSICS_REVIEW_3D = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam modifiers and collimation verified:',
                                   'KEY': 'modifiers_collimation_verified'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -712,7 +718,7 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'External geometry and support structures are correct:',
                                   'KEY': 'external_and_supports'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
                 KEY_STATUS: 'Enhanced - Localization checked for existence but not correctness',
@@ -723,14 +729,14 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
         #    KEY_OUT_TEST: 'ptv_retracted',
         #    KEY_OUT_DESC: 'PTV is retracted from skin at least 3mm',
         #    KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-        #    KEY_OUT_OPTIONS: 'Yes,NA,No',
+        #    KEY_OUT_OPTIONS: 'Yes,No',
         #    KEY_AUTOMATION: {},
         # },
         {
             KEY_OUT_TEST: 'prv_volumes',
             KEY_OUT_DESC: 'PRV volumes are drawn for serial OARs',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_prv_status'],
                 KEY_STATUS: REPLACED,
@@ -745,7 +751,7 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
             KEY_OUT_DESC: 'Modality, Energy match TPO',
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -754,7 +760,7 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -763,7 +769,7 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -772,7 +778,7 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'SOP followed in beam configuration:',
                                   'KEY': 'sop_for_beams'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -781,7 +787,7 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam modifiers and collimation verified:',
                                   'KEY': 'modifiers_collimation_verified'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
 
@@ -791,7 +797,7 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         # Replaced on 03Oct2023 per Physics group by PRIOR_RT page
@@ -799,7 +805,7 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
         #     KEY_OUT_TEST: 'overlap_prior_rt',
         #     KEY_OUT_DESC: 'Overlap with prior RT is reviewed',
         #     KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-        #     KEY_OUT_OPTIONS: 'Yes,NA,No',
+        #     KEY_OUT_OPTIONS: 'Yes,No',
         #     KEY_AUTOMATION: {},
         # },
         {
@@ -809,7 +815,7 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': "Prescription correct and correctly resolved by dose grid:",
                                   'KEY': 'rx_and_grid_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -820,7 +826,7 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'VMAT-IMRT Optimization performed:',
                                   'KEY': 'vmat_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -830,14 +836,14 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'VMAT-IMRT Optimization performed:',
                                   'KEY': 'vmat_imrt_opt'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'optimization_settings',
             KEY_OUT_DESC: 'Optimization settings: 2-degree gantry spacing',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_control_point_spacing'],
                 KEY_STATUS: REPLACED,
@@ -857,7 +863,7 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -866,7 +872,7 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -875,7 +881,7 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -885,7 +891,7 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -894,7 +900,7 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -903,7 +909,7 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam modifiers and collimation verified:',
                                   'KEY': 'modifiers_collimation_verified'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -912,7 +918,7 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
                                   'KEY': 'beams_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -923,7 +929,7 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Dose distribution and clinical goals consistent with intended treatment:',
                                   'KEY': 'dose_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -935,7 +941,7 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Contours influencing dose calculation are correct:',
                                   'KEY': 'dose_contours_consistent'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -945,7 +951,7 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'External geometry and support structures are correct:',
                                   'KEY': 'external_and_supports'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
                 KEY_STATUS: 'Enhanced - Localization checked for existence but not correctness',
@@ -965,7 +971,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'External geometry and support structures are correct:',
                                   'KEY': 'external_and_supports'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -974,7 +980,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'External geometry and support structures are correct:',
                                   'KEY': 'external_and_supports'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -985,7 +991,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'TomoTherapy-specific elements are verified:',
                                   'KEY': 'tomo_verified'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -995,7 +1001,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'TomoTherapy-specific elements are verified:',
                                   'KEY': 'tomo_verified'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1005,7 +1011,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'TomoTherapy-specific elements are verified:',
                                   'KEY': 'tomo_verified'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1014,7 +1020,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo3D Planning technique used:',
                                   'KEY': 'tomo_3d'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_mod_factor'],
                 KEY_STATUS: REPLACED,
@@ -1028,7 +1034,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo3D Planning technique used:',
                                   'KEY': 'tomo_3d'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1037,7 +1043,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo3D Planning technique used:',
                                   'KEY': 'tomo_3d'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1046,7 +1052,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'TomoTherapy-specific elements are verified:',
                                   'KEY': 'tomo_verified'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_tomo_isocenter'],
                 KEY_STATUS: REPLACED,
@@ -1060,7 +1066,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo3D Optimization performed:',
                                   'KEY': 'tomo_3d_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1070,7 +1076,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo3D Optimization performed:',
                                   'KEY': 'tomo_3d_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1079,7 +1085,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo3D Optimization performed:',
                                   'KEY': 'tomo_3d_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_fov_overlap_external'],
                 KEY_STATUS: 'Extended - automated test for FOV overlap with external or couch',
@@ -1092,7 +1098,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo3D Optimization performed:',
                                   'KEY': 'tomo_3d_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1101,7 +1107,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo3D Optimization performed:',
                                   'KEY': 'tomo_3d_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -1112,7 +1118,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Dose distribution and clinical goals consistent with intended treatment:',
                                   'KEY': 'dose_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -1121,14 +1127,14 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
     #     KEY_OUT_TEST: 'transfer_plan_dose_distribution',
     #      KEY_OUT_DESC: 'Transfer plan dose distribution and DVHs reviewed,'
     #                   ' match with Primary Plan',
-    #      KEY_OUT_OPTIONS: 'Yes,NA,No',
+    #      KEY_OUT_OPTIONS: 'Yes,No',
     # KEY_AUTOMATION: {},
     # },
     #     {
     #     KEY_OUT_TEST: 'transfer_plan_locked_approved',
     #      KEY_OUT_DESC: 'Transfer plan is locked and approved by Dosimetry'
     #                   ' in RayStation',
-    #      KEY_OUT_OPTIONS: 'Yes,NA,No',
+    #      KEY_OUT_OPTIONS: 'Yes,No',
     # KEY_AUTOMATION: {},
     # },
     # ],
@@ -1144,7 +1150,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'External geometry and support structures are correct:',
                                   'KEY': 'external_and_supports'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1153,7 +1159,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'External geometry and support structures are correct:',
                                   'KEY': 'external_and_supports'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -1163,14 +1169,14 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
     #     KEY_OUT_TEST: 'transfer_plan_dose_distribution',
     #      KEY_OUT_DESC: 'Transfer plan dose distribution and DVHs reviewed,'
     #                   ' match with Primary Plan',
-    #      KEY_OUT_OPTIONS: 'Yes,NA,No',
+    #      KEY_OUT_OPTIONS: 'Yes,No',
     #      KEY_AUTOMATION: {},
     # },
     #     {
     #     KEY_OUT_TEST: 'transfer_plan_locked_approved',
     #      KEY_OUT_DESC: 'Transfer plan is locked and approved by Dosimetry'
     #                   ' in RayStation',
-    #      KEY_OUT_OPTIONS: 'Yes,NA,No',
+    #      KEY_OUT_OPTIONS: 'Yes,No',
     # KEY_AUTOMATION: {}      
     # },
     # ],
@@ -1182,7 +1188,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'TomoTherapy-specific elements are verified:',
                                   'KEY': 'tomo_verified'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_tomo_isocenter'],
                 KEY_STATUS: REPLACED,
@@ -1194,7 +1200,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'TomoTherapy-specific elements are verified:',
                                   'KEY': 'tomo_verified'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1203,7 +1209,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'TomoTherapy-specific elements are verified:',
                                   'KEY': 'tomo_verified'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1213,7 +1219,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'TomoTherapy-specific elements are verified:',
                                   'KEY': 'tomo_verified'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -1224,7 +1230,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
                                   'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1234,7 +1240,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
                                   'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1243,7 +1249,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
                                   'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_fov_overlap_external'],
                 KEY_STATUS: REPLACED,
@@ -1256,7 +1262,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
                                   'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1265,7 +1271,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
                                   'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -1281,14 +1287,14 @@ CHECK_BOXES_DOSIMETRY_SAFETY = {
             KEY_OUT_TEST: 'primary_image_set',
             KEY_OUT_DESC: 'Correct image set used as primary',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'patient_info',
             KEY_OUT_DESC: 'Correct patient information (name, MRN, image #, orientation)',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_exam_data'],
                 KEY_STATUS: REPLACED,
@@ -1298,21 +1304,21 @@ CHECK_BOXES_DOSIMETRY_SAFETY = {
             KEY_OUT_TEST: 'ivdt_table',
             KEY_OUT_DESC: 'Correct IVDT table used',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'case_data',
             KEY_OUT_DESC: 'Case data entered to match Course # in Aria, treatment site, MD',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'slice_thickness',
             KEY_OUT_DESC: 'Slice thickness appropriate for plan type',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_slice_thickness'],
                 KEY_STATUS: REPLACED,
@@ -1325,35 +1331,35 @@ CHECK_BOXES_DOSIMETRY_SAFETY = {
             KEY_OUT_TEST: 'approved_structure_set',
             KEY_OUT_DESC: 'MD approved structure set',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'contours_cleaned',
             KEY_OUT_DESC: 'Contours interpolated and cleaned',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'structure_template_loaded',
             KEY_OUT_DESC: 'Structure Template Loaded: Choose One',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'ptv_expansions',
             KEY_OUT_DESC: 'PTV expansions per table',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'sim_fiducial',
             KEY_OUT_DESC: 'Sim Fiducial point set to match BB location',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
                 KEY_STATUS: 'Enhanced - Localization checked for existence but not correctness',
@@ -1364,7 +1370,7 @@ CHECK_BOXES_DOSIMETRY_SAFETY = {
             KEY_OUT_TEST: 'ct_cutoff',
             KEY_OUT_DESC: 'CT cutoff addressed',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_fov_overlap_external',
                                       'qa_tests.test_examination.check_image_extent'],
@@ -1373,26 +1379,38 @@ CHECK_BOXES_DOSIMETRY_SAFETY = {
             },
         },
     ],
+    REVIEW_LEVELS['PLAN_DATA']: [
+        {
+            KEY_OUT_TEST: 'plan_name_tpo',
+            KEY_OUT_DESC: 'Plan Name is consistent with TPO',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_CHECK_GROUP: {},
+            # {'TEXT': 'Plan level data consistent and approved',
+            #                  'KEY': 'plan_level_consistent'},
+            KEY_OUT_OPTIONS: 'Yes,No',
+            KEY_AUTOMATION: {},
+        },
+    ],
     REVIEW_LEVELS['PLAN_DESIGN']: [
         {
             KEY_OUT_TEST: 'plan_beam_names',
             KEY_OUT_DESC: 'Plan and beam set names match treatment site',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'machine_correct',
             KEY_OUT_DESC: 'Machine correct: Choose One',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'dose_grid_resolution',
             KEY_OUT_DESC: 'Dose grid resolution set to 0.2',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_dose_grid'],
                 KEY_STATUS: 'Needs Review',
@@ -1403,42 +1421,48 @@ CHECK_BOXES_DOSIMETRY_SAFETY = {
             KEY_OUT_TEST: 'isodose_display',
             KEY_OUT_DESC: 'Isodose line display set to Absolute values',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'clinical_goals',
             KEY_OUT_DESC: 'Clinical goals entered',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'final_dose_calc_script',
             KEY_OUT_DESC: 'Final Dose calculation script used',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
-    ]
+    ],
+    REVIEW_LEVELS['OPTIMIZATION']: [],
+    REVIEW_LEVELS['PLAN_EVAL']: [],
+    REVIEW_LEVELS['ADAPTIVE']: [],
+    REVIEW_LEVELS['IMPLANTED_DEVICE']: [],
+    REVIEW_LEVELS['PRIOR_RT']: [],
+    REVIEW_LEVELS['MOBIUS']: [],
+    REVIEW_LEVELS['SANDBOX']: [],
 }
 CHECK_BOXES_DOSIMETRY_SAFETY_3D = {
     KEY_REVIEW_TYPE: '3D Conformal Dosimetry Review',
-    REVIEW_LEVELS['PREPLAN_DATA']: [
-    ],
+    REVIEW_LEVELS['PREPLAN_DATA']: [],
     REVIEW_LEVELS['PATIENT_MODEL']: [
         {
             KEY_OUT_TEST: 'highz_artifacts',
             KEY_OUT_DESC: 'High-Z artifacts & density overrides addressed: Choose One',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'couch_structure',
             KEY_OUT_DESC: 'TrueBeam couch structure present and set to correct height',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -1447,14 +1471,14 @@ CHECK_BOXES_DOSIMETRY_SAFETY_3D = {
             KEY_OUT_TEST: 'btv_created',
             KEY_OUT_DESC: 'BTV created and derived based on PTV',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'beam_template_used',
             KEY_OUT_DESC: 'Beam template used: Choose One ',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1462,35 +1486,34 @@ CHECK_BOXES_DOSIMETRY_SAFETY_3D = {
             KEY_OUT_DESC: 'Beam(s) do not pass through low-reproducibility objects (ie: head of '
                           'table)',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'treat_protect',
             KEY_OUT_DESC: 'Treat & Protect settings used',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'prescription_type',
             KEY_OUT_DESC: 'Prescription based on volume or isodose line',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ]
 }
 CHECK_BOXES_DOSIMETRY_SAFETY_VMAT = {
     KEY_REVIEW_TYPE: 'VMAT Dosimetry Review',
-    REVIEW_LEVELS['PATIENT_MODEL']: [
-    ],
+    REVIEW_LEVELS['PATIENT_MODEL']: [],
     REVIEW_LEVELS['PATIENT_MODEL']: [
         {
             KEY_OUT_TEST: 'planning_structure_script',
             KEY_OUT_DESC: 'Generate planning structure script used',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -1499,7 +1522,7 @@ CHECK_BOXES_DOSIMETRY_SAFETY_VMAT = {
             KEY_OUT_TEST: 'dose_grid_resolution_SBRT',
             KEY_OUT_DESC: 'Dose grid resolution set to 0.2 (or 0.15 for SBRT)',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_dose_grid'],
                 KEY_STATUS: 'Needs Review',
@@ -1510,7 +1533,7 @@ CHECK_BOXES_DOSIMETRY_SAFETY_VMAT = {
             KEY_OUT_TEST: 'isocenter_lateral_offset',
             KEY_OUT_DESC: 'Isocenter lateral offset < 5 cm for plans using full arcs',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -1519,49 +1542,48 @@ CHECK_BOXES_DOSIMETRY_SAFETY_VMAT = {
             KEY_OUT_TEST: 'clinical_goals_script_tpo',
             KEY_OUT_DESC: 'Clinical goals script used and matches TPO template name',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'treat_setting',
             KEY_OUT_DESC: 'Treat setting used',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'automated_plan_optimization',
             KEY_OUT_DESC: 'Automated Plan Optimization script used',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'beam_weights',
             KEY_OUT_DESC: 'Beam weights > 5%',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'couch_angle_rpm',
             KEY_OUT_DESC: 'Couch angle < 45 degrees for RPM gating plans',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ]
 }
 CHECK_BOXES_DOSIMETRY_SAFETY_ELECTRONS = {
     KEY_REVIEW_TYPE: 'Electron Dosimetry Review',
-    REVIEW_LEVELS['PREPLAN_DATA']: [
-    ],
+    REVIEW_LEVELS['PREPLAN_DATA']: [],
     REVIEW_LEVELS['PATIENT_MODEL']: [
         {
             KEY_OUT_TEST: 'density_overrides',
             KEY_OUT_DESC: 'Density overrides set appropriately and do not overlap external',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1571,7 +1593,7 @@ CHECK_BOXES_DOSIMETRY_SAFETY_ELECTRONS = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'External geometry and support structures are correct:',
                                   'KEY': 'external_and_supports'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -1580,14 +1602,14 @@ CHECK_BOXES_DOSIMETRY_SAFETY_ELECTRONS = {
             KEY_OUT_TEST: 'en_face_beam_angle',
             KEY_OUT_DESC: 'En face beam angle used',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'statistical_uncertainty',
             KEY_OUT_DESC: 'Dose Statistical uncertainty < 1%',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1595,98 +1617,97 @@ CHECK_BOXES_DOSIMETRY_SAFETY_ELECTRONS = {
             KEY_OUT_DESC: 'SSD = 100 cm for 6x6 cone or 105 for all other cones, SSD to skin for no '
                           'bolus or to surface for bolus',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'cutout_shape',
             KEY_OUT_DESC: 'Cutout: Shape: Choose One',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'cutout_name',
             KEY_OUT_DESC: 'Cutout Name is accessory code',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'bolus',
             KEY_OUT_DESC: 'Bolus: Choose One',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'prescription_based_volume',
             KEY_OUT_DESC: 'Prescription based on volume',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'printing_cutout',
             KEY_OUT_DESC: 'Printing: cutout printed to correct scale factor of 1.00',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'mobius_quickcalc_water_phantom',
             KEY_OUT_DESC: 'Mobius QuickCalc: Water phantom QA plan created',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'mobius_quickcalc_cutout_dimensions',
             KEY_OUT_DESC: 'Mobius QuickCalc: Cutout dimensions correct',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'mobius_quickcalc_dmax_dose',
             KEY_OUT_DESC: 'Mobius QuickCalc: Dmax dose entered into QuickCalc',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'mobius_quickcalc_agreement',
             KEY_OUT_DESC: 'Mobius QuickCalc: Agreement within 5%',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ]
 }
 CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
     KEY_REVIEW_TYPE: 'TomoTherapy Dosimetry Review',
-    REVIEW_LEVELS['PREPLAN_DATA']: [
-    ],
+    REVIEW_LEVELS['PREPLAN_DATA']: [],
     REVIEW_LEVELS['PATIENT_MODEL']: [
         {
             KEY_OUT_TEST: 'generate_planning_structure_script',
             KEY_OUT_DESC: 'Generate planning structure script used',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'targets_retracted',
             KEY_OUT_DESC: 'Targets retracted 3 mm from surface (PTV eval used)',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'tomo_couch_structure',
             KEY_OUT_DESC: 'Tomo couch structure present and set to correct height',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -1695,14 +1716,14 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
             KEY_OUT_TEST: 'beam_added_no_collision',
             KEY_OUT_DESC: 'Beam added with no collision via machine geometry',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'isocenter_offsets',
             KEY_OUT_DESC: 'Isocenter lateral offset < 3 cm and In/Out offset < 18 cm',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_tomo_isocenter'],
                 KEY_STATUS: REPLACED,
@@ -1714,7 +1735,7 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
          KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
                                'KEY': 'tomo_imrt_opt'},
          KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-         KEY_OUT_OPTIONS: 'Yes,NA,No',
+         KEY_OUT_OPTIONS: 'Yes,No',
          KEY_AUTOMATION: {},
          },
         {
@@ -1723,7 +1744,7 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
                                   'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1732,7 +1753,7 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
                                   'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1741,7 +1762,7 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
                                   'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1750,7 +1771,7 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
                                   'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1759,7 +1780,7 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
                                   'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1768,7 +1789,7 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
                                   'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
@@ -1777,7 +1798,7 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo Optimization correctly performed:',
                                   'KEY': 'tomo_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -1787,35 +1808,34 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
             KEY_OUT_TEST: 'idms_adaptive',
             KEY_OUT_DESC: 'iDMS Adaptive: treated fractions discontinued in new plan',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ]
 }
 CHECK_BOXES_DOSIMETRY_SAFETY_TOMO3D = {
     KEY_REVIEW_TYPE: '3D Conformal TomoTherapy Dosimetry Review',
-    REVIEW_LEVELS['PREPLAN_DATA']: [
-    ],
+    REVIEW_LEVELS['PREPLAN_DATA']: [],
     REVIEW_LEVELS['PATIENT_MODEL']: [
         {
             KEY_OUT_TEST: 'highz_artifacts',
             KEY_OUT_DESC: 'High-Z artifacts & density overrides addressed: Choose One',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'tomo_couch_insertion',
             KEY_OUT_DESC: 'Tomo Couch insertion height correct and no collisions with bore',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'sim_fiducial_or_shifts',
             KEY_OUT_DESC: 'Sim Fiducial point set to match BB location or Shifts Document',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
                 KEY_STATUS: 'Enhanced - Localization checked for existence but not correctness',
@@ -1828,7 +1848,7 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO3D = {
             KEY_OUT_TEST: 'non_repro_tpo_structures_blocked',
             KEY_OUT_DESC: 'Only non-reproducible and TPO-indicated structures blocked',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -1837,35 +1857,35 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO3D = {
             KEY_OUT_TEST: 'tpo_clinical_goals',
             KEY_OUT_DESC: 'TPO Clinical Goals Entered',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'auto_r0a0_plans',
             KEY_OUT_DESC: 'Auto and R0A0 Plans are identical in Dose',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'modulation_factor',
             KEY_OUT_DESC: 'Modulation factor < 2.2',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'bev_movie',
             KEY_OUT_DESC: 'Beams Eye View Movie shows only target is treated',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'treatment_time',
             KEY_OUT_DESC: 'Treatment time appropriate for plan',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ],
@@ -1874,7 +1894,7 @@ CHECK_BOXES_DOSIMETRY_SAFETY_TOMO3D = {
             KEY_OUT_TEST: 'idms_adaptive',
             KEY_OUT_DESC: 'iDMS Adaptive: treated fractions discontinued in new plan',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
     ]
@@ -2031,6 +2051,13 @@ GRID_PREFERENCES = {
         'SLICE_THICKNESS': 0.4,  # 4 mm
     },
 }
+
+#
+# ELECTRON MONTE CARLO SETTINGS
+# minimum number of e mc histories
+ELECTRON_MC_MIN_HISTORIES = 1e6
+# limit on the maximum uncertainty normalized to the maximum dose
+ELECTRON_MC_UNCERTAINTY = 0.01
 #
 # FIELD OF VIEW SETTINGS
 FIELD_OF_VIEW_PREFERENCES = {'NAME': 'FOV_Reconstructed',
@@ -2128,14 +2155,22 @@ TOMO_PREFERENCES = {
                      'MF_HIGH': 2.8, 'MF_LOW': 2.4},
     'LUNG-SBRT': {'ALIAS': PLAN_NAMES['LUNG_SBRT'],
                   'MF_HIGH': 1.4, 'MF_LOW': 1.2},
-    'PELVIS': {'ALIAS': ['Pelv_THI'],
-
+    'PELVIS': {'ALIAS': ['Pelv_THI', 'PelR_THI', 'PelL_THI', 'PelB_THI'],
                'MF_HIGH': 2.4, 'MF_LOW': 1.8},
     'PROSTATE-LOW-RISK': {'ALIAS': ['Pros_THI'], 'MF_HIGH': 2.2, 'MF_LOW': 1.6},
     'PROSTATE-HIGH-RISK': {'ALIAS': ['ProN_THI', 'ProF_THI'],
                            'MF_HIGH': 2.4, 'MF_LOW': 2.0},
     'TOMO_3D': {'ALIAS': ['T3D'],
                 'MF_HIGH': 2.2, 'MF_LOW': 1.1},
+}
+# TECHNIQUE/MODALITY TYPES
+TECHNIQUE_TYPES = {
+    ('SMLC', 'Electrons'): ['Electron -- 2D', 'Electron -- 3D'],
+    ('SMLC', 'Photons'): ['Static MLC -- 2D', 'Static NoMLC -- 2D', 'Static MLC -- 3D',
+                          'Static NoMLC -- 3D', 'FiF MLC -- 3D', 'Static PRDR MLC -- 3D',
+                          'SnS MLC -- IMRT', 'SnS PRDR MLC -- IMRT'],
+    ('DynamicArc', 'Photons'): ['Conformal Arc -- 2D', 'Conformal Arc -- 3D', 'VMAT Arc -- IMRT'],
+    ('TomoHelical', 'Photons'): ['TomoHelical -- IMRT', 'TomoHelical -- 3D Conformal'],
 }
 # PLAN/SITE CLASSIFICATION
 SITE_CLASSIFICATION = {

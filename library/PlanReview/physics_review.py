@@ -215,7 +215,7 @@ from library.PlanReview.utils.get_user_name import get_user_name
 from library.PlanReview.documentation.generate_physics_pdf import generate_pdf
 
 
-def physics_review(do_physics_review=True):
+def physics_review(do_physics_review=True, review_type='Physics'):
     """
         patient_key
             |
@@ -275,7 +275,7 @@ def physics_review(do_physics_review=True):
         review_data = None
     else:
         # Gui
-        review_data = launch_physics_review_gui(rso)
+        review_data = launch_physics_review_gui(rso, review_type=review_type)
         if not review_data:
             return 'Physics review canceled'
             # sys.exit('Physics review canceled')

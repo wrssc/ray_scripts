@@ -1,4 +1,4 @@
-""" Physics Review with Document
+""" BEAmset reVIew Script
     --version 1.0.3--Run basic plan integrity checks and parse the log file.
 
     """

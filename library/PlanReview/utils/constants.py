@@ -55,8 +55,17 @@ KEY_REVIEW_TYPE = '-REVIEW_TYPE-'
 KEY_AUTOMATION = '-AUTOMATION_INFORMATION-'
 KEY_OUT_COMMENT = '-COMMENT-'
 KEY_PROCEED_REVISE = "-PROCEED_REVISE-"
-KEY_QI_INFO = "-QI_ISSUE-"
-KEY_REVISION_INFO = "-REASON_FOR_REVISION-"
+KEY_DOSE = "-DOSE-"
+KEY_QI_INFO = "-QI_ISSUE-"  # Used in the side panel to display any quality improvement suggestions
+KEY_REVISION_INFO = "-REASON_FOR_REVISION-"  # Used in the side panel to display the reason for revision
+#
+# Used in the side panel for Dosimetry review
+KEY_REVISION_NUMBER = f'{KEY_DOSE}-REVISION_NUMBER-'  # Used in the side panel to display the number of revisions
+KEY_DOSE_REVISION = f'{KEY_DOSE}-REVISION-'  # Used in the side panel to display the dose revision
+KEY_DOSE_REVISION_INFO = f'{KEY_DOSE}-REVISION_INFO-'  # Used in the side panel to display the reason for revision
+KEY_DOSE_QI = f'{KEY_DOSE}-QI-'  # Used in the side panel to display any dose quality improvement suggestions
+KEY_DOSE_QI_INFO = f'{KEY_DOSE}-QI_INFO-'  # Used in the side panel to display any dose quality improvement suggestions
+#
 KEY_OUT_ICON = '-ICON-'
 KEY_OUT_TEST = '-TEST_NAME-'
 KEY_OUT_DESC = '-TEST_DESC-'
@@ -70,6 +79,8 @@ KEY_OUT_DOMAIN_TYPE = '-DOMAIN_TYPE-'
 KEY_OUT_DOMAIN_NAME = '-DOMAIN_NAME-'
 KEY_OUT_CHECK_GROUP = '-CHECK_GROUP-'
 KEY_PATIENT_ORIENTATION = '-PATIENT_ORIENTATION-'
+KEY_DOSE_SITE = KEY_DOSE + '-SITE-'
+KEY_DOSE_BILL = KEY_DOSE + '-BILL-'
 #
 # QA FORM KEYS
 KEY_QA_FORM = '-QA_FORM-'
