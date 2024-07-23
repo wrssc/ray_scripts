@@ -38,8 +38,8 @@ __status__ = "Production"
 __deprecated__ = False
 __reviewer__ = "Dustin Jacqmin"
 
-__reviewed__ = "2020-JUL-11"
-__raystation__ = "10A SP1"
+__reviewed__ = "2024-JUN-18"
+__raystation__ = "2024A"
 __maintainer__ = "Adam Bayliss"
 
 __email__ = "rabayliss@wisc.edu"
