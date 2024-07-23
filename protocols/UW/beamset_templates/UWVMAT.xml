@@ -1097,9 +1097,9 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>1_SITE_Arc_c285</Name>
             <Energy>6</Energy>
-            <GantryAngle>178</GantryAngle>
-            <GantryStopAngle>345</GantryStopAngle>
-            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <GantryAngle>345</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
             <CollimatorAngle>0</CollimatorAngle>
             <CouchAngle>285</CouchAngle>
         </beam>
@@ -1108,9 +1108,9 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>2_SITE_Arc_c320</Name>
             <Energy>6</Energy>
-            <GantryAngle>345</GantryAngle>
-            <GantryStopAngle>178</GantryStopAngle>
-            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <GantryAngle>178</GantryAngle>
+            <GantryStopAngle>345</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>140</CollimatorAngle>
             <CouchAngle>320</CouchAngle>
         </beam>
@@ -1273,10 +1273,10 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>1_SITE_Arc_c000</Name>
             <Energy>6</Energy>
-            <GantryAngle>346</GantryAngle>
-            <GantryStopAngle>178</GantryStopAngle>
-            <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>015</CollimatorAngle>
+            <GantryAngle>173</GantryAngle>
+            <GantryStopAngle>341</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>350</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
         </beam>
         <beam>
@@ -1284,10 +1284,10 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>2_SITE_Arc_c000</Name>
             <Energy>6</Energy>
-            <GantryAngle>173</GantryAngle>
-            <GantryStopAngle>341</GantryStopAngle>
-            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-            <CollimatorAngle>350</CollimatorAngle>
+            <GantryAngle>346</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>015</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
         </beam>
     </beamset>
@@ -1301,29 +1301,18 @@
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>Arc1-1</Name>
+            <Name>1_SITE_Arc_c000</Name>
             <Energy>6</Energy>
-            <GantryAngle>346</GantryAngle>
-            <GantryStopAngle>178</GantryStopAngle>
-            <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>015</CollimatorAngle>
+            <GantryAngle>173</GantryAngle>
+            <GantryStopAngle>341</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>350</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
         </beam>
         <beam>
             <BeamNumber>2</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>Arc2-1</Name>
-            <Energy>6</Energy>
-            <GantryAngle>173</GantryAngle>
-            <GantryStopAngle>341</GantryStopAngle>
-            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-            <CollimatorAngle>350</CollimatorAngle>
-            <CouchAngle>000</CouchAngle>
-        </beam>
-        <beam>
-            <BeamNumber>3</BeamNumber>
-            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>Arc3-2</Name>
+            <Name>2_SITE_Arc_c000</Name>
             <Energy>6</Energy>
             <GantryAngle>346</GantryAngle>
             <GantryStopAngle>178</GantryStopAngle>
@@ -1332,14 +1321,25 @@
             <CouchAngle>000</CouchAngle>
         </beam>
         <beam>
-            <BeamNumber>4</BeamNumber>
+            <BeamNumber>3</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>Arc4-2</Name>
+            <Name>3_SITE_Arc_c000</Name>
             <Energy>6</Energy>
             <GantryAngle>173</GantryAngle>
             <GantryStopAngle>341</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>350</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c000</Name>
+            <Energy>6</Energy>
+            <GantryAngle>346</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>015</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
         </beam>
     </beamset>
@@ -1356,17 +1356,6 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>1_SITE_Arc_c000</Name>
             <Energy>6</Energy>
-            <GantryAngle>346</GantryAngle>
-            <GantryStopAngle>178</GantryStopAngle>
-            <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>015</CollimatorAngle>
-            <CouchAngle>000</CouchAngle>
-        </beam>
-        <beam>
-            <BeamNumber>2</BeamNumber>
-            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>2_SITE_Arc_c000</Name>
-            <Energy>6</Energy>
             <GantryAngle>173</GantryAngle>
             <GantryStopAngle>341</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
@@ -1374,26 +1363,37 @@
             <CouchAngle>000</CouchAngle>
         </beam>
         <beam>
-            <BeamNumber>3</BeamNumber>
+            <BeamNumber>2</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>3_SITE_Arc_c015</Name>
+            <Name>2_SITE_Arc_c000</Name>
             <Energy>6</Energy>
-            <GantryAngle>344</GantryAngle>
-            <GantryStopAngle>080</GantryStopAngle>
+            <GantryAngle>346</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>010</CollimatorAngle>
-            <CouchAngle>015</CouchAngle>
+            <CollimatorAngle>015</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
         </beam>
         <beam>
-            <BeamNumber>4</BeamNumber>
+            <BeamNumber>3</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>4_SITE_Arc_c090</Name>
+            <Name>3_SITE_Arc_c090</Name>
             <Energy>6</Energy>
             <GantryAngle>021</GantryAngle>
             <GantryStopAngle>333</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>090</CollimatorAngle>
             <CouchAngle>090</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c015</Name>
+            <Energy>6</Energy>
+            <GantryAngle>344</GantryAngle>
+            <GantryStopAngle>080</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>010</CollimatorAngle>
+            <CouchAngle>015</CouchAngle>
         </beam>
     </beamset>
     <beamset>
@@ -1436,7 +1436,7 @@
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>Arc1-1</Name>
+            <Name>1_SITE_Arc_c000</Name>
             <Energy>6</Energy>
             <GantryAngle>182</GantryAngle>
             <GantryStopAngle>014</GantryStopAngle>
@@ -1447,7 +1447,7 @@
         <beam>
             <BeamNumber>2</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>Arc2-1</Name>
+            <Name>2_SITE_Arc_c000</Name>
             <Energy>6</Energy>
             <GantryAngle>019</GantryAngle>
             <GantryStopAngle>187</GantryStopAngle>
@@ -1458,7 +1458,7 @@
         <beam>
             <BeamNumber>3</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>Arc3-2</Name>
+            <Name>3_SITE_Arc_c000</Name>
             <Energy>6</Energy>
             <GantryAngle>182</GantryAngle>
             <GantryStopAngle>014</GantryStopAngle>
@@ -1469,7 +1469,7 @@
         <beam>
             <BeamNumber>4</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>Arc4-2</Name>
+            <Name>4_SITE_Arc_c000</Name>
             <Energy>6</Energy>
             <GantryAngle>019</GantryAngle>
             <GantryStopAngle>187</GantryStopAngle>
@@ -1478,7 +1478,6 @@
             <CouchAngle>000</CouchAngle>
         </beam>
     </beamset>
-
     <beamset>
         <name>LungAbd Right NORPM 4Arc</name>
         <technique>VMAT</technique>
@@ -1530,6 +1529,104 @@
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>090</CollimatorAngle>
             <CouchAngle>270</CouchAngle>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>VMAT-HFS-TBI</name>
+        <technique>VMAT</technique>
+        <DicomName>VTBI_HFS_R_A_</DicomName>
+        <description>Arc set for HFS TBI</description>
+        <roi_support>TrueBeamCouch,Baseplate_Override_PMMA</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1a_HFS_Arc</Name>
+            <Energy>6</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-20" x2="10" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1b_HFS_Arc</Name>
+            <Energy>6</Energy>
+            <GantryAngle>178</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>358</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1c_HFS_Arc</Name>
+            <Energy>6</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>2</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-10" x2="20" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1d_HFS_Arc</Name>
+            <Energy>6</Energy>
+            <GantryAngle>178</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>91</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>VMAT-FFS-TBI</name>
+        <technique>VMAT</technique>
+        <DicomName>VTBI_FFS_R_A_</DicomName>
+        <description>Arc set for FFS TBI</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1a_FFS_Arc</Name>
+            <Energy>6</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-20" x2="10" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1b_FFS_Arc</Name>
+            <Energy>6</Energy>
+            <GantryAngle>178</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>358</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1c_FFS_Arc</Name>
+            <Energy>6</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>2</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-10" x2="20" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
     </beamset>
     <beam_template>
