@@ -1,4 +1,4 @@
-""" Load a Standard Electon Cutout
+""" Load a Standard Electron Cutout
 
     Versions:
     0.0.0 Test version
@@ -42,6 +42,7 @@ import PySimpleGUI as Sg
 from collections import namedtuple
 from library.GeneralOperations import find_scope
 import sys
+
 
 def generate_circle_points(num_points, diameter, scaling_factor=1.0):
     """
@@ -145,14 +146,16 @@ def check_beam(beam):
 
 
 standard_cutouts = {
-    '2 cm Circle': {'Name': 'xxx0', 'Largest_Diameter': 2, 'Perpendicular_Diameter': None, 'Shape': 'Circle'},
-    '2.5 cm Circle': {'Name': 'xxx1', 'Largest_Diameter': 2.5, 'Perpendicular_Diameter': None, 'Shape': 'Circle'},
-    '3 cm Circle': {'Name': 'xxx2', 'Largest_Diameter': 3, 'Perpendicular_Diameter': None, 'Shape': 'Circle'},
-    '3.5 cm Circle': {'Name': 'xxx3', 'Largest_Diameter': 3.5, 'Perpendicular_Diameter': None, 'Shape': 'Circle'},
-    '4 cm Circle': {'Name': 'xxx4', 'Largest_Diameter': 4, 'Perpendicular_Diameter': None, 'Shape': 'Circle'},
-    '5 cm Circle': {'Name': 'xxx5', 'Largest_Diameter': 5, 'Perpendicular_Diameter': None, 'Shape': 'Circle'},
-    '2 x 3 cm Oval': {'Name': 'xxx6', 'Largest_Diameter': 3, 'Perpendicular_Diameter': 2, 'Shape': 'Ellipse'},
-    '3 x 4 cm Oval': {'Name': 'xxx6', 'Largest_Diameter': 4, 'Perpendicular_Diameter': 3, 'Shape': 'Ellipse'},
+    '2 cm Circle': {'Name': '2 cm Circle', 'Largest_Diameter': 2, 'Perpendicular_Diameter': None, 'Shape': 'Circle'},
+    '2.5 cm Circle': {'Name': '2.5 cm Circle', 'Largest_Diameter': 2.5, 'Perpendicular_Diameter': None,
+                      'Shape': 'Circle'},
+    '3 cm Circle': {'Name': '3 cm Circle', 'Largest_Diameter': 3, 'Perpendicular_Diameter': None, 'Shape': 'Circle'},
+    '3.5 cm Circle': {'Name': '3.5 cm Circle', 'Largest_Diameter': 3.5, 'Perpendicular_Diameter': None,
+                      'Shape': 'Circle'},
+    '4 cm Circle': {'Name': '4 cm Circle', 'Largest_Diameter': 4, 'Perpendicular_Diameter': None, 'Shape': 'Circle'},
+    '5 cm Circle': {'Name': '5 cm Circle', 'Largest_Diameter': 5, 'Perpendicular_Diameter': None, 'Shape': 'Circle'},
+    '2 x 3 cm Oval': {'Name': '2x3 cm Oval', 'Largest_Diameter': 3, 'Perpendicular_Diameter': 2, 'Shape': 'Ellipse'},
+    '3 x 4 cm Oval': {'Name': '3x4 cm Oval', 'Largest_Diameter': 4, 'Perpendicular_Diameter': 3, 'Shape': 'Ellipse'},
 }
 
 
@@ -161,12 +164,12 @@ def main():
     Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
     # Get current patient, case, exam
     rso = Pd(error=[],
-            patient=find_scope(level='Patient'),
-            case=find_scope(level='Case'),
-            exam=find_scope(level='Examination'),
-            db=find_scope(level='PatientDB'),
-            plan=find_scope(level='Plan'),
-            beamset=find_scope(level='BeamSet'))
+             patient=find_scope(level='Patient'),
+             case=find_scope(level='Case'),
+             exam=find_scope(level='Examination'),
+             db=find_scope(level='PatientDB'),
+             plan=find_scope(level='Plan'),
+             beamset=find_scope(level='BeamSet'))
     if not rso.beamset:
         sys.exit('A Beamset must be loaded to proceed')
     #
@@ -174,8 +177,14 @@ def main():
 
     layout = [
         [Sg.Text('Select a Standard Electron Cutout')],
-        [Sg.Combo(values=list(beam_dict.keys()), size=(30, 10), key='-BEAM_NAME-')],
-        [Sg.Combo(values=list(standard_cutouts.keys()), size=(30, 10), key='-CUTOUT-')],
+        [
+            Sg.Text('Select Beam'),
+            Sg.Combo(values=list(beam_dict.keys()), size=(30, 10), key='-BEAM_NAME-')
+        ],
+        [
+            Sg.Text('Select Cutout'),
+            Sg.Combo(values=list(standard_cutouts.keys()), size=(30, 10), key='-CUTOUT-')
+        ],
         [Sg.Button('Generate'), Sg.Button('Cancel')]
     ]
 
@@ -188,6 +197,8 @@ def main():
         if event == 'Generate':
             selected_cutout = values['-CUTOUT-']
             selected_beam = beam_dict[values['-BEAM_NAME-']]
+            selected_cutout_name = standard_cutouts[selected_cutout]['Name']
+            # selected_cutout_number = standard_cutouts[selected_cutout]['BlockID']
             beam_ok = check_beam(selected_beam)
             if not beam_ok:
                 Sg.popup(f'Standard cutout cannot be applied to {selected_beam.Name} due to wrong applicator size')
@@ -195,6 +206,9 @@ def main():
             if selected_cutout:
                 points = generate_cutout_points(selected_cutout, 100)
                 selected_beam.Blocks[0].Contour = points
+                selected_beam.Blocks[0].Name = selected_cutout_name
+                selected_beam.Name = selected_cutout_name
+                # selected_beam.Blocks[0].AccessoryCode = selected_cutout_number
                 Sg.popup(f"Generated points for {selected_cutout} on beam {selected_beam.Name}")
                 break
             else:
