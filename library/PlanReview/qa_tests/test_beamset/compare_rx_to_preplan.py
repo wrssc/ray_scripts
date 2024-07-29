@@ -551,8 +551,8 @@ def update_best_matches_and_statistics(df_gui, ss):
     criteria = ['DiceSimilarityCoefficient', 'Precision', 'Sensitivity', 'Specificity']
     thresholds = {
         'DiceSimilarityCoefficient': 0.7,
-        'Precision': 0.7,
-        'Sensitivity': 0.7,
+        'Precision': 0.5,
+        'Sensitivity': 0.5,
         'Specificity': 0.7
     }
 
@@ -588,21 +588,20 @@ def update_best_matches_and_statistics(df_gui, ss):
             match_df = pd.DataFrame(match_stats)
             best_matches = determine_best_matches(match_df, criteria, thresholds)
             logging.debug(f"Best matches:\n{best_matches}.")
-
-            # Update df_gui with the best match and corresponding statistics
-            logging.debug(f"Score: {best_matches['Score_best'].tolist()}.")
-            if best_matches['Score_best'].notnull().any():
-                best_match = best_matches.iloc[0]  # Assuming best_matches sorted descending by score
-                logging.debug(f"Best match found: {best_match['RSTarget_best']} with score {best_match['Score_best']}.")
-                df_gui.at[index, 'BestMatch'] = best_match['RSTarget_best']
-                df_gui.at[index, 'DiceSimilarityCoefficient'] = best_match['DiceSimilarityCoefficient']
-                df_gui.at[index, 'Precision'] = best_match['Precision']
-                df_gui.at[index, 'Sensitivity'] = best_match['Sensitivity']
-                df_gui.at[index, 'Specificity'] = best_match['Specificity']
-                df_gui.at[index, 'Score'] = best_match['Score_best']
-                df_gui.at[index, 'MatchType'] = K_BEST
-            else:
-                df_gui.at[index, 'MatchType'] = K_NO_MATCH
+            df_gui.at[index, 'MatchType'] = K_NO_MATCH
+            # If no match was found, there will not a Score_best column
+            if 'Score_best' in best_matches.columns.to_list():
+                # Update df_gui with the best match and corresponding statistics
+                if best_matches['Score_best'].notnull().any():
+                    best_match = best_matches.iloc[0]  # Assuming best_matches sorted descending by score
+                    logging.debug(f"Best match found: {best_match['RSTarget_best']} with score {best_match['Score_best']}.")
+                    df_gui.at[index, 'BestMatch'] = best_match['RSTarget_best']
+                    df_gui.at[index, 'DiceSimilarityCoefficient'] = best_match['DiceSimilarityCoefficient']
+                    df_gui.at[index, 'Precision'] = best_match['Precision']
+                    df_gui.at[index, 'Sensitivity'] = best_match['Sensitivity']
+                    df_gui.at[index, 'Specificity'] = best_match['Specificity']
+                    df_gui.at[index, 'Score'] = best_match['Score_best']
+                    df_gui.at[index, 'MatchType'] = K_BEST
         elif row['MatchType'] != K_EXACT:
             df_gui.at[index, 'MatchType'] = K_NO_MATCH
 
