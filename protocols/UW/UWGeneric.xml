@@ -36,6 +36,10 @@
              <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
+                 <option>2-3 times per week</option>
+                 <option>Weekly</option>
+                 <option>Twice weekly</option>
+                 <option>Other</option>
             </treatment_frequency>
             <imaging_frequency>
                 <option default="true">Daily CBCT</option>
