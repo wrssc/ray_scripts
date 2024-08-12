@@ -1260,7 +1260,7 @@ def rename_beams(site_name=None, input_technique=None):
                       2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
                      3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                       }
-        update_set_up(beamset=beamset, set_up=set_up)
+            update_set_up(beamset=beamset, set_up=set_up)
 
     # HFLDR
     elif patient_position == 'HeadFirstDecubitusRight':
