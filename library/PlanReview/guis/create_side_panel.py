@@ -1,5 +1,6 @@
 from typing import List, Dict, Union, Any
 import PySimpleGUI as Sg
+import logging
 from PlanReview.review_definitions import ICON_CHECKER
 from PlanReview.utils.constants import (
     KEY_USER_COMMENT, KEY_PROCEED_REVISE, KEY_RADIO, KEY_QI_INFO,
@@ -282,12 +283,18 @@ def load_side_panel(window: Sg.Window, values: Dict[str, Any], review_type) -> N
 
     # Loop through each key-value pair to update the window
     for field_key, saved_value in side_panel_values.items():
-        if field_key == KEY_PROCEED_REVISE:
-            # Use the radio key to trigger a click event
-            load_radio = f"{KEY_PROCEED_REVISE}{KEY_RADIO}{saved_value}"
-            on_side_panel_radio_button_click(window, load_radio, review_type)
+        if field_key in window.key_dict:
+            if field_key == KEY_PROCEED_REVISE:
+                # Use the radio key to trigger a click event
+                load_radio = f"{KEY_PROCEED_REVISE}{KEY_RADIO}{saved_value}"
+                on_side_panel_radio_button_click(window, load_radio, review_type)
+            elif field_key in [KEY_DOSE_REVISION, KEY_DOSE_QI]:
+                window[field_key].update(saved_value)
+                on_side_panel_radio_button_click(window, field_key, review_type)
+            else:
+                window[field_key].update(saved_value)
         else:
-            window[field_key].update(saved_value)
+            logging.warning(f"During side-panel load key {field_key} not found in window")
 
 
 def old_extract_values_side_panel(window: Sg.Window) -> Dict[str, Dict[str, Any]]:
@@ -355,7 +362,6 @@ def extract_values_side_panel(window: Sg.Window, review_type: str) -> Dict[str, 
         where the key is 'side_window' and the value is another dictionary
         containing the current values from the side panel.
     """
-    import logging
 
     # Select the appropriate configuration
     config = dosimetry_config if review_type.lower() == 'dosimetry' else physics_config
@@ -370,7 +376,13 @@ def extract_values_side_panel(window: Sg.Window, review_type: str) -> Dict[str, 
 
         if element_type in ["multiline", "checkbox", "combo"]:
             side_panel[key] = window[key].get() or element.get("default_text", "")
-            logging.debug(f"Processed {element_type} - Key: {key}, Value: {side_panel[key]}")
+            if "extra" in element.keys():
+                for extra in element["extra"]:
+                    extra_type = extra["sg_type"]
+                    if extra_type == "text":
+                        continue
+                    extra_key = extra["key"]
+                    side_panel[extra_key] = window[extra_key].get() or extra.get("default_text", "")
 
         elif element_type == "radio":
             group_id = element["group_id"]
@@ -379,7 +391,6 @@ def extract_values_side_panel(window: Sg.Window, review_type: str) -> Dict[str, 
                     radio_key = radio_element["key"]
                     if window[radio_key].get():
                         side_panel[KEY_PROCEED_REVISE] = radio_element["label"]
-                        logging.debug(f"Radio selected - Key: {radio_key}, Label: {radio_element['label']}")
 
                         if "extra" in radio_element:
                             for extra in radio_element["extra"]:
@@ -387,11 +398,9 @@ def extract_values_side_panel(window: Sg.Window, review_type: str) -> Dict[str, 
                                     continue
                                 extra_key = extra["key"]
                                 side_panel[extra_key] = window[extra_key].get() or ""
-                                logging.debug(f"Processed extra for radio - Key: {extra_key}, Value: {side_panel[extra_key]}")
                         break
             else:
                 side_panel[KEY_PROCEED_REVISE] = ""
-                logging.debug(f"No radio selected for group {group_id}")
 
     return {KEY_SIDE_PANEL: side_panel}
 
@@ -451,8 +460,6 @@ def on_side_panel_radio_button_click(window: Sg.Window, event: str, review_type:
     Returns:
         None
     """
-    import logging
-    logging.debug(f"Review type: {review_type}, and event: {event}")
 
     # Select the appropriate configuration
     config = dosimetry_config if review_type.lower() == 'dosimetry' else physics_config
