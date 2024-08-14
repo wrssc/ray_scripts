@@ -1,3 +1,6 @@
+import logging
+import datetime
+from collections import OrderedDict
 from PlanReview.review_definitions import DOMAIN_TYPE
 from PlanReview.qa_tests.test_examination import get_exam_level_tests
 from PlanReview.qa_tests.test_plan import get_plan_level_tests
@@ -5,6 +8,35 @@ from PlanReview.qa_tests.test_beamset import get_beamset_level_tests
 from PlanReview.qa_tests.test_sandbox import get_sandbox_level_tests
 from PlanReview.qa_tests.test_plan import parse_order_selection
 from PlanReview.qa_tests.analyze_logs import retrieve_logs
+
+
+def parse_time_log(time_log, time0, time1, test_name):
+    time_diff = time1 - time0
+    time_log[test_name] = time_diff.total_seconds()
+    return time_log
+
+
+def update_progress_bar(progress_bar, progress_text, tests_performed, progress_total, message_text):
+    if progress_bar is not None and progress_text is not None:
+        progress_bar.update(
+            current_count=int(100 * tests_performed / progress_total))
+        progress_text.update(message_text)
+        progress_bar.UpdateBar(tests_performed)
+
+
+def log_time_log(time_log):
+
+    # Sort the time_log by duration
+    sorted_time_log = OrderedDict(sorted(time_log.items(), key=lambda item: item[1], reverse=True))
+
+    # Determine the maximum length of test names for alignment
+    max_test_name_length = max(len(test_name) for test_name in sorted_time_log)
+
+    # Log each test and its duration in a formatted way
+    logging.info(f"{'Test Name':<{max_test_name_length}} | Duration (s)")
+    logging.info("-" * (max_test_name_length + 15))
+    for test_name, duration in sorted_time_log.items():
+        logging.info(f"{test_name:<{max_test_name_length}} | {duration:.2f}")
 
 
 def perform_automated_checks(rso, do_physics_review,
@@ -32,6 +64,7 @@ def perform_automated_checks(rso, do_physics_review,
         progress_window = None
         progress_bar = None
         progress_text = None
+    time_log = {}
 
     # Tree Levels (move these to tree building)
     patient_key = (DOMAIN_TYPE['PATIENT_KEY'], "Patient: " + rso.patient.PatientID)
@@ -52,7 +85,11 @@ def perform_automated_checks(rso, do_physics_review,
     """
     Parse logs
     """
+    time_0 = datetime.datetime.now()
     message_logs = retrieve_logs(rso)
+    time_log = parse_time_log(time_log, time_0,
+                              datetime.datetime.now(), 'parse_logs')
+
     """
     Gather Patient Level Checks
     """
@@ -78,15 +115,17 @@ def perform_automated_checks(rso, do_physics_review,
                      + len(plan_checks_dict.keys()) \
                      + sum([len(v) for v in beamset_checks.values()]) + 1
     tests_performed = 1
-    if progress_bar is not None:
-        progress_bar.update(
-            current_count=int(100 * tests_performed / progress_total))
-        progress_text.update('Running Exam Tests...')
-
+    update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
+                        'Running Exam Tests...')
     # Execute qa_tests
     exam_level_tests = []
     for key, p_func in patient_checks_dict.items():
+        update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
+                            f'Exam Test: {key}...')
+        logging.debug(f'Executing test {key}')
+        time_0 = datetime.datetime.now()
         pass_result, message = p_func[0](rso=rso, **p_func[1])
+        time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), key)
         node, child = build_tree_element(parent_key=exam_key[0],
                                          child_key=key,
                                          pass_result=pass_result,
@@ -96,11 +135,8 @@ def perform_automated_checks(rso, do_physics_review,
         exam_children.extend(child)
         tree_children.append(exam_children)
         tests_performed += 1
-        if progress_bar is not None:
-            progress_bar.update(
-                current_count=int(100 * tests_performed / progress_total))
-            progress_text.update('Running Plan Tests...')
-
+    update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
+                        'Running Plan Tests...')
     """
     Execute Plan Level Checks
     """
@@ -129,7 +165,11 @@ def perform_automated_checks(rso, do_physics_review,
             tree_children.append(plan_children)
     # FINISH PLAN LEVEL CHECKS DEFINED IN plan_checks_dict
     for key, pl_func in plan_checks_dict.items():
+        update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
+                            f'Plan Test: {key}')
+        time_0 = datetime.datetime.now()
         pass_result, message = pl_func[0](rso=rso, **pl_func[1])
+        time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), key)
         node, child = build_tree_element(parent_key=plan_key[0],
                                          child_key=key,
                                          pass_result=pass_result,
@@ -138,10 +178,8 @@ def perform_automated_checks(rso, do_physics_review,
         plan_children = [DOMAIN_TYPE['PLAN_KEY'], rso.plan.Name]
         plan_children.extend(child)
         tree_children.append(plan_children)
-        if progress_bar is not None:
-            progress_bar.update(
-                current_count=int(100 * tests_performed / progress_total))
-            progress_text.update('Running BeamSet Tests...')
+    update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
+                        'Running BeamSet Tests...')
 
     #
     # BEAMSET LEVEL CHECKS
@@ -149,10 +187,14 @@ def perform_automated_checks(rso, do_physics_review,
     for r in rsos:
         beamset_level_tests = []
         bs_name = r.beamset.DicomPlanLabel
-        if progress_bar is not None:
-            progress_text.update(f'Running BeamSet: {bs_name} Tests...')
+        update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
+                            f'Testing BeamSet: {bs_name}...')
         for key, b_func in beamset_checks[bs_name].items():
+            update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
+                                f'BeamSet Test: {key}')
+            time_0 = datetime.datetime.now()
             pass_result, message = b_func[0](rso=r, **b_func[1])
+            time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), key)
             node, child = build_tree_element(
                 parent_key=DOMAIN_TYPE['BEAMSET_KEY'],
                 child_key=key, pass_result=pass_result, message_str=message)
@@ -161,20 +203,19 @@ def perform_automated_checks(rso, do_physics_review,
             beamset_children.extend(child)
             tree_children.append(beamset_children)
             tests_performed += 1
-            if progress_bar is not None:
-                progress_bar.update(
-                    current_count=int(100 * tests_performed / progress_total))
         beamset_levels[bs_name] = beamset_level_tests
     #
-    if progress_bar is not None:
-        progress_bar.update(
-            current_count=int(100 * tests_performed / progress_total))
-        progress_text.update('Running Sandbox Tests...')
+    update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
+                        'Running Sandbox Tests...')
     #
     # SANDBOX LEVEL CHECKS
     sandbox_level_tests = []
     for key, s_func in sandbox_checks_dict.items():
+        update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
+                            f'Sandbox Test: {key}')
+        time_0 = datetime.datetime.now()
         pass_result, message = s_func[0](rso=rso, **s_func[1])
+        time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), key)
         node, child = build_tree_element(parent_key=sandbox_key[0],
                                          child_key=key,
                                          pass_result=pass_result,
@@ -190,6 +231,7 @@ def perform_automated_checks(rso, do_physics_review,
                                   sandbox_level_tests,
                                   message_logs,
                                   beamsets=beamsets)
+    log_time_log(time_log)
 
     if display_progress:
         progress_window.close()
