@@ -2,6 +2,23 @@ import numpy as np
 import logging
 
 
+def update_derived_geometry(rso, roi_name):
+    logging.debug(f'Updating derived geometry for {roi_name}')
+    rso.case.PatientModel.RegionsOfInterest[roi_name].UpdateDerivedGeometry(
+        Examination=rso.exam, Algorithm="Auto", )
+    # get shape status
+    shape_status = rso.case.PatientModel.StructureSets[rso.exam.Name]\
+        .RoiGeometries[roi_name].PrimaryShape.DerivedRoiStatus.IsShapeDirty
+    while shape_status:
+        # Try two methods of updating derived geometry
+        # rso.case.PatientModel.UpdateDerivedGeometries(
+        #    RoiNames=[roi_name], Examination=rso.exam, Algorithm="Auto")
+        rso.case.PatientModel.RegionsOfInterest[roi_name].UpdateDerivedGeometry(
+            Examination=rso.exam, Algorithm="Auto", )
+        rso.patient.Save()
+    return shape_status
+
+
 def compute_dice_sp_sn_dta(rso, exam_name, target, reference, eval_distance):
     comp_dict = {}
     ss = rso.case.PatientModel.StructureSets[exam_name]
@@ -131,28 +148,35 @@ def copy_roi(rso, source_roi_name, suffix='', representation='Contours'):
         "Left": 0,
     }
     try:
-        rso.case.PatientModel.RegionsOfInterest[copied_roi].SetAlgebraExpression(
-            ExpressionA={
-                "Operation": 'Union',
-                "SourceRoiNames": [source_roi_name],
-                "MarginSettings": margins,
-            },
-            ExpressionB={'Operation': 'Union',
-                         'SourceRoiNames': [],
-                         'MarginSettings': margins,
-                         },
-            ResultOperation='None',
-            ResultMarginSettings=margins,
+        rso.case.PatientModel.RegionsOfInterest[copied_roi].CreateMarginGeometry(
+            SourceRoiName=source_roi_name,
+            Examination=rso.exam,
+            MarginSettings=margins,
         )
-        rso.case.PatientModel.RegionsOfInterest[copied_roi].UpdateDerivedGeometry(
-            Examination=rso.exam, Algorithm="Auto"
-        )
+        # rso.case.PatientModel.RegionsOfInterest[copied_roi].SetAlgebraExpression(
+        #     ExpressionA={
+        #         "Operation": 'Union',
+        #         "SourceRoiNames": [source_roi_name],
+        #         "MarginSettings": margins,
+        #     },
+        #     ExpressionB={'Operation': 'Union',
+        #                  'SourceRoiNames': [],
+        #                  'MarginSettings': margins,
+        #                  },
+        #     ResultOperation='None',
+        #     ResultMarginSettings=margins,
+        # )
     except Exception as e:
         logging.warning(f"An error occurred while copying the geometry of {source_roi_name}: {e}")
         return None
+
+    # Update derived geometry
+    update_derived_geometry(rso, copied_roi)
+
     # Delete derived geometry
     try:
-        rso.case.PatientModel.RegionsOfInterest[copied_roi].DeleteExpression()
+        print(f"Deleting derived geometry of {copied_roi}")
+        # rso.case.PatientModel.RegionsOfInterest[copied_roi].DeleteExpression()
     except Exception as e:
         logging.warning(f"An error occurred while deleting the derived geometry of {copied_roi}: {e}")
         return None
@@ -166,3 +190,64 @@ def copy_roi(rso, source_roi_name, suffix='', representation='Contours'):
         return None
 
     return copied_roi
+
+
+def get_voxel_geometry(rso, roi_name):
+    """
+    Get the voxel geometry of an ROI. If the ROI does not have a voxel representation, set it.
+
+    Args:
+        rso: RayStation object containing beamset information.
+        roi_name (str): Name of the ROI to get the voxel geometry from.
+
+    Returns:
+        RayStationObject: RayStation object containing the voxel geometry of the ROI.
+    """
+    roi_geometry = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi_name]
+    if hasattr(roi_geometry.PrimaryShape, 'VoxelValues'):
+        return roi_geometry
+    else:
+        try:
+            roi_geometry.SetRepresentation(Representation='Voxels')
+            return roi_geometry
+        except Exception as e:
+            logging.warning(f"An error occurred while setting the representation of {roi_name}: {e}")
+            return None
+
+
+def get_voxel_coordinates(roi_geometry):
+    """
+    Get the DICOM coordinates of all voxels.
+
+    Args:
+        roi_geometry (RayStationObject): RayStation object containing the ROI geometry.
+
+    Returns:
+        numpy.ndarray: A Numpy Array of DICOM coordinates of the voxels.
+    """
+    # Extract the shape object
+    primary_shape = roi_geometry.PrimaryShape
+
+    #
+    # Extract the shape properties
+    # Get the corner coordinates
+    corner = (primary_shape.Corner.x, primary_shape.Corner.y, primary_shape.Corner.z)
+
+    # Get the voxel size
+    voxel_size = (primary_shape.VoxelSize.x, primary_shape.VoxelSize.y, primary_shape.VoxelSize.z)
+
+    # Reshape the 1D values array into a 3D array
+    values_3d = primary_shape.VoxelValues.reshape((primary_shape.NrVoxels.x,
+                                                   primary_shape.NrVoxels.y,
+                                                   primary_shape.NrVoxels.z,))
+
+    # Find Non-Zero Voxels
+    # Get the indices of all non-zero voxels
+    voxel_indices = np.argwhere(values_3d == 1)
+
+    # Coordinate conversion
+    # Convert voxel indices to DICOM coordinates using vectorized operations
+    voxel_coords = voxel_indices * voxel_size + corner
+
+    return voxel_coords
+
