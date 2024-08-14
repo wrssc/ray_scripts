@@ -1,3 +1,7 @@
+import logging
+from .contour_utilities import update_derived_geometry
+
+
 def subtract_roi_sources(rso, name, roi_A, roi_B):
     name = rso.case.PatientModel.GetUniqueRoiName(DesiredName=name)
     wall_intersection = rso.case.PatientModel.CreateRoi(
@@ -32,9 +36,14 @@ def subtract_roi_sources(rso, name, roi_A, roi_B):
             ResultOperation='Subtraction',
             ResultMarginSettings=margins,
         )
-        rso.case.PatientModel.RegionsOfInterest[name].UpdateDerivedGeometry(
-            Examination=rso.exam, Algorithm="Auto"
-        )
-        return name
-    except:
+    except Exception as e:
+        logging.warning(f"An error occurred while creating the ROI {name}: {e}")
         return None
+    # Raystation bug not updating derived geometries
+    update_derived_geometry(rso, name)
+    # rso.case.PatientModel.RegionsOfInterest[name].UpdateDerivedGeometry(
+    #   Examination=rso.exam, Algorithm="Auto")
+    # rso.case.PatientModel.RegionsOfInterest[name].UpdateDerivedGeometry(
+    #     Examination=rso.exam, Algorithm="Auto",
+    #
+    return name
