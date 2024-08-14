@@ -108,8 +108,8 @@ def excluded_check_boxes(key, values):
     # Check if conditions are met to include the key in the extracted values
     exclude_check = False
     # Check if prior rt was selected
-    prior_rt = values.get(create_key(KEY_PRIOR_RT+KEY_RADIO+'-YES'), False)
-    imd = values.get(create_key(KEY_IMD+KEY_RADIO+'-YES'), False)
+    prior_rt = values.get(KEY_PRIOR_RT + KEY_RADIO + '-YES', False)
+    imd = values.get(KEY_IMD + KEY_RADIO + '-YES', False)
     if key == REVIEW_LEVELS['PRIOR_RT'] and not prior_rt:
         exclude_check = True
     if key == REVIEW_LEVELS['IMPLANTED_DEVICE'] and not imd:
@@ -650,10 +650,10 @@ def is_visible_tab(tab, window):
     visible = True
     # Logic for determining if a tab should be visible or not
     if tab.__dict__.get('Key', None) == REVIEW_LEVELS['IMPLANTED_DEVICE']:
-        if not window[create_key(KEY_IMD+KEY_RADIO+'-YES')].get():
+        if not window[KEY_IMD + KEY_RADIO + '-YES'].get():
             visible = False
     elif tab.__dict__.get('Key', None) == REVIEW_LEVELS['PRIOR_RT']:
-        if not window[create_key(KEY_PRIOR_RT+KEY_RADIO+'-YES')].get():
+        if not window[KEY_PRIOR_RT + KEY_RADIO + '-YES'].get():
             visible = False
     return visible
 
