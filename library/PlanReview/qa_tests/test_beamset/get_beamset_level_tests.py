@@ -3,6 +3,7 @@ from .check_beamset_approved import check_beamset_approved
 from .check_control_point_spacing import check_control_point_spacing
 from .check_couch_type import check_couch_type
 from .check_edw_mu import check_edw_mu
+from .check_emc_statistics import check_emc_statistics
 from .check_edw_field_size import check_edw_field_size
 from .check_slice_thickness import check_slice_thickness
 from .check_prv_status import check_prv_status
@@ -79,17 +80,22 @@ def get_beamset_level_tests(rso, physics_review=True, log_messages=None, values=
             if 'Index was out of range. Must be non-negative ' in str(e):
                 pass
     elif technique == 'SMLC':
-        try:
-            _ = rso.beamset.Beams[0].Segments[0]  # Determine if beams have segments
-            # TODO: Add after more testing
-            #     beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
-            #     compute_vmat_beam_properties, {})
-            beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::EDW MU Check"] = (
-                check_edw_mu, {})
-            beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::EDW FieldSize Check"] = (
-                check_edw_field_size, {})
-        except Exception as e:
-            pass
+        if rso.beamset.Modality == 'Electrons':
+            beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Electron MC Statistics"] = (
+                check_emc_statistics, {})
+        else:
+            try:
+                _ = rso.beamset.Beams[0].Segments[0]  # Determine if beams have segments
+                # TODO: Add after more testing
+                #     beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
+                #     compute_vmat_beam_properties, {})
+                beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::EDW MU Check"] = (
+                    check_edw_mu, {})
+                beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::EDW FieldSize Check"] = (
+                    check_edw_field_size, {})
+            except Exception as e:
+                logging.warning(f'Error observed during SMLC-specific checks {e}')
+                pass
     elif 'Tomo' in technique:
         try:
             _ = rso.beamset.Beams[0].Segments[0]  # If beams have segments
@@ -100,6 +106,6 @@ def get_beamset_level_tests(rso, physics_review=True, log_messages=None, values=
             beamset_checks_dict[f"{REVIEW_LEVELS['OPTIMIZATION']}::Planning Risk Volume Assessment"] = \
                 check_prv_status, {}
         except Exception as e:
-            logging.warning(f'Error observed during tomo specific checks {e}')
+            logging.warning(f'Error observed during Tomo-specific checks {e}')
             pass
     return beamset_checks_dict

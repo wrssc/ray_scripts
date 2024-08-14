@@ -4,6 +4,7 @@ import math
 import re
 from library.PlanReview.review_definitions import PASS, FAIL
 import logging
+import datetime
 
 
 def get_slice_positions(rso):
@@ -99,7 +100,8 @@ def get_contour_list(rso):
     roi_types = ['Ptv', 'Ctv', 'Gtv', 'Organ']
     # Define exclusion patterns
     exclude_from_contour_analysis = ['NoFlyZone_PRV', '^OTV.*', '^PTV.*_Eval$', '^sOTV.*', '^External.*', '^Skin.*',
-                                     '^Normal.*', '^Lungs.*','^Parotids.*','^Ring.*']
+                                     '^Normal.*', '^Lungs.*','^Parotids.*','^[Rr]ing.*', '^Lung_[RL]$',
+                                     r'\b\w+_PRV\d{2}\b', '^Chestwall.*$']
     for roi_name in roi_list:
         roi = rso.case.PatientModel.RegionsOfInterest[roi_name]
         if roi.OrganData.OrganType not in organ_types or roi.Type not in roi_types:
@@ -168,10 +170,19 @@ def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
     for roi in rois_to_check:
         # Get the roi geometry
         logging.debug(f'Checking {roi}')
+        time_start = datetime.datetime.now()
         roi_geometry = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi]
+        time_end = datetime.datetime.now()
+        delta = time_end-time_start
+        logging.debug(f'Getting ROI geometry took {delta.total_seconds()} seconds')
         # Find any gaps
+        time_start = datetime.datetime.now()
         roi_gaps = find_gaps(roi_geometry, voxel_size, slice_positions=slices)
+        time_end = datetime.datetime.now()
+        delta = time_end-time_start
+        logging.debug(f'Finding gaps took {delta.total_seconds()} seconds')
         if roi_gaps is not None:
+            time_start = datetime.datetime.now()
             # Create an array of the sorted list of unique gap positions
             slices_with_gaps = np.array(sorted(list(set(roi_gaps))))
             gap_positions = []
@@ -183,6 +194,9 @@ def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
                 else:
                     gap_positions.append("{0:0.1f}".format(round(g[0], 1)))
             gaps[roi] = gap_positions
+            time_end = datetime.datetime.now()
+            time_delta = time_end-time_start
+            logging.debug(f'Creating gap positions took {time_delta.total_seconds()} seconds')
 
     if gaps:
         pass_result = FAIL
