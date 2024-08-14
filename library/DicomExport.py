@@ -968,7 +968,6 @@ def send(case,
     return status
 
 
-
 def machines(beamset=None):
     """machine_list = DicomExport.machines(beamset=get_current('BeamSet'))"""
 
