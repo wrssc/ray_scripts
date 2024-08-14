@@ -2,7 +2,7 @@ import numpy as np
 import math
 from functools import reduce
 from PlanReview.utils.contour_utilities import (create_roi, unique_roi_name, copy_roi,
-                                                roi_has_contours)
+                                                roi_has_contours, get_voxel_coordinates)
 import logging
 
 tomotherapy_clearance = 130  # Conservative estimate of tomo couch throw
@@ -178,8 +178,10 @@ def convert_to_contours(rso, roi_name):
         list: A list of contour points for the ROI.
     """
     try:
-        rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi_name].SetRepresentation(
-            Representation='Contours')
+        # TODO: uncomment
+        # rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi_name].SetRepresentation(
+        #    Representation='Contours')
+        print(f"Converting {roi_name} to contours")
     except Exception as e:
         error_message = f"An error occurred while converting {roi_name} to contours: {e}"
         logging.warning(error_message)
@@ -520,7 +522,7 @@ def make_clearance_volumes(rso, clearance_name, diameter):
 
 
 # ================= Cylindrical Angle Calculations =================
-def get_sorted_cylindrical_angles_dicom(rso, contours, beam_name):
+def get_sorted_cylindrical_angles_dicom(rso, contours, beam_name, representation='Contours'):
     """
     Vectorized calculation, rounding, and sorting of gantry angles for all points in all contours in the
     DICOM reference frame.
@@ -532,9 +534,12 @@ def get_sorted_cylindrical_angles_dicom(rso, contours, beam_name):
     Returns:
         list: Sorted list of rounded gantry angles.
     """
-    if not contours:
-        return []
-    all_points = np.concatenate([np.array([(p.x, p.y, p.z) for p in contour]) for contour in contours])
+    # if not contours:
+    #     return []
+    if representation == 'Contours':
+        all_points = np.concatenate([np.array([(p.x, p.y, p.z) for p in contour]) for contour in contours])
+    elif representation == 'Points':
+        all_points = contours
     # Convert the isocenter point to a numpy array
     isocenter_point = np.array([(rso.beamset.Beams[beam_name].Isocenter.Position.x,
                                  rso.beamset.Beams[beam_name].Isocenter.Position.y,
@@ -564,7 +569,7 @@ def get_sorted_cylindrical_angles_dicom(rso, contours, beam_name):
     return sorted(set(rounded_angles))
 
 
-def contour_angle_ranges(rso, contours, beam_name):
+def contour_angle_ranges(rso, contours, beam_name, representation='Contours'):
     """
     Calculates the cylindrical angle ranges for all contours within the frame of reference of the rotated
     clearance zone. Once computed, the ranges are made contiguous.
@@ -575,12 +580,14 @@ def contour_angle_ranges(rso, contours, beam_name):
         rso: RayStation object containing beamset information.
         contours (list): A list of contours, each a list of dictionaries with 'x', 'y', 'z' coordinates.
         beam_name (str): The name of the beam in the RayStation object.
+        representation (str): The representation of the contours, either 'Contours' (the RayStation contour object)
+                              or 'Points' (a numpy array of points).
 
     Returns:
         list: A list of tuples representing the merged min and max angles over all contours.
     """
     # Get sorted cylindrical angles in the DICOM reference frame rotated by couch plane
-    sorted_angles = get_sorted_cylindrical_angles_dicom(rso, contours, beam_name)
+    sorted_angles = get_sorted_cylindrical_angles_dicom(rso, contours, beam_name, representation)
     if not sorted_angles:
         return []
 
@@ -709,11 +716,14 @@ def check_for_overlap(rso, rois_checked, diam_name_dict, rois_to_delete):
         else:
             # Check for overlap with external and supports and store them as rois to later delete
             for r in rois_checked:
+                logging.info(f"Checking for overlap between {diam_name} and {r}")
                 # Check for overlap with the external and supports only if the bounding boxes overlap
                 # Simplifying contours in this step did not result in a speedup
                 if check_bounding_box_overlap(rso, r, diam_name):
                     r_overlap_name = r + '_overlap' + f'_{str(int(couch_angle)).zfill(3)}'
                     _ = subtract_roi_sources(rso, r_overlap_name, roi_A=r, roi_B=diam_name)
+                    # Delete the expression for the subtracted ROI
+                    rso.case.PatientModel.RegionsOfInterest[r_overlap_name].DeleteExpression()
                     if roi_has_contours(rso, r_overlap_name):
                         violation_rois[beam_name].append(r_overlap_name)
                     rois_to_delete.append(r_overlap_name)
@@ -721,21 +731,40 @@ def check_for_overlap(rso, rois_checked, diam_name_dict, rois_to_delete):
     return violation_rois
 
 
+def determine_contour_type(rso, roi_name):
+    roi_geometry = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi_name]
+    if hasattr(roi_geometry.PrimaryShape, 'Contours'):
+        return 'Contours'
+    elif hasattr(roi_geometry.PrimaryShape, 'VoxelValues'):
+        return 'Points'
+    else:
+        return None
+
 def detect_collisions(rso, violation_rois):
     bad_gantry = {}
     additional_contours = []
+    logging.info(f"Checking for collisions on the following beams: {violation_rois.keys()}"
+                 f" with the following contours: {violation_rois.values()}")
 
     for bn, contours in violation_rois.items():
+        logging.info(f"Checking for collisions on beam {bn} in the following contours: {contours}")
         for contour_name in contours:
-            contour_points = convert_to_contours(rso, contour_name)
-            if not contour_points:
+            # contour_points = convert_to_contours(rso, contour_name)
+            detection_type = determine_contour_type(rso, contour_name)
+            if detection_type == 'Contours':
+                contour_points = get_contour_points(rso, contour_name)
+            elif detection_type == 'Points':
+                roi_geometry = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[contour_name]
+                contour_points = get_voxel_coordinates(roi_geometry)
                 # Contour conversion failed. Try creating an unapproved copy and repeating
-                copied_roi = copy_roi(rso, contour_name, suffix="_contour", representation="Contours")
-                contour_points = convert_to_contours(rso, copied_roi)
-                additional_contours.append(copied_roi)
-                if not contour_points:
-                    return None, additional_contours
-            contour_ranges = contour_angle_ranges(rso, contour_points, bn)
+                # TODO: We may still need the copy operation for locked ROIs
+                # copied_roi = copy_roi(rso, contour_name, suffix="_contour", representation="Contours")
+                # contour_points = convert_to_contours(rso, copied_roi)
+                # additional_contours.append(copied_roi)
+                # if not contour_points:
+                #     return None, additional_contours
+            contour_ranges = contour_angle_ranges(rso, contour_points, bn, representation=detection_type)
+            logging.info(f"Contour {contour_name} has the following angle ranges: {contour_ranges}")
 
             if not contour_ranges:
                 continue
@@ -869,6 +898,7 @@ def check_isocenter_clearance(rso):
     #
     # Check for overlap with external and supports
     rois_outside_clearance = check_for_overlap(rso, rois_checked, beam_clearance_roi_and_couch, rois_to_delete)
+    logging.debug(f'rois_outside_clearance: {rois_outside_clearance}')
     #
     # Check collision conditions for Tomo and C-Arm deliveries separately
     beam_technique = get_treatment_technique(rso)
@@ -893,5 +923,5 @@ def check_isocenter_clearance(rso):
             message_str = f'{[external] + supports} are ≥' \
                           + f' {SUPPORT_TOLERANCE} cm from {clearance_diameter_roi_name}'
     # Delete script contours
-    delete_rois(rso, rois_to_delete)
+    # delete_rois(rso, rois_to_delete)
     return pass_result, message_str
