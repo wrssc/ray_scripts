@@ -57,6 +57,10 @@ def run_dicom_integrity_tool(
     file_label1="DICOM File 1",
     file_label2="DICOM File 2",
 ):
+    import logging
+    logging.debug(f"Running DIT for {filepath1} and {filepath2}")
+    logging.debug(f"File labels: {file_label1} and {file_label2}")
+
     ds1 = pydicom.dcmread(filepath1, force=True)
     ds2 = pydicom.dcmread(filepath2, force=True)
 
