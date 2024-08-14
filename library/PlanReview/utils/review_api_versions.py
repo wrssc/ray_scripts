@@ -56,7 +56,7 @@ def get_prescription_dose_references_v15(beamset):
 
 def get_prescription_dose_references_v12(beamset):
     # Version 12 specific code
-    return beamset.Prescription.DosePrescription
+    return beamset.Prescription.PrescriptionDoseReferences
 
 
 def get_number_of_emc_histories_v12(beamset):
@@ -81,6 +81,14 @@ def ui_click_plan_optimization_v15(ui):
         logging.debug(f'Unable to change viewing windows: {e}')
 
 
+def get_acceptance_level_from_planning_goal_v12(goal):
+    return goal.AcceptanceLevel
+
+
+def get_acceptance_level_from_planning_goal_v15(goal):
+    return goal.PrimaryAcceptanceLevel
+
+
 # REGISTER THESE FUNCTIONS WITH THE DISPATCHER
 dispatcher.register('get_unique_id_beamset', 12, get_unique_id_beamset_v12)
 dispatcher.register('get_unique_id_beamset', 15, get_unique_id_beamset_v15)
@@ -102,6 +110,9 @@ dispatcher.register('get_number_of_emc_histories', 15, get_number_of_emc_histori
 
 dispatcher.register('ui_click_plan_optimization', 12, ui_click_plan_optimization_v12)
 dispatcher.register('ui_click_plan_optimization', 15, ui_click_plan_optimization_v15)
+
+dispatcher.register('get_acceptance_level_from_planning_goal', 12, get_acceptance_level_from_planning_goal_v12)
+dispatcher.register('get_acceptance_level_from_planning_goal', 15, get_acceptance_level_from_planning_goal_v15)
 
 
 @dispatcher.dispatch('get_unique_id_beamset')
@@ -136,4 +147,9 @@ def get_number_of_emc_histories(beamset):
 
 @dispatcher.dispatch('ui_click_plan_optimization')
 def ui_click_plan_optimization(ui):
+    pass
+
+
+@dispatcher.dispatch('get_acceptance_level_from_planning_goal')
+def get_acceptance_level_from_planning_goal(goal):
     pass
