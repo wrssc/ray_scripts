@@ -1,9 +1,10 @@
-from PlanReview.guis.create_preplan_tab import extract_values_preplan_tab
+from PlanReview.guis.create_preplan_tab import extract_values_preplan_tab, create_tuple_key
 from PlanReview.guis.create_side_panel import extract_values_side_panel
 from PlanReview.guis.create_physics_manual_tab import (
     extract_values_manual_tab, get_tests_from_tree, process_check_box_values, process_auto_tests)
 from PlanReview.guis.gui_qa_form import extract_values_qa_form, build_qa_form
 from PlanReview.utils.python_utilities import merge_dicts
+from PlanReview.utils.constants import KEY_BEAMSET_COUNT, KEY_BEAMSET_SELECT
 
 
 def get_review_gui_values(gui_state_manager, values):
@@ -23,6 +24,7 @@ def get_review_gui_values(gui_state_manager, values):
 
     # Get any data from the first tab
     preplan_values = extract_values_preplan_tab(gui_state_manager.window)
+
 
     # Get values from the side tab
     if gui_state_manager.side_panel:
