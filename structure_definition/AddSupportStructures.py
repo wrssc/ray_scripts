@@ -7,7 +7,6 @@ Currently supported
 
 This script accomplishes the following tasks:
 1. Asks user for desired support structures
-1. Asks user for desired support structures
 
 Couches
 1. Create and automatically drop a couch
@@ -80,7 +79,11 @@ COUCH_SUPPORT_STRUCTURE_EXAMINATION = {
     "FFP": "Prone Patient",
 }
 COUCH_SOURCE_ROI_NAMES = {
-    "HFS": {"TrueBeam": "TrueBeamCouch", "TomoTherapy": "TomoCouch"},
+    "HFS": {
+        "TrueBeam": "TrueBeamCouch",
+        "TrueBeam Qfix H1H2": "QFix_Brain_TBCouch_H1andH2",
+        "TomoTherapy": "TomoCouch"
+    },
     "HFP": {"TrueBeam": "ProneTrueBeamCouch", "TomoTherapy": "TomoCouch"},
     "FFS": {"TrueBeam": "TrueBeamCouch", "TomoTherapy": "TomoCouch"},
     "FFP": {"TrueBeam": "ProneTrueBeamCouch", "TomoTherapy": "TomoCouch"},
@@ -110,6 +113,7 @@ MONARCH_DERIVED_ROI_NAMES = []
 COUCH_SHIFT = {
     "HFS": {
         "TrueBeamCouch": [0, 6.8, 0],
+        "QFix_Brain_TBCouch_H1andH2": [0, 6.8, 0],
         "TomoCouch": [0, 6.8, 0],
     },
     "HFP": {
@@ -139,7 +143,6 @@ INCLINE_CENTER_TO_HINGE = [0.0, -2.18, 45.09]  # cm
 INCLINE_ZERO_PITCH = 0.884  # deg, the pitch at flat position
 INCLINE_PITCH_BIAS = -0.25  # deg, the difference between measured and actual pitch
 
-WINGBOARD_INDEX_DIST = 225.5 / 75 / 10  # cm, 75 markings over 225.5 mm
 WINGBOARD_INDEX_DIST = 225.5 / 75 / 10  # cm, 75 markings over 225.5 mm
 
 CIVCO_INCLINE_BOARD_ANGLES = {
@@ -308,18 +311,27 @@ def get_support_structures_GUI(examination):
                 layout=[
                     [
                         sg.Radio(
-                            "TrueBeam",
+                            "TrueBeam Couch",
                             "RADIOCOUCH",
                             default=True,
-                            size=(10, 1),
+                            size=(20, 1),
                             key="-COUCH TRUEBEAM-",
                         )
                     ],
                     [
                         sg.Radio(
-                            "TomoTherapy",
+                            "TrueBeam Couch with Qfix Portrait Board (Brain - H1 and H2)",
                             "RADIOCOUCH",
-                            size=(10, 1),
+                            default=True,
+                            size=(40, 1),
+                            key="-COUCH TRUEBEAM QFIX H1H2-",
+                        )
+                    ],
+                    [
+                        sg.Radio(
+                            "TomoTherapy Couch",
+                            "RADIOCOUCH",
+                            size=(20, 1),
                             key="-COUCH TOMO-",
                         )
                     ],
@@ -594,22 +606,6 @@ def transform_structure(
     M = np.matmul(M_roll, np.matmul(M_yaw, M_pitch))
 
     TransformationMatrix = {
-        "M11": M[0, 0],
-        "M12": M[0, 1],
-        "M13": M[0, 2],
-        "M14": T[0],  # x left-right
-        "M21": M[1, 0],
-        "M22": M[1, 1],
-        "M23": M[1, 2],
-        "M24": T[1],  # y = anterior-posterior
-        "M31": M[2, 0],
-        "M32": M[2, 1],
-        "M33": M[2, 2],
-        "M34": T[2],  # z superior-inferior
-        "M41": 0,
-        "M42": 0,
-        "M43": 0,
-        "M44": 1,
         "M11": M[0, 0],
         "M12": M[0, 1],
         "M13": M[0, 2],
@@ -950,17 +946,19 @@ def deploy_couch_model(
         )
         logging.info("Successfully translated the couch model")
 
-    with CompositeAction("Fill Couch Model Longitudinally"):
 
-        expand_geometry_to_inferior_boundary(examination=examination, geometry=couch)
-        expand_geometry_to_superior_boundary(examination=examination, geometry=couch)
+    if not couch_roi_name == "QFix_Brain_TBCouch_H1andH2":
+        with CompositeAction("Fill Couch Model Longitudinally"):
 
-        if NOTIFY:
-            sg.popup_notify(
-                f"The table structure called {couch_roi_name} was added successfully.",
-                title="Table structure successfully added",
-                display_duration_in_ms=DISPLAY_DURATION_IN_MS,
-            )
+            expand_geometry_to_inferior_boundary(examination=examination, geometry=couch)
+            expand_geometry_to_superior_boundary(examination=examination, geometry=couch)
+
+    if NOTIFY:
+        sg.popup_notify(
+            f"The table structure called {couch_roi_name} was added successfully.",
+            title="Table structure successfully added",
+            display_duration_in_ms=DISPLAY_DURATION_IN_MS,
+        )
 
     position_before_manual_change = couch.GetCenterOfRoi()
 
@@ -1116,7 +1114,7 @@ def deploy_civco_breastboard_model(
                 pitch=INCLINE_BASE_PITCH,
             )
 
-        message = "Civco Breastboard structures translated to Flat incline postion."
+        message = "Civco Breastboard structures translated to Flat incline position."
         logging.info(message)
 
         if use_wingboard:
@@ -1765,6 +1763,18 @@ def main():
             ],
             source_roi_names=[
                 COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["TrueBeam"]
+            ],
+        )
+    if values["-COUCH TRUEBEAM QFIX H1H2-"]:
+        # Deploy the TrueBeam couch
+        couch = deploy_couch_model(
+            case,
+            support_structure_template=COUCH_SUPPORT_STRUCTURE_TEMPLATE,
+            support_structures_examination=COUCH_SUPPORT_STRUCTURE_EXAMINATION[
+                examination.PatientPosition
+            ],
+            source_roi_names=[
+                COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["TrueBeam Qfix H1H2"]
             ],
         )
     elif values["-COUCH TOMO-"]:
