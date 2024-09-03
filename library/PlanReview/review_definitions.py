@@ -2,6 +2,13 @@
 All functional assumptions made in deployment of the UW physics/dosimetry
 check script
 
+Version History:
+1.0: 2021/06/01: Initial version
+1.1 30Aug2024: Added the Q-FIX immobilization device to the list of supports
+               * See Test Patient:
+                    ZZUWQA_ScriptTesting_QFix
+                    MR: ZZUWQA_20240830_ScriptTesting_RAB
+
 """
 import os
 from PlanReview.utils.constants import (
@@ -2053,7 +2060,8 @@ TOMO_DATA = {'MACHINES': ['HDA0488'],
 TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                  'SUPPORTS': ['TrueBeamCouch', 'CivcoBaseShell_Cork', 'CivcoInclineShell_Wax',
                               'Sframe_F1_TBCouch_HN', 'Sframe_H2_TBCouch_Brain',
-                              'ProneBreastBoard'],
+                              'ProneBreastBoard', 'QFix_Brain_TBCouch_H1andH2','QFix_H&N_TBCouch_F2andF3',
+                              'Black Board External Final', 'Baseplate_Override_PMMA'],
                  'EDW_LIMITS': {'MU_LIMIT': 20.,
                                 'Y2-OUT': 10.,  # Y2=OUT: -10 cm ≤ Y1 ≤ 10 cm
                                 'Y1-IN': 10.,  # Y1=IN : -10 cm ≤ Y2 ≤ 10 cm
@@ -2072,6 +2080,9 @@ MATERIALS = {'TrueBeamCouch': 'Lung',
              'Sframe': 'Lung',
              'TomoCouch': 'Lung',
              'Baseplate_Override_PMMA': 'PMMA',
+             'QFix_Brain_TBCouch_H1andH2': 'Lung',
+             'QFix_H&N_TBCouch_F2andF3': 'Lung',
+             'Black Board External Final': 'Lung',
              'ProneBreastBoard': 'Cartilage',
              'MT-T-45-S-CE221': 'PLA',
              'MT-T-45-M-CE221': 'PLA',
