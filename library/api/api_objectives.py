@@ -16,7 +16,6 @@ def add_optimization_function_v12(plan_optimization, function_type, roi_name,
                                                   RoiName=roi_name,
                                                   IsConstraint=is_constraint,
                                                   RestrictAllBeamsIndividually=is_restricted_to_beam,
-                                                  RestrictToBeam=restrict_to_beams,
                                                   IsRobust=is_robust,
                                                   RestrictToBeamSet=restricted_to_beamset,
                                                   UseRbeDose=use_rbe_dose)
