@@ -37,7 +37,7 @@ import socket
 # Constants
 local_aet = socket.gethostname()
 aria_aet = "VMSDBD"  # Aria database daemon AE Title
-aria_host = "m-ariadt1801.uwhealth.wisc.edu"  # Aria database daemon host name
+aria_host = "10.151.26.250"  # Aria database daemon host name
 aria_port = 108  # Aria database daemon port number
 local_storage_port = (
     104  # I think this is the port that Aria will try to send to on this local AE
@@ -75,9 +75,9 @@ def aria_echo():
                 if status.Status == 0x0000:
                     success = True
             else:
-                print("Connection timed out, was aborted or received invalid response")
+                print("ECHO Connection timed out, was aborted or received invalid response")
         else:
-            print("Association rejected, aborted or never connected")
+            print("ECHO Association rejected, aborted or never connected")
     except:
         print(
             "C-ECHO request to "
@@ -271,10 +271,10 @@ def aria_get_rtplan(input_dict, file_dir=tempfile.gettempdir()):
                     print("C-MOVE query status: 0x{0:04x}".format(status.Status))
                 else:
                     print(
-                        "Connection timed out, was aborted or received invalid response"
+                        "MOVE Connection timed out, was aborted or received invalid response"
                     )
         else:
-            print("Association rejected, aborted or never connected")
+            print("MOVE Association rejected, aborted or never connected")
     except:
         print(
             "C-MOVE request to "
