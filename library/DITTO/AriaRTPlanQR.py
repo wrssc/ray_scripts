@@ -37,7 +37,7 @@ import socket
 # Constants
 local_aet = socket.gethostname()
 aria_aet = "VMSDBD"  # Aria database daemon AE Title
-aria_host = "ariadicom.uwhealth.wisc.edu"  # Aria database daemon host name
+aria_host = "m-ariadt1801.uwhealth.wisc.edu"  # Aria database daemon host name
 aria_port = 108  # Aria database daemon port number
 local_storage_port = (
     104  # I think this is the port that Aria will try to send to on this local AE
