@@ -1,7 +1,13 @@
 from typing import NamedTuple, Tuple
 import numpy as np
 import math
+import logging
 from PlanReview.review_definitions import PASS, FAIL
+LOGGING = True
+
+def debug(msg):
+    if LOGGING:
+        logging.debug(msg)
 
 
 def get_slice_positions(rso):
@@ -129,6 +135,7 @@ def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
     # Look through all available rois that have contours for gaps
     message_str = ""
     rois_to_check = get_contour_list(rso)
+    debug(f'Checking {len(rois_to_check)} ROIs for gaps')
     # Get slice positions
     slices = get_slice_positions(rso)
     # Get the slice thickness of the CT
@@ -141,6 +148,7 @@ def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
         # Get the roi geometry
         roi_geometry = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi]
         # Find any gaps
+        debug(f'Checking {roi} for gaps')
         roi_gaps = find_gaps(roi_geometry, voxel_size, slice_positions=slices)
         if roi_gaps is not None:
             # Create an array of the sorted list of unique gap positions
