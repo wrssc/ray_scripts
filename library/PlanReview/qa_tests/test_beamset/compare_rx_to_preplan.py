@@ -11,6 +11,8 @@ from PlanReview.utils.constants import KEY_BEAMSET_SELECT, KEY_BEAMSET_FRACTION_
 K_BEST = 'Best Match'
 K_NO_MATCH = 'No Match'
 K_EXACT = 'Exact Match'
+K_SITE_MATCH = 'Site-based Rx with matching dose'
+K_SITE_NO_MATCH = 'Site-based Rx with no matching dose'
 
 
 def extract_gui_beamset_info(values, beamset_name):
@@ -263,8 +265,8 @@ def dict_to_dataframe(dictionary, dict_type):
 
     for target in targets:
         target_name = target.get('name')
-        if not target_name:  # Skip the record if target_name is empty
-            continue
+        if not target_name and dict_type == 'gui':  # Skip the record if target_name is empty
+             continue
 
         record = {
             'BeamsetName': beamset_name,
@@ -347,12 +349,34 @@ def compare_target_names_and_doses(df1, df2):
         df1_beamset = df1[df1['BeamsetName'] == beamset_name]
         df2_beamset = df2[df2['BeamsetName'] == beamset_name]
 
+        # Iterate over DataFrame rows
         for index, row in df1_beamset.iterrows():
             target_name = row['TargetName']
+            # Check if this row, from the gui, is one that the user did not fill out
+            if not row['TargetName'] and not row['Dose']:
+                continue
             target_dose = float(row['Dose'])
 
             matching_target = df2_beamset[df2_beamset['TargetName'] == target_name]
-            if not matching_target.empty:
+
+            if not df2.loc[df2['RxType'] == 'Site'].empty:
+                # Make sure there is only one entry in the RS prescription
+                if df2.shape[0] > 1:
+                    logging.error('Found multi-site based Rx - super weird')
+                rs_dose = df2['Dose'].astype(float).iloc[0]
+                rs_target_name = df2['TargetName'].iloc[0]
+                if np.isclose(rs_dose, target_dose, atol=1e-8):
+                    # Exact match
+                    df1.loc[index, 'MatchType'] = K_SITE_MATCH
+                    df1.loc[index, 'RSTargetDose'] = rs_dose
+                    df1.loc[index, 'RSTargetName'] = rs_target_name
+                else:
+                    # Name match but dose mismatch
+                    df1.loc[index, 'MatchType'] = K_SITE_NO_MATCH
+                    df1.loc[index, 'RSTargetDose'] = rs_dose
+                    df1.loc[index, 'RSTargetName'] = rs_target_name
+
+            elif not matching_target.empty:
                 rs_dose = matching_target['Dose'].astype(float).iloc[0]
                 rs_target_name = matching_target['TargetName'].iloc[0]
                 if np.isclose(rs_dose, target_dose, atol=1e-8):
@@ -399,10 +423,6 @@ def determine_best_matches(df, criteria, thresholds):
 
     # Sort and pick the best match based on the highest score
     best_matches = valid_matches.sort_values(by='Score', ascending=False).groupby('GUITarget').first().reset_index()
-    logging.debug(f"Best matches:\n{best_matches}.")
-    # Loop over best_matches and print out the scores
-    for index, row in best_matches.iterrows():
-        logging.debug(f"Best match for {row['GUITarget']}: {row['RSTarget']} with score {row['Score']}.")
 
     # Merge back to the original DataFrame to include the best match info
     result_df = df.merge(best_matches[['GUITarget', 'RSTarget', 'Score']], on='GUITarget', how='left',
@@ -425,7 +445,9 @@ def parse_match_results(df):
     grouped_messages = {
         K_EXACT: [],
         K_BEST: [],
-        K_NO_MATCH: []
+        K_NO_MATCH: [],
+        K_SITE_MATCH: [],
+        K_SITE_NO_MATCH:[]
     }
 
     # Iterate through DataFrame rows
@@ -434,16 +456,26 @@ def parse_match_results(df):
         rs_target = row.get('BestMatch')
         match_type = row['MatchType']
 
-        if match_type == K_EXACT:
+
+        if match_type == K_SITE_MATCH:
+            grouped_messages[K_SITE_MATCH].append(gui_target)
+        elif match_type == K_SITE_NO_MATCH:
+            grouped_messages[K_SITE_NO_MATCH].append(gui_target)
+        elif match_type == K_EXACT:
             grouped_messages[K_EXACT].append(gui_target)
         elif match_type == K_BEST:
             score = row.get('DiceSimilarityCoefficient', 0)  # Default to 0 if not available
-            grouped_messages[K_BEST].append(f"{gui_target}\u21FE{rs_target} ({round(score,2):.2f})")
+            grouped_messages[K_BEST].append(f"{gui_target}\u21FE{rs_target} ({round(score, 2):.2f})")
         elif match_type == K_NO_MATCH:
             grouped_messages[K_NO_MATCH].append(gui_target)
 
     # Format the single message string
     message_parts = []
+    if grouped_messages[K_SITE_MATCH]:
+        message_parts.append("Site-based Rx dose match: " + ", ".join(grouped_messages[K_SITE_MATCH]))
+    if grouped_messages[K_SITE_NO_MATCH]:
+        message_parts.append("Site-based Rx no dose match: " + ", ".join(grouped_messages[K_SITE_NO_MATCH]))
+
     if grouped_messages[K_NO_MATCH]:
         message_parts.append("No match: " + ", ".join(grouped_messages[K_NO_MATCH]))
     if grouped_messages[K_BEST]:
@@ -453,8 +485,10 @@ def parse_match_results(df):
 
     if not message_parts:
         return FAIL, "Unknown error"
-
-    result = PASS if K_NO_MATCH not in grouped_messages else PASS
+    if K_SITE_NO_MATCH in grouped_messages or K_SITE_MATCH in grouped_messages:
+        result = PASS if K_SITE_MATCH in grouped_messages else ALERT
+    else:
+        result = PASS if K_NO_MATCH not in grouped_messages else PASS
     final_message = "; ".join(message_parts)
 
     return result, final_message
@@ -558,8 +592,8 @@ def update_best_matches_and_statistics(df_gui, ss):
 
     # Iterate over the rows of the GUI dataframe
     for index, row in df_gui.iterrows():
-        logging.debug(f"Processing row {index} with target {row['TargetName']}.")
-        logging.debug(f"Potential matches: {row['PotentialMatches']}, with match type {row['MatchType']}.")
+        if row['MatchType'] == K_SITE_MATCH or row['MatchType'] == K_SITE_NO_MATCH:
+            continue
         if row['PotentialMatches'] and row['MatchType'] != K_EXACT:
             # Create a DataFrame to store comparison results
             match_stats = []
@@ -567,34 +601,41 @@ def update_best_matches_and_statistics(df_gui, ss):
             # Get the reference target name and potential matches
             reference = row['TargetName']
             target_list = row['PotentialMatches']
-            logging.debug(f"Reference target: {reference}, potential matches: {target_list}.")
             # Compute statistics for each potential match
             for target in target_list:
-                # Assuming comp is a dictionary returned by a comparison method in RayStation
-                comp = ss.ComparisonOfRoiGeometries(RoiA=reference, RoiB=target,
-                                                    ComputeDistanceToAgreementMeasures=True)
-                match_stats.append({
-                    'GUITarget': reference,
-                    'RSTarget': target,
-                    'Score': None,  # Placeholder for the score
-                    'DiceSimilarityCoefficient': comp['DiceSimilarityCoefficient'],
-                    'Precision': comp['Precision'],
-                    'Sensitivity': comp['Sensitivity'],
-                    'Specificity': comp['Specificity']
-                })
-            logging.debug(f"Match statistics: {match_stats}.")
+                if not target:
+                    match_stats.append({
+                        'GUITarget': reference,
+                        'RSTarget': None,
+                        'Score': None,  # Placeholder for the score
+                        'DiceSimilarityCoefficient': 0,
+                        'Precision': 0,
+                        'Sensitivity': 0,
+                        'Specificity': 0
+                    })
+                else:
+                    # Assuming comp is a dictionary returned by a comparison method in RayStation
+                    comp = ss.ComparisonOfRoiGeometries(RoiA=reference, RoiB=target,
+                                                        ComputeDistanceToAgreementMeasures=True)
+                    match_stats.append({
+                        'GUITarget': reference,
+                        'RSTarget': target,
+                        'Score': None,  # Placeholder for the score
+                        'DiceSimilarityCoefficient': comp['DiceSimilarityCoefficient'],
+                        'Precision': comp['Precision'],
+                        'Sensitivity': comp['Sensitivity'],
+                        'Specificity': comp['Specificity']
+                    })
 
             # Convert match_stats to a DataFrame
             match_df = pd.DataFrame(match_stats)
             best_matches = determine_best_matches(match_df, criteria, thresholds)
-            logging.debug(f"Best matches:\n{best_matches}.")
             df_gui.at[index, 'MatchType'] = K_NO_MATCH
             # If no match was found, there will not a Score_best column
             if 'Score_best' in best_matches.columns.to_list():
                 # Update df_gui with the best match and corresponding statistics
                 if best_matches['Score_best'].notnull().any():
                     best_match = best_matches.iloc[0]  # Assuming best_matches sorted descending by score
-                    logging.debug(f"Best match found: {best_match['RSTarget_best']} with score {best_match['Score_best']}.")
                     df_gui.at[index, 'BestMatch'] = best_match['RSTarget_best']
                     df_gui.at[index, 'DiceSimilarityCoefficient'] = best_match['DiceSimilarityCoefficient']
                     df_gui.at[index, 'Precision'] = best_match['Precision']
@@ -725,7 +766,6 @@ def match_rx_to_preplan(rso: NamedTuple, **kwargs: Optional[str]) -> Tuple[str, 
         result = FAIL
         return result, message_str
     # If there are no mismatches, check for unmatched targets
-    logging.debug('Finding dose-equivalent candidates for unmatched targets.')
     find_dose_equivalent_candidates(df_gui, df_rs, beamset_name)
     # Determine the best matches based on contour similarity
     update_best_matches_and_statistics(df_gui, ss)
@@ -743,5 +783,4 @@ def match_rx_to_preplan(rso: NamedTuple, **kwargs: Optional[str]) -> Tuple[str, 
     #     message_str += message_best + ": "
     # if message_exact:
     #     message_str += message_exact
-    logging.debug(f"***Message String:***\n{message_str}")
     return result, message_str
