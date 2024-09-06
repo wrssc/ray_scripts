@@ -31,7 +31,7 @@ DATA_GATHERING_DIR = r"Q:\\RadOnc\RayStation\RayScripts\Reports\DataGathering"
 DATAFILE_TARGET_MATCH_STATISTICS = os.path.join(DATA_GATHERING_DIR, "TargetMatchStatistics.csv")
 # From ARIA User Admin in the ARIA Web Portal Export all users to a
 # non-GitSync directory
-STAFF_XML_PATH = os.path.join(PROTECTED_DIR, "VAUsersandGroupsExport_30Sep2023.xml")
+STAFF_XML_PATH = os.path.join(PROTECTED_DIR, "VAUsersandGroupsExport_03Sep2024.xml")
 
 protocol_folder = r'../../protocols'
 institution_folder = r'UW'
