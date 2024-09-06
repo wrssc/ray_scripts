@@ -1,3 +1,7 @@
+<!--
+  ~ __copyright__ = 'Copyright (C) 2024, University of Wisconsin Board of Regents'
+  -->
+
 <protocol>
     <name>UW Lung SBRT</name>
     <AnatomicGroup>Thorax</AnatomicGroup>
@@ -296,6 +300,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
+			<roi>
+				<name>Lungs-GTV</name>
+				<type dir="le">VX</type>
+				<volume units="%">50</volume>
+				<dose units="Gy">5</dose>
+				<priority>1</priority>
+			</roi>
             <roi>
                 <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
@@ -326,6 +337,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
+			<roi>
+				<name>Lungs-ITV</name>
+				<type dir="le">VX</type>
+				<volume units="%">50</volume>
+				<dose units="Gy">5</dose>
+				<priority>1</priority>
+			</roi>
             <roi>
                 <name>Normal_2cm</name>
                 <ref>RTOG 0813</ref>
@@ -694,6 +712,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
+			<roi>
+				<name>Lungs-GTV</name>
+				<type dir="le">VX</type>
+				<volume units="%">50</volume>
+				<dose units="Gy">5</dose>
+				<priority>1</priority>
+			</roi>
             <roi>
                 <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
@@ -724,6 +749,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
+			<roi>
+				<name>Lungs-ITV</name>
+				<type dir="le">VX</type>
+				<volume units="%">50</volume>
+				<dose units="Gy">5</dose>
+				<priority>1</priority>
+			</roi>
             <roi>
                 <name>Normal_2cm</name>
                 <ref>RTOG 0813</ref>
@@ -1811,6 +1843,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
+			<roi>
+				<name>Lungs-GTV</name>
+				<type dir="le">VX</type>
+				<volume units="%">50</volume>
+				<dose units="Gy">5</dose>
+				<priority>1</priority>
+			</roi>
             <roi>
                 <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
@@ -1841,6 +1880,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
+			<roi>
+				<name>Lungs-ITV</name>
+				<type dir="le">VX</type>
+				<volume units="%">50</volume>
+				<dose units="Gy">5</dose>
+				<priority>1</priority>
+			</roi>
             <roi>
                 <name>Normal_2cm</name>
                 <ref>RTOG 0813</ref>
@@ -2207,6 +2253,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
+			<roi>
+				<name>Lungs-GTV</name>
+				<type dir="le">VX</type>
+				<volume units="%">50</volume>
+				<dose units="Gy">5</dose>
+				<priority>1</priority>
+			</roi>
             <roi>
                 <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
@@ -2237,6 +2290,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
+			<roi>
+				<name>Lungs-ITV</name>
+				<type dir="le">VX</type>
+				<volume units="%">50</volume>
+				<dose units="Gy">5</dose>
+				<priority>1</priority>
+			</roi>
             <roi>
                 <name>Normal_2cm</name>
                 <ref>RTOG 0813</ref>
@@ -2603,6 +2663,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
+			<roi>
+				<name>Lungs-GTV</name>
+				<type dir="le">VX</type>
+				<volume units="%">50</volume>
+				<dose units="Gy">5</dose>
+				<priority>1</priority>
+			</roi>
             <roi>
                 <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
@@ -2633,6 +2700,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
+			<roi>
+				<name>Lungs-ITV</name>
+				<type dir="le">VX</type>
+				<volume units="%">50</volume>
+				<dose units="Gy">5</dose>
+				<priority>1</priority>
+			</roi>
             <roi>
                 <name>Normal_2cm</name>
                 <ref>RTOG 0813</ref>
@@ -2997,6 +3071,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
+			<roi>
+				<name>Lungs-GTV</name>
+				<type dir="le">VX</type>
+				<volume units="%">50</volume>
+				<dose units="Gy">5</dose>
+				<priority>1</priority>
+			</roi>
             <roi>
                 <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
@@ -3027,6 +3108,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
+			<roi>
+				<name>Lungs-ITV</name>
+				<type dir="le">VX</type>
+				<volume units="%">50</volume>
+				<dose units="Gy">5</dose>
+				<priority>1</priority>
+			</roi>
             <roi>
                 <name>Normal_2cm</name>
                 <ref>RTOG 0813</ref>
