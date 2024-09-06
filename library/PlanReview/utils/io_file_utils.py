@@ -83,3 +83,11 @@ def save_review(rso, values, suffix="_review.json", quiet=False):
     else:
         logging.error("Output directory does not exist.")
         return None
+
+
+def log_dataframe(dataframe):
+    for index, row in dataframe.iterrows():
+        logging.debug(f"Row {index}:")
+        for column, value in row.items():
+            logging.debug(f"  {column}: {value}")
+        logging.debug('\n')  # Blank line between row
