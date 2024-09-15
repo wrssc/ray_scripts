@@ -466,6 +466,7 @@ def run_aria_plan_transfer_checks(ds1, ds2):
         [
             ["BeamName", "BeamNumber"],
             ["TreatmentMachineName"],
+            ["PrimaryFluenceModeSequence"],
             ["NumberOfWedges", "WedgeSequence"],
             ["NumberOfControlPoints"],
             ["NumberOfBoli"],
@@ -476,6 +477,7 @@ def run_aria_plan_transfer_checks(ds1, ds2):
         [
             "Check Beam Names",
             "Check Treatment Machine",
+            "Check Fluence Mode",
             "Check Wedge Beam Parameters",
             "Check Number of Control Points",
             "Check Number of Boli",
