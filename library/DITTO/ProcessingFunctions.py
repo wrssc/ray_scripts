@@ -249,7 +249,7 @@ def process_treatment_machine_name(element_pair, comment=""):
     ray_machine, aria_machine = element_pair.value_pair
 
     TRUEBEAM_M120 = ["TrueBeam2588", "TrueBeam2871", "TrueBeam3744", "TrueBeam6198", "TrueBeam6696", "TrueBeam6697"]
-    TRUEBEAM_STX = ["TrueBeam1358", "Edge3593"]
+    TRUEBEAM_STX = ["TrueBeam1358", "Edge6593"]
 
     if (ray_machine == "TrueBeam") and (aria_machine in TRUEBEAM_M120):
         comment = f"Aria {aria_machine} corresponds to RayStation {ray_machine}"
