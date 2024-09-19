@@ -20,9 +20,7 @@ from PlanReview.guis.gui_report_script_error import report_script_error
 from PlanReview.guis.parse_gui_values import get_header_checklist_qa_values
 from PlanReview.guis.create_side_panel import is_valid_side_panel
 from PlanReview.guis.load_review import load_review
-from PlanReview.utils.constants import KEY_BEAMSET_SELECT
-from library.FinalDose import final_dose
-import logging
+from library.api.api_user_functions import final_dose
 
 
 def build_top_buttons(save_space, review_type='Physics'):
