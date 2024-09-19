@@ -26,7 +26,6 @@ def detect_api_version():
         logging.error("Unable to get RS version")
 
 
-
 def find_scope(level=None):
     """
     Find the current available scope in RS at the level of level.
