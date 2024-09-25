@@ -9,6 +9,7 @@ def update_derived_geometry(rso, roi_name):
     # get shape status
     shape_status = rso.case.PatientModel.StructureSets[rso.exam.Name]\
         .RoiGeometries[roi_name].PrimaryShape.DerivedRoiStatus.IsShapeDirty
+    logging.debug(f'Shape status: {shape_status} for {roi_name}')
     while shape_status:
         # Try two methods of updating derived geometry
         # rso.case.PatientModel.UpdateDerivedGeometries(
@@ -171,7 +172,14 @@ def copy_roi(rso, source_roi_name, suffix='', representation='Contours'):
         return None
 
     # Update derived geometry
-    update_derived_geometry(rso, copied_roi)
+    # update_derived_geometry(rso, copied_roi)
+    # Set representation
+    try:
+        rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[copied_roi] \
+            .SetRepresentation(Representation=representation)
+    except Exception as e:
+        logging.warning(f"An error occurred while setting the representation of {copied_roi}: {e}")
+        return None
 
     # Delete derived geometry
     try:
@@ -181,13 +189,6 @@ def copy_roi(rso, source_roi_name, suffix='', representation='Contours'):
         logging.warning(f"An error occurred while deleting the derived geometry of {copied_roi}: {e}")
         return None
     logging.info(f"ROI {source_roi_name} copied to {copied_roi}")
-    # Set representation
-    try:
-        rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[copied_roi]\
-            .SetRepresentation(Representation=representation)
-    except Exception as e:
-        logging.warning(f"An error occurred while setting the representation of {copied_roi}: {e}")
-        return None
 
     return copied_roi
 
@@ -237,13 +238,15 @@ def get_voxel_coordinates(roi_geometry):
     voxel_size = (primary_shape.VoxelSize.x, primary_shape.VoxelSize.y, primary_shape.VoxelSize.z)
 
     # Reshape the 1D values array into a 3D array
-    values_3d = primary_shape.VoxelValues.reshape((primary_shape.NrVoxels.x,
+    values_3d = primary_shape.VoxelValues.reshape((primary_shape.NrVoxels.z,
                                                    primary_shape.NrVoxels.y,
-                                                   primary_shape.NrVoxels.z,))
+                                                   primary_shape.NrVoxels.x,))
+    # Transpose to x, y, z
+    values_3d = np.transpose(values_3d, (2, 1, 0))
 
     # Find Non-Zero Voxels
-    # Get the indices of all non-zero voxels
-    voxel_indices = np.argwhere(values_3d == 1)
+    # Get the indices of voxels with full coverage by the ROI
+    voxel_indices = np.argwhere(values_3d == 255)
 
     # Coordinate conversion
     # Convert voxel indices to DICOM coordinates using vectorized operations
