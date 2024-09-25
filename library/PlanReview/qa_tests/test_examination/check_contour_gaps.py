@@ -2,7 +2,7 @@ from typing import NamedTuple, Tuple
 import numpy as np
 import math
 import re
-from library.PlanReview.review_definitions import PASS, FAIL
+from PlanReview.review_definitions import PASS, FAIL
 import logging
 import datetime
 
