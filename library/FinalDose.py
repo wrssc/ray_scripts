@@ -71,10 +71,8 @@ __copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 
 import logging
 import sys
-import connect
 import UserInterface
 import BeamOperations
-import PlanQualityAssuranceTests
 import GeneralOperations
 from GeneralOperations import logcrit as logcrit
 from PlanOperations import find_beamset
@@ -85,10 +83,8 @@ from api.api_beamsets import adjust_emc_calculation
 from api.api_ui import ui_click_plan_optimization
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library/OldPlanReview'))
-import init_physics_19Jun2023
 
 clr.AddReference("System.Xml")
-import System
 
 
 def compute_dose(beamset, dose_algorithm):
@@ -227,7 +223,7 @@ def process_rois_for_export(plan, case):
     logging.debug(f'For Export Structures Excluded: {successful_exclusion}')
 
 
-def final_dose(site=None, technique=None, rso=None, beamset_name=None):
+def final_dose_v15(site=None, technique=None, rso=None, beamset_name=None):
     """Final Dose
     Args:
         site (str): The site name
@@ -258,51 +254,26 @@ def final_dose(site=None, technique=None, rso=None, beamset_name=None):
     ui_click_plan_optimization(ui)
 
     # Institution specific plan names and dose grid settings
-    fine_grid_names = ['_SBR_']
-    fine_grid_size = 0.15
-    coarse_grid_names = ['_THI_', '_VMA_', '_3DC_', '_BST_', '_DCA_']
-    coarse_grid_size = 0.2
     rename_beams = True
-    simfid_test = False
-    external_test = False
-    grid_test = False
     # Let the statements below change as needed
-    tomo_couch_test = False  # This gets flagged to True if the plan technique does not contain 'Tomo'
     check_lateral_pa = False
-    cps_test = False
-    review_script = False
     # Set up the workflow steps.
     steps = ['Exclude irrelevant rois from export']
     if 'Tomo' not in beamset.DeliveryTechnique and beamset.Modality != 'Electrons':
         if check_lateral_pa:
             steps.append('Check Laterality')
         steps.append('Rename Beams')
-        # steps.append('Check for external structure integrity')
-        # steps.append('Check SimFiducials have coordinates')
-        # steps.append('Check the dose grid size')
-        # steps.append('Check for control Point Spacing')
         steps.append('Compute Dose if necessary')
-        # steps.append('Round MU')
-        # steps.append('Round Jaws')
         steps.append('Set DSP')
         steps.append('Recompute Dose')
-        cps_test = True
 
     if 'Tomo' in beamset.DeliveryTechnique:
         steps.append('Rename Beams')
-        # steps.append('Check for external structure integrity')
-        # steps.append('Check Tomo Couch position relative to isocenter')
-        # steps.append('Check SimFiducials have coordinates')
-        # steps.append('Check the dose grid size')
         steps.append('Compute Dose if necessary')
         steps.append('Set DSP')
-        tomo_couch_test = True
 
     if beamset.Modality == 'Electrons':
         steps.append('Rename Beams')
-        # steps.append('Check for external structure integrity')
-        # steps.append('Check SimFiducials have coordinates')
-        # steps.append('Check the dose grid size')
         steps.append('Compute Dose if necessary')
         steps.append('Set DSP')
 
@@ -314,108 +285,142 @@ def final_dose(site=None, technique=None, rso=None, beamset_name=None):
     # Exclude irrelevant rois from export
     process_rois_for_export(plan, case)
 
-    if check_lateral_pa:
-        # Check the lateral PA for clearance
-        for b in beamset.Beams:
-            change_gantry = BeamOperations.check_pa(plan=plan, beam=b)
-            logging.debug(f'Recommended change for {b.Name} is {change_gantry}')
-        # BeamOperations.check_clearance(beamset=beamset)
-        status.next_step('Checked field orientations')
-
     if rename_beams:
         # Rename the beams
         BeamOperations.rename_beams(site_name=site, input_technique=technique,
                                     beamset_name=beamset.DicomPlanLabel)
         status.next_step('Renamed Beams, checking external integrity')
 
-    # Run the review script
-    if review_script:
-        init_physics_19Jun2023.main(physics_review=False)
-    # EXTERNAL OVERLAP WITH COUCH OR SUPPORTS
-    if external_test:
-        external_error = True
-        while external_error:
-            error = PlanQualityAssuranceTests.external_overlap_test(patient, case, exam)
-            if error == 'No support structures':
-                logcrit('Evaluation of overlap with External and Support Structures not possible ' +
-                        'due to no structures having type Support')
-                external_error = False
-            elif 'External approved' in error:
-                logcrit('External overlaps with supports, but external is approved.')
-                connect.await_user_input('This external structure was locked despite an overlap with supports.')
-                external_error = False
-            elif len(error) != 0:
-
-                connect.await_user_input('Eliminate overlap of patient external with support structures' +
-                                         ' (hint: use the Couch Removal tool on the external)')
-            else:
-                external_error = False
-        status.next_step('Reviewed external')
-
-    # TOMO COUCH TEST
-    if tomo_couch_test:
-        couch_name = 'TomoCouch'
-        couch = PlanQualityAssuranceTests.tomo_couch_check(case=case,
-                                                           exam=exam,
-                                                           beamset=beamset,
-                                                           tomo_couch_name=couch_name,
-                                                           limit=2.0,
-                                                           shift=True)
-        if not couch.valid:
-            try:
-                connect.await_user_input(couch.error)
-                if not couch.valid:
-                    x_shift = couch.calculated_lateral_shift()
-                    logging.info('Moving {} by {}'.format(couch_name, x_shift))
-                    StructureOperations.translate_roi(case=case,
-                                                      exam=exam,
-                                                      roi=couch_name,
-                                                      shifts={'x': x_shift, 'y': 0, 'z': 0})
-                plan.SetDefaultDoseGrid(
-                    VoxelSize={'x': coarse_grid_size, 'y': coarse_grid_size, 'z': coarse_grid_size})
-                status.next_step('TomoTherapy couch corrected for lateral shift')
-            except Exception as e:
-                status.next_step(f'TomoTherapy couch could not be corrected, likely due to approved structures. {e}')
-
+    if beamset.Modality == 'Photons':
+        dose_algorithm = 'CCDose'
+        if 'Tomo' in beamset.DeliveryTechnique:
+            # TODO: Better exception handling here.
+            message = compute_dose(beamset, dose_algorithm=dose_algorithm)
+            status.next_step(message)
+            # Set the DSP for the plan and recompute dose to force an update of the DSP
+            BeamOperations.set_dsp(plan=plan,
+                                   beam_set=beamset)
+            beamset.ComputeDose(ComputeBeamDoses=True,
+                                DoseAlgorithm=dose_algorithm,
+                                ForceRecompute=True)
+            status.next_step('DSP set. Script complete')
         else:
-            status.next_step('TomoTherapy couch checked for correct lateral positioning')
+            # Compute dose in case it hasn't been done yet
+            _ = compute_dose(beamset=beamset, dose_algorithm=dose_algorithm)
 
-    # SIMFIDUCIAL TEST
-    if simfid_test:
-        fiducial_point = 'SimFiducials'
-        fiducial_error = True
-        while fiducial_error:
-            error = PlanQualityAssuranceTests.simfiducial_test(case=case, exam=exam, poi=fiducial_point)
-            if len(error) != 0:
-                connect.await_user_input('Error in localization point: {error}\n')
-            else:
-                fiducial_error = False
-        status.next_step('Reviewed SimFiducials')
+            status.next_step('Setting DSP')
 
-    # GRID SIZE TEST
-    if grid_test:
-        fine_grid_error = PlanQualityAssuranceTests.gridsize_test(beamset=beamset,
-                                                                  plan_string=fine_grid_names,
-                                                                  nominal_grid_size=fine_grid_size)
-        coarse_grid_error = PlanQualityAssuranceTests.gridsize_test(beamset=beamset,
-                                                                    plan_string=coarse_grid_names,
-                                                                    nominal_grid_size=coarse_grid_size)
-        if len(fine_grid_error) != 0:
-            logging.warning(f'Dose grid check returned an error {fine_grid_error}')
-            plan.SetDefaultDoseGrid(VoxelSize={'x': fine_grid_size, 'y': fine_grid_size, 'z': fine_grid_size})
-            logging.info('Grid size was changed for SBRT-type plan')
-        elif len(coarse_grid_error) != 0:
-            logging.warning(f'Dose grid check returned an error {coarse_grid_error}')
-            plan.SetDefaultDoseGrid(VoxelSize={'x': coarse_grid_size, 'y': coarse_grid_size, 'z': coarse_grid_size})
-            logging.info('Grid size was changed for Normal-type plan')
-        status.next_step('Reviewed Dose Grid')
+            # Recompute dose if needed
+            _ = compute_dose(beamset=beamset, dose_algorithm=dose_algorithm)
 
-    # CONTROL POINT SPACING TEST
-    if cps_test:
-        cps_error = PlanQualityAssuranceTests.cps_test(beamset, nominal_cps=2)
-        if len(cps_error) != 0:
-            sys.exit(cps_error)
-        status.next_step('Reviewed Control Point Spacing, computing dose if necessary')
+            # Set the DSP for the plan
+            BeamOperations.set_dsp(plan=plan, beam_set=beamset)
+            status.next_step('Set DSP, Checking Dose Computation')
+
+            # Recompute dose
+            status.next_step('Recomputing Dose if needed')
+            # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)
+            try:
+                beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+            except Exception as e:
+                logging.debug(f' error type is {type(e)}, with e = {e}')
+            status.next_step('Script Complete')
+
+    if beamset.Modality == 'Electrons':
+        dose_algorithm = 'ElectronMonteCarlo'
+        # TODO: Better exception handling here.
+        try:
+            # Try a quick run
+            if not beamset.FractionDose.DoseValues.IsClinical:
+                beamset.AccurateDoseAlgorithm.MonteCarloHistoriesPerAreaFluence = 10000
+                status.next_step('Computing dose with small number of histories')
+                beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=False)
+        except Exception as e:
+            status.next_step('Dose was clinical, no need for recompute')
+            logging.info(f'Beamset {beamset.DicomPlanLabel} did not need to be recomputed: {e}')
+        # Set the DSP and TODO: add rx surface
+        BeamOperations.set_dsp(plan=plan, beam_set=beamset, percent_rx=98., method='Centroid')
+        status.next_step('DSP set, checking statistics')
+        mc_histories = 1e6  # RS 11 Cannot exceed 1e6 without long computation times
+        # Make sure electron monte carlo statistical uncertainty is clinical
+        emc_result = BeamOperations.check_emc(beamset, stat_limit=0.005, histories=mc_histories)
+        # If the test returns an insufficient uncertainty, change the number of histories
+        if emc_result.bool is False:
+            adjust_emc_calculation(beamset, histories=emc_result.hist, uncertainty=0.005)
+            beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+        # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)
+        beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+        status.next_step('Script Complete')
+
+    logcrit('Final Dose Script Run Successfully')
+
+
+def final_dose_v12(site=None, technique=None, rso=None, beamset_name=None):
+    """Final Dose
+    Args:
+        site (str): The site name
+        technique (str): The treatment technique
+        rso (object): The RS object
+        beamset_name (str): The beamset name
+    """
+    ui = GeneralOperations.find_scope(level='ui')
+    # Get current patient, case, exam, and plan
+    if not rso:
+        patient = GeneralOperations.find_scope(level='Patient')
+        case = GeneralOperations.find_scope(level='Case')
+        exam = GeneralOperations.find_scope(level='Examination')
+        plan = GeneralOperations.find_scope(level='Plan')
+        beamset = GeneralOperations.find_scope(level='BeamSet')
+    else:
+        patient = rso.patient
+        case = rso.case
+        exam = rso.exam
+        plan = rso.plan
+        beamset = rso.beamset
+    if beamset_name:
+        beamset = find_beamset(plan=plan, beamset_name=beamset_name)
+        patient.Save()
+        beamset.SetCurrent()
+
+    # Change the viewing windows to Plan Optimization
+    ui_click_plan_optimization(ui)
+
+    # Institution specific plan names and dose grid settings
+    rename_beams = True
+    # Let the statements below change as needed
+    # Set up the workflow steps.
+    steps = ['Exclude irrelevant rois from export']
+    if 'Tomo' not in beamset.DeliveryTechnique and beamset.Modality != 'Electrons':
+        steps.append('Rename Beams')
+        steps.append('Compute Dose if necessary')
+        steps.append('Round MU')
+        steps.append('Round Jaws')
+        steps.append('Set DSP')
+        steps.append('Recompute Dose')
+
+    if 'Tomo' in beamset.DeliveryTechnique:
+        steps.append('Rename Beams')
+        steps.append('Compute Dose if necessary')
+        steps.append('Set DSP')
+
+    if beamset.Modality == 'Electrons':
+        steps.append('Rename Beams')
+        steps.append('Compute Dose if necessary')
+        steps.append('Set DSP')
+
+    status = UserInterface.ScriptStatus(steps=steps,
+                                        docstring=__doc__,
+                                        help=__help__)
+    status.next_step('Checking beam names')
+
+    # Exclude irrelevant rois from export
+    process_rois_for_export(plan, case)
+
+    if rename_beams:
+        # Rename the beams
+        BeamOperations.rename_beams(site_name=site, input_technique=technique,
+                                    beamset_name=beamset.DicomPlanLabel)
+        status.next_step('Renamed Beams, checking dose recomputation')
 
     if beamset.Modality == 'Photons':
         dose_algorithm = 'CCDose'
@@ -436,12 +441,12 @@ def final_dose(site=None, technique=None, rso=None, beamset_name=None):
 
             # Round MU
             beamset.SetAutoScaleToPrimaryPrescription(AutoScale=False)
-            # BeamOperations.round_mu(beamset)
-            # status.next_step('Rounded MU, Rounding jaws')
+            BeamOperations.round_mu(beamset)
+            status.next_step('Rounded MU, Rounding jaws')
 
             # Round jaws to nearest mm
-            # logging.debug('Checking for jaw rounding')
-            # BeamOperations.round_jaws(beamset=beamset)
+            logging.debug('Checking for jaw rounding')
+            BeamOperations.round_jaws(beamset=beamset)
             status.next_step('Setting DSP')
 
             # Recompute dose if needed
@@ -485,8 +490,8 @@ def final_dose(site=None, technique=None, rso=None, beamset_name=None):
         # Autoscale must be turned off to round the MU.
         # Round MU
         beamset.SetAutoScaleToPrimaryPrescription(AutoScale=False)
-        # BeamOperations.round_mu(beamset)
-        # status.next_step('Rounded MU, recomputing doses')
+        BeamOperations.round_mu(beamset)
+        status.next_step('Rounded MU, recomputing doses')
         # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)
         beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
         status.next_step('Script Complete')
@@ -494,9 +499,18 @@ def final_dose(site=None, technique=None, rso=None, beamset_name=None):
     logcrit('Final Dose Script Run Successfully')
 
 
-def main():
-    final_dose()
+# def main():
+#     #
+    # Detect API version
+#     version, sub_version = detect_api_version()
+#     if version == 15:
+#         final_dose_v15()
+#     elif version == 12:
+#         final_dose_v12()
+#     else:
+#         logging.error(f'API version {version} not supported')
+#         sys.exit(f'API version {version} not supported')
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
