@@ -2320,9 +2320,6 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
                         # Delete the existing geometry and return
                         # the empty geometry on the current exam
                         delete_geometry(case=case, exam=examination, roi_name=roi_name_ci)
-                        # _ = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
-                        #     roi_name_ci
-                        # ].DeleteGeometry
                         return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name_ci]
                     else:
                         # We don't want to delete the existing geometry, so we'll need to append
