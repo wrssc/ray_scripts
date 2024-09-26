@@ -276,7 +276,6 @@ def launch_physics_review_gui(rso, relaunch=False, review_type='Physics'):
 
     while True:  # Event Loop
         event, values = gui_state_manager.window.read()
-        print(event)
         if event in (Sg.WIN_CLOSED, '-CANCEL-'):
             return {}
         #
@@ -350,38 +349,10 @@ def launch_physics_review_gui(rso, relaunch=False, review_type='Physics'):
             if gui_state_manager.beamset_names and match_trees:
                 on_ditto_element_click(gui_state_manager.window, values, event,
                                        gui_state_manager.beamset_names, match_trees)
-
-        # elif '-APTR_TREE_' in event and gui_state_manager.beamset_names and match_trees:
-        #     on_ditto_element_click(gui_state_manager.window, values, event,
-        #                            gui_state_manager.beamset_names, match_trees)
-        #
         # Manual Tab Events
         elif type(event) is tuple:
             if KEY_CHECK + KEY_RADIO in event[0]:
                 on_manual_radio_button_click(gui_state_manager.window, event)
-
-        # Retrieve data from the check-boxes and automated tests
-        # gui_state_manager.passing_tests, gui_state_manager.failed_tests = get_tests_from_tree(
-        #     gui_state_manager.tree_children)
-        # gui_state_manager.check_list = process_check_box_values(gui_state_manager.window, values,
-        #                                                         gui_state_manager.check_box_copy)
-        # gui_state_manager.check_list.extend(
-        #     process_auto_tests(gui_state_manager.window, gui_state_manager.failed_tests))
-        # gui_state_manager.check_list.extend(
-        #     process_auto_tests(gui_state_manager.window, gui_state_manager.passing_tests))
-        # #
-        # # Retrieve data from the first tab and side panel
-        # preplan_data = extract_values_preplan_tab(gui_state_manager.window)
-        # if gui_state_manager.qa_form_accessible:
-        #     qa_form_data = build_qa_form(gui_state_manager.rso, gui_state_manager.window)
-        # else:
-        #     qa_form_data = None
-        # sidepanel_data = extract_values_side_panel(gui_state_manager.window)
-        # header_data = merge_dicts(preplan_data, sidepanel_data)
-        # break
-        # if event == '-SAVE-':
-        #     gui_state_manager.review_file_name = save_review(
-        #         gui_state_manager.rso, get_review_gui_values(gui_state_manager, values))
         elif event == '-CHECKER-IMAGE-':
             logging.debug(f'Checker image clicked show form: {gui_state_manager.qa_form_accessible}')
             if gui_state_manager.qa_form_accessible:

@@ -18,7 +18,8 @@ from PlanReview.guis.create_physics_manual_tab import (
     is_valid_manual_tab, get_tests_from_tree)
 from PlanReview.guis.gui_report_script_error import report_script_error
 from PlanReview.guis.parse_gui_values import get_header_checklist_qa_values
-from PlanReview.guis.create_side_panel import is_valid_side_panel
+from PlanReview.guis.create_side_panel import (is_valid_side_panel, side_panel_proceedqi_or_revise,
+                                               generate_and_distribute_revision_report)
 from PlanReview.guis.load_review import load_review
 from library.api.api_user_functions import final_dose
 
@@ -88,6 +89,7 @@ def build_top_buttons(save_space, review_type='Physics'):
                    )
     top_events = [key for key in icons.keys()]
     return top, top_events
+
 
 
 def handle_top_event(gui_state_manager, event, values):
@@ -168,6 +170,9 @@ def handle_top_event(gui_state_manager, event, values):
                 get_review_gui_values(gui_state_manager, values),
                 suffix=gui_state_manager.suffix, quiet=True)
             get_header_checklist_qa_values(gui_state_manager, values)
+            if side_panel_proceedqi_or_revise(values):
+                # Generate and email the report
+                generate_and_distribute_revision_report(gui_state_manager.rso, gui_state_manager.window)
             return 'break'
     return status
 

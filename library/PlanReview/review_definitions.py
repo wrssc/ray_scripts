@@ -4,27 +4,47 @@ check script
 
 """
 import os
+import sys
 from PlanReview.utils.constants import (
     REPLACED, KEY_OUT_DESC, KEY_OUT_TEST, KEY_OUT_DOMAIN_TYPE, KEY_OUT_OPTIONS,
     KEY_AUTOMATED_TESTS, KEY_STATUS, KEY_REVIEW_TYPE, KEY_AUTOMATION,
     KEY_AUTO_REVIEW_DATE, KEY_OUT_CHECK_GROUP)
 
-# OUTPUT DIR
-# In the future replace this with the log file directory from an environment
-# variable in ScriptSelector:
-# os.environ['LOG_DIR'] = '/path/to/log/files'
-# OUTPUT_DIR = os.getenv('LOG_DIR')
-# ERROR_DIR = os.path.join(os.getenv('LOG_DIR'),'Errors','ReviewScript')
+# The location of the log directory
 log_dir = os.getenv('LOG_DIR')
-OUTPUT_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs"
-ERROR_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs\Errors\ReviewScript"
-PROTECTED_DIR = r"Q:\\RadOnc\RayStation\RayScripts\Protect"
-DOSIMETRY_OUTPUT_DIR = r"Q:\\RadOnc\RayStation\RayScripts\Reports\DosimetrySafetySheets"
-DATA_GATHERING_DIR = r"Q:\\RadOnc\RayStation\RayScripts\Reports\DataGathering"
-DATAFILE_TARGET_MATCH_STATISTICS = os.path.join(DATA_GATHERING_DIR, "TargetMatchStatistics.csv")
+#
+# Reporting from the review script
+# Main directory for the RayStation scripts
+RAYSCRIPTS_DIR = r"Q:\\RadOnc\RayStation\RayScripts"
+#
+# Directories for patient-specific data
+OUTPUT_DIR = os.path.join(RAYSCRIPTS_DIR, "logs")
+
+# Directory which contains raw clinical data and is not to be uploaded to GitHub
+PROTECTED_DIR = os.path.join(RAYSCRIPTS_DIR, "Protect")
 # From ARIA User Admin in the ARIA Web Portal Export all users to a
 # non-GitSync directory
 STAFF_XML_PATH = os.path.join(PROTECTED_DIR, "VAUsersandGroupsExport_30Sep2023.xml")
+
+# Data gathering directory for collecting data for the review script
+DATA_GATHERING_DIR = os.path.join(RAYSCRIPTS_DIR, "DataGathering")
+
+# Dosimetry safety-sheets, if needed, would go here. Not currently used.
+DOSIMETRY_OUTPUT_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "DosimetrySafetySheets")
+
+# Error reports for the review script
+ERROR_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Error_Reports", "ReviewScript")
+
+# Quality Improvement Reports
+QI_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Quality_Improvement_Reports")
+DATAFILE_QI_LIST = os.path.join(DATA_GATHERING_DIR, "QIReports.csv")
+#
+DATAFILE_TARGET_MATCH_STATISTICS = os.path.join(DATA_GATHERING_DIR, "TargetMatchStatistics.csv")
+
+# From the same directory pull the data needed for emailing reports
+LOCAL_RAYSCRIPTS_DATA = os.path.join(PROTECTED_DIR, "UW_Email_Preferences.xml")
+sys.path.append(LOCAL_RAYSCRIPTS_DATA)
+
 
 protocol_folder = r'../../protocols'
 institution_folder = r'UW'

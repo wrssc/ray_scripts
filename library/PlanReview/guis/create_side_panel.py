@@ -7,6 +7,7 @@ from PlanReview.utils.constants import (
     KEY_REVISION_INFO, KEY_SIDE_PANEL, KEY_DOSE_QI, KEY_REVISION_NUMBER,
     KEY_DOSE_REVISION_INFO, KEY_DOSE_QI_INFO, KEY_DOSE_REVISION)
 from PlanReview.guis.gui_qa_form import get_qa_form_input_components
+from PlanReview.utils.email_results import email_report_qi_revision, save_report, capture_screen
 
 #
 # Configuration elements for the side panel
@@ -58,6 +59,24 @@ dosimetry_config = {
                    ]}
     ]
 }
+
+
+def side_panel_proceedqi_or_revise(values):
+    """ Test to determine if the side panel has QI or Revise selected,
+    check both physics and dosimetry configurations."""
+    # Check for Dosimetry
+    dose_keys = [f"{KEY_DOSE_QI}"]
+    physics_keys = [f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)",
+                    f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise"]
+    # Check if the keys are in the values
+    if any(k in values.keys() for k in dose_keys):
+        if values[f"{KEY_DOSE_QI}"] or values[f"{KEY_DOSE_REVISION}"]:
+            return True
+    elif any(k in values.keys() for k in physics_keys):
+        if values[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)"] \
+                or values[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise"]:
+            return True
+    return False
 
 
 def create_side_panel(comment_width_chars: int, window_height: int,
@@ -583,3 +602,34 @@ def is_valid_side_panel(window: Sg.Window, values: Dict[str, Union[bool, str]]) 
             is_valid = False
 
     return is_valid
+
+
+def generate_and_distribute_revision_report(rso, window):
+    # Submit a report of the review to dosimetry and physics chiefs
+    if KEY_USER_COMMENT in window.key_dict:
+        user_comments = window[KEY_USER_COMMENT].get()
+    else:
+        user_comments = None
+    if KEY_DOSE_QI_INFO in window.key_dict:
+        dose_qi_text = window[KEY_DOSE_QI_INFO].get()
+    else:
+        dose_qi_text = None
+    if KEY_QI_INFO in window.key_dict:
+        qi_text = window[KEY_QI_INFO].get()
+    else:
+        qi_text = None
+    if KEY_REVISION_INFO in window.key_dict:
+        revision_text = window[KEY_REVISION_INFO].get()
+    else:
+        revision_text = None
+
+    # Now build a report
+    description = f"User Comments: <br>{user_comments}<br><br>" +\
+                    f"QI Comments: <br>{qi_text}<br><br>" +\
+                    f"Dose QI Comments: <br>{dose_qi_text}<br><br>" +\
+                    f"Revision Comments: <br>{revision_text}"
+    file_path = save_report(report_type='qi_revision',
+                            patient_id=rso.patient_id,
+                            beamset_name=rso.beamset_name,
+                            report_text=description)
+    email_report_qi_revision(file_path)
