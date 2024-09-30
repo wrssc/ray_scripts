@@ -88,6 +88,14 @@ def save_review(rso, values, suffix="_review.json", quiet=False):
         return None
 
 
+def log_dataframe(dataframe):
+    for index, row in dataframe.iterrows():
+        logging.debug(f"Row {index}:")
+        for column, value in row.items():
+            logging.debug(f"  {column}: {value}")
+        logging.debug('\n')  # Blank line between row
+
+
 def append_to_csv(patient_id, beamset_name, user_name,
                   user_comments, dose_comments, is_physics_revision, is_dose_revision, is_dose_qi, is_physics_qi,
                   qi_comments=None, dose_qi_comments=None,

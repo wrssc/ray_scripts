@@ -72,7 +72,8 @@ import DicomExport
 from api.api_qa_preparation import create_dqa_plan
 
 clinic_options = {'--MACHINES--': ['TrueBeam1358', 'TrueBeam2588', 'TrueBeam2871',
-                                   'TrueBeam3744', 'TrueBeam6198', 'HDA0488'],
+                                   'TrueBeam3744', 'TrueBeam6198', 'TrueBeam6696',
+                                   'TrueBeam6697', 'Edge6593','HDA0488'],
                   '--QA_DEVICES--': ['Plus_02 (JC)', 'Plus_04 (UH)',
                                      'Plus_05 (EC)', 'Plus_06 (UH)'],
                   '--X_GRID--': [-3.0, -2.0, -1.0, 0., 1.0, 2.0, 3.0, ],

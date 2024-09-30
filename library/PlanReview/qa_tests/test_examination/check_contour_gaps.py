@@ -5,6 +5,11 @@ import re
 from PlanReview.review_definitions import PASS, FAIL
 import logging
 import datetime
+LOGGING = True
+
+def debug(msg):
+    if LOGGING:
+        logging.debug(msg)
 
 
 def get_slice_positions(rso):
@@ -158,7 +163,7 @@ def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
     # Look through all available rois that have contours for gaps
     message_str = ""
     rois_to_check = get_contour_list(rso)
-    logging.debug(f'Checking {len(rois_to_check)} ROIs for gaps')
+    debug(f'Checking {len(rois_to_check)} ROIs for gaps')
     # Get slice positions
     slices = get_slice_positions(rso)
     # Get the slice thickness of the CT
@@ -176,6 +181,7 @@ def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
         delta = time_end-time_start
         logging.debug(f'Getting ROI geometry took {delta.total_seconds()} seconds')
         # Find any gaps
+        debug(f'Checking {roi} for gaps')
         time_start = datetime.datetime.now()
         roi_gaps = find_gaps(roi_geometry, voxel_size, slice_positions=slices)
         time_end = datetime.datetime.now()

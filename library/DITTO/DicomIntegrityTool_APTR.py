@@ -56,6 +56,7 @@ def run_dicom_integrity_tool(
     filepath2,
     file_label1="DICOM File 1",
     file_label2="DICOM File 2",
+    diagnostic=False,
 ):
     import logging
     logging.debug(f"Running DIT for {filepath1} and {filepath2}")
@@ -114,13 +115,56 @@ def run_dicom_integrity_tool(
     else:
         tab_title = f'RS: {plan_names[0]} vs. Aria: {plan_names[1]}'
 
+    if diagnostic:
+
+        dmt_dicom_match_tree = compare_dicomrt_plans(filepath1, filepath2)
+        dmt_treedata = dmt_dicom_match_tree.get_treedata(show_matches=True)
+
+        tab_diagnostic = [
+            [
+                sg.Tree(
+                    data=dmt_treedata,
+                    headings=["Result", "Comments",],
+                    auto_size_columns=False,
+                    col0_width=50,
+                    col_widths=[30, 60,],
+                    num_rows=30,
+                    key="-DMT_TREE-",
+                    show_expanded=False,
+                    enable_events=True,
+                    # expand_x=True,
+                    # expand_y=True,
+                ),
+            ],
+            [
+                sg.Text(f"{file_label1} Value: "),
+                sg.Text("Value 1", key="-DMT_VALUE1-", size=(100, None)),
+            ],
+            [
+                sg.Text(f"{file_label2} Value: "),
+                sg.Text("Value 2", key="-DMT_VALUE2-", size=(100, None)),
+            ],
+            [
+                sg.Text(f"{file_label2} Debug Value: "),
+                sg.Text("Debug", key="-DMT_DEBUG-", size=(100, None)),
+            ],
+        ]
+
+    if diagnostic:
+        tabs = [
+            sg.Tab(tab_title, tab1_layout),
+            sg.Tab("Diagnostics", tab_diagnostic)
+        ]
+    else:
+        tabs = [
+            sg.Tab(tab_title, tab1_layout),
+        ]
+
     layout = [
         [
             sg.TabGroup(
                 [
-                    [
-                        sg.Tab(tab_title, tab1_layout),
-                    ]
+                    tabs
                 ],
             )
         ],
@@ -158,6 +202,34 @@ def run_dicom_integrity_tool(
                 window["-APTR_VALUE2-"].update(value2)
                 window["-APTR_COMMENT-"].update(element.comment)
 
+        if diagnostic:
+            if event in "-DMT_TREE-":
+
+                tree_key = values["-DMT_TREE-"][0]
+
+                if ">" in tree_key:
+
+                    value1, value2 = dmt_dicom_match_tree.get_valuepair_from_key(
+                        tree_key[1:]
+                    )
+                    element = dmt_dicom_match_tree.get_element_from_key(tree_key[1:])
+
+                    if value1 is None:
+                        value1 = ""
+
+                    if value2 is None:
+                        value2 = ""
+
+                    if element.parent is None:
+                        name = ""
+                    else:
+                        name = element.parent.get_name()
+
+                    window["-DMT_VALUE1-"].update(value1)
+                    window["-DMT_VALUE2-"].update(value2)
+
+                window["-DMT_DEBUG-"].update(tree_key)
+
         if event == "Report Failing Test":
             mrn = dmt_dicom_match_tree.get_element_from_key("PatientID").value_pair[0]
             plan_name = dmt_dicom_match_tree.get_element_from_key(
@@ -166,3 +238,19 @@ def run_dicom_integrity_tool(
             report_failing_test_func(aptr_dicom_tree_pair, mrn=mrn, plan_name=plan_name)
 
     window.close()
+
+if __name__ == "__main__":
+
+    file_path = Path(
+        r"U:\UWHealth\RadOnc\ShareAll\Users\ZEL\DICOM_Compare_Files\3164588"
+    )
+    raystation_filename = r"RP1.2.752.243.1.1.20220110105336812.2000.10016.dcm"
+    aria_filename = r"Bol_ARIA1.2.246.352.71.5.137378053967.332155.20220111111326.dcm"
+    aria_filename = r"NoB_ARIA1.2.246.352.71.5.137378053967.332249.20220111111326.dcm"
+
+    file_path = Path(r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\RayStation\DICOMs\Plan_Prostate")
+
+    raystation_filename = r"RP1.2.752.243.1.1.20230321151237111.2000.28646.dcm"
+    aria_filename = r"RP.0783795.Pros_SBR_R1A0.dcm"
+
+    run_dicom_integrity_tool(file_path / raystation_filename, file_path / aria_filename, diagnostic=True)

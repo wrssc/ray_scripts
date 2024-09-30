@@ -1027,7 +1027,7 @@ def validate_setup_fields(beamset):
     return invalid_gantry_angles
 
 
-def update_set_up(beamset, set_up):
+def update_set_up(beamset, set_up, couch_angles=False):
     """Update the setup fields after checking their validity
     :param: beamset: RS beamset object
     :param: set_up: Dict: [i][ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
@@ -1057,6 +1057,8 @@ def update_set_up(beamset, set_up):
         beamset.PatientSetup.SetupBeams[i].Description = set_up[k][1]
         beamset.PatientSetup.SetupBeams[i].GantryAngle = str(set_up[k][2])
         beamset.PatientSetup.SetupBeams[i].Segments[0].DoseRate = set_up[k][3]
+        if couch_angles:
+            beamset.PatientSetup.SetupBeams[i].CouchRotationAngle = set_up[k][4]
         i += 1
 
 
@@ -1080,6 +1082,8 @@ def rename_beams(site_name=None, input_technique=None, beamset_name=None):
     #
     # Electrons, 3D, and VMAT Arcs are all that are supported.  Reject plans that aren't
     technique = beamset.DeliveryTechnique
+    # Is this an SRS plan?
+    srs_setup = True if '_SRS_' in beamset.DicomPlanLabel else False
     #
     # Oddly enough, Electrons are DeliveryTechnique = 'SMLC'
     if technique not in supported_rs_techniques:
@@ -1220,12 +1224,34 @@ def rename_beams(site_name=None, input_technique=None, beamset_name=None):
         # Set-Up Fields
         # HFS Setup
         # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
-        set_up = {0: ['SetUp AP', 'SetUp AP', 0.0, '5'],
-                  1: ['SetUp RtLat', 'SetUp RtLat', 270.0, '5'],
-                  2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
-                  3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
-                  }
-        update_set_up(beamset=beamset, set_up=set_up)
+        if srs_setup:
+            # Get the set of unique couch angles from the beams
+            table_angles = []
+            for b in beamset.Beams:
+                couch_angle = int(round(float(b.CouchRotationAngle), 1))
+                if couch_angle not in table_angles:
+                    table_angles.append(couch_angle)
+            set_up = {
+                    0: ['CBCT', 'Set-up CBCT', 0.0, '5', 0],
+                    1: ['AP', 'Set-up Anterior', 0.0, '5', 0],
+                    2: ['RLAT', 'Set-up Right Lateral', 270.0, '5', 0],}
+            setup_index = 3
+            for ta in table_angles:
+                if 359.9 >= ta >= 270.:
+                    ga = 0
+                else:
+                    ga = 180.1
+                # Zero pad the name and description
+                set_up[setup_index] = [f'T{ta:03}', f'Set-up T{ta:03}', ga, '5', ta]
+                setup_index += 1
+            update_set_up(beamset=beamset, set_up=set_up, couch_angles=True)
+        else:
+            set_up = {0: ['SetUp AP', 'SetUp AP', 0.0, '5'],
+                      1: ['SetUp RtLat', 'SetUp RtLat', 270.0, '5'],
+                      2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
+                     3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
+                      }
+            update_set_up(beamset=beamset, set_up=set_up)
 
     # HFLDR
     elif patient_position == 'HeadFirstDecubitusRight':

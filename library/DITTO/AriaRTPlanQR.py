@@ -363,7 +363,7 @@ def gui_choose_plans(list_aria, list_raystation, aria_return_type='index'):
         # if there's a matching (lowercase match) plan in RayStation for the selected Aria plan, default to it.
         rs_match = [name for name in list_raystation if name.lower()==default_aria.lower()]
         if rs_match:
-            default_rs=rs_match
+            default_rs=rs_match[0]
 
     sg.theme('DefaultNoMoreNagging')
     layout =  [ [sg.Text('Choose the plans to compare:',font=('Helvetica',16,'bold'))]]
