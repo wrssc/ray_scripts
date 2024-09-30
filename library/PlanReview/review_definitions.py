@@ -27,7 +27,7 @@ PROTECTED_DIR = os.path.join(RAYSCRIPTS_DIR, "Protect")
 STAFF_XML_PATH = os.path.join(PROTECTED_DIR, "VAUsersandGroupsExport_30Sep2023.xml")
 
 # Data gathering directory for collecting data for the review script
-DATA_GATHERING_DIR = os.path.join(RAYSCRIPTS_DIR, "DataGathering")
+DATA_GATHERING_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "DataGathering")
 
 # Dosimetry safety-sheets, if needed, would go here. Not currently used.
 DOSIMETRY_OUTPUT_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "DosimetrySafetySheets")
@@ -37,7 +37,9 @@ ERROR_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Error_Reports", "ReviewScri
 
 # Quality Improvement Reports
 QI_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Quality_Improvement_Reports")
-DATAFILE_QI_LIST = os.path.join(DATA_GATHERING_DIR, "QIReports.csv")
+DATAFILE_EVENT_LIST = os.path.join(DATA_GATHERING_DIR, "Incident_Reports.csv")
+# Revision Reports
+REVISION_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Revision_Reports")
 #
 DATAFILE_TARGET_MATCH_STATISTICS = os.path.join(DATA_GATHERING_DIR, "TargetMatchStatistics.csv")
 
@@ -51,7 +53,8 @@ institution_folder = r'UW'
 PROTOCOL_DIR = os.path.join(os.path.dirname(__file__),
                             protocol_folder,
                             institution_folder)
-
+# region Icons
+# Icon Section
 icon_dir = os.path.join(os.path.dirname(__file__), "guis\\icons")
 RED_CIRCLE = os.path.join(icon_dir, "red_circle_icon.png")
 GREEN_CIRCLE = os.path.join(icon_dir, "green_circle_icon.png")
@@ -70,6 +73,8 @@ ICON_SMALL_ERROR = os.path.join(icon_dir, "error_icon_small.png")
 ICON_SMALL_SCALE_ISODOSE = os.path.join(icon_dir, "scale_icon_small.png")  # 90 px
 ICON_SMALL_MATERIAL = os.path.join(icon_dir, "material_icon_small.png")
 ICON_SMALL_WINDOW_LEVEL = os.path.join(icon_dir, "windowlevel_icon_small.png")
+ICON_SMALL_SUBMIT = os.path.join(icon_dir, "submit_icon_small.png")
+
 # ICONS 110 px horizontal
 ICON_PRINT = os.path.join(icon_dir, "print_icon.png")
 ICON_FINAL = os.path.join(icon_dir, "final_icon.png")
@@ -83,11 +88,14 @@ ICON_CHECKER = os.path.join(icon_dir, "checker_icon.png")
 ICON_SCALE_ISODOSE = os.path.join(icon_dir, "scale_icon.png")
 ICON_MATERIAL = os.path.join(icon_dir, "material_icon.png")
 ICON_WINDOW_LEVEL = os.path.join(icon_dir, "windowlevel_icon.png")
-# RESULT STRING
+ICON_SUBMIT = os.path.join(icon_dir, "submit_icon.png")
+# endregion
+# region Results
 PASS = "Pass"
 FAIL = "Fail"
 ALERT = "Alert"
 NA = "Not Applicable"
+# endregion
 
 # Level keys
 DOMAIN_TYPE = {
