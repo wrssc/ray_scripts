@@ -1,3 +1,10 @@
+class OperationCancelledException(Exception):
+    """Exception raised when the user cancels the operation."""
+    pass
+
+
+def clean_string(s):
+    return s.replace('\n', ' ').replace('\r', ' ').replace(',', ' ') if s else s
 
 
 def update_window_key_dict(window, keys):
