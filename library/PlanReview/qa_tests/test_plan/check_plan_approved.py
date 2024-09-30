@@ -42,5 +42,6 @@ def check_plan_approved(rso, **kwargs):
         if physics_review:
             pass_result = FAIL
         else:
-            pass_result = ALERT
+            message_str += " (Dosimetry Safety Review)"
+            pass_result = PASS
     return pass_result, message_str
