@@ -1,13 +1,15 @@
 import logging
 import datetime
 from collections import OrderedDict
-from PlanReview.review_definitions import DOMAIN_TYPE
+from PlanReview.review_definitions import DOMAIN_TYPE, FAIL
 from PlanReview.qa_tests.test_examination import get_exam_level_tests
 from PlanReview.qa_tests.test_plan import get_plan_level_tests
 from PlanReview.qa_tests.test_beamset import get_beamset_level_tests
 from PlanReview.qa_tests.test_sandbox import get_sandbox_level_tests
 from PlanReview.qa_tests.test_plan import parse_order_selection
 from PlanReview.qa_tests.analyze_logs import retrieve_logs
+from PlanReview.utils import get_user_name
+from PlanReview.utils.email_results import save_report, email_report_script_error
 
 
 def parse_time_log(time_log, time0, time1, test_name):
@@ -37,6 +39,29 @@ def log_time_log(time_log):
     logging.info("-" * (max_test_name_length + 15))
     for test_name, duration in sorted_time_log.items():
         logging.info(f"{test_name:<{max_test_name_length}} | {duration:.2f}")
+
+
+def execute_test(rso, test_name, test_function, kwargs, time_log):
+    logging.debug(f'Executing test {test_name}')
+    time_0 = datetime.datetime.now()
+    try:
+        pass_result, message = test_function(rso=rso, **kwargs)
+    except Exception as e:
+        message = f"Error: {str(e)}"
+        # Send an error report email and return a failure
+        # Save and email the report
+        user_name = get_user_name()
+        file_path = save_report(
+            report_type='error_report',
+            patient_id=rso.patient.PatientID,
+            beamset_name=rso.beamset.DicomPlanLabel,
+            user_name=user_name,
+            report_text=f"Automated report: error occurred while executing the test: {test_name}\n\n{str(e)}"
+        )
+        email_report_script_error(file_path, source='script')
+        pass_result = FAIL
+    time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), test_function.__name__)
+    return pass_result, message, time_log
 
 
 def perform_automated_checks(rso, do_physics_review,
@@ -70,7 +95,6 @@ def perform_automated_checks(rso, do_physics_review,
     patient_key = (DOMAIN_TYPE['PATIENT_KEY'], "Patient: " + rso.patient.PatientID)
     exam_key = (DOMAIN_TYPE['EXAM_KEY'], "Exam: " + rso.exam.Name)
     plan_key = (DOMAIN_TYPE['PLAN_KEY'], "Plan: " + rso.plan.Name)
-    #
     # If multiple beamsets are flagged find objects for all of them
     if beamsets:
         rsos = load_rsos(rso, beamsets)
@@ -82,33 +106,23 @@ def perform_automated_checks(rso, do_physics_review,
 
     tree_children = []
 
-    """
-    Parse logs
-    """
+    # Parse logs
     time_0 = datetime.datetime.now()
     message_logs = retrieve_logs(rso)
     time_log = parse_time_log(time_log, time_0,
                               datetime.datetime.now(), 'parse_logs')
 
-    """
-    Gather Patient Level Checks
-    """
+    # Gather Patient Level Checks
     patient_checks_dict = get_exam_level_tests(rso, values)
-    """
-    Gather Plan Level Checks
-    """
+    # Gather Plan Level Checks
     plan_checks_dict = get_plan_level_tests(rso, do_physics_review)
-    """
-    Gather BeamSet Level Checks
-    """
+    # Gather BeamSet Level Checks
     beamset_checks = {
         r.beamset.DicomPlanLabel: get_beamset_level_tests(
             r, do_physics_review, message_logs,
             values=values)
         for r in rsos}
-    """
-    Gather SandBox Level Checks
-    """
+    # Gather SandBox Level Checks
     sandbox_checks_dict = get_sandbox_level_tests(rso, do_physics_review)
 
     progress_total = len(patient_checks_dict.keys()) \
@@ -122,10 +136,11 @@ def perform_automated_checks(rso, do_physics_review,
     for key, p_func in patient_checks_dict.items():
         update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
                             f'Exam Test: {key}...')
-        logging.debug(f'Executing test {key}')
-        time_0 = datetime.datetime.now()
-        pass_result, message = p_func[0](rso=rso, **p_func[1])
-        time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), key)
+        pass_result, message, time_log = execute_test(rso, key, p_func[0], p_func[1], time_log)
+        # logging.debug(f'Executing test {key}')
+        # time_0 = datetime.datetime.now()
+        # pass_result, message = p_func[0](rso=rso, **p_func[1])
+        # time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), key)
         node, child = build_tree_element(parent_key=exam_key[0],
                                          child_key=key,
                                          pass_result=pass_result,
@@ -137,10 +152,7 @@ def perform_automated_checks(rso, do_physics_review,
         tests_performed += 1
     update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
                         'Running Plan Tests...')
-    """
-    Execute Plan Level Checks
-    """
-    # Plan LevelChecks
+    # Execute Plan Level Checks
     plan_level_tests = []
     # Parse the log file for the treatment planning order selected.
     dialog_key = 'Treatment Planning Order Selection'
@@ -167,9 +179,10 @@ def perform_automated_checks(rso, do_physics_review,
     for key, pl_func in plan_checks_dict.items():
         update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
                             f'Plan Test: {key}')
-        time_0 = datetime.datetime.now()
-        pass_result, message = pl_func[0](rso=rso, **pl_func[1])
-        time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), key)
+        pass_result, message, time_log = execute_test(rso, key, pl_func[0], pl_func[1], time_log)
+        # time_0 = datetime.datetime.now()
+        # pass_result, message = pl_func[0](rso=rso, **pl_func[1])
+        # time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), key)
         node, child = build_tree_element(parent_key=plan_key[0],
                                          child_key=key,
                                          pass_result=pass_result,
@@ -192,9 +205,10 @@ def perform_automated_checks(rso, do_physics_review,
         for key, b_func in beamset_checks[bs_name].items():
             update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
                                 f'BeamSet Test: {key}')
-            time_0 = datetime.datetime.now()
-            pass_result, message = b_func[0](rso=r, **b_func[1])
-            time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), key)
+            pass_result, message, time_log = execute_test(r, key, b_func[0], b_func[1], time_log)
+            # time_0 = datetime.datetime.now()
+            # pass_result, message = b_func[0](rso=r, **b_func[1])
+            # time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), key)
             node, child = build_tree_element(
                 parent_key=DOMAIN_TYPE['BEAMSET_KEY'],
                 child_key=key, pass_result=pass_result, message_str=message)
@@ -213,9 +227,10 @@ def perform_automated_checks(rso, do_physics_review,
     for key, s_func in sandbox_checks_dict.items():
         update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
                             f'Sandbox Test: {key}')
-        time_0 = datetime.datetime.now()
-        pass_result, message = s_func[0](rso=rso, **s_func[1])
-        time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), key)
+        pass_result, message, time_log = execute_test(rso, key, s_func[0], s_func[1], time_log)
+        # time_0 = datetime.datetime.now()
+        # pass_result, message = s_func[0](rso=rso, **s_func[1])
+        # time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), key)
         node, child = build_tree_element(parent_key=sandbox_key[0],
                                          child_key=key,
                                          pass_result=pass_result,
