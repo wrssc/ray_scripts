@@ -60,6 +60,7 @@ KEY_QI_INFO = "-QI_ISSUE-"  # Used in the side panel to display any quality impr
 KEY_REVISION_INFO = "-REASON_FOR_REVISION-"  # Used in the side panel to display the reason for revision
 #
 # Used in the side panel for Dosimetry review
+KEY_OUT_DOSE_COMMENT = f'{KEY_DOSE}-COMMENT-'  # Used in the side panel to display the comment
 KEY_REVISION_NUMBER = f'{KEY_DOSE}-REVISION_NUMBER-'  # Used in the side panel to display the number of revisions
 KEY_DOSE_REVISION = f'{KEY_DOSE}-REVISION-'  # Used in the side panel to display the dose revision
 KEY_DOSE_REVISION_INFO = f'{KEY_DOSE}-REVISION_INFO-'  # Used in the side panel to display the reason for revision

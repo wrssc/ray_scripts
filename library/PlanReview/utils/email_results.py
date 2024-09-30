@@ -6,15 +6,18 @@ import os
 import smtplib
 import xml.etree.ElementTree as ET
 import PySimpleGUI as Sg
+import time
+import sys
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import csv
 from datetime import datetime
 from docx import Document
 from docx.enum.section import WD_ORIENT
 from docx.shared import Cm
-from PlanReview.review_definitions import ERROR_DIR, QI_REPORTS_DIR
-from PlanReview.utils import get_user_name
+from PlanReview.review_definitions import (
+    ERROR_DIR, QI_REPORTS_DIR, REVISION_REPORTS_DIR, DATAFILE_EVENT_LIST)
 
 
 def list_format(input_str):
@@ -92,7 +95,7 @@ def capture_screen(window):
     return img_data
 
 
-def save_report(report_type, patient_id, beamset_name, report_text, screenshot=None):
+def save_report(report_type, patient_id, beamset_name, user_name, report_text, screenshot=None):
     """
     Save the error report document.
 
@@ -100,22 +103,26 @@ def save_report(report_type, patient_id, beamset_name, report_text, screenshot=N
         report_type (str): The type of report to save. values: 'error_report', 'qi_revision'
         patient_id (str): The patient ID.
         beamset_name (str): The beamset name.
+        user_name (str): The user name.
         report_text (str): The text to include in the report.
         screenshot (bytes): The screenshot image data.
 
     Returns:
         file_path (str): The path to the saved report.
     """
-    user_name = get_user_name()
 
     # Create a filename for the report
     now = datetime.now()
-    filename = f"{patient_id}_{beamset_name}_" \
+    filename = f"{patient_id}_{beamset_name}_{report_type}_" \
                f"{now.strftime('%Y-%m-%d_%H-%M-%S')}.docx"
     if report_type == 'error_report':
         file_path = os.path.join(ERROR_DIR, filename)
-    elif report_type == 'qi_revision':
+    elif report_type == 'qi_report':
         file_path = os.path.join(QI_REPORTS_DIR, filename)
+    elif report_type == 'revision_report':
+        file_path = os.path.join(REVISION_REPORTS_DIR, filename)
+    else:
+        raise ValueError(f'Invalid report type "{report_type}".')
 
     # Embed the screenshot into the doc file
     doc = Document()
@@ -134,11 +141,31 @@ def save_report(report_type, patient_id, beamset_name, report_text, screenshot=N
 
     # Add report content
     doc.add_heading('Error Report')
-    doc.add_paragraph(f'Patient ID: {patient_id}')
-    doc.add_paragraph(f'Beamset Name: {beamset_name}')
-    doc.add_paragraph(f'User Name: {user_name}')
-    doc.add_paragraph(f'Time:{now.strftime("%Y-%m-%d_%H-%M-%S")}')
-    doc.add_paragraph(f'Description of Issue: {report_text}')
+    # Add paragraphs with some bold text
+    # For "Patient ID:" part in bold
+    paragraph = doc.add_paragraph()
+    paragraph.add_run('Patient ID: ').bold = True
+    paragraph.add_run(f'{patient_id}')
+
+    # For "Beamset Name:" part in bold
+    paragraph = doc.add_paragraph()
+    paragraph.add_run('Beamset Name: ').bold = True
+    paragraph.add_run(f'{beamset_name}')
+
+    # For "User Name:" part in bold
+    paragraph = doc.add_paragraph()
+    paragraph.add_run('User Name: ').bold = True
+    paragraph.add_run(f'{user_name}')
+
+    # For "Time:" part in bold
+    paragraph = doc.add_paragraph()
+    paragraph.add_run('Time: ').bold = True
+    paragraph.add_run(f'{now.strftime("%Y-%m-%d_%H-%M-%S")}')
+
+    # For "Description of Issue:" part in bold
+    paragraph = doc.add_paragraph()
+    paragraph.add_run('Description of Issue: \n').bold = True
+    paragraph.add_run(f'{report_text}')
     if screenshot:
         doc.add_picture(io.BytesIO(screenshot), width=Cm(25))
 
@@ -274,12 +301,13 @@ def test_email():
     a.send_email(
         email_type='error_report',
         subj='Test Message',
-        body='Hi Recipient,<br><p>You have <b>successfully</b> received this automated email.<br><p>Best regards,<br>Adam',
+        body='Hi Recipient,<br><p>You have <b>successfully</b> '
+             + 'received this automated email.<br><p>Best regards,<br>Adam',
         attachments=None
     )
 
 
-def email_report_script_error(attachment_file_path):
+def email_report_script_error(attachment_file_path, source='script'):
     from PlanReview.review_definitions import LOCAL_RAYSCRIPTS_DATA
     xml_file_path = LOCAL_RAYSCRIPTS_DATA
     email = EmailPackager(xml_file_path=xml_file_path)
@@ -289,17 +317,30 @@ def email_report_script_error(attachment_file_path):
         body='Please see the attached error report.',
         attachments=[attachment_file_path],
     )
-    Sg.popup_ok('Error report sent to developer')
+    if not source == 'script':
+        Sg.popup_ok('Error report sent to developer')
 
 
-def email_report_qi_revision(attachment_file_path):
+def email_report_qi_issue(attachment_file_path):
     from PlanReview.review_definitions import LOCAL_RAYSCRIPTS_DATA
     xml_file_path = LOCAL_RAYSCRIPTS_DATA
     email = EmailPackager(xml_file_path=xml_file_path)
     email.send_email(
-        email_type='qi_revision',
-        subj='Review Script QI Revision',
-        body='Please see the attached QI revision report.',
+        email_type='qi_report',
+        subj='Review Script Quality Improvement Report',
+        body='Please see the attached QI report.',
+        attachments=[attachment_file_path],
+    )
+
+
+def email_report_revision(attachment_file_path):
+    from PlanReview.review_definitions import LOCAL_RAYSCRIPTS_DATA
+    xml_file_path = LOCAL_RAYSCRIPTS_DATA
+    email = EmailPackager(xml_file_path=xml_file_path)
+    email.send_email(
+        email_type='revision_report',
+        subj='Review Script Plan Revision Report',
+        body='Please see the attached Revision report.',
         attachments=[attachment_file_path],
     )
 

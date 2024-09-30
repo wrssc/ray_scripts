@@ -5,7 +5,10 @@ import logging
 import PySimpleGUI as Sg
 from datetime import datetime
 import json
-from PlanReview.review_definitions import OUTPUT_DIR
+from PlanReview.review_definitions import OUTPUT_DIR, DATAFILE_EVENT_LIST
+from PlanReview.utils.python_utilities import clean_string, OperationCancelledException
+import time
+import csv
 
 
 def generate_filename():
@@ -83,3 +86,75 @@ def save_review(rso, values, suffix="_review.json", quiet=False):
     else:
         logging.error("Output directory does not exist.")
         return None
+
+
+def append_to_csv(patient_id, beamset_name, user_name,
+                  user_comments, dose_comments, is_physics_revision, is_dose_revision, is_dose_qi, is_physics_qi,
+                  qi_comments=None, dose_qi_comments=None,
+                  revision_number=None, revision_comments=None, dose_revision_comments=None):
+    """
+    Append a new incident report to a CSV file. If the file does not exist, create it and add headers.
+
+    Args:
+        patient_id (str): The patient ID.
+        beamset_name (str): The name of the beamset.
+        user_name (str): The name of the user.
+        user_comments (str): The user's comments in the comment box.
+        dose_comments (str): The user's comments in the dosimetry comment box.
+        is_physics_revision (bool): Indicates if it is a physics revision.
+        is_dose_revision (bool): Indicates if it is a dose revision.
+        is_dose_qi (bool): Indicates if it is a dose QI.
+        is_physics_qi (bool): Indicates if it is a physics QI.
+        qi_comments (str): The comments in the QI proceed box.
+        dose_qi_comments (str): The comments in the dosimetry QI box.
+        revision_comments (str): The comments in the revision box.
+        revision_number (str): The revision number indicated by the dosimetrist.
+        dose_revision_comments (str): The comments in the dosimetry revision box.
+
+    Returns:
+        None
+    """
+    # Get the current time
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    # Prepare the row data
+    # Before writing we need to strip anything that will cause a line break or formatting issues
+    row = [patient_id, beamset_name, user_name, current_time,
+           is_physics_revision, is_dose_revision, is_dose_qi, is_physics_qi,
+           clean_string(user_comments), clean_string(dose_comments),
+           clean_string(qi_comments), clean_string(dose_qi_comments),
+           revision_number, clean_string(revision_comments), clean_string(dose_revision_comments)]
+
+    # Load file path
+    csv_file_path = DATAFILE_EVENT_LIST
+
+    # Check if the file exists
+    file_exists = os.path.isfile(csv_file_path)
+
+    while True:
+        try:
+            with open(csv_file_path, mode='a', newline='') as file:
+                writer = csv.writer(file)
+                if not file_exists:
+                    header = ['Patient Id', 'Beamset Name', 'User Name', 'Time',
+                              'Is Physics Revision', 'Is Dose Revision', 'Is Dose QI', 'Is Physics QI', 'User Comments',
+                              'QI Comments', 'Dosimetry QI Comments', 'Revision Number', 'Revision Comments',
+                              'Dosimetry Revision Comments']
+                    writer.writerow(header)
+                    file_exists = True
+                writer.writerow(row)
+            Sg.popup('Data successfully written to the CSV file.')
+            break
+        except PermissionError:
+            choice = Sg.popup_yes_no(f'Permission Error: The CSV file {csv_file_path} is open in another application.\n'
+                                     'Please close the file and click "Yes" to retry, or "No" to cancel.',
+                                     title='File In Use')
+            if choice == 'Yes':
+                time.sleep(1)
+                continue
+            else:
+                raise OperationCancelledException('Operation cancelled by user.')
+        except Exception as e:
+            Sg.popup_error(f'An unexpected error occurred: {e}')
+            break
+

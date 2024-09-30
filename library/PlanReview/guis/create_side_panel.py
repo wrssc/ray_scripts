@@ -5,9 +5,11 @@ from PlanReview.review_definitions import ICON_CHECKER
 from PlanReview.utils.constants import (
     KEY_USER_COMMENT, KEY_PROCEED_REVISE, KEY_RADIO, KEY_QI_INFO,
     KEY_REVISION_INFO, KEY_SIDE_PANEL, KEY_DOSE_QI, KEY_REVISION_NUMBER,
-    KEY_DOSE_REVISION_INFO, KEY_DOSE_QI_INFO, KEY_DOSE_REVISION)
+    KEY_DOSE_REVISION_INFO, KEY_DOSE_QI_INFO, KEY_DOSE_REVISION, KEY_OUT_DOSE_COMMENT)
 from PlanReview.guis.gui_qa_form import get_qa_form_input_components
-from PlanReview.utils.email_results import email_report_qi_revision, save_report, capture_screen
+from PlanReview.utils.email_results import (email_report_qi_issue, email_report_revision, save_report)
+from PlanReview.utils.io_file_utils import append_to_csv
+from PlanReview.utils import get_user_name
 
 #
 # Configuration elements for the side panel
@@ -42,41 +44,23 @@ dosimetry_config = {
     "elements": [
         {"sg_type": "text", "label": "Comments to physics", "key": "Dose Comments", "font": ('Helvetica', 12, 'bold'),
          "text_color": 'yellow'},
-        {"sg_type": "multiline", "key": KEY_USER_COMMENT, "size": (40, 10), "default_text": ''},
+        {"sg_type": "multiline", "key": KEY_OUT_DOSE_COMMENT, "size": (comment_width_chars, 10), "default_text": ''},
         {"sg_type": "checkbox", "label": "QI Suggestion", "key": f"{KEY_DOSE_QI}", "extra": [
             {"sg_type": "text", "label": "Brief Synopsis of \n QI Issue:", "key": "-QI_TEXT-", "visible": False},
-            {"sg_type": "multiline", "key": f"{KEY_DOSE_QI_INFO}", "size": (24, 2), "default_text": '',
+            {"sg_type": "multiline", "key": f"{KEY_DOSE_QI_INFO}", "size": (comment_width_chars, 2), "default_text": '',
              "visible": False}
         ]},
         {"sg_type": "checkbox", "label": "Revise", "key": f"{KEY_DOSE_REVISION}",
          "extra": [{"sg_type": "text", "label": "# of plan revisions:", "key": "-REVISION_#_TEXT-", "visible": False},
-                   {"sg_type": "combo", "values": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "key": KEY_REVISION_NUMBER,
+                   {"sg_type": "combo", "values": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "key": KEY_REVISION_NUMBER,
                     "visible": False},
                    {"sg_type": "text", "label": "Summary of Revision(s):", "key": "-REVISION_TEXT-",
                     "visible": False},
-                   {"sg_type": "multiline", "key": f"{KEY_DOSE_REVISION_INFO}", "size": (24, 2), "default_text": '',
-                    "visible": False}
+                   {"sg_type": "multiline", "key": f"{KEY_DOSE_REVISION_INFO}", "size": (comment_width_chars, 2),
+                    "default_text": '', "visible": False}
                    ]}
     ]
 }
-
-
-def side_panel_proceedqi_or_revise(values):
-    """ Test to determine if the side panel has QI or Revise selected,
-    check both physics and dosimetry configurations."""
-    # Check for Dosimetry
-    dose_keys = [f"{KEY_DOSE_QI}"]
-    physics_keys = [f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)",
-                    f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise"]
-    # Check if the keys are in the values
-    if any(k in values.keys() for k in dose_keys):
-        if values[f"{KEY_DOSE_QI}"] or values[f"{KEY_DOSE_REVISION}"]:
-            return True
-    elif any(k in values.keys() for k in physics_keys):
-        if values[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)"] \
-                or values[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise"]:
-            return True
-    return False
 
 
 def create_side_panel(comment_width_chars: int, window_height: int,
@@ -168,121 +152,6 @@ def create_side_panel(comment_width_chars: int, window_height: int,
     return side_panel, side_panel_events
 
 
-# def old_create_side_panel(comment_width_chars: int, window_height: int,
-#                           pix_per_char_height: int, save_space: bool = False,
-#                           review_type: str = 'Physics') -> List[List[Any]]:
-#     """
-#     Create a side panel with comment boxes and radio buttons for user interface.
-#
-#     Args:
-#         comment_width_chars (int): Width of the comment box in characters.
-#         window_height (int): Height of the window in pixels.
-#         pix_per_char_height (int): Pixel height for each character line.
-#         save_space (bool): Optional argument to save space.
-#         review_type (str): Type of review being performed.
-#
-#     Returns:
-#         List[List[Any]]: Side panel layout for PySimpleGUI.
-#
-#     Pseudocode:
-#         1. Calculate the line count for the comment box.
-#         2. Create the layout for the side panel.
-#         3. Return the side panel layout.
-#     """
-#     # Calculate the number of lines for the comment box
-#
-#     comment_line_count = (0.35 * window_height) // pix_per_char_height
-#     comments_width = comment_width_chars
-#     # int(0.2*comment_width_chars) if save_space \
-#     # else int(0.70 * comment_width_chars)
-#     revision_width = int(0.6 * comments_width)
-#     qa_form_components = get_qa_form_input_components(comments_width)
-#     if review_type == 'Dosimetry':
-#         side_panel = [
-#             # User comments
-#             [Sg.Text('Comments to physics', text_color='yellow', font=('Helvetica', 12, 'bold'))],
-#             [Sg.Multiline(default_text='', size=(comments_width, comment_line_count),
-#                           autoscroll=True, auto_size_text=True, key=KEY_USER_COMMENT,
-#                           )],
-#             # Create a row for "Proceed (QI Issue)" radio button
-#             [Sg.Checkbox("QI Suggestion", default=False,
-#                          key=f"{KEY_DOSE_QI}", enable_events=True)],
-#             [Sg.Text("Brief Synopsis of \n QI Issue:", enable_events=True, visible=False, key="-QI_TEXT-",
-#                      ),
-#              Sg.Multiline(default_text='', size=(revision_width, 2), autoscroll=True,
-#                           auto_size_text=True, enable_events=True, key=f"{KEY_DOSE_QI_INFO}", visible=False,
-#                           ),
-#              ],
-#             # Create a row for "Revise" radio button
-#             [Sg.Checkbox("Revise", default=False,
-#                          key=f"{KEY_DOSE_REVISION}", enable_events=True),
-#              Sg.Combo([1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-#                       key=KEY_REVISION_NUMBER, enable_events=True, visible=False, )],
-#             [Sg.Text("Synopsis of reason \n for Revision(s):", enable_events=True, justification='left',
-#                      visible=False, key="-REVISION_TEXT-",
-#                      ## QT expand_x=False, expand_y=False
-#                      ),
-#              Sg.Multiline(default_text='', size=(revision_width, 2), autoscroll=True,
-#                           auto_size_text=True, enable_events=True, key=f"{KEY_DOSE_REVISION_INFO}", visible=False,
-#                           ## QT expand_x=True, expand_y=True
-#                           )]]
-#         side_panel_events = [f"{KEY_DOSE_QI}", f"{KEY_DOSE_REVISION}", KEY_REVISION_NUMBER,
-#                              f"{KEY_DOSE_REVISION_INFO}"]
-#         return side_panel, side_panel_events
-#
-#     # Create layout for radio buttons
-#     side_panel = [
-#         # User comments
-#         [Sg.Text('Comments', text_color='blue', font=('Helvetica', 12, 'bold'))],
-#         [Sg.Multiline(default_text='', size=(comments_width, comment_line_count),
-#                       autoscroll=True, auto_size_text=True, key=KEY_USER_COMMENT,  ## QT expand_x=True, expand_y=True,
-#                       )],
-#         # Create a row for "Proceed" radio button
-#         [Sg.Radio(
-#             "Proceed", group_id="RADIO_SIDE_PANEL",
-#             default=False, key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed", enable_events=True),
-#         ],
-#         # Create a row for "Proceed (QI Issue)" radio button
-#         [Sg.Radio("Proceed (QI Issue)", group_id="RADIO_SIDE_PANEL", default=False,
-#                   key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}QIProceed", enable_events=True)],
-#         [Sg.Text("Brief Synopsis of \n QI Issue:", enable_events=True, visible=False, key="-QI_TEXT-",
-#                  ## QT expand_x=False, expand_y=False
-#                  ),
-#          Sg.Multiline(default_text='', size=(revision_width, 2), autoscroll=True,
-#                       auto_size_text=True, enable_events=True, key=KEY_QI_INFO, visible=False,
-#                       ## QT expand_x=True, expand_y=True
-#                       )
-#          ],
-#         # Create a row for "Revise" radio button
-#         [Sg.Radio("Revise", group_id="RADIO_SIDE_PANEL", default=False,
-#                   key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise", enable_events=True)],
-#         [Sg.Text("Synopsis of reason \n for Revision:", enable_events=True, justification='left',
-#                  visible=False, key="-REVISION_TEXT-",
-#                  ## QT expand_x=False, expand_y=False
-#                  ),
-#          Sg.Multiline(default_text='', size=(revision_width, 2), autoscroll=True,
-#                       auto_size_text=True, enable_events=True, key=KEY_REVISION_INFO, visible=False,
-#                       ## QT expand_x=True, expand_y=True
-#                       )],
-#     ]
-#     # Add the QA form components
-#     # Add the QA form components to an invisible frame
-#     qa_frame = [
-#         Sg.Frame('QA Form (not yet forwarded to wiki-form)', qa_form_components, key='-QA-FRAME-', visible=False)
-#     ]
-#
-#     # Append the QA frame to the side_panel
-#     side_panel.append(qa_frame)
-#
-#     # Append the final Image component
-#     side_panel.append([Sg.Image(filename=ICON_CHECKER, key='-CHECKER-IMAGE-', pad=((0, 0), (0, 0)),
-#                                 size=(300, 300), enable_events=True,
-#                                 tooltip="Launch QA Form")])
-#     side_panel_events = [f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed", f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise",
-#                          f"{KEY_PROCEED_REVISE}{KEY_RADIO}QIProceed", KEY_REVISION_INFO, KEY_QI_INFO]
-#     return side_panel, side_panel_events
-
-
 def load_side_panel(window: Sg.Window, values: Dict[str, Any], review_type) -> None:
     """
     Update the side panel in the main window with saved values.
@@ -318,59 +187,6 @@ def load_side_panel(window: Sg.Window, values: Dict[str, Any], review_type) -> N
         else:
             logging.warning(f"During side-panel load key {field_key} not found in window")
 
-
-# def old_extract_values_side_panel(window: Sg.Window) -> Dict[str, Dict[str, Any]]:
-#     """Extracts the current values from the side panel in a PySimpleGUI window.
-#
-#     Args:
-#         window (Sg.Window): The PySimpleGUI window object containing the side panel.
-#
-#     Returns:
-#         Dict[str, Dict[str, Any]]: A dictionary containing a single key-value pair,
-#         where the key is 'side_window' and the value is another dictionary
-#         containing the current values from the side panel.
-#
-#     Pseudocode:
-#         1. Initialize an empty dictionary for storing side panel values.
-#         2. Loop through keys of interest, populating the dictionary with current or default values.
-#         3. Handle radio buttons and their associated text fields.
-#         4. Return the dictionary.
-#     """
-#
-#     # Initialize an empty dictionary for side panel values
-#     side_panel = {}
-#
-#     # Default values for keys of interest
-#     keys_with_defaults = {
-#         KEY_USER_COMMENT: '',  # Main window comments
-#         KEY_REVISION_INFO: '',  # Revision comments
-#         KEY_QI_INFO: ''  # Quality Improvement comments
-#     }
-#
-#     # Extract current or default value for each key
-#     for key, default_value in keys_with_defaults.items():
-#         side_panel[key] = window[key].get() or default_value
-#
-#     # Handle radio button states
-#     radio_options = {"Proceed": None, "Revise": KEY_REVISION_INFO, "QIProceed": KEY_QI_INFO}
-#     for option, text_key in radio_options.items():
-#         if window[f"{KEY_PROCEED_REVISE}{KEY_RADIO}{option}"].get():
-#             side_panel[KEY_PROCEED_REVISE] = option
-#
-#             # Clear unrelated text fields
-#             for other_option, other_text_key in radio_options.items():
-#                 if other_text_key and other_option != option:
-#                     side_panel[other_text_key] = ""
-#
-#             # Update the text field for the selected radio button, if applicable
-#             if text_key:
-#                 side_panel[text_key] = window[text_key].get()
-#             break
-#     else:
-#         side_panel[KEY_PROCEED_REVISE] = ""
-#
-#     return {KEY_SIDE_PANEL: side_panel}
-#
 
 def extract_values_side_panel(window: Sg.Window, review_type: str) -> Dict[str, Dict[str, Any]]:
     """Extracts the current values from the side panel in a PySimpleGUI window based on review type.
@@ -425,50 +241,6 @@ def extract_values_side_panel(window: Sg.Window, review_type: str) -> Dict[str, 
                 side_panel[KEY_PROCEED_REVISE] = ""
 
     return {KEY_SIDE_PANEL: side_panel}
-
-
-# def old_on_side_panel_radio_button_click(window: Sg.Window, event: str, review_type: str) -> None:
-#     """Handles radio button clicks in the side panel of a PySimpleGUI window.
-#
-#     Args:
-#         window (Sg.Window): The PySimpleGUI window object containing the radio buttons.
-#         event (str): The event string for the clicked radio button.
-#         review_type (str): The type of review being performed.
-#
-#     Returns:
-#         None
-#     """
-#     # Mapping of radio button choices to their visibility settings
-#     import logging
-#     logging.debug(f"Review type: {review_type}, and event: {event}")
-#     if review_type == 'Physics':
-#         visibility_map = {
-#             'Proceed': (f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed", False, False),
-#             'Revise': (f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise", True, False),
-#             'QIProceed': (f"{KEY_PROCEED_REVISE}{KEY_RADIO}QIProceed", False, True)
-#         }
-#         # Find the radio button choice that was clicked
-#         choice = next((key for key, items in visibility_map.items() if event == items[0]), "")
-#
-#         if choice:
-#             radio_key, revision_visibility, qi_visibility = visibility_map[choice]
-#             # Update UI components based on the radio button choice
-#             window[radio_key].update(value=True)
-#             window["-REVISION_TEXT-"].update(visible=revision_visibility)
-#             window[KEY_REVISION_INFO].update(visible=revision_visibility)
-#             window["-QI_TEXT-"].update(visible=qi_visibility)
-#             window[KEY_QI_INFO].update(visible=qi_visibility)
-#             window.refresh()
-#     elif review_type == 'Dosimetry':
-#         if event == KEY_DOSE_REVISION:
-#             window[f"{KEY_REVISION_NUMBER}"].update(visible=True)
-#             window[f"{KEY_DOSE_REVISION_INFO}"].update(visible=True)
-#             window[f"-REVISION_TEXT-"].update(visible=True)
-#
-#         elif event == KEY_DOSE_QI:
-#             window[f"{KEY_DOSE_QI}"].update(visible=False)
-#             window[f"{KEY_DOSE_QI_INFO}"].update(visible=False)
-#         window.refresh()
 
 
 def on_side_panel_radio_button_click(window: Sg.Window, event: str, review_type: str) -> None:
@@ -570,6 +342,19 @@ def check_radio_on(values: Dict[str, Union[bool, str]], keys: List[str]) -> bool
     return any(values[k] for k in keys)
 
 
+def side_panel_proceed_qi_true(values):
+    """ Test to determine if the side panel has QI or Revise selected,
+    check both physics and dosimetry configurations."""
+    return any(values.get(key) for key in [
+        f"{KEY_DOSE_QI}", f"{KEY_DOSE_REVISION}",
+        f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)"])
+
+
+def side_panel_revision_true(values):
+    """ Test to determine if the side panel has Revise selected """
+    return values.get(f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise", False)
+
+
 def is_valid_side_panel(window: Sg.Window, values: Dict[str, Union[bool, str]]) -> bool:
     """Validates the state of a side panel in a PySimpleGUI window.
 
@@ -604,32 +389,122 @@ def is_valid_side_panel(window: Sg.Window, values: Dict[str, Union[bool, str]]) 
     return is_valid
 
 
-def generate_and_distribute_revision_report(rso, window):
-    # Submit a report of the review to dosimetry and physics chiefs
-    if KEY_USER_COMMENT in window.key_dict:
-        user_comments = window[KEY_USER_COMMENT].get()
-    else:
-        user_comments = None
-    if KEY_DOSE_QI_INFO in window.key_dict:
-        dose_qi_text = window[KEY_DOSE_QI_INFO].get()
-    else:
-        dose_qi_text = None
-    if KEY_QI_INFO in window.key_dict:
-        qi_text = window[KEY_QI_INFO].get()
-    else:
-        qi_text = None
-    if KEY_REVISION_INFO in window.key_dict:
-        revision_text = window[KEY_REVISION_INFO].get()
-    else:
-        revision_text = None
+def update_qi_revision_tracking(rso, values):
+    """
+    Generate and distribute a revision report based on the values entered in the
+    side panel of the PySimpleGUI window.
+    Args:
+        rso: (NamedTuple): The RSO object containing the patient and beamset information.
+        values: (dict) pySimpleGUI window values
 
-    # Now build a report
-    description = f"User Comments: <br>{user_comments}<br><br>" +\
-                    f"QI Comments: <br>{qi_text}<br><br>" +\
-                    f"Dose QI Comments: <br>{dose_qi_text}<br><br>" +\
-                    f"Revision Comments: <br>{revision_text}"
-    file_path = save_report(report_type='qi_revision',
-                            patient_id=rso.patient_id,
-                            beamset_name=rso.beamset_name,
-                            report_text=description)
-    email_report_qi_revision(file_path)
+    Returns: None
+    """
+    is_physics_revision = values.get(f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise", False)
+    is_dose_revision = values.get(f"{KEY_DOSE_REVISION}", False)
+    is_dose_qi = values.get(f"{KEY_DOSE_QI}", False)
+    is_physics_qi = values.get(f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)", False)
+
+    user_name = get_user_name()
+    # Extract values from the window
+    user_comments = values.get(KEY_USER_COMMENT, None)
+    dose_comments = values.get(KEY_OUT_DOSE_COMMENT, None)
+    revision_comments = values.get(KEY_REVISION_INFO, None)
+    dose_revision_comments = values.get(KEY_DOSE_REVISION_INFO, None)
+    revision_number = values.get(KEY_REVISION_NUMBER, None)
+    dose_qi_text = values.get(KEY_DOSE_QI_INFO, None)
+    qi_text = values.get(KEY_QI_INFO, None)
+
+    # Append the report to the CSV file
+    append_to_csv(
+        patient_id=rso.patient.PatientID,
+        beamset_name=rso.beamset.DicomPlanLabel,
+        user_name=user_name,
+        user_comments=user_comments,
+        dose_comments=dose_comments,
+        is_physics_revision=is_physics_revision,
+        is_dose_revision=is_dose_revision,
+        is_dose_qi=is_dose_qi,
+        is_physics_qi=is_physics_qi,
+        dose_qi_comments=dose_qi_text,
+        qi_comments=qi_text,
+        revision_comments=revision_comments,
+        revision_number=revision_number,
+        dose_revision_comments=dose_revision_comments,
+    )
+
+
+def generate_and_distribute_qi_issue_report(rso, values):
+    """
+    Generate and distribute a QI issue report based on the values entered in the
+    side panel of the PySimpleGUI window, and append the report to a CSV file.
+
+    Args:
+        rso: (NamedTuple): The RSO object containing the patient and beamset information.
+        values: (dict): PySimpleGUI window values.
+
+    Returns:
+        None
+    """
+    user_name = get_user_name()
+
+    # Extract values from the window
+    user_comments = values.get(KEY_USER_COMMENT, None)
+    dose_comments = values.get(KEY_OUT_DOSE_COMMENT, None)
+    dose_qi_text = values.get(KEY_DOSE_QI_INFO, None)
+    qi_text = values.get(KEY_QI_INFO, None)
+
+    # Build the report description
+    description = (
+        f"User Comments:\n\t{user_comments}\n\n"
+        f"Dosimetry Comments:\n\t{dose_comments}\n\n"
+        f"QI Comments:\n\t{qi_text}\n\n"
+        f"Dosimetry QI Comments:\n\t{dose_qi_text}\n\n"
+    )
+
+    # Save and email the report
+    file_path = save_report(
+        report_type='qi_report',
+        patient_id=rso.patient.PatientID,
+        beamset_name=rso.beamset.DicomPlanLabel,
+        user_name=user_name,
+        report_text=description
+    )
+    email_report_qi_issue(file_path)
+    # Update the CSV file
+    update_qi_revision_tracking(rso, values)
+
+
+def generate_and_distribute_revision_report(rso, values):
+    """
+    Generate and distribute a revision report based on the values entered in the
+    side panel of the PySimpleGUI window.
+    Args:
+        rso: (NamedTuple): The RSO object containing the patient and beamset information.
+        values: (dict) pySimpleGUI window values
+
+    Returns: None
+    """
+    user_name = get_user_name()
+    # Extract values from the window
+    user_comments = values.get(KEY_USER_COMMENT, None)
+    dose_comments = values.get(KEY_OUT_DOSE_COMMENT, None)
+    revision_comments = values.get(KEY_REVISION_INFO, None)
+
+    # Build the report description
+    description = (
+        f"User Comments:\n\t{user_comments}\n\n"
+        f"Dosimetry Comments:\n\t{dose_comments}\n\n"
+        f"Revision Comments:\n\t{revision_comments}"
+    )
+
+    # Save and email the report
+    file_path = save_report(
+        report_type='revision_report',
+        patient_id=rso.patient.PatientID,
+        beamset_name=rso.beamset.DicomPlanLabel,
+        user_name=user_name,
+        report_text=description
+    )
+    email_report_revision(file_path)
+    # Update the CSV file
+    update_qi_revision_tracking(rso, values)
