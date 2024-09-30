@@ -57,10 +57,11 @@ def check_beamset_approved(rso: NamedTuple, **kwargs: Optional[bool]) -> Tuple[s
             pass_result = FAIL
 
     else:
-        message_str = "Beamset: {} is not approved".format(
+        message_str = "Beamset: {} is not approved.".format(
             rso.plan.Name)
         if do_physics_review:
             pass_result = FAIL
         else:
-            pass_result = ALERT
+            pass_result = PASS
+            message_str += " (Dosimetry Safety Review)"
     return pass_result, message_str
