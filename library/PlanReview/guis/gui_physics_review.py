@@ -1,102 +1,25 @@
 # Import necessary modules and functions
 import logging
 import PySimpleGUI as Sg
-from PlanReview.review_definitions import (PROTOCOL_DIR, OUTPUT_DIR)
+from PlanReview.review_definitions import PROTOCOL_DIR
 from PlanReview.utils import (get_user_name, get_roi_names_from_type,
-                              get_user_display_parameters, perform_automated_checks)
-from PlanReview.utils.protocol_loading import load_protocols, \
-    get_sites, get_all_orders, get_unique_instructions
+                              get_user_display_parameters)
+from PlanReview.utils.protocol_loading import (
+    load_protocols, get_sites, get_all_orders, get_unique_instructions)
 from PlanReview.utils.constants import *
 from PlanReview.guis.create_side_panel import (
-    create_side_panel, on_side_panel_radio_button_click, is_valid_side_panel)
-from PlanReview.guis.gui_qa_form import (on_checker_image_click)
+    create_side_panel, on_side_panel_radio_button_click)
+from PlanReview.guis.gui_qa_form import on_checker_image_click
 from PlanReview.guis.create_preplan_tab import (
     calculate_preplan_dose_per_fraction,
     update_preplan_frequencies, update_preplan_instructions,
     update_preplan_protocols, update_preplan_orders,
     create_tab_preplan_information, update_preplan_beamset_rows,
-    update_preplan_target_rows, update_preplan_gui_state, update_billing_combo, create_tuple_key,
-    update_site_input, secondary_update_site_technique)
-from PlanReview.guis.create_physics_manual_tab import (on_manual_radio_button_click,
-                                                       is_valid_manual_tab)
-from PlanReview.guis.gui_top_buttons import (build_top_buttons, handle_top_event)
+    update_preplan_target_rows, update_preplan_gui_state)
+from PlanReview.guis.create_physics_manual_tab import on_manual_radio_button_click
+from PlanReview.guis.gui_top_buttons import build_top_buttons, handle_top_event
 from PlanReview.guis.gui_bottom_buttons import build_bottom_buttons, bottom_event
 from PlanReview.guis.gui_ditto_wrapper import on_ditto_element_click
-from PlanReview.guis.load_review import load_review
-
-
-# def load_review(gui_state_manager, sites, protocols, instructions,
-#                 file_name=None):
-#     if not file_name:
-#         file_name = f"{gui_state_manager.rso.patient.PatientID}_" \
-#                     f"{gui_state_manager.rso.beamset.DicomPlanLabel}_review.json"
-#     try:
-#         with open(os.path.join(OUTPUT_DIR, gui_state_manager.rso.patient.PatientID, file_name), "r") as f:
-#             values = json.load(f)
-#     except FileNotFoundError:
-#         Sg.popup("No saved review found!")
-#         return
-#
-#     values = str_key_to_tuple(values)
-#     # Add missing keys to the window.key_dict
-#     update_window_key_dict(gui_state_manager.window, values.keys())
-#     # Load preplan frame contents
-#     load_preplan(gui_state_manager.window, values, sites, protocols, instructions,
-#                  gui_state_manager.maximum_beamset_count, gui_state_manager.maximum_target_number)
-#     # Load the manual (check box) tab contents
-#     load_manual(gui_state_manager.window, values, gui_state_manager.check_box_copy)
-#     # Load the main window data.
-#     load_side_panel(gui_state_manager.window, values)
-#     # Load the QA form
-#     if gui_state_manager.qa_form_accessible:
-#         load_qa_form(gui_state_manager.window, values)
-#     # return num_beamsets
-
-
-# def get_review_gui_values(gui_state_manager, values):
-#     """
-#     Extracts the values entered into the PySimpleGUI dialog and sorts them by keys.
-#     This is used for saving the review to file and for the report
-#
-#     Parameters:
-#     - window: PySimpleGUI Window object representing the GUI
-#     - passing_tests: list of passing tests from the review_definitions module
-#     - failed_tests: list of failed tests from the review_definitions module
-#     - check_boxes: dictionary of completed check boxes the user has filled in
-#
-#     Returns:
-#     - sorted_values: dictionary of values sorted by keys
-#     """
-#
-#     # Get any data from the first tab
-#     preplan_values = extract_values_preplan_tab(gui_state_manager.window)
-#
-#     # Get values from the side tab
-#     side_frame_values = extract_values_side_panel(gui_state_manager.window)
-#
-#     # Get the data from the first tab
-#     manual_values = extract_values_manual_tab(values, gui_state_manager.passing_tests,
-#                                               gui_state_manager.failed_tests, gui_state_manager.check_box_copy)
-#
-#     # Merge them into a single dictionary
-#     sorted_values = merge_dicts(side_frame_values, preplan_values)
-#     sorted_values = merge_dicts(sorted_values, manual_values)
-#     # Get values from the qa form
-#     if gui_state_manager.qa_form_accessible:
-#         qa_form_values = extract_values_qa_form(gui_state_manager.window)
-#         sorted_values = merge_dicts(sorted_values, qa_form_values)
-#
-#     return sorted_values
-
-
-# Event handler for "Done" button
-# def on_done_button_click(gui_state_manager, values):
-#     # Check if all the required fields are filled in
-#     manual_valid = is_valid_manual_tab(gui_state_manager.window, values, gui_state_manager.check_box_copy,
-#                                        gui_state_manager.failed_tests)
-#     side_valid = is_valid_side_panel(gui_state_manager.window, values)
-#     is_valid = all([manual_valid, side_valid])
-#     return is_valid
 
 
 def initialize_gui_dict(review_type='Physics'):
@@ -194,7 +117,6 @@ def launch_physics_review_gui(rso, relaunch=False, review_type='Physics'):
 
     Returns: None
     """
-    import connect
     # Context initialization
     if review_type == 'Dosimetry':
         Sg.theme('Purple')
@@ -204,9 +126,6 @@ def launch_physics_review_gui(rso, relaunch=False, review_type='Physics'):
         dialog_title = 'Physics Review'
     gui_state_manager = GuiState(rso, relaunch=relaunch, tests_started=False, review_type=review_type)
     # Variable initialization
-    # header_data = {}
-    # qa_form_data = {}
-    # tree_children = None
     match_trees = None
     # GUI setup
     gui_state_manager.gui_dict = initialize_gui_dict(review_type=review_type)
@@ -274,27 +193,24 @@ def launch_physics_review_gui(rso, relaunch=False, review_type='Physics'):
         resizable=True,
         size=(gui_state_manager.gui_dict['window_width'], gui_state_manager.gui_dict['window_height']), )
 
-    while True:  # Event Loop
+    # Event Loop
+    while True:
         event, values = gui_state_manager.window.read()
         if event in (Sg.WIN_CLOSED, '-CANCEL-'):
             return {}
-        #
-        # Top Panel Events
+        # Top Panel Events Section
         elif event in top_events:
             status = handle_top_event(gui_state_manager, event, values)
             if status == 'break':
                 break
             elif status == 'continue':
                 continue
-        #
-        # Bottom Panel Events
+        # Bottom Panel Events Section
         elif event in bottom_events:
             bottom_event(gui_state_manager, event, values)
-        #
-        # Plan Revision Events
+        # Plan Revision Events Section
         elif event in side_panel_events:
             on_side_panel_radio_button_click(gui_state_manager.window, event, gui_state_manager.review_type)
-        #
         # First tab Events
         elif event == KEY_SITE_SELECT:
             site_name = values[KEY_SITE_SELECT]
@@ -340,9 +256,9 @@ def launch_physics_review_gui(rso, relaunch=False, review_type='Physics'):
         # Trigger an update to the gui_state_manager when the user selects a beamset
         elif KEY_BEAMSET_SELECT in event:
             update_preplan_gui_state(gui_state_manager, values)
-
         # Update to Ditto
         # Check if the event starts with '-APTR_TREE_' and if there are beamsets to process
+        # TODO: not currently working
         elif '-APTR_TREE_' in event:
             logging.debug(f'Event is {event} and beamset names are {gui_state_manager.beamset_names}')
             logging.debug(f'Match trees are {gui_state_manager.match_trees}')
