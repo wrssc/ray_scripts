@@ -1,7 +1,7 @@
 import PySimpleGUI as Sg
 from PlanReview.review_definitions import (
     ICON_SCALE_ISODOSE, ICON_SMALL_SCALE_ISODOSE, ICON_SMALL_MATERIAL, ICON_MATERIAL,
-    ICON_SMALL_WINDOW_LEVEL, ICON_WINDOW_LEVEL)
+    ICON_SMALL_WINDOW_LEVEL, ICON_WINDOW_LEVEL, ICON_PAUSE, ICON_SMALL_PAUSE)
 from .isodose_visualization import change_visualization_isodose
 import connect
 
@@ -21,7 +21,7 @@ window_level_dict = {
 }
 
 
-def build_bottom_buttons(save_space):
+def build_bottom_buttons(save_space, review_type='Physics'):
     # Top dimensions
     bottom_image_size = (90, 25) if save_space else (110, 30)
     bottom_subsample = 1 if save_space else 1
@@ -32,12 +32,14 @@ def build_bottom_buttons(save_space):
         "-SCALE-": (ICON_SMALL_SCALE_ISODOSE, "Scale isodose levels and fill targets"),
         "-MATERIAL-": (ICON_SMALL_MATERIAL, "Toggle between image set and material view"),
         "-WL-": (ICON_SMALL_WINDOW_LEVEL, "Window level images"),
+        "-PAUSE-": (ICON_SMALL_PAUSE, "Pause the script to interact in RayStation"),
     }
 
     large_icons = {
         "-SCALE-": (ICON_SCALE_ISODOSE, "Scale isodose levels and fill targets"),
         "-MATERIAL-": (ICON_MATERIAL, "Toggle between image set and material view"),
         "-WL-": (ICON_WINDOW_LEVEL, "Window level images"),
+        "-PAUSE-": (ICON_PAUSE, "Pause the script to interact with RayStation")
     }
 
     icons = small_icons if save_space else large_icons
@@ -90,6 +92,8 @@ def bottom_event(gui_state_manager, event, values):
         on_window_level_click(gui_state_manager.window)
     elif event == '-COMBO_WL-':
         on_window_level_combo(gui_state_manager.rso, values['-COMBO_WL-'])
+    elif event == '-PAUSE-':
+        connect.await_user_input('Review Paused. Resume Script Execution to Continue')
 
 
 def on_isodose_scale_click(rso):

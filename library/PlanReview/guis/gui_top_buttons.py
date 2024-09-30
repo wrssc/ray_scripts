@@ -1,10 +1,10 @@
 import PySimpleGUI as Sg
 import connect
 from PlanReview.review_definitions import (
-    ICON_SAVE, ICON_LOAD, ICON_START, ICON_PRINT, ICON_PAUSE, ICON_CANCEL, ICON_ERROR,
+    ICON_SAVE, ICON_LOAD, ICON_START, ICON_PRINT, ICON_PAUSE, ICON_CANCEL, ICON_ERROR, ICON_SUBMIT,
     ICON_SMALL_SAVE, ICON_SMALL_LOAD, ICON_SMALL_START, ICON_SMALL_PRINT,
     ICON_SMALL_PAUSE, ICON_SMALL_CANCEL, ICON_SMALL_ERROR, ICON_SMALL_FINAL,
-    ICON_FINAL)
+    ICON_FINAL, ICON_SMALL_SUBMIT)
 from PlanReview.utils.io_file_utils import save_review
 from PlanReview.guis.progress_bar_tests import display_progress_bar
 from PlanReview.guis.parse_gui_values import get_review_gui_values
@@ -18,9 +18,10 @@ from PlanReview.guis.create_physics_manual_tab import (
     is_valid_manual_tab, get_tests_from_tree)
 from PlanReview.guis.gui_report_script_error import report_script_error
 from PlanReview.guis.parse_gui_values import get_header_checklist_qa_values
-from PlanReview.guis.create_side_panel import (is_valid_side_panel, side_panel_proceedqi_or_revise,
-                                               generate_and_distribute_revision_report)
-from PlanReview.guis.load_review import load_review
+from PlanReview.guis.create_side_panel import (
+    is_valid_side_panel, side_panel_proceed_qi_true, side_panel_revision_true,
+    generate_and_distribute_qi_issue_report, generate_and_distribute_revision_report)
+from PlanReview.guis.review_loader import load_review
 from library.api.api_user_functions import final_dose
 
 
@@ -37,7 +38,6 @@ def build_top_buttons(save_space, review_type='Physics'):
             "-LOAD-": (ICON_SMALL_LOAD, "Load a previously saved view"),
             "-START-": (ICON_SMALL_START, "Start the automated tests"),
             "-REPORT-": (ICON_SMALL_PRINT, "Save the current view and create a report"),
-            "-PAUSE-": (ICON_SMALL_PAUSE, "Pause the script to interact in RayStation"),
             "-CANCEL-": (ICON_SMALL_CANCEL, "Cancel the script execution"),
             "-ERROR-": (ICON_SMALL_ERROR, "Generate an error report"),
         }
@@ -47,7 +47,6 @@ def build_top_buttons(save_space, review_type='Physics'):
             "-LOAD-": (ICON_LOAD, "Load a previously saved view"),
             "-START-": (ICON_START, "Start the automated tests"),
             "-REPORT-": (ICON_PRINT, "Save the current view and create a report"),
-            "-PAUSE-": (ICON_PAUSE, "Pause the script to interact in RayStation"),
             "-CANCEL-": (ICON_CANCEL, "Cancel the script execution"),
             "-ERROR-": (ICON_ERROR, "Generate an error report"),
         }
@@ -57,7 +56,7 @@ def build_top_buttons(save_space, review_type='Physics'):
             "-START-": (ICON_SMALL_START, "Start the automated tests"),
             "-SAVE-": (ICON_SMALL_SAVE, "Save the current view"),
             "-LOAD-": (ICON_SMALL_LOAD, "Load a previously saved view"),
-            "-PAUSE-": (ICON_SMALL_PAUSE, "Pause the script to interact in RayStation"),
+            "-SUBMIT-": (ICON_SMALL_SUBMIT, "Submit the review"),
             "-CANCEL-": (ICON_SMALL_CANCEL, "Cancel the script execution"),
             "-ERROR-": (ICON_SMALL_ERROR, "Generate an error report"),
         }
@@ -67,7 +66,7 @@ def build_top_buttons(save_space, review_type='Physics'):
             "-START-": (ICON_START, "Start the automated tests"),
             "-SAVE-": (ICON_SAVE, "Save the current view"),
             "-LOAD-": (ICON_LOAD, "Load a previously saved view"),
-            "-PAUSE-": (ICON_PAUSE, "Pause the script to interact in RayStation"),
+            "-SUBMIT-": (ICON_SUBMIT, "Submit the review"),
             "-CANCEL-": (ICON_CANCEL, "Cancel the script execution"),
             "-ERROR-": (ICON_ERROR, "Generate an error report"),
         }
@@ -91,12 +90,9 @@ def build_top_buttons(save_space, review_type='Physics'):
     return top, top_events
 
 
-
 def handle_top_event(gui_state_manager, event, values):
     status = 'continue'
-    if event == '-PAUSE-':
-        connect.await_user_input('Review Paused. Resume Script Execution to Continue')
-    elif event == '-ERROR-':
+    if event == '-ERROR-':
         report_script_error(gui_state_manager.rso)
     elif event == '-LOAD-':
         load_review(gui_state_manager)
@@ -156,6 +152,15 @@ def handle_top_event(gui_state_manager, event, values):
         # START the automated tests
         gui_state_manager.window.write_event_value('-START-', 'Triggered Programatically')
     elif event == '-REPORT-':
+        # TODO: Delete this testing code
+        import sys
+        if side_panel_proceed_qi_true(values):
+            # Generate and email the report
+            generate_and_distribute_qi_issue_report(gui_state_manager.rso, values)
+            sys.exit("Should be getting a nice qi report now")
+        if side_panel_revision_true(values):
+            generate_and_distribute_revision_report(gui_state_manager.rso, values)
+            sys.exit("Should be getting a nice revision report now")
         # Retrieve the passing and failing tests
         if not gui_state_manager.tree_children:
             Sg.popup('No tests have been run yet!')
@@ -170,10 +175,36 @@ def handle_top_event(gui_state_manager, event, values):
                 get_review_gui_values(gui_state_manager, values),
                 suffix=gui_state_manager.suffix, quiet=True)
             get_header_checklist_qa_values(gui_state_manager, values)
-            if side_panel_proceedqi_or_revise(values):
+            if side_panel_proceed_qi_true(values):
                 # Generate and email the report
-                generate_and_distribute_revision_report(gui_state_manager.rso, gui_state_manager.window)
+                generate_and_distribute_qi_issue_report(gui_state_manager.rso, values)
             return 'break'
+    elif event == '-SUBMIT-':
+        # TODO: Delete this testing code
+        import sys
+        if side_panel_proceed_qi_true(values):
+            # Generate and email the report
+            generate_and_distribute_qi_issue_report(gui_state_manager.rso, values)
+            sys.exit("Should be getting a nice dose qi report now")
+        if side_panel_revision_true(values):
+            generate_and_distribute_revision_report(gui_state_manager.rso, values)
+            sys.exit("Should be getting a nice dose revision report now")
+        # Retrieve the passing and failing tests
+        if not gui_state_manager.tree_children:
+            Sg.popup('No tests have been run yet!')
+        gui_state_manager.passing_tests, gui_state_manager.failed_tests = get_tests_from_tree(
+            gui_state_manager.tree_children)
+        is_valid = on_done_button_click(gui_state_manager, values)
+        # Perform the form submission logic
+        if is_valid:
+            # Save the review
+            save_review(
+                gui_state_manager.rso,
+                get_review_gui_values(gui_state_manager, values),
+                suffix=gui_state_manager.suffix, quiet=True)
+            # get_header_checklist_qa_values(gui_state_manager, values)
+            return 'break'
+
     return status
 
 
