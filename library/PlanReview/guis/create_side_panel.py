@@ -1,4 +1,4 @@
-from typing import List, Dict, Union, Any, Optional
+from typing import List, Dict, Union, Any, Optional, Tuple
 import PySimpleGUI as Sg
 import logging
 from PlanReview.review_definitions import ICON_CHECKER
@@ -179,7 +179,7 @@ dosimetry_config = SidePanelConfig(elements=[
 ])
 
 
-def create_side_panel(comment_width_chars: int, review_type: str = 'Physics') -> List[List[Any]]:
+def create_side_panel(comment_width_chars: int, review_type: str = 'Physics') -> Tuple[List[List[Any]], List]:
     """
     Create a side panel with comment boxes and radio buttons for user interface.
 
@@ -310,19 +310,23 @@ def load_side_panel(window: Sg.Window, values: Dict[str, Any], review_type) -> N
 
     # Extract data for the side panel from the main window's saved values
     side_panel_values = values.get(KEY_SIDE_PANEL, {})
+    # Find the reason proceed revise radio is not getting loaded. output windw key_dict neatly
 
     # Loop through each key-value pair to update the window
     for field_key, saved_value in side_panel_values.items():
-        if field_key in window.key_dict:
-            if field_key == KEY_PROCEED_REVISE:
-                # Use the radio key to trigger a click event
-                load_radio = f"{KEY_PROCEED_REVISE}{KEY_RADIO}{saved_value}"
-                on_side_panel_radio_button_click(window, load_radio, review_type)
-            elif field_key in [KEY_DOSE_REVISION, KEY_DOSE_QI]:
-                window[field_key].update(saved_value)
-                on_side_panel_radio_button_click(window, field_key, review_type)
-            else:
-                window[field_key].update(saved_value)
+        # Check if the field_key is a prefix of any key in window.key_dict.keys()
+        matching_keys = [key for key in window.key_dict if isinstance(key, str) and key.startswith(field_key)]
+        if matching_keys:
+            for _ in matching_keys:
+                if field_key == KEY_PROCEED_REVISE:
+                    # Use the radio key to trigger a click event
+                    load_radio = f"{KEY_PROCEED_REVISE}{KEY_RADIO}{saved_value}"
+                    on_side_panel_radio_button_click(window, load_radio, review_type)
+                elif field_key in [KEY_DOSE_REVISION, KEY_DOSE_QI]:
+                    window[field_key].update(saved_value)
+                    on_side_panel_radio_button_click(window, field_key, review_type)
+                else:
+                    window[field_key].update(saved_value)
         elif field_key == KEY_USER_COMMENT and KEY_OUT_DOSE_COMMENT in window.key_dict:
             # A special case for when a dosimetry review is loaded into a physics review window
             window[KEY_USER_COMMENT].update(saved_value)
