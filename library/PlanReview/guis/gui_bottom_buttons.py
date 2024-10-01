@@ -21,7 +21,7 @@ window_level_dict = {
 }
 
 
-def build_bottom_buttons(save_space, review_type='Physics'):
+def build_bottom_buttons(save_space):
     # Top dimensions
     bottom_image_size = (90, 25) if save_space else (110, 30)
     bottom_subsample = 1 if save_space else 1
@@ -29,17 +29,17 @@ def build_bottom_buttons(save_space, review_type='Physics'):
     bottom_pad = ((32, 28), (0, 0)) if save_space else ((48, 48), (0, 0))
     #
     small_icons = {
+        "-PAUSE-": (ICON_SMALL_PAUSE, "Pause the script to interact in RayStation"),
         "-SCALE-": (ICON_SMALL_SCALE_ISODOSE, "Scale isodose levels and fill targets"),
         "-MATERIAL-": (ICON_SMALL_MATERIAL, "Toggle between image set and material view"),
         "-WL-": (ICON_SMALL_WINDOW_LEVEL, "Window level images"),
-        "-PAUSE-": (ICON_SMALL_PAUSE, "Pause the script to interact in RayStation"),
     }
 
     large_icons = {
+        "-PAUSE-": (ICON_PAUSE, "Pause the script to interact with RayStation"),
         "-SCALE-": (ICON_SCALE_ISODOSE, "Scale isodose levels and fill targets"),
         "-MATERIAL-": (ICON_MATERIAL, "Toggle between image set and material view"),
         "-WL-": (ICON_WINDOW_LEVEL, "Window level images"),
-        "-PAUSE-": (ICON_PAUSE, "Pause the script to interact with RayStation")
     }
 
     icons = small_icons if save_space else large_icons
@@ -56,11 +56,7 @@ def build_bottom_buttons(save_space, review_type='Physics'):
                       for key in icons.keys()]
     wl_combo, wl_combo_key = build_window_level_combo()
     bottom_buttons.append(wl_combo)
-    bottom = Sg.Frame('',
-                      [bottom_buttons],
-                      ## QT vertical_alignment='center',
-                      ## size=(top_width, top_height),
-                      )
+    bottom = Sg.Frame('', [bottom_buttons],)
     bottom_events = [key for key in icons.keys()]
     bottom_events.append(wl_combo_key)
 
@@ -68,6 +64,12 @@ def build_bottom_buttons(save_space, review_type='Physics'):
 
 
 def build_window_level_combo():
+    """
+    Build the window level combo box
+    Returns:
+        combo: PySimpleGUI Combo object
+        combo_key: str
+    """
     combo_key = '-COMBO_WL-'
     combo = Sg.Combo([w for w in window_level_dict.keys()],
                      key=combo_key, visible=False, enable_events=True,
