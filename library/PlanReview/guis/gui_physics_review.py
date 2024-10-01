@@ -152,8 +152,6 @@ def launch_physics_review_gui(rso, relaunch=False, review_type='Physics'):
     # Side Panel
     side_panel, side_panel_events = create_side_panel(
         gui_state_manager.gui_dict['comment_width_chars'],
-        gui_state_manager.gui_dict['window_height'],
-        gui_state_manager.gui_dict['pix_per_char_height'],
         review_type=gui_state_manager.review_type)
     # Gather the layout
     layout = [
