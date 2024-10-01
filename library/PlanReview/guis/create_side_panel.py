@@ -1,4 +1,4 @@
-from typing import List, Dict, Union, Any
+from typing import List, Dict, Union, Any, Optional
 import PySimpleGUI as Sg
 import logging
 from PlanReview.review_definitions import ICON_CHECKER
@@ -10,131 +10,269 @@ from PlanReview.guis.gui_qa_form import get_qa_form_input_components
 from PlanReview.utils.email_results import (email_report_qi_issue, email_report_revision, save_report)
 from PlanReview.utils.io_file_utils import append_to_csv
 from PlanReview.utils import get_user_name
+from dataclasses import dataclass, field
 
 #
 # Configuration elements for the side panel
 # Configuration for Physics Review
 comment_width_chars = 40
-physics_config = {
-    "elements": [
-        {"sg_type": "text", "label": "Plan Comments", "key": "Plan Comments", "font": ('Helvetica', 14, 'bold'),
-         "text_color": 'blue'},
-        {"sg_type": "multiline", "key": KEY_USER_COMMENT, "size": (comment_width_chars, 30), "default_text": ''},
-        {"sg_type": "radio", "label": "Proceed", "group_id": "RADIO_SIDE_PANEL",
-         "key": f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed"},
-        {"sg_type": "radio", "label": "Proceed (QI Issue)", "group_id": "RADIO_SIDE_PANEL",
-         "key": f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)",
-         "extra": [{"sg_type": "text", "label": "Brief Synopsis of \n QI Issue:", "key": "-QI_TEXT-", "visible": False},
-                   {"sg_type": "multiline", "key": KEY_QI_INFO, "size": (comment_width_chars, 4),
-                    "default_text": '', "visible": False}]
-         },
-        {"sg_type": "radio", "label": "Revise", "group_id": "RADIO_SIDE_PANEL",
-         "key": f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise",
-         "extra": [{"sg_type": "text", "label": "Synopsis of reason \n for Revision:", "key": "-REVISION_TEXT-",
-                    "visible": False},
-                   {"sg_type": "multiline", "key": KEY_REVISION_INFO, "size": (comment_width_chars, 4),
-                    "default_text": '',
-                    "visible": False}]
-         }
-    ]
-}
+
+
+@dataclass
+class ElementConfig:
+    sg_type: str
+    label: Optional[str] = ''
+    key: Optional[str] = ''
+    font: Optional[tuple] = ('Helvetica', 12, 'bold')
+    text_color: Optional[str] = 'black'
+    size: Optional[tuple] = None
+    default_text: Optional[str] = ''
+    group_id: Optional[str] = ''
+    values: Optional[List[Any]] = field(default_factory=list)
+    visible: Optional[bool] = True
+    enable_events: Optional[bool] = False
+    extra: Optional[List['ElementConfig']] = field(default_factory=list)
+
+
+@dataclass
+class SidePanelConfig:
+    elements: List[ElementConfig]
+
+
+# Configuration for Physics Review
+physics_config = SidePanelConfig(elements=[
+    ElementConfig(
+        sg_type="text",
+        label="Plan Comments",
+        key="Plan Comments",
+        font=('Helvetica', 14, 'bold'),
+        text_color='blue'
+    ),
+    ElementConfig(
+        sg_type="multiline",
+        key=KEY_USER_COMMENT,
+        size=(comment_width_chars, 30),
+        default_text=''
+    ),
+    ElementConfig(
+        sg_type="radio",
+        label="Proceed",
+        group_id="RADIO_SIDE_PANEL",
+        key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed",
+        enable_events=True
+    ),
+    ElementConfig(
+        sg_type="radio",
+        label="Proceed (QI Issue)",
+        group_id="RADIO_SIDE_PANEL",
+        key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)",
+        enable_events=True,
+        extra=[
+            ElementConfig(
+                sg_type="text",
+                label="Brief Synopsis of \n QI Issue:",
+                key="-QI_TEXT-",
+                visible=False
+            ),
+            ElementConfig(
+                sg_type="multiline",
+                key=KEY_QI_INFO,
+                size=(comment_width_chars, 4),
+                default_text='',
+                visible=False
+            )
+        ]
+    ),
+    ElementConfig(
+        sg_type="radio",
+        label="Revise",
+        group_id="RADIO_SIDE_PANEL",
+        key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise",
+        enable_events=True,
+        extra=[
+            ElementConfig(
+                sg_type="text",
+                label="Synopsis of reason \n for Revision:",
+                key="-REVISION_TEXT-",
+                visible=False
+            ),
+            ElementConfig(
+                sg_type="multiline",
+                key=KEY_REVISION_INFO,
+                size=(comment_width_chars, 4),
+                default_text='',
+                visible=False
+            )
+        ]
+    )
+])
 
 # Configuration for Dosimetry Review
-dosimetry_config = {
-    "elements": [
-        {"sg_type": "text", "label": "Comments to physics", "key": "Dose Comments", "font": ('Helvetica', 12, 'bold'),
-         "text_color": 'yellow'},
-        {"sg_type": "multiline", "key": KEY_OUT_DOSE_COMMENT, "size": (comment_width_chars, 10), "default_text": ''},
-        {"sg_type": "checkbox", "label": "QI Suggestion", "key": f"{KEY_DOSE_QI}", "extra": [
-            {"sg_type": "text", "label": "Brief Synopsis of \n QI Issue:", "key": "-QI_TEXT-", "visible": False},
-            {"sg_type": "multiline", "key": f"{KEY_DOSE_QI_INFO}", "size": (comment_width_chars, 2), "default_text": '',
-             "visible": False}
-        ]},
-        {"sg_type": "checkbox", "label": "Revise", "key": f"{KEY_DOSE_REVISION}",
-         "extra": [{"sg_type": "text", "label": "# of plan revisions:", "key": "-REVISION_#_TEXT-", "visible": False},
-                   {"sg_type": "combo", "values": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "key": KEY_REVISION_NUMBER,
-                    "visible": False},
-                   {"sg_type": "text", "label": "Summary of Revision(s):", "key": "-REVISION_TEXT-",
-                    "visible": False},
-                   {"sg_type": "multiline", "key": f"{KEY_DOSE_REVISION_INFO}", "size": (comment_width_chars, 2),
-                    "default_text": '', "visible": False}
-                   ]}
-    ]
-}
+dosimetry_config = SidePanelConfig(elements=[
+    ElementConfig(
+        sg_type="text",
+        label="Comments to physics",
+        key="Dose Comments",
+        font=('Helvetica', 12, 'bold'),
+        text_color='yellow'
+    ),
+    ElementConfig(
+        sg_type="multiline",
+        key=KEY_OUT_DOSE_COMMENT,
+        size=(comment_width_chars, 10),
+        default_text=''
+    ),
+    ElementConfig(
+        sg_type="checkbox",
+        label="QI Suggestion",
+        key=f"{KEY_DOSE_QI}",
+        enable_events=True,
+        extra=[
+            ElementConfig(
+                sg_type="text",
+                label="Brief Synopsis of \n QI Issue:",
+                key="-QI_TEXT-",
+                visible=False
+            ),
+            ElementConfig(
+                sg_type="multiline",
+                key=f"{KEY_DOSE_QI_INFO}",
+                size=(comment_width_chars, 2),
+                default_text='',
+                visible=False
+            )
+        ]
+    ),
+    ElementConfig(
+        sg_type="checkbox",
+        label="Revise",
+        key=f"{KEY_DOSE_REVISION}",
+        enable_events=True,
+        extra=[
+            ElementConfig(
+                sg_type="text",
+                label="# of plan revisions:",
+                key="-REVISION_#_TEXT-",
+                visible=False
+            ),
+            ElementConfig(
+                sg_type="combo",
+                values=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                key=KEY_REVISION_NUMBER,
+                visible=False
+            ),
+            ElementConfig(
+                sg_type="text",
+                label="Summary of Revision(s):",
+                key="-REVISION_TEXT-",
+                visible=False
+            ),
+            ElementConfig(
+                sg_type="multiline",
+                key=f"{KEY_DOSE_REVISION_INFO}",
+                size=(comment_width_chars, 2),
+                default_text='',
+                visible=False
+            )
+        ]
+    )
+])
 
 
-def create_side_panel(comment_width_chars: int, window_height: int,
-                      pix_per_char_height: int, save_space: bool = False,
-                      review_type: str = 'Physics') -> List[List[Any]]:
+def create_side_panel(comment_width_chars: int, review_type: str = 'Physics') -> List[List[Any]]:
     """
     Create a side panel with comment boxes and radio buttons for user interface.
 
     Args:
         comment_width_chars (int): Width of the comment box in characters.
-        window_height (int): Height of the window in pixels.
-        pix_per_char_height (int): Pixel height for each character line.
-        save_space (bool): Optional argument to save space.
         review_type (str): Type of review being performed.
 
     Returns:
-        List[List[Any]]: Side panel layout for PySimpleGUI.
+        tuple(List, List): side_panel (List[List[Any]]), events (List):
+            A list of PySimpleGUI elements for the side panel, and a list of event keys.
     """
     # Select the appropriate configuration
     config = dosimetry_config if review_type.lower() == 'dosimetry' else physics_config
-
-    # Calculate the number of lines for the comment box
-    comment_line_count = (0.35 * window_height) // pix_per_char_height
-    comments_width = comment_width_chars
 
     # Initialize the side panel layout
     side_panel = []
 
     # Create UI elements based on the configuration
-    for sg_element in config["elements"]:
-        if sg_element["sg_type"] == "text":
-            side_panel.append([Sg.Text(sg_element["label"], text_color=sg_element.get("text_color", 'black'),
-                                       font=sg_element.get("font", ('Helvetica', 12, 'bold')),
-                                       key=sg_element["key"], visible=True)])
+    for sg_element in config.elements:
+        if sg_element.sg_type == "text":
+            side_panel.append([Sg.Text(
+                sg_element.label,
+                text_color=sg_element.text_color or 'black',
+                font=sg_element.font or ('Helvetica', 12, 'bold'),
+                key=sg_element.key,
+                visible=sg_element.visible if sg_element.visible is not None else True
+            )])
 
-        elif sg_element["sg_type"] == "multiline":
-            side_panel.append([Sg.Multiline(default_text=sg_element["default_text"],
-                                            size=sg_element["size"],
-                                            autoscroll=True, auto_size_text=True,
-                                            key=sg_element["key"],
-                                            visible=sg_element.get("visible", True))])
+        elif sg_element.sg_type == "multiline":
+            side_panel.append([Sg.Multiline(
+                default_text=sg_element.default_text,
+                size=sg_element.size,
+                autoscroll=True, auto_size_text=True,
+                key=sg_element.key,
+                visible=sg_element.visible if sg_element.visible is not None else True
+            )])
 
-        elif sg_element["sg_type"] == "radio":
-            side_panel.append([Sg.Radio(sg_element["label"], group_id=sg_element["group_id"],
-                                        default=False, key=sg_element["key"],
-                                        enable_events=True)])
-            for extra in sg_element.get("extra", []):
-                if extra["sg_type"] == "text":
-                    side_panel.append([Sg.Text(extra["label"], key=extra["key"],
-                                               visible=extra.get("visible", False))])
-                elif extra["sg_type"] == "multiline":
-                    side_panel.append([Sg.Multiline(default_text=extra["default_text"],
-                                                    size=extra["size"], autoscroll=True,
-                                                    auto_size_text=True, key=extra["key"],
-                                                    visible=extra.get("visible", False))])
+        elif sg_element.sg_type == "radio":
+            side_panel.append([Sg.Radio(
+                sg_element.label,
+                group_id=sg_element.group_id,
+                default=False, key=sg_element.key,
+                enable_events=sg_element.enable_events
+            )])
+            for extra in sg_element.extra:
+                if extra.sg_type == "text":
+                    side_panel.append([Sg.Text(
+                        extra.label,
+                        key=extra.key,
+                        visible=extra.visible if extra.visible is not None else True
+                    )])
+                elif extra.sg_type == "multiline":
+                    side_panel.append([Sg.Multiline(
+                        default_text=extra.default_text,
+                        size=extra.size,
+                        autoscroll=True,
+                        auto_size_text=True,
+                        key=extra.key,
+                        visible=extra.visible if extra.visible is not None else True
+                    )])
 
-        elif sg_element["sg_type"] == "checkbox":
-            side_panel.append([Sg.Checkbox(sg_element["label"], default=False, key=sg_element["key"],
-                                           enable_events=True)])
-            for extra in sg_element.get("extra", []):
-                if extra["sg_type"] == "text":
-                    side_panel.append([Sg.Text(extra["label"], key=extra["key"],
-                                               visible=extra.get("visible", False))])
-                elif extra["sg_type"] == "multiline":
-                    side_panel.append([Sg.Multiline(default_text=extra["default_text"],
-                                                    size=extra["size"], autoscroll=True,
-                                                    auto_size_text=True, key=extra["key"],
-                                                    visible=extra.get("visible", False))])
-                elif extra["sg_type"] == "combo":
-                    side_panel.append([Sg.Combo(extra["values"], key=extra["key"],
-                                                visible=extra.get("visible", False))])
+        elif sg_element.sg_type == "checkbox":
+            side_panel.append([Sg.Checkbox(
+                sg_element.label,
+                default=False,
+                key=sg_element.key,
+                enable_events=sg_element.enable_events
+            )])
+            for extra in sg_element.extra:
+                if extra.sg_type == "text":
+                    side_panel.append([Sg.Text(
+                        extra.label,
+                        key=extra.key,
+                        visible=extra.visible if extra.visible is not None else True
+                    )])
+                elif extra.sg_type == "multiline":
+                    side_panel.append([Sg.Multiline(
+                        default_text=extra.default_text,
+                        size=extra.size,
+                        autoscroll=True,
+                        auto_size_text=True,
+                        key=extra.key,
+                        visible=extra.visible if extra.visible is not None else True
+                    )])
+                elif extra.sg_type == "combo":
+                    side_panel.append([Sg.Combo(
+                        extra.values,
+                        key=extra.key,
+                        visible=extra.visible if extra.visible is not None else True
+                    )])
 
     # Add the QA form components
-    qa_form_components = get_qa_form_input_components(comments_width)
+    qa_form_components = get_qa_form_input_components(comment_width_chars)
     qa_frame = [
         Sg.Frame('QA Form (not yet forwarded to wiki-form)', qa_form_components, key='-QA-FRAME-', visible=False)]
     side_panel.append(qa_frame)
@@ -144,10 +282,10 @@ def create_side_panel(comment_width_chars: int, window_height: int,
                                 size=(300, 300), enable_events=True, tooltip="Launch QA Form")])
 
     # Define side panel events
-    side_panel_events = [element["key"] for element in config["elements"]]
-    for sg_element in config["elements"]:
-        for extra in sg_element.get("extra", []):
-            side_panel_events.append(extra["key"])
+    side_panel_events = [element.key for element in config.elements]
+    for sg_element in config.elements:
+        for extra in sg_element.extra:
+            side_panel_events.append(extra.key)
 
     return side_panel, side_panel_events
 
@@ -159,6 +297,7 @@ def load_side_panel(window: Sg.Window, values: Dict[str, Any], review_type) -> N
     Args:
         window (Sg.Window): The PySimpleGUI window object to be updated.
         values (Dict[str, Any]): Dictionary containing saved side panel values.
+        review_type: (str): The type of review being performed.
 
     Returns:
         None
@@ -184,6 +323,9 @@ def load_side_panel(window: Sg.Window, values: Dict[str, Any], review_type) -> N
                 on_side_panel_radio_button_click(window, field_key, review_type)
             else:
                 window[field_key].update(saved_value)
+        elif field_key == KEY_USER_COMMENT and KEY_OUT_DOSE_COMMENT in window.key_dict:
+            # A special case for when a dosimetry review is loaded into a physics review window
+            window[KEY_USER_COMMENT].update(saved_value)
         else:
             logging.warning(f"During side-panel load key {field_key} not found in window")
 
@@ -208,35 +350,32 @@ def extract_values_side_panel(window: Sg.Window, review_type: str) -> Dict[str, 
     side_panel = {}
 
     # Extract current or default value for each element in the configuration
-    for element in config["elements"]:
-        key = element["key"]
-        element_type = element["sg_type"]
+    for element in config.elements:
+        key = element.key
+        element_type = element.sg_type
 
         if element_type in ["multiline", "checkbox", "combo"]:
-            side_panel[key] = window[key].get() or element.get("default_text", "")
-            if "extra" in element.keys():
-                for extra in element["extra"]:
-                    extra_type = extra["sg_type"]
-                    if extra_type == "text":
-                        continue
-                    extra_key = extra["key"]
-                    side_panel[extra_key] = window[extra_key].get() or extra.get("default_text", "")
+            side_panel[key] = window[key].get() or element.default_text
+            for extra in element.extra:
+                extra_type = extra.sg_type
+                if extra_type == "text":
+                    continue
+                extra_key = extra.key
+                side_panel[extra_key] = window[extra_key].get() or extra.default_text
 
         elif element_type == "radio":
-            group_id = element["group_id"]
-            for radio_element in config["elements"]:
-                if radio_element["sg_type"] == "radio" and radio_element["group_id"] == group_id:
-                    radio_key = radio_element["key"]
-                    if window[radio_key].get():
-                        side_panel[KEY_PROCEED_REVISE] = radio_element["label"]
+            group_id = element.group_id
+            for radio_element in [e for e in config.elements if e.sg_type == "radio" and e.group_id == group_id]:
+                radio_key = radio_element.key
+                if window[radio_key].get():
+                    side_panel[KEY_PROCEED_REVISE] = radio_element.label
 
-                        if "extra" in radio_element:
-                            for extra in radio_element["extra"]:
-                                if extra["sg_type"] == "text":
-                                    continue
-                                extra_key = extra["key"]
-                                side_panel[extra_key] = window[extra_key].get() or ""
-                        break
+                    for extra in radio_element.extra:
+                        if extra.sg_type == "text":
+                            continue
+                        extra_key = extra.key
+                        side_panel[extra_key] = window[extra_key].get() or ""
+                    break
             else:
                 side_panel[KEY_PROCEED_REVISE] = ""
 
@@ -263,19 +402,13 @@ def on_side_panel_radio_button_click(window: Sg.Window, event: str, review_type:
     extra_visibility_map = {}
 
     # Build visibility maps from the configuration
-    for element in config["elements"]:
-        if element["sg_type"] == "radio":
-            radio_visibility_map[element["key"]] = {
-                "revision_visibility": False,
-                "qi_visibility": False,
-                "extra": element.get("extra", [])
+    for element in config.elements:
+        if element.sg_type == "radio":
+            radio_visibility_map[element.key] = {
+                "extra": element.extra
             }
-            for extra in element.get("extra", []):
-                if "qi" in extra["key"].lower():
-                    radio_visibility_map[element["key"]]["qi_visibility"] = True
-                if "revision" in extra["key"].lower():
-                    radio_visibility_map[element["key"]]["revision_visibility"] = True
-                extra_visibility_map[extra["key"]] = False
+            for extra in element.extra:
+                extra_visibility_map[extra.key] = False
 
     # Handle radio button click event
     if event in radio_visibility_map:
@@ -289,7 +422,7 @@ def on_side_panel_radio_button_click(window: Sg.Window, event: str, review_type:
         # Update the visibility of extra elements based on the clicked radio
         selected_radio = radio_visibility_map[event]
         for extra in selected_radio["extra"]:
-            extra_visibility_map[extra["key"]] = True
+            extra_visibility_map[extra.key] = True
 
         # Apply visibility settings
         for extra_key, visible in extra_visibility_map.items():
@@ -339,7 +472,7 @@ def check_radio_on(values: Dict[str, Union[bool, str]], keys: List[str]) -> bool
     Returns:
         bool: True if any radio button is selected, otherwise False.
     """
-    return any(values[k] for k in keys)
+    return any(values.get(k, False) for k in keys)
 
 
 def side_panel_proceed_qi_true(values):
@@ -380,7 +513,7 @@ def is_valid_side_panel(window: Sg.Window, values: Dict[str, Union[bool, str]]) 
         is_valid = False
 
     for radio_key, (text_key, input_key) in revision_radio_text.items():
-        if text_key and input_key and values[radio_key] and not values[input_key]:
+        if text_key and input_key and values.get(radio_key) and not values.get(input_key):
             update_window_error(window, text_key)
             update_window_error(window, input_key)
             Sg.popup_error('Please provide a reason for revision or a QI suggestion')
