@@ -1,22 +1,12 @@
 import numpy as np
 import math
-from functools import reduce
-from PlanReview.utils.contour_utilities import (create_roi, unique_roi_name, copy_roi,
-                                                roi_has_contours, get_voxel_coordinates)
+from PlanReview.utils.contour_utilities import (copy_roi, get_voxel_coordinates)
 import logging
 
 tomotherapy_clearance = 130  # cm. Conservative estimate of tomo couch throw
 truebeam_clearance = 200  # cm. Measured from scale drawings of the TrueBeam at Couch=0
-# TODO: Need a special alert when the patient will collide with the TrueBeam laser guard covers
 truebeam_iso_to_laserguard = 100  # cm. Distance from isocenter to the laser guard on the TrueBeam
 length_of_interest = 50  # cm. The length of support structures or external contours that are reviewed
-
-
-def print_or_log(message, log=False):
-    if log:
-        logging.debug(message)
-    else:
-        print(message)
 
 
 # ================= RayStation Utilities =================
@@ -239,9 +229,8 @@ def filter_in_bore_clearing_points_tomo(points, diameter):
     outside_mask = outside_diameter_mask & outside_length_mask
     return points[outside_mask], points[~outside_mask]
 
+
 # ================= Cylindrical Angle Calculations =================
-
-
 def shift_to_isocenter_and_couch_rotate_points(rso, contours, beam_name, representation='Contours',
                                                couch_angle=None):
     """
@@ -264,23 +253,16 @@ def shift_to_isocenter_and_couch_rotate_points(rso, contours, beam_name, represe
         all_points = contours
     else:
         all_points = None
-    # Print the first 5 points
-    # print_or_log(f"\t First 5 points: {all_points[:5]}")
     # Convert the isocenter point to a numpy array
     isocenter_point = np.array([(rso.beamset.Beams[beam_name].Isocenter.Position.x,
                                  rso.beamset.Beams[beam_name].Isocenter.Position.y,
                                  rso.beamset.Beams[beam_name].Isocenter.Position.z)])
-    # Print the iso center point
-    # print_or_log(f"\t Isocenter point: {isocenter_point}")
     # Subtract the isocenter point from all points
     isocentered_contours = all_points - isocenter_point
     # Get the couch angle
     if not couch_angle:
         couch_angle = get_couch_angle(rso, beam_name)
-    # Print the beam name and couch angle
-    # print_or_log(f"\t Beam name: {beam_name}, Couch angle: {couch_angle}")
     couch_angle_rad = math.radians(couch_angle)
-    # print_or_log(f"\t Couch angle in radians: {couch_angle_rad}")
     #
     # Now we will make a rotation matrix to account for the couch angle
     # Y-axis increases downwards in DICOM, so we need to negate the sin term
@@ -289,8 +271,6 @@ def shift_to_isocenter_and_couch_rotate_points(rso, contours, beam_name, represe
         [0, 1, 0],
         [math.sin(couch_angle_rad), 0, math.cos(couch_angle_rad)]
     ])
-    # Nicely print the rotation matrix
-    # print_or_log(f"\t Rotation matrix: {rotation_matrix_dicom}")
     # Rotate all points by the rotation matrix
     rotated_points = np.dot(isocentered_contours, rotation_matrix_dicom.T)
     return rotated_points
@@ -348,12 +328,9 @@ def contour_angle_ranges(rso, contours, beam_name, representation='Contours', sh
         truncated_clearance_volumes = truncate_collision_volumes_in_z(rotated_points)
     else:
         truncated_clearance_volumes = contours
-    # print out the first 5 points
-    # print_or_log(f"\t First 5 points: {rotated_points[:5]}")
     # Get sorted cylindrical angles in the DICOM reference frame rotated by couch plane
     # sorted_angles = get_sorted_cylindrical_angles_dicom(rso, contours, beam_name, representation)
     sorted_angles = get_sorted_cylindrical_angles_dicom(truncated_clearance_volumes)
-    # print_or_log(f"\t Sorted angles: {sorted_angles}")
 
     if not sorted_angles:
         return []
@@ -426,77 +403,6 @@ def check_overlap(np_gantry_angles, contour_ranges):
     grouped_ranges = group_overlapping_angles(overlapping_angles)
 
     return grouped_ranges
-
-#
-# def check_bounding_box_overlap(rso, roi1_name, roi2_name):
-#     """
-#     Check for overlap between the bounding boxes of two ROIs.
-#     Uses Separating Axis Theorem (SAT) to check for overlap on all axes since
-#     the bounding boxes are always aligned with the axes.
-#
-#     Args:
-#         rso: RayStation object containing beamset information.
-#         roi1_name (str): Name of the first ROI.
-#         roi2_name (str): Name of the second ROI.
-#
-#     Returns:
-#         bool: True if the bounding boxes overlap, otherwise False.
-#     """
-#     if not roi_has_contours(rso, roi1_name) or not roi_has_contours(rso, roi2_name):
-#         return False
-#     roi1_bb = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi1_name].GetBoundingBox()
-#     roi2_bb = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi2_name].GetBoundingBox()
-#
-#     for axis in ['x', 'y', 'z']:
-#         if roi1_bb[1][axis] < roi2_bb[0][axis] or roi1_bb[0][axis] > roi2_bb[1][axis]:
-#             return False  # No overlap on this axis
-#
-#     return True  # Overlap on all axes
-
-
-# def check_for_overlap(rso, rois_checked, diam_name_dict, rois_to_delete):
-#     """
-#     Check for overlap between the expanded structure and the external and support structures.
-#     Args:
-#         rso: RayStation object containing beamset information.
-#         rois_checked: list of ROIs to check for overlap
-#         diam_name_dict: a dictionary of beam names and the clearance ROIs associated with them
-#         rois_to_delete: a list of ROIs to delete after the check is complete
-#
-#     Returns:
-#         violation_rois: a dictionary of beam names and the ROIs that are in violation
-#
-#     """
-#     from PlanReview.utils import subtract_roi_sources
-#     # Create the dictionary of beam names and the ROIs that are in violation
-#     violation_rois = {}
-#     couch_angle_checked = []
-#     # Using the rotated isocenter clearance zone for beam 1, check for overlap with external and supports
-#     for beam_name, (diam_name, couch_angle) in diam_name_dict.items():
-#         violation_rois[beam_name] = []
-#         # Skip if we've already checked this couch angle
-#         if diam_name in couch_angle_checked:
-#             for b, (d, c) in diam_name_dict.items():
-#                 if d == diam_name:
-#                     violation_rois[beam_name] = violation_rois[b]
-#                     break
-#         else:
-#             # Check for overlap with external and supports and store them as rois to later delete
-#             for r in rois_checked:
-#                 print_or_log(f"Checking for overlap between {diam_name} and {r}")
-#                 # Check for overlap with the external and supports only if the bounding boxes overlap
-#                 # Simplifying contours in this step did not result in a speedup
-#                 if check_bounding_box_overlap(rso, r, diam_name):
-#                     r_overlap_name = r + '_overlap' + f'_{str(int(couch_angle)).zfill(3)}'
-#                     _ = subtract_roi_sources(rso, r_overlap_name, roi_A=r, roi_B=diam_name)
-#                     # Delete the expression for the subtracted ROI
-#                     rso.case.PatientModel.RegionsOfInterest[r_overlap_name].DeleteExpression()
-#                     if roi_has_contours(rso, r_overlap_name):
-#                         print_or_log(f"If the gantry passes through through {r_overlap_name}, it will collide")
-#                         violation_rois[beam_name].append(r_overlap_name)
-#                     rois_to_delete.append(r_overlap_name)
-#             couch_angle_checked.append(diam_name)
-#     return violation_rois
 
 
 def determine_contour_type(rso, roi_name):
