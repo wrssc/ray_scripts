@@ -116,10 +116,13 @@ def save_report(report_type, patient_id, beamset_name, user_name, report_text, s
     filename = f"{patient_id}_{beamset_name}_{report_type}_" \
                f"{now.strftime('%Y-%m-%d_%H-%M-%S')}.docx"
     if report_type == 'error_report':
+        report_title = 'Error Report'
         file_path = os.path.join(ERROR_DIR, filename)
     elif report_type == 'qi_report':
+        report_title = 'Quality Improvement Request'
         file_path = os.path.join(QI_REPORTS_DIR, filename)
     elif report_type == 'revision_report':
+        report_title = 'Plan Revision Report'
         file_path = os.path.join(REVISION_REPORTS_DIR, filename)
     else:
         raise ValueError(f'Invalid report type "{report_type}".')
@@ -140,7 +143,7 @@ def save_report(report_type, patient_id, beamset_name, user_name, report_text, s
     section.bottom_margin = Cm(1)
 
     # Add report content
-    doc.add_heading('Error Report')
+    doc.add_heading(report_title, level=1)
     # Add paragraphs with some bold text
     # For "Patient ID:" part in bold
     paragraph = doc.add_paragraph()
@@ -162,11 +165,15 @@ def save_report(report_type, patient_id, beamset_name, user_name, report_text, s
     paragraph.add_run('Time: ').bold = True
     paragraph.add_run(f'{now.strftime("%Y-%m-%d_%H-%M-%S")}')
 
+    # TODO: make dict of the input and create bold headers for each
     # For "Description of Issue:" part in bold
     paragraph = doc.add_paragraph()
     paragraph.add_run('Description of Issue: \n').bold = True
     paragraph.add_run(f'{report_text}')
     if screenshot:
+        # Add the screenshot
+        paragraph = doc.add_paragraph()
+        paragraph.add_run('Screenshot:').bold = True
         doc.add_picture(io.BytesIO(screenshot), width=Cm(25))
 
     # Save the document
