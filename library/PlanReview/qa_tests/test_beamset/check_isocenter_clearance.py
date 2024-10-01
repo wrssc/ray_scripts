@@ -687,9 +687,13 @@ def check_isocenter_clearance(rso):
         FAIL: Case 1 NecB_NonCoplanar fails on every beam for the External, S-frame, TomoCouch and Box.
               Gantry angles verified.
         FAIL: Case 2 Contains a deliberately distorted ExternalClean to flag an angle around 305 degrees.
-    Test Patient:
-        Collision_Check, ZZUWQA_Collisions
         
+    Test Patient:
+        Collision_Check, ZZUWQA_Collisions,
+        FAIL: Case 2 Collision_Check_2, ZZUWQA_ScTest_01Oct2024 Brai_PRD_R0A0 
+            (actual clinical failure - Fails on Qfix for Beam 1 (RPO)
+        PASS: Case 2 Collision_Check_2, ZZUWQA_ScTest_01Oct2024 Brai_PRD_R0A1
+            (passes without the RPO beam - clinical solution).
     """
     clearance_diameter_roi_name, diameter = get_clearance_roi_name_and_diameter(rso, tolerance=SUPPORT_TOLERANCE)
 
