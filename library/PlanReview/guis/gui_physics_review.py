@@ -203,6 +203,8 @@ def launch_physics_review_gui(rso, relaunch=False, review_type='Physics'):
                 break
             elif status == 'continue':
                 continue
+            elif status == 'cancel':
+                return {}
         # Bottom Panel Events Section
         elif event in bottom_events:
             bottom_event(gui_state_manager, event, values)

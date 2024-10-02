@@ -710,6 +710,23 @@ def is_valid_automated_test(window, failed_tests, response_required=True):
     return is_valid
 
 
+def no_failed_tests_present(failed_tests):
+    """
+    Excluding tests in the sandbox, check if there are any failed tests present.
+    Args:
+        failed_tests: List of failed tests.
+
+    Returns:
+        bool: True if no failed tests are present, False otherwise
+    """
+    no_failed_tests = True
+    # Check to see if any failed tests that are not in the sandbox
+    for test in failed_tests:
+        if test[KEY_OUT_DOMAIN_TYPE] != DOMAIN_TYPE['SANDBOX_KEY']:
+            return False
+    return no_failed_tests
+
+
 def new_update_window_error(window, keys, bg=False):
     error_text_color = '#8B0000'
     error_bg_color = '#8B0000'
@@ -751,6 +768,13 @@ def is_valid_manual_tab(window, values, check_boxes, failed_tests, response_requ
 
         if not is_valid or not is_valid_auto:
             Sg.popup_error('Please fill in all the required fields.')
+    else:
+        # For this review a response is not required but have the user confirm failed tests
+        # are present
+        if no_failed_tests_present(failed_tests):
+            Sg.popup_error('Several tests are still failing. Please review them and repair the plan or report '
+                           'an inaccurate test to the developer.')
+            is_valid = False
 
     return all([is_valid, is_valid_auto])
 
