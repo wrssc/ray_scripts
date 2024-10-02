@@ -1,9 +1,9 @@
 import PySimpleGUI as Sg
-import connect
+import logging
 from PlanReview.review_definitions import (
-    ICON_SAVE, ICON_LOAD, ICON_START, ICON_PRINT, ICON_PAUSE, ICON_CANCEL, ICON_ERROR, ICON_SUBMIT,
+    ICON_SAVE, ICON_LOAD, ICON_START, ICON_PRINT, ICON_CANCEL, ICON_ERROR, ICON_SUBMIT,
     ICON_SMALL_SAVE, ICON_SMALL_LOAD, ICON_SMALL_START, ICON_SMALL_PRINT,
-    ICON_SMALL_PAUSE, ICON_SMALL_CANCEL, ICON_SMALL_ERROR, ICON_SMALL_FINAL,
+    ICON_SMALL_CANCEL, ICON_SMALL_ERROR, ICON_SMALL_FINAL,
     ICON_FINAL, ICON_SMALL_SUBMIT)
 from PlanReview.utils.io_file_utils import save_review
 from PlanReview.guis.progress_bar_tests import display_progress_bar
@@ -152,15 +152,6 @@ def handle_top_event(gui_state_manager, event, values):
         # START the automated tests
         gui_state_manager.window.write_event_value('-START-', 'Triggered Programatically')
     elif event == '-REPORT-':
-        # TODO: Delete this testing code
-        import sys
-        if side_panel_proceed_qi_true(values):
-            # Generate and email the report
-            generate_and_distribute_qi_issue_report(gui_state_manager.rso, values)
-            sys.exit("Should be getting a nice qi report now")
-        if side_panel_revision_true(values):
-            generate_and_distribute_revision_report(gui_state_manager.rso, values)
-            sys.exit("Should be getting a nice revision report now")
         # Retrieve the passing and failing tests
         if not gui_state_manager.tree_children:
             Sg.popup('No tests have been run yet!')
@@ -178,34 +169,54 @@ def handle_top_event(gui_state_manager, event, values):
             if side_panel_proceed_qi_true(values):
                 # Generate and email the report
                 generate_and_distribute_qi_issue_report(gui_state_manager.rso, values)
+            if side_panel_revision_true(values):
+                generate_and_distribute_revision_report(gui_state_manager.rso, values)
             return 'break'
     elif event == '-SUBMIT-':
-        # TODO: Delete this testing code
-        import sys
-        if side_panel_proceed_qi_true(values):
-            # Generate and email the report
-            generate_and_distribute_qi_issue_report(gui_state_manager.rso, values)
-            sys.exit("Should be getting a nice dose qi report now")
-        if side_panel_revision_true(values):
-            generate_and_distribute_revision_report(gui_state_manager.rso, values)
-            sys.exit("Should be getting a nice dose revision report now")
         # Retrieve the passing and failing tests
         if not gui_state_manager.tree_children:
             Sg.popup('No tests have been run yet!')
+            return 'continue'
         gui_state_manager.passing_tests, gui_state_manager.failed_tests = get_tests_from_tree(
             gui_state_manager.tree_children)
-        is_valid = on_done_button_click(gui_state_manager, values)
+        manual_valid, side_valid = on_submit_button_click(gui_state_manager, values)
         # Perform the form submission logic
-        if is_valid:
+        if side_valid and not manual_valid:
+            Sg.popup('Automated tests are showing failing results. Consider cancelling the script,'
+                     ' revising the plan and rerunning the tests.')
+            Sg.popup_yes_no('Proceed with submission?', title='Warning', keep_on_top=True,
+                            font=('Helvetica', '12', 'bold'), button_color=('black', 'white'),
+                            background_color='white')
+            # If the popup is 'No' return 'cancel'
+            if event == 'No':
+                return 'cancel'
+            else:
+                logging.warning('Proceeding with submission despite failing automated tests')
+        elif not side_valid:
+            Sg.popup('Side panel is not valid. Please correct the errors and try again.')
+            return 'continue'
+        else:
             # Save the review
             save_review(
                 gui_state_manager.rso,
                 get_review_gui_values(gui_state_manager, values),
                 suffix=gui_state_manager.suffix, quiet=True)
-            # get_header_checklist_qa_values(gui_state_manager, values)
+            if side_panel_proceed_qi_true(values):
+                # Generate and email the report
+                generate_and_distribute_qi_issue_report(gui_state_manager.rso, values)
+            if side_panel_revision_true(values):
+                generate_and_distribute_revision_report(gui_state_manager.rso, values)
             return 'break'
 
     return status
+
+
+def on_submit_button_click(gui_state_manager, values):
+    # Check if all the required fields are filled in
+    manual_valid = is_valid_manual_tab(gui_state_manager.window, values, gui_state_manager.check_box_copy,
+                                       gui_state_manager.failed_tests)
+    side_valid = is_valid_side_panel(gui_state_manager.window, values)
+    return manual_valid, side_valid
 
 
 def on_done_button_click(gui_state_manager, values):
