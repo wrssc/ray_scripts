@@ -802,8 +802,6 @@ def validate_beamset_information(preplan_dict):
         popup_message += 'Number of beamsets needed to proceed.\n'
         num_beamsets = 0
     else:
-        logging.debug(f'Beamset count: {preplan_dict[KEY_BEAMSET][KEY_BEAMSET_COUNT]}')
-        logging.debug(f'Beamset dict: {preplan_dict[KEY_BEAMSET]}')
         num_beamsets = int(preplan_dict[KEY_BEAMSET][KEY_BEAMSET_COUNT])
     # Beamset information is required
     for i in range(num_beamsets):
@@ -815,7 +813,6 @@ def validate_beamset_information(preplan_dict):
         # Number of fractions for each beamset is required
         fractions_key = create_tuple_key(KEY_BEAMSET + KEY_FRACTIONS, i)
         n_fractions = preplan_dict[KEY_BEAMSET].get(fractions_key, 0)
-        logging.debug(f'Fractions key: {fractions_key} and fractions: {n_fractions}')
         if n_fractions <= 0:
             beamset_message += f'\t Nonzero fractions are required for beamset {i + 1}.\n'
         # Number of targets for each beamset is required
@@ -1074,9 +1071,9 @@ def old_extract_values_preplan_tab(main_window):
     # Get the Beamset Information values
     num_beamsets = main_window[KEY_BEAMSET_COUNT].get() \
         if main_window[KEY_BEAMSET_COUNT].get() else 1
-    beamset_dict = {KEY_BEAMSET_COUNT: main_window[KEY_BEAMSET_COUNT].get()
-    if main_window[KEY_BEAMSET_COUNT].get() else ''}
-    logging.debug(f'Current beamset_dict: {beamset_dict}')
+    beamset_dict = {
+        KEY_BEAMSET_COUNT: main_window[KEY_BEAMSET_COUNT].get()
+        if main_window[KEY_BEAMSET_COUNT].get() else ''}
     for i in range(num_beamsets):
         beamset_dict[create_tuple_key(KEY_BEAMSET_SELECT, i)] = \
             main_window[create_tuple_key(KEY_BEAMSET_SELECT, i)].get() \
@@ -1155,7 +1152,11 @@ def load_preplan(window, values, sites, protocols, instructions,
             window[KEY_PRIOR_RT + KEY_RADIO + '-YES'].update(value=value)
             window[KEY_PRIOR_RT + KEY_RADIO + '-NO'].update(value=not value)
         else:
-            window[key](value)
+            if key in window.key_dict:
+                window[key].update(value=value)
+            else:
+                logging.warning(f'Key {key} not found in window')
+                continue
 
     # Handle the radio keys and other elements in the Treatment Planning Order Information frame
     treatment_instructions = values.get(KEY_TX_INST_SET, {})

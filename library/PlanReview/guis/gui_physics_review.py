@@ -75,7 +75,7 @@ class GuiState:
         self.qa_form_data = {}
         self.review_type = review_type
         self.tree_children = None
-        self.match_trees = None
+        self.match_trees = {}
         self.qa_form_accessible = False
         self.relaunch = relaunch
         self.maximum_target_number = None
@@ -255,15 +255,11 @@ def launch_physics_review_gui(rso, relaunch=False, review_type='Physics'):
         # Trigger an update to the gui_state_manager when the user selects a beamset
         elif KEY_BEAMSET_SELECT in event:
             update_preplan_gui_state(gui_state_manager, values)
-        # Update to Ditto
         # Check if the event starts with '-APTR_TREE_' and if there are beamsets to process
-        # TODO: not currently working
         elif '-APTR_TREE_' in event:
-            logging.debug(f'Event is {event} and beamset names are {gui_state_manager.beamset_names}')
-            logging.debug(f'Match trees are {gui_state_manager.match_trees}')
-            if gui_state_manager.beamset_names and match_trees:
+            if gui_state_manager.beamset_names and gui_state_manager.match_trees:
                 on_ditto_element_click(gui_state_manager.window, values, event,
-                                       gui_state_manager.beamset_names, match_trees)
+                                       gui_state_manager.beamset_names, gui_state_manager.match_trees)
         # Manual Tab Events
         elif type(event) is tuple:
             if KEY_CHECK + KEY_RADIO in event[0]:

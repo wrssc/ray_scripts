@@ -72,7 +72,7 @@ def run_dicom_integrity_tool_physics_review(tab_width: int, tab_height: int,
         update_progress_bar(progress_bar, progress_text, 100, '')
         progress_window.close()
 
-    return layout, aptr_treedata #dicom_match_tree
+    return layout, aptr_dicom_tree_pair
 
 
 def update_progress_bar(progress_bar, progress_text, steps_performed, message):
@@ -168,7 +168,6 @@ def on_ditto_element_click(window, values, event, beamsets, match_trees):
     # Extract the beamset name from the event key
     beamset_parts = event.split('_')
     beamset_name = '_'.join(beamset_parts[-3:])  # Join the last three parts to form the beamset name
-    print(f'Event is {event} with values {values[event]} and beamset name {beamset_name}')
     if beamset_name in beamsets:  # Check if the extracted name is in the list of beamsets
         tree_key = values[event][0]
         dicom_match_tree = match_trees[beamset_name]

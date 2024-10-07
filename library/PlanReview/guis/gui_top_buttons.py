@@ -287,7 +287,7 @@ def handle_start_event(gui_state_manager, values):
                              font=gui_state_manager.gui_dict['tab_font']))
     if gui_state_manager.review_type == 'Physics':
         # Get the ditto tab list
-        ditto_tab_list, match_trees = get_ditto_tab_list(gui_state_manager, beamsets)
+        ditto_tab_list, gui_state_manager.match_trees = get_ditto_tab_list(gui_state_manager, beamsets)
         # Build next tab
         gui_state_manager.check_box_copy = build_manual_check_box_list(
             gui_state_manager.rso, beamsets=beamsets, review_type=gui_state_manager.review_type,
@@ -326,12 +326,17 @@ def get_ditto_tab_list(gui_state_manager, beamsets):
         beamsets: List of beamset names
 
     Returns:
+        ditto_tab_list: List of ditto tabs
+        match_trees (dict): A dictionary of ElementTree objects
 
     """
-    ditto_tab_list = []
-    match_trees = {}
-    for beamset in gui_state_manager.rso.plan.BeamSets:
-        if "Tomo" not in beamset.DeliveryTechnique:
-            ditto_tab_list, match_trees = get_ditto_tab(gui_state_manager.gui_dict['tab_width'],
-                                                        gui_state_manager.gui_dict['tab_height'], beamsets)
+    not_tomo_beamsets = []
+    for beamset_name in beamsets:
+        for beamset in gui_state_manager.rso.plan.BeamSets:
+            if beamset.DicomPlanLabel == beamset_name and "Tomo" not in beamset.DeliveryTechnique:
+                not_tomo_beamsets.append(beamset_name)
+            break
+    ditto_tab_list, match_trees = get_ditto_tab(gui_state_manager.gui_dict['tab_width'],
+                                                gui_state_manager.gui_dict['tab_height'], not_tomo_beamsets)
+
     return ditto_tab_list, match_trees
