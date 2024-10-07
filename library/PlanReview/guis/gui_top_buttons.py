@@ -19,7 +19,7 @@ from PlanReview.guis.create_physics_manual_tab import (
 from PlanReview.guis.gui_report_script_error import report_script_error
 from PlanReview.guis.parse_gui_values import get_header_checklist_qa_values
 from PlanReview.guis.create_side_panel import (
-    is_valid_side_panel, side_panel_proceed_qi_true, side_panel_revision_true,
+    is_valid_dosimetry_panel, is_valid_physics_panel, side_panel_proceed_qi_true, side_panel_revision_true,
     generate_and_distribute_qi_issue_report, generate_and_distribute_revision_report)
 from PlanReview.guis.review_loader import load_review
 from library.api.api_user_functions import final_dose
@@ -214,8 +214,11 @@ def handle_top_event(gui_state_manager, event, values):
 def on_submit_button_click(gui_state_manager, values):
     # Check if all the required fields are filled in
     manual_valid = is_valid_manual_tab(gui_state_manager.window, values, gui_state_manager.check_box_copy,
-                                       gui_state_manager.failed_tests)
-    side_valid = is_valid_side_panel(gui_state_manager.window, values)
+                                       gui_state_manager.failed_tests, response_required=False)
+    if gui_state_manager.review_type.lower() == 'dosimetry':
+        side_valid = is_valid_dosimetry_panel(gui_state_manager.window, values)
+    else:
+        side_valid = is_valid_physics_panel(gui_state_manager.window, values)
     return manual_valid, side_valid
 
 
@@ -223,7 +226,10 @@ def on_done_button_click(gui_state_manager, values):
     # Check if all the required fields are filled in
     manual_valid = is_valid_manual_tab(gui_state_manager.window, values, gui_state_manager.check_box_copy,
                                        gui_state_manager.failed_tests)
-    side_valid = is_valid_side_panel(gui_state_manager.window, values)
+    if gui_state_manager.review_type.lower() == 'dosimetry':
+        side_valid = is_valid_dosimetry_panel(gui_state_manager.window, values)
+    else:
+        side_valid = is_valid_physics_panel(gui_state_manager.window, values)
     is_valid = all([manual_valid, side_valid])
     return is_valid
 
@@ -316,8 +322,8 @@ def get_ditto_tab_list(gui_state_manager, beamsets):
     """
     Get the ditto tab list and match trees.
     Args:
-        gui_state_manager:
-        beamsets:
+        gui_state_manager: EventContext object containing the window, rso, gui_dict, and tests_started
+        beamsets: List of beamset names
 
     Returns:
 

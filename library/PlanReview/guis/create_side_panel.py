@@ -14,8 +14,7 @@ from dataclasses import dataclass, field
 
 #
 # Configuration elements for the side panel
-# Configuration for Physics Review
-comment_width_chars = 40
+comment_width_chars = 40  # Width of the comment box in characters
 
 
 @dataclass
@@ -57,14 +56,14 @@ physics_config = SidePanelConfig(elements=[
     ElementConfig(
         sg_type="radio",
         label="Proceed",
-        group_id="RADIO_SIDE_PANEL",
+        group_id=f"{KEY_PROCEED_REVISE}{KEY_RADIO}",
         key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed",
         enable_events=True
     ),
     ElementConfig(
         sg_type="radio",
         label="Proceed (QI Issue)",
-        group_id="RADIO_SIDE_PANEL",
+        group_id=f"{KEY_PROCEED_REVISE}{KEY_RADIO}",
         key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)",
         enable_events=True,
         extra=[
@@ -86,7 +85,7 @@ physics_config = SidePanelConfig(elements=[
     ElementConfig(
         sg_type="radio",
         label="Revise",
-        group_id="RADIO_SIDE_PANEL",
+        group_id=f"{KEY_PROCEED_REVISE}{KEY_RADIO}",
         key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise",
         enable_events=True,
         extra=[
@@ -108,6 +107,10 @@ physics_config = SidePanelConfig(elements=[
 ])
 
 # Configuration for Dosimetry Review
+label_revisions_yes = "Revisions Required"
+label_revisions_no = "No Revisions"
+label_qi_yes = "QI Issue"
+label_qi_no = "QI Issue: None"
 dosimetry_config = SidePanelConfig(elements=[
     ElementConfig(
         sg_type="text",
@@ -123,9 +126,17 @@ dosimetry_config = SidePanelConfig(elements=[
         default_text=''
     ),
     ElementConfig(
-        sg_type="checkbox",
-        label="QI Suggestion",
-        key=f"{KEY_DOSE_QI}",
+        sg_type="radio",
+        label=label_qi_no,
+        group_id=f"{KEY_DOSE_QI}{KEY_RADIO}",
+        key=f"{KEY_DOSE_QI}{KEY_RADIO}{label_qi_no}",
+        enable_events=True
+    ),
+    ElementConfig(
+        sg_type="radio",
+        label=f"{label_qi_yes}",
+        group_id=f"{KEY_DOSE_QI}{KEY_RADIO}",
+        key=f"{KEY_DOSE_QI}{KEY_RADIO}{label_qi_yes}",
         enable_events=True,
         extra=[
             ElementConfig(
@@ -144,9 +155,17 @@ dosimetry_config = SidePanelConfig(elements=[
         ]
     ),
     ElementConfig(
-        sg_type="checkbox",
-        label="Revise",
-        key=f"{KEY_DOSE_REVISION}",
+        sg_type="radio",
+        label=label_revisions_no,
+        group_id=f"{KEY_DOSE_REVISION}{KEY_RADIO}",
+        key=f"{KEY_DOSE_REVISION}{KEY_RADIO}{label_revisions_no}",
+        enable_events=True,
+    ),
+    ElementConfig(
+        sg_type="radio",
+        label=label_revisions_yes,
+        group_id=f"{KEY_DOSE_REVISION}{KEY_RADIO}",
+        key=f"{KEY_DOSE_REVISION}{KEY_RADIO}{label_revisions_yes}",
         enable_events=True,
         extra=[
             ElementConfig(
@@ -179,13 +198,13 @@ dosimetry_config = SidePanelConfig(elements=[
 ])
 
 
-def create_side_panel(comment_width_chars: int, review_type: str = 'Physics') -> Tuple[List[List[Any]], List]:
+def create_side_panel(review_type: str = 'Physics') -> Tuple[List[List[Any]], List]:
     """
     Create a side panel with comment boxes and radio buttons for user interface.
 
     Args:
-        comment_width_chars (int): Width of the comment box in characters.
-        review_type (str): Type of review being performed.
+        review_type (Optional) (str): The type of review being performed ('Physics' or 'Dosimetry').
+
 
     Returns:
         tuple(List, List): side_panel (List[List[Any]]), events (List):
@@ -197,57 +216,52 @@ def create_side_panel(comment_width_chars: int, review_type: str = 'Physics') ->
     # Initialize the side panel layout
     side_panel = []
 
-    # Create UI elements based on the configuration
+    # Create a mapping of group_ids to radio elements
+    radio_groups = {}
+
+    # First pass: collect elements
     for sg_element in config.elements:
-        if sg_element.sg_type == "text":
-            side_panel.append([Sg.Text(
-                sg_element.label,
-                text_color=sg_element.text_color or 'black',
-                font=sg_element.font or ('Helvetica', 12, 'bold'),
-                key=sg_element.key,
-                visible=sg_element.visible if sg_element.visible is not None else True
-            )])
+        if sg_element.sg_type == "radio":
+            group_id = sg_element.group_id
+            if group_id not in radio_groups:
+                radio_groups[group_id] = []
+            radio_groups[group_id].append(sg_element)
+        else:
+            # For other elements, just add them
+            if sg_element.sg_type == "text":
+                side_panel.append([Sg.Text(
+                    sg_element.label,
+                    text_color=sg_element.text_color or 'black',
+                    font=sg_element.font or ('Helvetica', 12, 'bold'),
+                    key=sg_element.key,
+                    visible=sg_element.visible if sg_element.visible is not None else True
+                )])
 
-        elif sg_element.sg_type == "multiline":
-            side_panel.append([Sg.Multiline(
-                default_text=sg_element.default_text,
-                size=sg_element.size,
-                autoscroll=True, auto_size_text=True,
-                key=sg_element.key,
-                visible=sg_element.visible if sg_element.visible is not None else True
-            )])
+            elif sg_element.sg_type == "multiline":
+                side_panel.append([Sg.Multiline(
+                    default_text=sg_element.default_text,
+                    size=sg_element.size,
+                    autoscroll=True, auto_size_text=True,
+                    key=sg_element.key,
+                    visible=sg_element.visible if sg_element.visible is not None else True
+                )])
 
-        elif sg_element.sg_type == "radio":
-            side_panel.append([Sg.Radio(
+    # Now, process radio groups
+    for group_id, radio_elements in radio_groups.items():
+        # Create a row with all radio buttons in this group
+        radio_row = []
+        for sg_element in radio_elements:
+            radio_button = Sg.Radio(
                 sg_element.label,
                 group_id=sg_element.group_id,
                 default=False, key=sg_element.key,
                 enable_events=sg_element.enable_events
-            )])
-            for extra in sg_element.extra:
-                if extra.sg_type == "text":
-                    side_panel.append([Sg.Text(
-                        extra.label,
-                        key=extra.key,
-                        visible=extra.visible if extra.visible is not None else True
-                    )])
-                elif extra.sg_type == "multiline":
-                    side_panel.append([Sg.Multiline(
-                        default_text=extra.default_text,
-                        size=extra.size,
-                        autoscroll=True,
-                        auto_size_text=True,
-                        key=extra.key,
-                        visible=extra.visible if extra.visible is not None else True
-                    )])
+            )
+            radio_row.append(radio_button)
+        side_panel.append(radio_row)
 
-        elif sg_element.sg_type == "checkbox":
-            side_panel.append([Sg.Checkbox(
-                sg_element.label,
-                default=False,
-                key=sg_element.key,
-                enable_events=sg_element.enable_events
-            )])
+        # Now handle 'extra' elements for each radio element
+        for sg_element in radio_elements:
             for extra in sg_element.extra:
                 if extra.sg_type == "text":
                     side_panel.append([Sg.Text(
@@ -310,8 +324,6 @@ def load_side_panel(window: Sg.Window, values: Dict[str, Any], review_type) -> N
 
     # Extract data for the side panel from the main window's saved values
     side_panel_values = values.get(KEY_SIDE_PANEL, {})
-    # Find the reason proceed revise radio is not getting loaded. output windw key_dict neatly
-
     # Loop through each key-value pair to update the window
     for field_key, saved_value in side_panel_values.items():
         # Check if the field_key is a prefix of any key in window.key_dict.keys()
@@ -322,9 +334,14 @@ def load_side_panel(window: Sg.Window, values: Dict[str, Any], review_type) -> N
                     # Use the radio key to trigger a click event
                     load_radio = f"{KEY_PROCEED_REVISE}{KEY_RADIO}{saved_value}"
                     on_side_panel_radio_button_click(window, load_radio, review_type)
-                elif field_key in [KEY_DOSE_REVISION, KEY_DOSE_QI]:
-                    window[field_key].update(saved_value)
-                    on_side_panel_radio_button_click(window, field_key, review_type)
+                elif field_key == KEY_DOSE_REVISION:
+                    # Use the radio key to trigger a click event
+                    load_radio = f"{KEY_DOSE_REVISION}{KEY_RADIO}{saved_value}"
+                    on_side_panel_radio_button_click(window, load_radio, review_type)
+                elif field_key == KEY_DOSE_QI:
+                    # Use the radio key to trigger a click event
+                    load_radio = f"{KEY_DOSE_QI}{KEY_RADIO}{saved_value}"
+                    on_side_panel_radio_button_click(window, load_radio, review_type)
                 else:
                     window[field_key].update(saved_value)
         elif field_key == KEY_USER_COMMENT and KEY_OUT_DOSE_COMMENT in window.key_dict:
@@ -372,16 +389,17 @@ def extract_values_side_panel(window: Sg.Window, review_type: str) -> Dict[str, 
             for radio_element in [e for e in config.elements if e.sg_type == "radio" and e.group_id == group_id]:
                 radio_key = radio_element.key
                 if window[radio_key].get():
-                    side_panel[KEY_PROCEED_REVISE] = radio_element.label
-
+                    side_panel_key = str(group_id).replace(KEY_RADIO, "")
+                    # Now we have multiple possible radio buttons
+                    side_panel[side_panel_key] = radio_element.label
                     for extra in radio_element.extra:
                         if extra.sg_type == "text":
                             continue
                         extra_key = extra.key
                         side_panel[extra_key] = window[extra_key].get() or ""
                     break
-            else:
-                side_panel[KEY_PROCEED_REVISE] = ""
+                else:
+                    side_panel[KEY_PROCEED_REVISE] = "Undefined"
 
     return {KEY_SIDE_PANEL: side_panel}
 
@@ -401,51 +419,32 @@ def on_side_panel_radio_button_click(window: Sg.Window, event: str, review_type:
     # Select the appropriate configuration
     config = dosimetry_config if review_type.lower() == 'dosimetry' else physics_config
 
-    # Initialize visibility maps
-    radio_visibility_map = {}
-    extra_visibility_map = {}
-
-    # Build visibility maps from the configuration
+    # Build a mapping from group_id to radio buttons and their extras
+    group_map = {}
     for element in config.elements:
         if element.sg_type == "radio":
-            radio_visibility_map[element.key] = {
-                "extra": element.extra
-            }
-            for extra in element.extra:
-                extra_visibility_map[extra.key] = False
+            group_id = element.group_id
+            if group_id not in group_map:
+                group_map[group_id] = []
+            group_map[group_id].append(element)
 
-    # Handle radio button click event
-    if event in radio_visibility_map:
-        # Set all radios in the group to false first
-        for radio_key in radio_visibility_map:
-            window[radio_key].update(value=False)
+    # Find out which group the event belongs to
+    clicked_group_id = None
+    for group_id, radios in group_map.items():
+        if any(radio.key == event for radio in radios):
+            clicked_group_id = group_id
+            break
 
-        # Set clicked radio to true
-        window[event].update(value=True)
+    if clicked_group_id is not None:
+        # Update radio buttons in the same group
+        for radio in group_map[clicked_group_id]:
+            is_selected = (radio.key == event)
+            window[radio.key].update(value=is_selected)
+            # Update visibility of extras
+            for extra in radio.extra:
+                window[extra.key].update(visible=is_selected)
 
-        # Update the visibility of extra elements based on the clicked radio
-        selected_radio = radio_visibility_map[event]
-        for extra in selected_radio["extra"]:
-            extra_visibility_map[extra.key] = True
-
-        # Apply visibility settings
-        for extra_key, visible in extra_visibility_map.items():
-            window[extra_key].update(visible=visible)
-            window.refresh()
-
-    # Handle checkboxes for dosimetry review
-    if review_type.lower() == 'dosimetry':
-        if event == KEY_DOSE_REVISION:
-            window["-REVISION_#_TEXT-"].update(visible=True)
-            window[KEY_REVISION_NUMBER].update(visible=True)
-            window[KEY_DOSE_REVISION_INFO].update(visible=True)
-            window["-REVISION_TEXT-"].update(visible=True)
-
-        elif event == KEY_DOSE_QI:
-            window[KEY_DOSE_QI_INFO].update(visible=True)
-            window["-QI_TEXT-"].update(visible=True)
-
-        window.refresh()
+    window.refresh()
 
 
 def update_window_error(window: Sg.Window, key: str, bg: bool = False) -> None:
@@ -492,37 +491,48 @@ def side_panel_revision_true(values):
     return values.get(f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise", False)
 
 
-def is_valid_side_panel(window: Sg.Window, values: Dict[str, Union[bool, str]]) -> bool:
+def is_valid_side_panel(window: Sg.Window, values: Dict[str, Union[bool, str]],
+                        review_type: str = 'physics_review') -> bool:
     """Validates the state of a side panel in a PySimpleGUI window.
 
     Args:
         window (Sg.Window): The PySimpleGUI window object containing the side panel.
         values (Dict[str, Union[bool, str]]): A dictionary of keys and their current values.
+        review_type (str, optional): The type of review being performed. Defaults to 'physics_review'.
 
     Returns:
         bool: True if the side panel is valid, otherwise False.
     """
     is_valid = True
-
-    revision_radio_text = {
-        f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed": (None, None),
-        f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise": ("-REVISION_TEXT-", KEY_REVISION_INFO),
-        f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)": ("-QI_TEXT-", KEY_QI_INFO),
-    }
+    if review_type.lower() == 'dosimetry':
+        revision_radio_text = {
+            f"{KEY_DOSE_REVISION}{KEY_RADIO}{label_revisions_no}": (None, None),
+            f"{KEY_DOSE_REVISION}{KEY_RADIO}{label_revisions_yes}": ("-REVISION_TEXT-", KEY_REVISION_INFO),
+            f"{KEY_DOSE_REVISION}{KEY_RADIO}Proceed (QI Issue)": ("-QI_TEXT-", KEY_QI_INFO),
+        }
+        validation_error_message = 'Please indicate if there are any long term issues for addressing,' \
+                                   'and if there were revisions needed extending the planning time.'
+        # TODO: need validation for the dosimetry section
+    else:
+        revision_radio_text = {
+            f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed": (None, None),
+            f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise": ("-REVISION_TEXT-", KEY_REVISION_INFO),
+            f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)": ("-QI_TEXT-", KEY_QI_INFO),
+        }
+        validation_error_message = 'Proceed or Revise is required to proceed'
 
     if not check_radio_on(values, list(revision_radio_text.keys())):
         for r in revision_radio_text.keys():
             update_window_error(window, r)
-        Sg.popup_error('Proceed or Revise is required to proceed')
+        Sg.popup_error(validation_error_message)
         is_valid = False
 
     for radio_key, (text_key, input_key) in revision_radio_text.items():
         if text_key and input_key and values.get(radio_key) and not values.get(input_key):
             update_window_error(window, text_key)
             update_window_error(window, input_key)
-            Sg.popup_error('Please provide a reason for revision or a QI suggestion')
+            Sg.popup_error('Please provide details for revision or QI issue')
             is_valid = False
-
     return is_valid
 
 
@@ -645,3 +655,92 @@ def generate_and_distribute_revision_report(rso, values):
     email_report_revision(file_path)
     # Update the CSV file
     update_qi_revision_tracking(rso, values)
+
+
+def is_valid_physics_panel(window: Sg.Window, values: Dict[str, Union[bool, str]]) -> bool:
+    """Validates the physics review side panel."""
+    is_valid = True
+
+    revision_radio_text = {
+        f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed": (None, None),
+        f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise": ("-REVISION_TEXT-", KEY_REVISION_INFO),
+        f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)": ("-QI_TEXT-", KEY_QI_INFO),
+    }
+    validation_error_message = 'Proceed or Revise is required to proceed'
+
+    # Check if a radio button is selected
+    if not check_radio_on(values, list(revision_radio_text.keys())):
+        for r in revision_radio_text.keys():
+            update_window_error(window, r)
+        Sg.popup_error(validation_error_message)
+        is_valid = False
+
+    # Validate extra inputs
+    for radio_key, (text_key, input_key) in revision_radio_text.items():
+        if text_key and input_key and values.get(radio_key) and not values.get(input_key):
+            update_window_error(window, text_key)
+            update_window_error(window, input_key)
+            Sg.popup_error('Please provide details for revision or QI issue.')
+            is_valid = False
+
+    return is_valid
+
+
+def is_valid_dosimetry_panel(window: Sg.Window, values: Dict[str, Union[bool, str]]) -> bool:
+    """Validates the dosimetry review side panel."""
+    is_valid = True
+
+    # Define labels and keys for dosimetry validation
+    qi_radio_keys = {
+        f"{KEY_DOSE_QI}{KEY_RADIO}{label_qi_no}": (None, None),
+        f"{KEY_DOSE_QI}{KEY_RADIO}{label_qi_yes}": ("-QI_TEXT-", KEY_DOSE_QI_INFO)
+    }
+
+    revision_radio_keys = {
+        f"{KEY_DOSE_REVISION}{KEY_RADIO}{label_revisions_no}": (None, None),
+        f"{KEY_DOSE_REVISION}{KEY_RADIO}{label_revisions_yes}": ("-REVISION_TEXT-", [KEY_REVISION_NUMBER, KEY_DOSE_REVISION_INFO])
+    }
+
+    # Validate QI group
+    if not check_radio_on(values, list(qi_radio_keys.keys())):
+        for r in qi_radio_keys.keys():
+            update_window_error(window, r)
+        Sg.popup_error('Please indicate if there is a QI issue.')
+        is_valid = False
+
+    # Validate extra inputs for QI group
+    for radio_key, (text_key, input_key) in qi_radio_keys.items():
+        if values.get(radio_key):
+            if text_key and input_key and not values.get(input_key):
+                update_window_error(window, text_key)
+                update_window_error(window, input_key)
+                Sg.popup_error('Please provide details for the QI issue.')
+                is_valid = False
+
+    # Validate Revisions group
+    if not check_radio_on(values, list(revision_radio_keys.keys())):
+        for r in revision_radio_keys.keys():
+            update_window_error(window, r)
+        Sg.popup_error('Please indicate if there are revisions.')
+        is_valid = False
+
+    # Validate extra inputs for Revisions group
+    for radio_key, (text_key, input_keys) in revision_radio_keys.items():
+        if values.get(radio_key):
+            if text_key and input_keys:
+                missing_inputs = False
+                if isinstance(input_keys, list):
+                    for input_key in input_keys:
+                        if not values.get(input_key):
+                            update_window_error(window, input_key)
+                            missing_inputs = True
+                else:
+                    if not values.get(input_keys):
+                        update_window_error(window, input_keys)
+                        missing_inputs = True
+                if missing_inputs:
+                    update_window_error(window, text_key)
+                    Sg.popup_error('Please provide details for the revisions.')
+                    is_valid = False
+
+    return is_valid

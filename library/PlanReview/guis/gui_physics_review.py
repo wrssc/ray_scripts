@@ -42,7 +42,7 @@ def initialize_gui_dict(review_type='Physics'):
         # Width of sidebar with 30 pix of greyspace
         gui_dict['sidebar_width'] = int(window_width - gui_dict['tab_width'] - 30)
         # Gap is around 6 char
-        gui_dict['comment_width_chars'] = int(gui_dict['sidebar_width'] - 120) // pix_per_char_width
+        # gui_dict['comment_width_chars'] = int(gui_dict['sidebar_width'] - 120) // pix_per_char_width
     else:
         gui_dict['user_text_width'] = 24
         gui_dict['check_character_width'] = 96
@@ -151,7 +151,6 @@ def launch_physics_review_gui(rso, relaunch=False, review_type='Physics'):
     bottom, bottom_events = build_bottom_buttons(gui_state_manager.gui_dict['save_space'])
     # Side Panel
     side_panel, side_panel_events = create_side_panel(
-        gui_state_manager.gui_dict['comment_width_chars'],
         review_type=gui_state_manager.review_type)
     # Gather the layout
     layout = [
