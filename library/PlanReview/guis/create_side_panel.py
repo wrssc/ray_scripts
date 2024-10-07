@@ -512,7 +512,6 @@ def is_valid_side_panel(window: Sg.Window, values: Dict[str, Union[bool, str]],
         }
         validation_error_message = 'Please indicate if there are any long term issues for addressing,' \
                                    'and if there were revisions needed extending the planning time.'
-        # TODO: need validation for the dosimetry section
     else:
         revision_radio_text = {
             f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed": (None, None),
