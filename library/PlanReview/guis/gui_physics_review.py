@@ -75,6 +75,7 @@ class GuiState:
         self.qa_form_data = {}
         self.review_type = review_type
         self.tree_children = None
+        self.tree_data = None
         self.match_trees = {}
         self.qa_form_accessible = False
         self.relaunch = relaunch
@@ -126,7 +127,6 @@ def launch_physics_review_gui(rso, relaunch=False, review_type='Physics'):
         dialog_title = 'Physics Review'
     gui_state_manager = GuiState(rso, relaunch=relaunch, tests_started=False, review_type=review_type)
     # Variable initialization
-    match_trees = None
     # GUI setup
     gui_state_manager.gui_dict = initialize_gui_dict(review_type=review_type)
 
