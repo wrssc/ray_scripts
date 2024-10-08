@@ -96,13 +96,17 @@ def handle_top_event(gui_state_manager, event, values):
         report_script_error(gui_state_manager.rso)
     elif event == '-LOAD-':
         load_review(gui_state_manager)
-        # gui_state_manager.window.read()
         # Update the preplan gui state:
+        # gui_state_manager.window.read()
         update_preplan_gui_state(gui_state_manager, values)
     elif event == '-SAVE-':
+        review_data = get_review_gui_values(gui_state_manager, values)
+        # TODO: Move to the get_review_gui_values function
+        #       Include tree_data and tree_children
+        # review_data['tree_data'] = gui_state_manager.tree_data.to_dict()
+        # review_data['tree_children'] = gui_state_manager.tree_children
         gui_state_manager.review_file_name = save_review(
-            gui_state_manager.rso, get_review_gui_values(gui_state_manager, values),
-            suffix=gui_state_manager.suffix)
+            gui_state_manager.rso, review_data, suffix=gui_state_manager.suffix)
     elif event == '-START-':
         if gui_state_manager.tests_started:
             handle_already_started_tests(gui_state_manager, values)
@@ -269,14 +273,13 @@ def handle_start_event(gui_state_manager, values):
     Returns:
     """
     # Get the beamset info for review
-    # update_preplan_gui_state(gui_state_manager, values)
     beamsets = gui_state_manager.beamset_names
-    tree_data, gui_state_manager.tree_children = perform_automated_checks(
+    gui_state_manager.tree_data, gui_state_manager.tree_children = perform_automated_checks(
         gui_state_manager.rso, do_physics_review=True, values=values,
         display_progress=True, beamsets=beamsets)
     gui_state_manager.rso.patient.Save()
     tab_group = gui_state_manager.window['tab_group']
-    tab1 = on_submit_build_tree(tree_data, gui_state_manager.gui_dict['tab_width'],
+    tab1 = on_submit_build_tree(gui_state_manager.tree_data, gui_state_manager.gui_dict['tab_width'],
                                 gui_state_manager.gui_dict['tab_height'],
                                 gui_state_manager.gui_dict['pix_per_char_width'],
                                 gui_state_manager.gui_dict['pix_per_char_height'])
