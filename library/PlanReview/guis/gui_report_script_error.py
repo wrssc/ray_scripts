@@ -42,14 +42,20 @@ def report_script_error(rso):
                 Sg.popup_ok(
                     'Oops I missed it. Try hitting Ctrl-C after you capture')
                 img_data = capture_screen(error_report_window)
+            import logging
+            logging.info('Screenshot captured with type: ' + str(type(img_data)))
         elif event == 'Finish':
             # Save the report and close the window
             patient_id = values['patient_id']
             beamset_name = values["beamset_name"]
             description = values["description"]
             screenshot = img_data if img_data else None
-            file_path = save_report('error_report', patient_id, beamset_name, description,
-                                    screenshot)
+            file_path = save_report(report_type='error_report',
+                                    patient_id=patient_id,
+                                    beamset_name=beamset_name,
+                                    user_name=user_name,
+                                    report_text=description,
+                                    screenshot=screenshot)
             email_report_script_error(file_path)
             error_report_window.close()
             break
