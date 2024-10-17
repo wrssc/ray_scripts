@@ -82,7 +82,10 @@ COUCH_SOURCE_ROI_NAMES = {
     "HFS": {
         "TrueBeam": "TrueBeamCouch",
         "TrueBeam Qfix H1H2": "QFix_Brain_TBCouch_H1andH2",
-        "TomoTherapy": "TomoCouch"
+        "TrueBeam Qfix F2F3": "QFix_Brain_TBCouch_F2andF3",
+        "TomoTherapy": "TomoCouch",
+        "QFix Portrait Board": "Black Board External Final"
+
     },
     "HFP": {"TrueBeam": "ProneTrueBeamCouch", "TomoTherapy": "TomoCouch"},
     "FFS": {"TrueBeam": "TrueBeamCouch", "TomoTherapy": "TomoCouch"},
@@ -113,8 +116,10 @@ MONARCH_DERIVED_ROI_NAMES = []
 COUCH_SHIFT = {
     "HFS": {
         "TrueBeamCouch": [0, 6.8, 0],
-        "QFix_Brain_TBCouch_H1andH2": [0, 6.8, 0],
         "TomoCouch": [0, 6.8, 0],
+        "QFix_Brain_TBCouch_H1andH2": [-0.05, -6.65, -14.95],
+        "QFix_H&N_TBCouch_F2andF3": [-0.05, -6.65, -14.95],
+        "Black Board External Final": [-0.05, -6.65, -14.95],
     },
     "HFP": {
         "ProneTrueBeamCouch": [1.188, -6.6, 0],
@@ -128,6 +133,13 @@ COUCH_SHIFT = {
         "ProneTrueBeamCouch": [1.188, -6.6, 0],
         "TomoCouch": [0.256, -6.6, 0],
     },
+}
+
+# Magic numbers for Portrait Board
+PORTRAIT_BASE_SHIFT = {
+    "QFix_Brain_TBCouch_H1andH2": [-0.05, -6.65, -14.95],
+    "QFix_H&N_TBCouch_F2andF3": [-0.05, -6.65, -14.95],
+    "Black Board External Final": [-0.05, -6.65, -14.95],
 }
 
 # Magic numbers for Civco Incline Breast Board
@@ -316,15 +328,7 @@ def get_support_structures_GUI(examination):
                             default=True,
                             size=(20, 1),
                             key="-COUCH TRUEBEAM-",
-                        )
-                    ],
-                    [
-                        sg.Radio(
-                            "TrueBeam Couch with Qfix Portrait Board (Brain - H1 and H2)",
-                            "RADIOCOUCH",
-                            default=True,
-                            size=(40, 1),
-                            key="-COUCH TRUEBEAM QFIX H1H2-",
+                            enable_events=True,
                         )
                     ],
                     [
@@ -333,9 +337,11 @@ def get_support_structures_GUI(examination):
                             "RADIOCOUCH",
                             size=(20, 1),
                             key="-COUCH TOMO-",
+                            enable_events=True,
+
                         )
                     ],
-                    [sg.Radio("None", "RADIOCOUCH", size=(10, 1), key="-COUCH NONE-")],
+                    [sg.Radio("None", "RADIOCOUCH", size=(10, 1), key="-COUCH NONE-",enable_events=True,)],
                 ],
                 title="Treatment Table",
                 relief=sg.RELIEF_SUNKEN,
@@ -344,12 +350,73 @@ def get_support_structures_GUI(examination):
         ],
     )
 
-    # Add Civco BreastBoard Checkbox
     if patient_orientation == "HFS":
         civco_checkbox = True
+        portrait_checkbox = True
     else:
         civco_checkbox = False
+        portrait_checkbox = False
 
+    # Add Portrait Board Checkbox
+    layout.append(
+        [
+            sg.Checkbox(
+                "Use QFix Portrait Board",
+                enable_events=True,
+                visible=portrait_checkbox,
+                key="-USE PORTRAIT-"
+
+            )
+        ]
+    )
+
+    layout.append(
+        [
+            sg.Frame(
+                layout=[
+                    [
+                        sg.Radio(
+                            "TrueBeam: Brain - H1 and H2",
+                            "RADIOPORTRAIT",
+                            default=True,
+                            size=(40, 1),
+                            key="-COUCH TRUEBEAM QFIX H1H2-",
+                            visible=True,
+                        )
+                    ],
+                    [
+                        sg.Radio(
+                            "TrueBeam: Head and Neck - F2 and F3",
+                            "RADIOPORTRAIT",
+                            default=True,
+                            size=(40, 1),
+                            key="-COUCH TRUEBEAM QFIX F2F3-",
+                            visible=True,
+
+                        )
+                    ],
+                    [
+                        sg.Radio(
+                            "TomoTherapy or No Couch: No specific indexing",
+                            "RADIOPORTRAIT",
+                            default=True,
+                            size=(40, 1),
+                            key="-COUCH TOMO QFIX-",
+                            visible=False,
+
+                        )
+                    ],
+                ],
+                title="QFix Portrait Board Options",
+                relief=sg.RELIEF_SUNKEN,
+                tooltip="Select portrait board option",
+                visible=False,
+                key="-FRAME PORTRAIT-",
+            ),
+        ],
+    )
+
+    # Add Civco BreastBoard Checkbox
     layout.append(
         [
             sg.Checkbox(
@@ -416,7 +483,7 @@ def get_support_structures_GUI(examination):
     # Add submit button
     layout.append([sg.Submit(tooltip="Click to submit this window"), sg.Cancel()])
 
-    civco_visible, wingboard_visible = False, False
+    portrait_visible, civco_visible, wingboard_visible = False, False, False
 
     window = sg.Window(
         "Support Structure Selection",
@@ -428,18 +495,46 @@ def get_support_structures_GUI(examination):
     while True:
         event, values = window.read()
 
+        def reset_window():
+            window["-USE PORTRAIT-"].update(False)
+            window["-USE CIVCO-"].update(False)
+            window["-USE WINGBOARD-"].update(False)
+
+            window["-FRAME PORTRAIT-"].update(visible=False)
+            window["-FRAME CIVCO-"].update(visible=False)
+            window["-FRAME WINGBOARD-"].update(visible=False)
+
         if event == sg.WIN_CLOSED or event == "Cancel":
             break
         elif event == "Submit":
             support_structure_values = values
             break
+        elif event.startswith("-USE PORTRAIT-"):
+            portrait_visible = not portrait_visible
+            window["-FRAME PORTRAIT-"].update(visible=portrait_visible)
         elif event.startswith("-USE CIVCO-"):
             civco_visible = not civco_visible
             window["-FRAME CIVCO-"].update(visible=civco_visible)
-
         elif event.startswith("-USE WINGBOARD-"):
             wingboard_visible = not wingboard_visible
             window["-FRAME WINGBOARD-"].update(visible=wingboard_visible)
+        elif event.startswith("-COUCH TRUEBEAM-"):
+            reset_window()
+            portrait_visible, civco_visible, wingboard_visible = False, False, False
+
+            window["-COUCH TRUEBEAM QFIX H1H2-"].update(True)
+            window["-COUCH TRUEBEAM QFIX H1H2-"].update(visible=True)
+            window["-COUCH TRUEBEAM QFIX F2F3-"].update(visible=True)
+            window["-COUCH TOMO QFIX-"].update(visible=False)
+
+        elif event.startswith("-COUCH TOMO-") or event.startswith("-COUCH NONE-"):
+            reset_window()
+            portrait_visible, civco_visible, wingboard_visible = False, False, False
+
+            window["-COUCH TRUEBEAM QFIX H1H2-"].update(visible=False)
+            window["-COUCH TRUEBEAM QFIX F2F3-"].update(visible=False)
+            window["-COUCH TOMO QFIX-"].update(visible=True)
+            window["-COUCH TOMO QFIX-"].update(True)
 
     window.close()
 
@@ -516,9 +611,12 @@ def add_structures_from_template(
         )
         logging.info(message)
 
-        case.PatientModel.StructureSets[examination.Name].RoiGeometries[
-            roi
-        ].DeleteGeometry()
+        try:
+            case.PatientModel.StructureSets[examination.Name] \
+            .RoiGeometries[roi].DeleteGeometry()
+        except AttributeError:
+            case.PatientModel.StructureSets[examination.Name] \
+            .RoiGeometries[roi].DeleteRoiGeometry()
 
     # Add structure from template
     # Notes: The use of AlignToImageCenter drops structures in center of image.
@@ -1742,6 +1840,10 @@ def main():
         '-COUCH TRUEBEAM-': True,
         '-COUCH TOMO-': False,
         '-COUCH NONE-': False,
+        '-USE PORTRAIT-': False,
+        '-COUCH TRUEBEAM QFIX H1H2-': True
+        '-COUCH TRUEBEAM QFIX F2F3-': False
+        '-COUCH TOMO QFIX-': False
         '-USE CIVCO-': True,
         '-INCLINE ANGLE-': '7.5 deg',
         '-USE WINGBOARD-': True,
