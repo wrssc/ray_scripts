@@ -83,8 +83,6 @@ def build_top_buttons(save_space, review_type='Physics'):
                    for key in icons.keys()]
     top = Sg.Frame('',
                    [top_buttons],
-                   ## QT vertical_alignment='center',
-                   ## size=(top_width, top_height),
                    )
     top_events = [key for key in icons.keys()]
     return top, top_events
@@ -338,7 +336,7 @@ def get_ditto_tab_list(gui_state_manager, beamsets):
         for beamset in gui_state_manager.rso.plan.BeamSets:
             if beamset.DicomPlanLabel == beamset_name and "Tomo" not in beamset.DeliveryTechnique:
                 not_tomo_beamsets.append(beamset_name)
-            break
+                break
     ditto_tab_list, match_trees = get_ditto_tab(gui_state_manager.gui_dict['tab_width'],
                                                 gui_state_manager.gui_dict['tab_height'], not_tomo_beamsets)
 

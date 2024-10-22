@@ -7,6 +7,7 @@ from PlanReview.utils.constants import KEY_SIM_DATE, KEY_SLICES
 def get_dicom_date_and_slices(rso):
     """
     Retrieve the DICOM date and slice count from the dataset.
+    Date chosen is 0008, 0022 (Acquisition Date) and slice count is determined by the number of slice positions.
 
     Args:
         rso: An object representing the dataset.
@@ -17,7 +18,7 @@ def get_dicom_date_and_slices(rso):
     try:
         dcm_data = list(
             rso.exam.GetStoredDicomTagValueForVerification(
-                Group=0x0008, Element=0x0021).values())
+                Group=0x0008, Element=0x0022).values())
     except Exception as e:
         if 'Dicom tag not found' in str(e):
             dcm_data = None
