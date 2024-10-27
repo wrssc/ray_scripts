@@ -40,6 +40,10 @@ def check_beamset_approved(rso: NamedTuple, **kwargs: Optional[bool]) -> Tuple[s
 
     approval_status = get_approval_info(rso.plan, rso.beamset)
     if approval_status.beamset_approved:
+        if not approval_status.plan_reviewer:
+            message_str = f"Beamset: {rso.beamset.DicomPlanLabel} does not have valid approval data"
+            pass_result = ALERT
+            return pass_result, message_str
         group_name = find_groupname_by_userid(approval_status.beamset_reviewer)
         if is_valid_approver(group_name, VALID_APPROVAL_GROUPS):
             message_str = f"Beamset: {rso.beamset.DicomPlanLabel} was approved by " \
@@ -53,10 +57,11 @@ def check_beamset_approved(rso: NamedTuple, **kwargs: Optional[bool]) -> Tuple[s
             pass_result = FAIL
 
     else:
-        message_str = "Beamset: {} is not approved".format(
+        message_str = "Beamset: {} is not approved.".format(
             rso.plan.Name)
         if do_physics_review:
             pass_result = FAIL
         else:
-            pass_result = ALERT
+            pass_result = PASS
+            message_str += " (Dosimetry Safety Review)"
     return pass_result, message_str

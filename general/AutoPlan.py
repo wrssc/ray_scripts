@@ -1,4 +1,4 @@
-""" UW Autoplanning
+""" UW Templated Planning
 
     Automatic generation of a plan
     * Loads the ScriptStatus
@@ -67,23 +67,20 @@ __help__ = 'TODO: No Help'
 import sys
 import os
 import re
-
-# sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
-# sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
 import logging
+import connect
+import library.StructureOperations as StructureOperations
+import library.Objectives as Objectives
+import library.BeamOperations as BeamOperations
+import library.AutoPlanOperations as AutoPlanOperations
+import library.autoplan_whole_brain as autoplan_whole_brain
+import FinalDose
 from collections import namedtuple
 from timeit import default_timer as timer
-import connect
-import UserInterface
-import GeneralOperations
-from GeneralOperations import logcrit as logcrit
-import StructureOperations
-import Objectives
-import BeamOperations
-import AutoPlanOperations
-from PlanOperations import find_optimization_index, compute_dose
-import autoplan_whole_brain
-import FinalDose
+from library.UserInterface import InputDialog, ScriptStatus
+from library.GeneralOperations import logcrit as logcrit
+from library.api.api_utils import get_all_commissioned, find_scope
+from library.PlanOperations import find_optimization_index, compute_dose
 
 
 # from Objectives import add_goals_and_objectives_from_protocol
@@ -202,7 +199,7 @@ def target_dialog(case, protocol, order, use_orders=True):
     target_required.append('00_nfx')
 
     # Display dialog
-    target_dose_level_dialog = UserInterface.InputDialog(
+    target_dose_level_dialog = InputDialog(
         inputs=target_inputs,
         title='Input Target Dose Levels',
         datatype=target_datatype,
@@ -236,9 +233,9 @@ def beamset_dialog(protocol, order_targets):
         beamset_name = beamsets[0]
         beamset_etree = find_beamset_element(protocol, beamset_name=beamset_name)
         if 'Tomo' in beamset_etree.find('technique').text:
-            machines = GeneralOperations.get_all_commissioned(machine_type='Tomo')
+            machines = get_all_commissioned(machine_type='Tomo')
         else:
-            machines = GeneralOperations.get_all_commissioned(machine_type='VMAT')
+            machines = get_all_commissioned(machine_type='VMAT')
         inputs = {'m': 'Select Machine'}
         datatype = {'m': 'combo'}
         initial = {}
@@ -250,7 +247,7 @@ def beamset_dialog(protocol, order_targets):
         logging.debug('options {}'.format(options))
     else:
         beamset_name = None
-        machines = GeneralOperations.get_all_commissioned()
+        machines = get_all_commissioned()
         inputs = {'bs': 'Select Beamset', 'm': 'Select Machine'}
         datatype = {'bs': 'combo', 'm': 'combo'}
         initial = {'bs': beamsets[0]}
@@ -265,7 +262,7 @@ def beamset_dialog(protocol, order_targets):
 
     #
     # Beamset dialog
-    selected_beam_parameters = UserInterface.InputDialog(
+    selected_beam_parameters = InputDialog(
         inputs=inputs,
         title='Beamset Configuration',
         datatype=datatype,
@@ -327,10 +324,10 @@ def copy_plan_set_copy_current(rso, new_plan_name):
     # Create the return variable noting that people get whiny about _replace and we should
     # eventually get around to using dataclasses
     pd_out = Pd(error=[],
-                patient=GeneralOperations.find_scope(level='Patient'),
-                case=GeneralOperations.find_scope(level='Case'),
-                exam=GeneralOperations.find_scope(level='Examination'),
-                db=GeneralOperations.find_scope(level='PatientDB'),
+                patient=find_scope(level='Patient'),
+                case=find_scope(level='Case'),
+                exam=find_scope(level='Examination'),
+                db=find_scope(level='PatientDB'),
                 plan=rso.case.TreatmentPlans[new_plan_name],
                 beamset=rso.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name])
     return pd_out
@@ -427,7 +424,7 @@ def autoplan(autoplan_parameters, **kwargs):
             steps.append(v[0])
             instruct.append(v[1])
 
-        auto_status = UserInterface.ScriptStatus(
+        auto_status = ScriptStatus(
             steps=steps,
             docstring=__doc__,
             help=__help__)
@@ -447,15 +444,15 @@ def autoplan(autoplan_parameters, **kwargs):
     # Get current patient, case, exam
     exam = None
     if exam_name:
-        case = GeneralOperations.find_scope(level='Case')
+        case = find_scope(level='Case')
         for exam in case.Examinations:
             if exam.Name == exam_name:
                 break
     rso = Pd(error=[],
-             patient=GeneralOperations.find_scope(level='Patient'),
-             case=GeneralOperations.find_scope(level='Case'),
-             exam=exam if exam else GeneralOperations.find_scope(level='Examination'),
-             db=GeneralOperations.find_scope(level='PatientDB'),
+             patient=find_scope(level='Patient'),
+             case=find_scope(level='Case'),
+             exam=exam if exam else find_scope(level='Examination'),
+             db=find_scope(level='PatientDB'),
              plan=None,
              beamset=None)
 
@@ -535,7 +532,7 @@ def autoplan(autoplan_parameters, **kwargs):
 
     # TODO: Sort machines by technique
     # Machines
-    _ = GeneralOperations.get_all_commissioned(machine_type=None)
+    _ = get_all_commissioned(machine_type=None)
     if not ignore_status:
         auto_status.next_step(text=script_steps[status_index][1])
         status_index += 1

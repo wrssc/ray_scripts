@@ -48,7 +48,7 @@ __credits__ = ['']
 import logging
 import PySimpleGUI as Sg
 import connect
-from GeneralOperations import find_scope
+from api.api_utils import find_scope
 from collections import namedtuple
 # noinspection PyUnresolvedReferences
 from System import Environment

@@ -1,8 +1,10 @@
 from typing import NamedTuple, Tuple
 import numpy as np
 import math
-import logging
+import re
 from PlanReview.review_definitions import PASS, FAIL
+import logging
+import datetime
 LOGGING = True
 
 def debug(msg):
@@ -69,6 +71,8 @@ def find_gaps(rg, voxel_size, slice_positions):
     # Determine a bounding box for the contour
     bb = rg.GetBoundingBox()
     roi_voxels = extract_grid(rg, bb, voxel_size, slice_positions)
+    if roi_voxels is None:
+        return None
     empty_slices = np.where(~np.any(roi_voxels[:-1], axis=1))[0]
     if empty_slices.size > 0:
         return empty_slices * voxel_size['z'] + bb[0]['z']
@@ -80,20 +84,44 @@ def consecutive(data, stepsize=1):
     return np.split(data, np.where(np.diff(data) >= stepsize)[0] + 1)
 
 
+def check_for_valid_contours(rso,contour_list):
+    geom_list = []
+    for rg in rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries:
+        if rg.OfRoi.Name not in contour_list:
+            continue
+        if rg.HasContours() and hasattr(rg.PrimaryShape, 'Contours'):
+            geom_list.append(rg.OfRoi.Name)
+        else:
+            logging.debug(f"Excluded: {rg.OfRoi.Name} on the basis of missing contours")
+    return geom_list
+
+
 def get_contour_list(rso):
     contour_list = []
-    # All Rois with contours
-    rois_with_contours = [rg for rg in
-                          rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries if
-                          rg.HasContours()]
+    # Find all ROIs
+    roi_list = [roi.Name for roi in rso.case.PatientModel.RegionsOfInterest]
+    # Exclude rois that do not meet our criteria
     organ_types = ['Target', 'OrganAtRisk']
     roi_types = ['Ptv', 'Ctv', 'Gtv', 'Organ']
-    # ROI names if they have a type match in review_types
-    for rg in rois_with_contours:
-        if rg.OfRoi.OrganData.OrganType in organ_types and \
-                rg.OfRoi.Type in roi_types:
-            contour_list.append(rg.OfRoi.Name)
-    return contour_list
+    # Define exclusion patterns
+    exclude_from_contour_analysis = ['NoFlyZone_PRV', '^OTV.*', '^PTV.*_Eval$', '^sOTV.*', '^External.*', '^Skin.*',
+                                     '^Normal.*', '^Lungs.*','^Parotids.*','^[Rr]ing.*', '^Lung_[RL]$',
+                                     r'\b\w+_PRV\d{2}\b', '^Chestwall.*$']
+    for roi_name in roi_list:
+        roi = rso.case.PatientModel.RegionsOfInterest[roi_name]
+        if roi.OrganData.OrganType not in organ_types or roi.Type not in roi_types:
+            logging.debug(f"Excluded: {roi_name} on the basis of type")
+            continue
+        exclude_match = any(re.search(pattern, roi_name) for pattern in exclude_from_contour_analysis)
+        if exclude_match:
+            logging.debug(f"Excluded: {roi_name} on the basis of excluded name pattern")
+            continue
+        contour_list.append(roi_name)
+
+    # All Rois with contours
+    rois_with_contours = check_for_valid_contours(rso, contour_list)
+
+    return rois_with_contours
 
 
 def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
@@ -146,11 +174,21 @@ def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
     gaps = {}
     for roi in rois_to_check:
         # Get the roi geometry
+        logging.debug(f'Checking {roi}')
+        time_start = datetime.datetime.now()
         roi_geometry = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi]
+        time_end = datetime.datetime.now()
+        delta = time_end-time_start
+        logging.debug(f'Getting ROI geometry took {delta.total_seconds()} seconds')
         # Find any gaps
         debug(f'Checking {roi} for gaps')
+        time_start = datetime.datetime.now()
         roi_gaps = find_gaps(roi_geometry, voxel_size, slice_positions=slices)
+        time_end = datetime.datetime.now()
+        delta = time_end-time_start
+        logging.debug(f'Finding gaps took {delta.total_seconds()} seconds')
         if roi_gaps is not None:
+            time_start = datetime.datetime.now()
             # Create an array of the sorted list of unique gap positions
             slices_with_gaps = np.array(sorted(list(set(roi_gaps))))
             gap_positions = []
@@ -162,6 +200,9 @@ def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
                 else:
                     gap_positions.append("{0:0.1f}".format(round(g[0], 1)))
             gaps[roi] = gap_positions
+            time_end = datetime.datetime.now()
+            time_delta = time_end-time_start
+            logging.debug(f'Creating gap positions took {time_delta.total_seconds()} seconds')
 
     if gaps:
         pass_result = FAIL

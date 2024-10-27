@@ -740,7 +740,7 @@
         <Export></Export>
         <FMAID>7205</FMAID>
         <Color red="58" green="251" blue="170" Hex="#3AFBAA">EvaGreen</Color>
-        <Alias>Kidney Left</Alias>
+        <Alias>Kidney Left,left kidney,L_Kidney</Alias>
     </roi>
     <roi>
         <name>Kidney_L_PRVxx</name>
@@ -825,7 +825,7 @@
         <Export></Export>
         <FMAID>7204</FMAID>
         <Color red="250" green="57" blue="105" Hex="#FA3969">ChineseNewYear</Color>
-        <Alias>Kidney Right</Alias>
+        <Alias>Kidney Right,kidney right,R_Kidney</Alias>
     </roi>
     <roi>
         <name>Kidney_R_PRVxx</name>

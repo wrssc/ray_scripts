@@ -147,6 +147,7 @@ from typing import Optional, List
 script_dir = os.path.dirname(os.path.abspath(__file__))
 general_dir = os.path.join(script_dir, '..', 'general')
 sys.path.insert(1, general_dir)
+from library.api.api_case import get_rigid_registrations
 from AutoPlan import multi_autoplan, autoplan  # noqa: E402
 
 #
@@ -924,13 +925,14 @@ def make_box(patient_data, box_name, length=None, z_center=None):
     patient_model = case.PatientModel
     #
     # Get the Bounding box of the External contour
-    external_name = find_types(case,
-                               roi_type='External')[0]
+    external_name = find_types(case, roi_type='External')[0]
     bb_external = patient_model.StructureSets[exam.Name] \
         .RoiGeometries[external_name].GetBoundingBox()
     c_external = get_center(patient_data, roi_name=external_name)
     z_center = c_external['z'] if z_center is None else z_center
     length = bb_external[1].z - bb_external[0].z if length is None else length
+    logging.debug(f'Measured length of external contour: {bb_external[1].z - bb_external[0].z}')
+    logging.debug(f'Building a box with length {length} centered at {z_center}')
     # Create the box
     box_geom = create_roi(
         case=case,
@@ -1526,7 +1528,8 @@ def update_dose_grid(pdata):
 def check_registration_approval(pd_ffs, ffs_scan_name, hfs_scan_name):
     approved = False
     # Look through registration objects
-    for r in pd_ffs.case.Registrations:
+    registrations = get_rigid_registrations(pd_ffs.case)
+    for r in registrations:
         try:
             _ = r.RegistrationSource
         except AttributeError:
@@ -2133,18 +2136,20 @@ def cut_rois_to_image(source: namedtuple, destination: namedtuple,
     """
 
     # Maximum possible height for bounding box (in cm)
-    wadlow = 272
+    wadlow = 200  # 272 cm is the maximum height of a human but in RS 2024a is the maximum
 
     # Placeholder for ROIs to be deleted
     delete_list = []
 
     # Create a bounding box larger than possible body size
     big_box = make_box(destination, box_name='big_box', length=wadlow)
-    delete_list.append(big_box)
+    # TODO: uncomment
+    # delete_list.append(big_box)
 
     # Create a bounding box as large as the external examination
     box_name = make_box(destination, box_name=f'fov_box')
-    delete_list.append(box_name)
+    # TODO: uncomment
+    # delete_list.append(box_name)
 
     # Subtract smaller box from the large one
     destination.case.PatientModel.RoiSubtractionPostProcessing(
@@ -2388,7 +2393,8 @@ def get_new_grid(case, beamset_a, beamset_b):
 
 
 def find_transform(case, from_name, to_name):
-    for r in case.Registrations:
+    registrations = get_rigid_registrations(case)
+    for r in registrations:
         if r.StructureRegistrations[0].FromExamination.Name == from_name \
                 and r.StructureRegistrations[0].ToExamination.Name == to_name:
             return r
@@ -2635,10 +2641,10 @@ def tbi_gui(bypass=False):
             # '-MACHINE-': "TrueBeam_NoTrack",
             '-THI-': True,
             '-VMAT-': False,
-            '-FFS PLAN-': False,
+            '-FFS PLAN-': True,
             '-HFS PLAN-': True,
-            '-FFS ISODOSE-': False,
-            '-FFS STRUCTURES-': False,
+            '-FFS ISODOSE-': True,
+            '-FFS STRUCTURES-': True,
             '-SUM DOSE-': True
         }
 
@@ -2710,7 +2716,7 @@ def main():
     # Prerequisites for operations:
     # generate_thi_ffs_plan: External, AvoidSkin, External+1
     # Launch gui
-    testing = False
+    testing = True
     tbi_selections = tbi_gui(bypass=testing)
 
     nfx = tbi_selections['-NFX-']

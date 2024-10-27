@@ -1,5 +1,5 @@
 <protocol>
-    <name>UW Breast SBRT</name>
+    <name>UW Breast Hypofractionation to 11</name>
     <AnatomicGroup>Breast</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_CHEST</protocol>
@@ -93,20 +93,6 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">2.64</dose>
-                <volume units="Gy">0.03</volume>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">1</dose>
-                <volume units="cc">0.03</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
                 <name>Uninvolved_Breast</name>
                 <type dir="le">VX</type>
                 <dose units="Gy">15</dose>
@@ -128,11 +114,25 @@
                 <priority>3</priority>
             </roi>
             <roi>
+                <name>Breast_R</name>
+                <type>Max</type>
+                <dose units="Gy">2.64</dose>
+                <volume units="Gy">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Breast_R</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>Skin_PRV03</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">27</dose>
-                <priority>3</priority>
+                <priority>5</priority>
             </roi>
         </goals>
         <objectives>
@@ -266,20 +266,6 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Breast_L</name>
-                <type>Max</type>
-                <dose units="Gy">2.64</dose>
-                <volume units="Gy">0.03</volume>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Breast_L</name>
-                <type>Max</type>
-                <dose units="Gy">1</dose>
-                <volume units="cc">0.03</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
                 <name>Uninvolved_Breast</name>
                 <type dir="le">VX</type>
                 <dose units="Gy">15</dose>
@@ -301,11 +287,25 @@
                 <priority>3</priority>
             </roi>
             <roi>
+                <name>Breast_L</name>
+                <type>Max</type>
+                <dose units="Gy">2.64</dose>
+                <volume units="Gy">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Breast_L</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>Skin_PRV03</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">27</dose>
-                <priority>3</priority>
+                <priority>5</priority>
             </roi>
         </goals>
         <objectives>
@@ -388,7 +388,8 @@
                 <option default="false">Weekly</option>
             </treatment_frequency>
             <imaging_frequency>
-                <option default="true">Daily CBCT</option>
+                <option default="true">Daily Planar Imaging</option>
+                <option>Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
@@ -630,7 +631,8 @@
                 <option default="false">Weekly</option>
             </treatment_frequency>
             <imaging_frequency>
-                <option default="true">Daily CBCT</option>
+                <option default="true">Daily Planar Imaging</option>
+                <option>Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>

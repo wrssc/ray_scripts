@@ -458,7 +458,7 @@ def aria_qr(root_dir=None, beamset_name=None):
     list_rs_bs = rs_beamset_list()
     if not dict_aria_plans or not list_rs_bs:
         return None, None, None
-    
+
     list_aria_plans = [dict_aria_plans[d][list_key] for d in dict_aria_plans]
 
     if beamset_name:

@@ -406,7 +406,9 @@ def build_demographics_table(data, config):
 
 
 def parse_high_risk_boolean(value, config):
-    if value:
+    if value == "Not Specified":
+        return value, getSampleStyleSheet()['Normal']
+    elif value:
         style = getSampleStyleSheet()['Normal']
         style.fontName = 'Helvetica-Bold'
         style.backColor = config.UW_BLUE
@@ -474,8 +476,8 @@ def add_treatment_instructions_table(simulation_set, special_instructions, confi
     # Extract data from the header dictionary
     simulation_date = simulation_set.get(KEY_SIM_DATE, "Not Specified")
     patient_orientation = simulation_set.get(KEY_PATIENT_ORIENTATION, "Not Specified")
-    prior_radiotherapy = simulation_set.get(KEY_PRIOR_RT, "Not Specified")
-    implanted_medical_device = simulation_set.get(KEY_IMD, "Not Specified")
+    prior_radiotherapy = simulation_set.get(KEY_PRIOR_RT + KEY_RADIO + '-YES', "Not Specified")
+    implanted_medical_device = simulation_set.get(KEY_IMD + KEY_RADIO + '-YES', "Not Specified")
     imaging_frequency = simulation_set.get(KEY_IMAGING_FREQ, "Not Specified")
     treatment_frequency = simulation_set.get(KEY_TREAT_FREQ, "Not Specified")
 
@@ -524,7 +526,7 @@ def row_proceed_revise(data):
     status_mapping = {
         "Revise": ("Revise", str(data.get(KEY_REVISION_INFO, "")), RED_CIRCLE),
         "Proceed": ("Proceed", "", GREEN_CIRCLE),
-        "QIProceed": ("Proceed", "", GREEN_CIRCLE),
+        "Proceed (QI Issue)": ("Proceed", "", GREEN_CIRCLE),
     }
     recommendation, comment, icon = status_mapping.get(data[KEY_PROCEED_REVISE], ("", "", ""))
     return recommendation, comment, icon

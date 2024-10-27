@@ -133,6 +133,7 @@ def load_rsos(rso, beamsets):
 def generate_unique_id():
     return str(uuid.uuid4())
 
+
 def build_review_tree(rso, exam_level_tests, plan_level_tests,
                       beamset_levels, sandbox_level_tests, message_logs,
                       beamsets=None):

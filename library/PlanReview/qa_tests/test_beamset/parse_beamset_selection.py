@@ -52,9 +52,10 @@ def parse_beamset_selection(rso, **kwargs):
     Returns:
         tuple: A tuple containing the pass result and a message.
     """
+    from PlanReview.utils.review_api_versions import get_unique_id_beamset
     log_messages = kwargs.get('LOG_MESSAGES', [])
     beamset_name = rso.beamset.DicomPlanLabel
-    beamset_id = rso.beamset.UniqueId
+    beamset_id = get_unique_id_beamset(rso.beamset)
 
     # Regular expressions for parsing log messages
     regexes = {

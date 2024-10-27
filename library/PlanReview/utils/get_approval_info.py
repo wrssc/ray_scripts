@@ -6,7 +6,7 @@ from collections import namedtuple
 
 # Function to read XML into a DataFrame
 def read_xml_to_dataframe():
-    from PlanReview.review_definitions import STAFF_XML_PATH
+    from library.PlanReview.review_definitions import STAFF_XML_PATH
     xml_path = STAFF_XML_PATH
     tree = ET.parse(xml_path)
     root = tree.getroot()
@@ -53,6 +53,7 @@ def find_username_by_userid(userid):
     else:
         return None
 
+
 def is_valid_approver(group_name, valid_approval_groups):
     return group_name.lower() in map(str.lower, valid_approval_groups)
 
@@ -69,6 +70,7 @@ def get_approval_info(plan, beamset):
                               beamset_reviewer, beamset_approval_time, plan_approved,
                               plan_exported, plan_reviewer, plan_approval_time)
     """
+    from PlanReview.utils.review_api_versions import get_plan_reviewer_name, get_beamset_reviewer_name
     Approval = namedtuple('Approval',
                           ['beamset_approved',
                            'beamset_exported',
@@ -89,17 +91,17 @@ def get_approval_info(plan, beamset):
     try:
         if beamset.Review.ApprovalStatus == 'Approved':
             beamset_approved = True
-            beamset_reviewer = beamset.Review.ReviewerName
+            beamset_reviewer = get_beamset_reviewer_name(beamset)
             beamset_time = parser.parse(str(beamset.Review.ReviewTime))
             beamset_exported = beamset.Review.HasBeenExported
             if plan.Review.ApprovalStatus == 'Approved':
                 plan_approved = True
-                plan_reviewer = plan.Review.ReviewerName
+                plan_reviewer = get_plan_reviewer_name(plan)
                 plan_time = parser.parse(str(plan.Review.ReviewTime))
                 plan_exported = plan.Review.HasBeenExported
         else:
             plan_approved = False
-            plan_reviewer = plan.Review.ReviewerName
+            plan_reviewer = get_plan_reviewer_name(plan)
             plan_time = parser.parse(str(plan.Review.ReviewTime))
             plan_exported = plan.Review.HasBeenExported
     except AttributeError:

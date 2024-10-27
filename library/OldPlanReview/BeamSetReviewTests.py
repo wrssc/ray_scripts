@@ -8,6 +8,7 @@ import re
 import connect
 from ReviewDefinitions import *
 import ExamTests
+from api.api_beamsets import get_unique_id_beamset
 
 # Declare the named tuple for storing computed TomoTherapy parameters
 TomoParams = namedtuple('TomoParams', ['gantry_period', 'time', 'couch_speed', 'total_travel'])
@@ -1580,7 +1581,7 @@ def parse_beamset_selection(rso, **kwargs):
     """
     log_messages = kwargs.get('LOG_MESSAGES', [])
     beamset_name = rso.beamset.DicomPlanLabel
-    beamset_id = rso.beamset.UniqueId
+    beamset_id = get_unique_id_beamset(rso.beamset)
 
     # Regular expressions for parsing log messages
     regexes = {

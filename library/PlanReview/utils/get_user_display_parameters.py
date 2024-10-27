@@ -30,7 +30,7 @@ def get_text_element_size(text: str) -> Tuple[int, int]:
     return size_text
 
 
-def get_user_display_parameters() -> Tuple[int, int, bool, int, int]:
+def get_user_display_parameters(review_type) -> Tuple[int, int, bool, int, int]:
     """
     This function determines some parameters related to the user's display.
     It calculates the dimensions of the window and the number of pixels per character.
@@ -56,10 +56,8 @@ def get_user_display_parameters() -> Tuple[int, int, bool, int, int]:
     ## point = Sg.QtCore.QPoint()
     ## screen_width = Sg.QtWidgets.QDesktopWidget().screenGeometry(point).width()
     ## screen_height = Sg.QtWidgets.QDesktopWidget().screenGeometry(point).height()
-
     window_height = 800 if screen_height<minimum_vertical_resolution else 1000
     window_width = 1100 if screen_height<minimum_vertical_resolution else 1310
-
     # check if we need to save space
     save_space = screen_height <= minimum_vertical_resolution
     pixels_per_char_width = pixels_per_char

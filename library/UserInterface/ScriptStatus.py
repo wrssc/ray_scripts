@@ -267,7 +267,7 @@ def _child_process(args, queue, aborted, kill):
             status.Text = 'The script will abort after this step...'
             aborted.set()
 
-        form.DialogResult = True
+        form.DialogResult = System.Windows.Forms.DialogResult.OK
         kill.set()
 
     # OK/Cancel buttons

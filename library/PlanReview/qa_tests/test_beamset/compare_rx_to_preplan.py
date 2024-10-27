@@ -4,7 +4,7 @@ import csv
 import os
 import logging
 from typing import Tuple, NamedTuple, Optional, Any
-from PlanReview.review_definitions import PASS, FAIL, ALERT, DATAFILE_TARGET_MATCH_STATISTICS
+from PlanReview.review_definitions import PASS, FAIL, ALERT
 from PlanReview.utils.constants import KEY_BEAMSET_SELECT, KEY_BEAMSET_FRACTION_COUNT, \
     KEY_BEAMSET_TARGET_NAME, KEY_BEAMSET_DOSE
 
@@ -113,7 +113,7 @@ def find_cooptimized_beamset(rso: NamedTuple, beamset_name: str) -> Optional[str
     return None
 
 
-def find_optimization(rso: NamedTuple, beamset_name: str) -> Optional[str]:
+def find_optimization(rso: NamedTuple, beamset_name: str) -> Optional[Any]:
     """
     Find the optimization for a given beamset.
 
@@ -140,14 +140,14 @@ def prescription_type_is_site(dose_ref):
 
 
 def rx_contains_target(dose_ref):
-    if doseref_attribute_test(dose_ref, 'OnStructure') is not None:
+    if dose_reference_attribute_test(dose_ref, 'OnStructure') is not None:
         return dose_ref.OnStructure.Name
     return None
 
 
 def is_rx_primary(rso, beamset_name, contour_name):
     beamset = find_beamset_from_name(rso, beamset_name)
-    if check_primary_rx_scriptobj(rso, beamset_name):
+    if primary_rx_reference_is_roi(rso, beamset_name):
         # The Primary Rx is not empty.
         if contour_name:
             # The contour name is not empty.
@@ -161,7 +161,7 @@ def is_rx_primary(rso, beamset_name, contour_name):
         return False
 
 
-def check_primary_rx_scriptobj(rso, beamset_name):
+def primary_rx_reference_is_roi(rso, beamset_name):
     beamset = find_beamset_from_name(rso, beamset_name)
     primary_rx = beamset.Prescription.PrimaryPrescriptionDoseReference
     try:
@@ -171,7 +171,7 @@ def check_primary_rx_scriptobj(rso, beamset_name):
         return False
 
 
-def doseref_attribute_test(obj, attr_name):
+def dose_reference_attribute_test(obj, attr_name):
     """
     Safely attempts to access an attribute of an object.
 
@@ -198,22 +198,21 @@ def find_rx_type(dose_ref):
 def extract_rx_data(rso, beamset_name):
     beamset = find_beamset_from_name(rso, beamset_name)
     rx_data = {'beamset_name': beamset_name,
-               'raystation_fractions': doseref_attribute_test(beamset.FractionationPattern, 'NumberOfFractions')}
+               'raystation_fractions': dose_reference_attribute_test(beamset.FractionationPattern, 'NumberOfFractions')}
     rx = beamset.Prescription
     # Probably easiest to loop over the PrescriptionDoseReferences and append as we go.
     targets = []
     for dose_ref in rx.PrescriptionDoseReferences:
         rx_type = find_rx_type(dose_ref)
-        n_fx = doseref_attribute_test(beamset.FractionationPattern, 'NumberOfFractions')
         raystation_target = rx_contains_target(dose_ref)
         raystation_primary_rx = is_rx_primary(rso, beamset_name, raystation_target)
         target_info = {
             'name': raystation_target,
-            'dose': doseref_attribute_test(dose_ref, 'DoseValue') / 100,
+            'dose': dose_reference_attribute_test(dose_ref, 'DoseValue') / 100,
             'rx_type': rx_type,
             'primary_rx': raystation_primary_rx,
-            'dose_absolute_volume': doseref_attribute_test(dose_ref, 'DoseAbsoluteVolume'),
-            'dose_relative_volume': doseref_attribute_test(dose_ref, 'DoseVolume'),
+            'dose_absolute_volume': dose_reference_attribute_test(dose_ref, 'DoseAbsoluteVolume'),
+            'dose_relative_volume': dose_reference_attribute_test(dose_ref, 'DoseVolume'),
             'background_dependency': find_background_dependency(rso, beamset_name),
             'cooptimized_beamset': find_cooptimized_beamset(rso, beamset_name)
         }
@@ -227,8 +226,8 @@ def extract_raystation_beamset_info(rso, beamset_name):
     Extracts beamset information from RayStation using API calls.
 
     Args:
-        raystation_objects (dict): A dictionary containing RayStation objects,
-                                   including 'rso' which is assumed to be the patient case object.
+        rso (NamedTuple): A dictionary containing RayStation objects,
+                          including 'rso' which is assumed to be the patient case object.
         beamset_name (str): The name of the beamset to extract information for.
 
     Returns:
@@ -266,7 +265,7 @@ def dict_to_dataframe(dictionary, dict_type):
     for target in targets:
         target_name = target.get('name')
         if not target_name and dict_type == 'gui':  # Skip the record if target_name is empty
-             continue
+            continue
 
         record = {
             'BeamsetName': beamset_name,
@@ -321,7 +320,7 @@ def test_fraction_match(df1, df2):
          df2[df2['BeamsetName'] == beamset]['Fractions'].iloc[0])
         for beamset in unique_beamsets
         if df1[df1['BeamsetName'] == beamset]['Fractions'].iloc[0] !=
-           df2[df2['BeamsetName'] == beamset]['Fractions'].iloc[0]
+        df2[df2['BeamsetName'] == beamset]['Fractions'].iloc[0]
     ]
 
     # Construct and print the compact mismatch message
@@ -407,7 +406,6 @@ def determine_best_matches(df, criteria, thresholds):
     Returns:
         pd.DataFrame: DataFrame updated with the best match and its metrics.
     """
-    import logging
 
     # Filter the DataFrame to include only rows that meet all the thresholds for each criterion
     criteria_filters = tuple(df[criterion] >= thresholds[criterion] for criterion in criteria)
@@ -447,7 +445,7 @@ def parse_match_results(df):
         K_BEST: [],
         K_NO_MATCH: [],
         K_SITE_MATCH: [],
-        K_SITE_NO_MATCH:[]
+        K_SITE_NO_MATCH: []
     }
 
     # Iterate through DataFrame rows
@@ -455,7 +453,6 @@ def parse_match_results(df):
         gui_target = row['TargetName']
         rs_target = row.get('BestMatch')
         match_type = row['MatchType']
-
 
         if match_type == K_SITE_MATCH:
             grouped_messages[K_SITE_MATCH].append(gui_target)
@@ -487,6 +484,8 @@ def parse_match_results(df):
         return FAIL, "Unknown error"
     if K_SITE_NO_MATCH in grouped_messages or K_SITE_MATCH in grouped_messages:
         result = PASS if K_SITE_MATCH in grouped_messages else ALERT
+    elif K_NO_MATCH in grouped_messages:
+        result = ALERT
     else:
         result = PASS if K_NO_MATCH not in grouped_messages else PASS
     final_message = "; ".join(message_parts)
@@ -499,6 +498,7 @@ def write_matches_to_csv(rso, best_matches, output_csv_path):
     Writes or appends best match results to a CSV file.
 
     Args:
+        rso (NamedTuple): The RayStation objects containing the beamset name.
         best_matches (dict): The best matches to write, including scores.
         output_csv_path (str): The path to the CSV file where results will be written or appended.
     """
@@ -532,7 +532,6 @@ def find_dose_equivalent_candidates(df1, df2, beamset_name):
 
     # Iterate over unmatched targets in df1
     for index, row in df1_beamset.iterrows():
-        target_name = row['TargetName']
         target_dose = float(row['Dose'])
 
         # Find RayStation targets with a dose close to the unmatched target's dose
@@ -579,7 +578,6 @@ def update_best_matches_and_statistics(df_gui, ss):
 
     Args:
         df_gui (pd.DataFrame): DataFrame representing GUI extracted data with potential matches.
-        df_rs (pd.DataFrame): DataFrame representing RayStation extracted data.
         ss (RayStationObject): Structure set object for accessing comparison methods.
     """
     criteria = ['DiceSimilarityCoefficient', 'Precision', 'Sensitivity', 'Specificity']
@@ -647,7 +645,7 @@ def update_best_matches_and_statistics(df_gui, ss):
             df_gui.at[index, 'MatchType'] = K_NO_MATCH
 
 
-def match_fractions_to_preplan(rso: NamedTuple, **kwargs: Optional[str]) -> Tuple[str, str]:
+def match_fractions_to_preplan(rso: NamedTuple, **kwargs: Optional) -> Tuple[str, str]:
     """ Match Fractions to Preplan
         Compares the number of fractions between the user-entered values and the DICOM dataset.
 
@@ -697,7 +695,7 @@ def match_fractions_to_preplan(rso: NamedTuple, **kwargs: Optional[str]) -> Tupl
     return result, message
 
 
-def match_rx_to_preplan(rso: NamedTuple, **kwargs: Optional[str]) -> Tuple[str, str]:
+def match_rx_to_preplan(rso: NamedTuple, **kwargs: Optional[dict]) -> Tuple[str, str]:
     """ Match Rx to Preplan
         Compares the user-entered prescription to the DICOM prescription.
 
@@ -738,8 +736,11 @@ def match_rx_to_preplan(rso: NamedTuple, **kwargs: Optional[str]) -> Tuple[str, 
             7.  Return the result and message
 
         Test Patients:
+        Compare_Rx_to_Preplan_1, ZZUWQA_ScTest_01Oct2024b
+            FAIL:
 
         Development patient: Script_Testing: MRN:ZZUWQA_ScTest_21Nov2022: multiple different kinds of prescription
+
         """
     values = kwargs.get('VALUES')
     # Declare beamset_name
@@ -770,17 +771,5 @@ def match_rx_to_preplan(rso: NamedTuple, **kwargs: Optional[str]) -> Tuple[str, 
     # Determine the best matches based on contour similarity
     update_best_matches_and_statistics(df_gui, ss)
     # Parse the results to generate a message
-    # write_matches_to_csv(rso, best_matches, "matches_summary.csv")
     result, message_str = parse_match_results(df_gui)
-    # TODO: message_str is a dictionary here and needs to be reduced to a single string.
-    # message_no_match = message_dict.get('No Match',"")
-    # message_best = message_dict.get('Best Match',"")
-    # message_exact = message_dict.get('Exact Match',"")
-    # message_str = ""
-    # if message_no_match:
-    #     message_str = message_no_match + ": "
-    # if message_best:
-    #     message_str += message_best + ": "
-    # if message_exact:
-    #     message_str += message_exact
     return result, message_str

@@ -127,7 +127,7 @@
         <from><machine>HDA0488</machine><energy type="photons">6</energy></from>
         <to><machine>HDA0488</machine><energy type="photons">6</energy></to>
     </filter>
-        <filter type="machine/energy">
+    <filter type="machine/energy">
         <from><machine>TrueBeam_Track</machine><energy type="photons">6</energy></from>
         <to><machine>TrueBeam2588</machine><energy type="photons">6</energy></to>
         <to><machine>TrueBeam2871</machine><energy type="photons">6</energy></to>
@@ -169,5 +169,39 @@
         <to><machine>TrueBeam6198</machine><energy type="photons">15</energy></to>
         <to><machine>TrueBeam6696</machine><energy type="photons">15</energy></to>
         <to><machine>TrueBeam6697</machine><energy type="photons">15</energy></to>
+    </filter>
+        <filter type="machine/energy">
+        <from><machine>TrueBeam_NoTrack</machine><energy type="photons">6</energy></from>
+        <to><machine>TrueBeam2588</machine><energy type="photons">6</energy></to>
+        <to><machine>TrueBeam2871</machine><energy type="photons">6</energy></to>
+        <to><machine>TrueBeam3744</machine><energy type="photons">6</energy></to>
+            <to><machine>TrueBeam6198</machine><energy type="photons">6</energy></to>
+    </filter>
+    <filter type="machine/energy">
+        <from><machine>TrueBeam_NoTrack</machine><energy type="photons">6 FFF</energy></from>
+        <to><machine>TrueBeam2588</machine><energy type="photons">6FFF</energy></to>
+        <to><machine>TrueBeam2871</machine><energy type="photons">6FFF</energy></to>
+        <to><machine>TrueBeam3744</machine><energy type="photons">6FFF</energy></to>
+        <to><machine>TrueBeam6198</machine><energy type="photons">6FFF</energy></to>
+    </filter>
+    <filter type="machine/energy">
+        <from><machine>TrueBeam_NoTrack</machine><energy type="photons">10</energy></from>
+        <to><machine>TrueBeam2588</machine><energy type="photons">10</energy></to>
+        <to><machine>TrueBeam2871</machine><energy type="photons">10</energy></to>
+        <to><machine>TrueBeam3744</machine><energy type="photons">10</energy></to>
+        <to><machine>TrueBeam6198</machine><energy type="photons">10</energy></to>
+    </filter>
+    <filter type="machine/energy">
+        <from><machine>TrueBeam_NoTrack</machine><energy type="photons">10 FFF</energy></from>
+        <to><machine>TrueBeam2588</machine><energy type="photons">10FFF</energy></to>
+        <to><machine>TrueBeam2871</machine><energy type="photons">10FFF</energy></to>
+        <to><machine>TrueBeam3744</machine><energy type="photons">10FFF</energy></to>
+        <to><machine>TrueBeam6198</machine><energy type="photons">10FFF</energy></to>
+    </filter>
+    <filter type="machine/energy">
+        <from><machine>TrueBeam_NoTrack</machine><energy type="photons">15</energy></from>
+        <to><machine>TrueBeam2871</machine><energy type="photons">15</energy></to>
+        <to><machine>TrueBeam3744</machine><energy type="photons">15</energy></to>
+        <to><machine>TrueBeam6198</machine><energy type="photons">15</energy></to>
     </filter>
 </filters>

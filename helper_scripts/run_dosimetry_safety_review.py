@@ -1,4 +1,4 @@
-""" Physics Review with Document
+""" Dosimetry Safety Review
     --version 1.0.3--Run basic plan integrity checks and parse the log file.
 
     """
@@ -14,4 +14,4 @@ from PlanReview.physics_review import physics_review
 ditto_path = Path(__file__).parent.parent / "library" / "DITTO"
 sys.path.insert(1, str(ditto_path))
 
-physics_review(do_physics_review=True)
+physics_review(do_physics_review=True, review_type='Dosimetry')

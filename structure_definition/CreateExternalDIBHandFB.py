@@ -20,6 +20,7 @@ Version History:
 0.0.0 Submitted and reviewed
 1.1.0 Production and validated in RS 10A, SP1
 1.2.0 Production and validated in RS 11B
+1.3.0 Validation in RS 2024A
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,20 +39,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
-__date__ = "2021-01-14"
-__version__ = "1.1.0"
+__date__ = "2024-05-14"
+__version__ = "1.3.0"
 __status__ = "Production"
 __deprecated__ = False
-__reviewer__ = "Dustin Jacqmin"
-__reviewed__ = "2024-JUN-18"
+__reviewer__ = "Adam Bayliss"
+__reviewed__ = "27Jun2022"
 __raystation__ = "2024A"
 __maintainer__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
 __license__ = "GPLv3"
 __help__ = None
-__copyright__ = "Copyright (C) 2022, University of Wisconsin Board of Regents"
+__copyright__ = "Copyright (C) 2024, University of Wisconsin Board of Regents"
 
 from connect import CompositeAction, get_current
+from api.api_structures import delete_geometry
 import StructureOperations
 import logging
 
@@ -182,7 +184,8 @@ def get_DIBH_and_FB_exams(case):
         for sub in structure_set.SubStructureSets:
             # If you get to this point, there are approved structures in
             # this structure set.
-            if structure_set.OnExamination.Name in selected_exam_names and sub:
+            if structure_set.OnExamination.Name in selected_exam_names and \
+                    sub and hasattr(sub.Review, 'ApprovalStatus'):
                 if sub.Review.ApprovalStatus == 'Approved':
                     logging.error(
                         "The structure set associated with {} is approved, which will prevent "
@@ -284,7 +287,7 @@ def create_external_fb(case):
                     ss.OnExamination.Name
                 )
                 logging.info(log_str)
-                ss.RoiGeometries["External_DIBH"].DeleteGeometry()
+                delete_geometry(case, ss.OnExamination, "External_DIBH")
 
     with CompositeAction("Create External_FB on Free-breathing Image Set"):
 

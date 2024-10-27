@@ -34,4 +34,4 @@ docs/
 docs/*
 _build/
 _static/
-_templates/
+_templates/!/Script_Selector_py3_11.py
