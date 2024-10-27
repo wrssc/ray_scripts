@@ -283,7 +283,7 @@ def main():
                 #
                 # Filters to always be applied
                 # PRDR Dose Rate
-                if '_PRD_' in beamset.DicomPlanLabel:
+                if '_PRD_' in beamset.DicomPlanLabel or '_PRD_' in plan.PlanName:
                     prdr_dr = True
                 else:
                     prdr_dr = False
