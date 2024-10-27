@@ -611,6 +611,25 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
+        # Added to the Mobius review in October of 2024
+        {
+            KEY_OUT_TEST: 'care_path',
+            KEY_OUT_DESC: 'Care path broken for urgent plan?',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Care path brokem to enable DQA in rushed case:',
+                                  'KEY': 'mobius_ok'},
+            KEY_OUT_OPTIONS: 'Yes,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'delta4_measurement',
+            KEY_OUT_DESC: 'Delta4 measurement unnecessary ?',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Mobius result is satisfactory and further verification is unneeded.',
+                                  'KEY': 'mobius_ok'},
+            KEY_OUT_OPTIONS: 'Yes,No',
+            KEY_AUTOMATION: {},
+        },
         #
         # Removed September 2023 per Physics group
         # {
@@ -2129,6 +2148,8 @@ TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                                 'X-MAX': 40.,  # X2 - X1 ≤ 40 cm
                                 'X-MIN': 4.,  # X2 - X1 ≥ 4 cm
                                 }}
+COUCH_ROIS = ['TrueBeamCouch', 'TomoCouch', 'ProneBreastBoard', 'QFix_Brain_TBCouch_H1andH2',
+                'QFix_H&N_TBCouch_F2andF3', 'Black Board External Final']
 # MATERIALS:
 MATERIALS = {'TrueBeamCouch': 'Lung',
              'CivcoBaseShell_Cork': 'Cork',
