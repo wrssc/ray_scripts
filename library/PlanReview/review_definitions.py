@@ -292,6 +292,15 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_AUTOMATION: {},
         },
         {
+            KEY_OUT_TEST: 'ptv_expansions',
+            KEY_OUT_DESC: 'PTV expansions are appropriate for site/immobilization',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Margins and expansions match: https://wiki.humonc.wisc.edu/physics/index.php/Recommended_expansions_based_on_immobilization_and_image-guided_technique',
+                                  'KEY': 'ptv_expansions'},
+            KEY_OUT_OPTIONS: 'Yes,No',
+            KEY_AUTOMATION: {},
+        },
+        {
             KEY_OUT_TEST: 'density_overrides_contoured',
             KEY_OUT_DESC: 'Density overrides are contoured',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
@@ -614,16 +623,16 @@ CHECK_BOXES_PHYSICS_REVIEW = {
         # Added to the Mobius review in October of 2024
         {
             KEY_OUT_TEST: 'care_path',
-            KEY_OUT_DESC: 'Care path broken for urgent plan?',
+            KEY_OUT_DESC: 'Plan is non-urgent or care path is broken to enable DQA',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_CHECK_GROUP: {'TEXT': 'Care path brokem to enable DQA in rushed case:',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Care path broken to enable DQA in rushed case:',
                                   'KEY': 'mobius_ok'},
             KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
         {
             KEY_OUT_TEST: 'delta4_measurement',
-            KEY_OUT_DESC: 'Delta4 measurement unnecessary ?',
+            KEY_OUT_DESC: 'Delta4 measurement unnecessary?',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Mobius result is satisfactory and further verification is unneeded.',
                                   'KEY': 'mobius_ok'},
