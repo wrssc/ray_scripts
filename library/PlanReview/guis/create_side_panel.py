@@ -344,7 +344,7 @@ def load_side_panel(window: Sg.Window, values: Dict[str, Any], review_type) -> N
                     on_side_panel_radio_button_click(window, load_radio, review_type)
                 else:
                     window[field_key].update(saved_value)
-        elif field_key == KEY_USER_COMMENT and KEY_OUT_DOSE_COMMENT in window.key_dict:
+        elif field_key == KEY_OUT_DOSE_COMMENT and KEY_USER_COMMENT in window.key_dict:
             # A special case for when a dosimetry review is loaded into a physics review window
             window[KEY_USER_COMMENT].update(saved_value)
         else:
