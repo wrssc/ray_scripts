@@ -295,7 +295,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_TEST: 'ptv_expansions',
             KEY_OUT_DESC: 'PTV expansions are appropriate for site/immobilization',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_CHECK_GROUP: {'TEXT': 'Margins and expansions match: https://wiki.humonc.wisc.edu/physics/index.php/Recommended_expansions_based_on_immobilization_and_image-guided_technique',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Margins reasonable given site and immobilization',
                                   'KEY': 'ptv_expansions'},
             KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
