@@ -157,8 +157,9 @@ def handle_top_event(gui_state_manager, event, values):
         # Retrieve the passing and failing tests
         if not gui_state_manager.tree_children:
             Sg.popup('No tests have been run yet!')
+            return 'continue'
         gui_state_manager.passing_tests, gui_state_manager.failed_tests = get_tests_from_tree(
-            gui_state_manager.tree_children)
+                gui_state_manager.tree_children)
         is_valid = on_done_button_click(gui_state_manager, values)
         # Perform the form submission logic
         if is_valid:
