@@ -97,9 +97,10 @@ def log_dataframe(dataframe):
 
 
 def append_to_csv(patient_id, beamset_name, user_name,
-                  user_comments, dose_comments, is_physics_revision, is_dose_revision, is_dose_qi, is_physics_qi,
+                  is_physics_revision, is_dose_revision, is_dose_qi, is_physics_qi, revision_number=None,
+                  user_comments=None, dose_comments=None,
                   qi_comments=None, dose_qi_comments=None,
-                  revision_number=None, revision_comments=None, dose_revision_comments=None):
+                  revision_comments=None, dose_revision_comments=None):
     """
     Append a new incident report to a CSV file. If the file does not exist, create it and add headers.
 
@@ -128,10 +129,10 @@ def append_to_csv(patient_id, beamset_name, user_name,
     # Prepare the row data
     # Before writing we need to strip anything that will cause a line break or formatting issues
     row = [patient_id, beamset_name, user_name, current_time,
-           is_physics_revision, is_dose_revision, is_dose_qi, is_physics_qi,
+           is_physics_revision, is_dose_revision, is_dose_qi, is_physics_qi, revision_number,
            clean_string(user_comments), clean_string(dose_comments),
            clean_string(qi_comments), clean_string(dose_qi_comments),
-           revision_number, clean_string(revision_comments), clean_string(dose_revision_comments)]
+           clean_string(revision_comments), clean_string(dose_revision_comments)]
 
     # Load file path
     csv_file_path = DATAFILE_EVENT_LIST
@@ -144,10 +145,12 @@ def append_to_csv(patient_id, beamset_name, user_name,
             with open(csv_file_path, mode='a', newline='') as file:
                 writer = csv.writer(file)
                 if not file_exists:
-                    header = ['Patient Id', 'Beamset Name', 'User Name', 'Time',
-                              'Is Physics Revision', 'Is Dose Revision', 'Is Dose QI', 'Is Physics QI', 'User Comments',
-                              'QI Comments', 'Dosimetry QI Comments', 'Revision Number', 'Revision Comments',
-                              'Dosimetry Revision Comments']
+                    header = [
+                        'Patient Id', 'Beamset Name', 'User Name', 'Time',
+                        'Is Physics Revision', 'Is Dose Revision', 'Is Dose QI', 'Is Physics QI', 'Revision Number',
+                        'Physics Comments', 'Dosimetry Comments',
+                        'QI Comments', 'Dosimetry QI Comments',
+                        'Revision Comments', 'Dosimetry Revision Comments']
                     writer.writerow(header)
                     file_exists = True
                 writer.writerow(row)
@@ -165,4 +168,3 @@ def append_to_csv(patient_id, beamset_name, user_name,
         except Exception as e:
             Sg.popup_error(f'An unexpected error occurred: {e}')
             break
-

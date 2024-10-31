@@ -482,7 +482,7 @@ def side_panel_proceed_qi_true(values):
     """ Test to determine if the side panel has QI or Revise selected,
     check both physics and dosimetry configurations."""
     return any(values.get(key) for key in [
-        f"{KEY_DOSE_QI}", f"{KEY_DOSE_REVISION}",
+        f"{KEY_DOSE_QI_INFO}", f"{KEY_DOSE_REVISION_INFO}",
         f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)"])
 
 
@@ -565,16 +565,16 @@ def update_qi_revision_tracking(rso, values):
         patient_id=rso.patient.PatientID,
         beamset_name=rso.beamset.DicomPlanLabel,
         user_name=user_name,
-        user_comments=user_comments,
-        dose_comments=dose_comments,
         is_physics_revision=is_physics_revision,
         is_dose_revision=is_dose_revision,
         is_dose_qi=is_dose_qi,
         is_physics_qi=is_physics_qi,
-        dose_qi_comments=dose_qi_text,
-        qi_comments=qi_text,
-        revision_comments=revision_comments,
         revision_number=revision_number,
+        user_comments=user_comments,
+        dose_comments=dose_comments,
+        qi_comments=qi_text,
+        dose_qi_comments=dose_qi_text,
+        revision_comments=revision_comments,
         dose_revision_comments=dose_revision_comments,
     )
 
