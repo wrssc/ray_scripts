@@ -1,11 +1,13 @@
 """ Load a Standard Electron Cutout
+    Using simple functions, create standard electron cutouts for a given beam. Note that the cutout points
+    are specified at the isocenter plane (100 cm from the source).
 
     Versions:
     0.0.0 Test version
 
     Known issues:
 
-     This program is free software: you can redistribute it and/or modify
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by the
     Free Software Foundation, either version 3 of the License, or (at your
     option) any later version.
@@ -74,7 +76,7 @@ def generate_circle_points(num_points, diameter, scaling_factor=1.0):
     return points
 
 
-def generate_ellipse_points(num_points, largest_diameter, perpendicular_diameter, scaling_factor=0.95):
+def generate_ellipse_points(num_points, largest_diameter, perpendicular_diameter, scaling_factor=1.0):
     """
     Generate points along an ellipse.
 
