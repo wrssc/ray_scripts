@@ -1,6 +1,6 @@
 import PySimpleGUI as Sg
 from PlanReview.utils import get_user_name
-from PlanReview.utils.email_results import email_report_script_error, save_report, capture_screen
+from PlanReview.utils.email_results import email_report, save_report, capture_screen
 
 
 def report_script_error(rso):
@@ -50,6 +50,6 @@ def report_script_error(rso):
             screenshot = img_data if img_data else None
             file_path = save_report('error_report', patient_id, beamset_name, description,
                                     screenshot)
-            email_report_script_error(file_path)
+            email_report(file_path, 'error_report',source='manual')
             error_report_window.close()
             break

@@ -6,18 +6,16 @@ import os
 import smtplib
 import xml.etree.ElementTree as ET
 import PySimpleGUI as Sg
-import time
-import sys
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import csv
 from datetime import datetime
 from docx import Document
 from docx.enum.section import WD_ORIENT
 from docx.shared import Cm
 from PlanReview.review_definitions import (
-    ERROR_DIR, QI_REPORTS_DIR, REVISION_REPORTS_DIR, DATAFILE_EVENT_LIST)
+    ERROR_DIR, DOSE_QI_REPORTS_DIR, DOSE_REVISION_REPORTS_DIR,
+    PHYSICS_REVISION_REPORTS_DIR, PHYSICS_QI_REPORTS_DIR,)
 
 
 def list_format(input_str):
@@ -118,12 +116,18 @@ def save_report(report_type, patient_id, beamset_name, user_name, report_text, s
     if report_type == 'error_report':
         report_title = 'Error Report'
         file_path = os.path.join(ERROR_DIR, filename)
-    elif report_type == 'qi_report':
-        report_title = 'Quality Improvement Request'
-        file_path = os.path.join(QI_REPORTS_DIR, filename)
-    elif report_type == 'revision_report':
-        report_title = 'Plan Revision Report'
-        file_path = os.path.join(REVISION_REPORTS_DIR, filename)
+    elif report_type == 'dose_qi_report':
+        report_title = 'Dosimetry Quality Improvement Request'
+        file_path = os.path.join(DOSE_QI_REPORTS_DIR, filename)
+    elif report_type == 'dose_revision_report':
+        report_title = 'Dosimetry Plan Revision Report'
+        file_path = os.path.join(DOSE_REVISION_REPORTS_DIR, filename)
+    elif report_type == 'physics_qi_report':
+        report_title = 'Physics Quality Improvement Request'
+        file_path = os.path.join(PHYSICS_QI_REPORTS_DIR, filename)
+    elif report_type == 'physics_revision_report':
+        report_title = 'Physics Plan Revision Request'
+        file_path = os.path.join(PHYSICS_REVISION_REPORTS_DIR, filename)
     else:
         raise ValueError(f'Invalid report type "{report_type}".')
 
@@ -339,6 +343,26 @@ def email_report_qi_issue(attachment_file_path):
         attachments=[attachment_file_path],
     )
 
+
+def email_report(attachment_file_path, report_type, source='script'):
+    from PlanReview.review_definitions import LOCAL_RAYSCRIPTS_DATA
+    xml_file_path = LOCAL_RAYSCRIPTS_DATA
+    email = EmailPackager(xml_file_path=xml_file_path)
+    report_dict = {
+        'error_report': 'Error Report',
+        'dose_qi_report': 'Review Script Dosimetry Quality Improvement Request',
+        'dose_revision_report': 'Review Script Dosimetry Plan Revision Report',
+        'physics_qi_report': 'Review Script Physics Quality Improvement Request',
+        'physics_revision_report': 'Review Script Physics Plan Revision Request',
+    }
+    email.send_email(
+        email_type=report_type,
+        subj=report_dict[report_type],
+        body='Please see the attached report.',
+        attachments=[attachment_file_path],
+    )
+    if not source == 'script':
+        Sg.popup_ok('Error report sent to developer')
 
 def email_report_revision(attachment_file_path):
     from PlanReview.review_definitions import LOCAL_RAYSCRIPTS_DATA

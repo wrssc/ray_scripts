@@ -20,7 +20,7 @@ from PlanReview.guis.gui_report_script_error import report_script_error
 from PlanReview.guis.parse_gui_values import get_header_checklist_qa_values
 from PlanReview.guis.create_side_panel import (
     is_valid_dosimetry_panel, is_valid_physics_panel, side_panel_proceed_qi_true, side_panel_revision_true,
-    generate_and_distribute_qi_issue_report, generate_and_distribute_revision_report)
+    generate_and_distribute_report)
 from PlanReview.guis.review_loader import load_review
 from library.api.api_user_functions import final_dose
 
@@ -169,11 +169,13 @@ def handle_top_event(gui_state_manager, event, values):
                 get_review_gui_values(gui_state_manager, values),
                 suffix=gui_state_manager.suffix, quiet=True)
             get_header_checklist_qa_values(gui_state_manager, values)
-            if side_panel_proceed_qi_true(values):
-                # Generate and email the report
-                generate_and_distribute_qi_issue_report(gui_state_manager.rso, values)
+            report_type = None
             if side_panel_revision_true(values):
-                generate_and_distribute_revision_report(gui_state_manager.rso, values)
+                report_type = 'physics_revision_report'
+            elif side_panel_proceed_qi_true(values):
+                report_type = 'physics_qi_report'
+            if report_type:
+                generate_and_distribute_report(gui_state_manager.rso, values, report_type)
             return 'break'
     elif event == '-SUBMIT-':
         # Retrieve the passing and failing tests
@@ -204,11 +206,14 @@ def handle_top_event(gui_state_manager, event, values):
                 gui_state_manager.rso,
                 get_review_gui_values(gui_state_manager, values),
                 suffix=gui_state_manager.suffix, quiet=True)
-            if side_panel_proceed_qi_true(values):
-                # Generate and email the report
-                generate_and_distribute_qi_issue_report(gui_state_manager.rso, values)
+            report_type = None
             if side_panel_revision_true(values):
-                generate_and_distribute_revision_report(gui_state_manager.rso, values)
+                report_type = 'dose_revision_report'
+            elif side_panel_proceed_qi_true(values):
+                report_type = 'dose_qi_report'
+            if report_type:
+                # Generate and email the report
+                generate_and_distribute_report(gui_state_manager.rso, values, report_type)
             return 'break'
 
     return status
