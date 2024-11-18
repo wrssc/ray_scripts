@@ -43,10 +43,12 @@ DOSIMETRY_OUTPUT_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "DosimetrySafetyS
 ERROR_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Error_Reports", "ReviewScript")
 
 # Quality Improvement Reports
-QI_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Quality_Improvement_Reports")
+DOSE_QI_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Quality_Improvement_Reports", "Dose")
+PHYSICS_QI_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Quality_Improvement_Reports", "Physics")
 DATAFILE_EVENT_LIST = os.path.join(DATA_GATHERING_DIR, "Incident_Reports.csv")
 # Revision Reports
-REVISION_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Revision_Reports")
+DOSE_REVISION_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Revision_Reports", "Dose")
+PHYSICS_REVISION_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Revision_Reports", "Physics")
 #
 DATAFILE_TARGET_MATCH_STATISTICS = os.path.join(DATA_GATHERING_DIR, "TargetMatchStatistics.csv")
 
