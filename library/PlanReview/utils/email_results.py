@@ -364,6 +364,7 @@ def email_report(attachment_file_path, report_type, source='script'):
     if not source == 'script':
         Sg.popup_ok('Error report sent to developer')
 
+
 def email_report_revision(attachment_file_path):
     from PlanReview.review_definitions import LOCAL_RAYSCRIPTS_DATA
     xml_file_path = LOCAL_RAYSCRIPTS_DATA

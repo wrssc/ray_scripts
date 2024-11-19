@@ -563,8 +563,8 @@ def retrieve_form_elements(values: Dict[str, Any]) -> FormElements:
     return FormElements(
         user_name=get_user_name(),
         is_physics_revision=values.get(f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise", False),
-        is_dose_revision=values.get(KEY_DOSE_REVISION, False),
-        is_dose_qi=values.get(KEY_DOSE_QI, False),
+        is_dose_revision=values.get(f"{KEY_DOSE_REVISION}{KEY_RADIO}{label_revisions_yes}", False),
+        is_dose_qi=values.get(f"{KEY_DOSE_QI}{KEY_RADIO}{label_qi_yes}", False),
         is_physics_qi=values.get(f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)", False),
         user_comments=values.get(KEY_USER_COMMENT),
         dose_comments=values.get(KEY_OUT_DOSE_COMMENT),
@@ -613,6 +613,8 @@ def generate_and_distribute_report(rso, values,report_type):
         f"Physics QI Suggestions:\n\t{form_elements.qi_text}\n\n"
         f"Revision Comments:\n\t{form_elements.revision_comments}\n\n"
         f"Dosimetry QI Suggestions:\n\t{form_elements.dose_qi_text}\n\n"
+        f"Revision Number:\n\t{form_elements.revision_number}\n\n"
+        f"Dosimetry Revision Comments:\n\t{form_elements.dose_revision_comments}\n\n"
         f"Dosimetry Comments:\n\t{form_elements.dose_comments}\n\n"
     )
     # Save and email the report
