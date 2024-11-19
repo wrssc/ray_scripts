@@ -76,6 +76,7 @@ import Beams
 import datetime
 import os
 import xml
+import PySimpleGUI as Sg
 
 from library.api.api_beamsets import get_source_to_surface_distance
 from library.api.api_utils import get_machine
@@ -1049,7 +1050,10 @@ def update_set_up(beamset, set_up, couch_angles=False):
             else:
                 angles.append(set_up[k][2])
         # Update the setup beams with the valid angles
-        beamset.UpdateSetupBeams(ResetSetupBeams=True, SetupBeamsGantryAngles=angles)
+        if len(angles) > 0:
+            beamset.UpdateSetupBeams(ResetSetupBeams=True, SetupBeamsGantryAngles=angles)
+        else:
+            Sg.PopupError('No valid set-up fields found')
     # Set the set-up parameter specifics
     i = 0
     for k in set_up:
