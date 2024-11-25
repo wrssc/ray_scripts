@@ -2716,7 +2716,7 @@ def main():
     # Prerequisites for operations:
     # generate_thi_ffs_plan: External, AvoidSkin, External+1
     # Launch gui
-    testing = True
+    testing = False
     tbi_selections = tbi_gui(bypass=testing)
 
     nfx = tbi_selections['-NFX-']
