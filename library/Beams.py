@@ -188,7 +188,6 @@ def select_element(set_level, set_type, set_elements,
                     if verbose_logging:
                         logging.debug('Examining set level {}: {}'.format(set_level, l.find('name').text))
                     if set_type is None:
-                        logging.debug('The parent is levels and children are just groups of elements return levels')
                         # Make a set of set_types that contain elements and are unique.
                         e = l.findall('./' + set_elements)
                         if e is not None:
@@ -204,7 +203,6 @@ def select_element(set_level, set_type, set_elements,
                             if verbose_logging:
                                 logging.debug('No elements of type {} are found in {}'.format(set_elements, set_level))
                     else:
-                        logging.debug('The parent is levels and the children are sets, return sets')
                         types = l.findall('./' + set_type)
                         logging.debug('Found types is {} for set_type {}'.format(types, set_type))
                         for t in types:
