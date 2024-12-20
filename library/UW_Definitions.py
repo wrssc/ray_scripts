@@ -8,7 +8,7 @@ TOMO_DATA = {'MACHINES': ['HDA0488'],
 
 TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                  'SUPPORTS': ['TrueBeamCouch', 'CivcoBaseShell_Cork', 'CivcoInclineShell_Wax',
-                              'Sframe_F1_TBCouch_HN'],
+                              'QFix_H&N_TBCouch_F2andF3'],
                  'DIAMETER': 85.0,  # cm cover diameter
                  'COLLISION_TOLERANCE': 2.0,  # cm distance tolerance for shifting
                  }
