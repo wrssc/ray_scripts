@@ -48,8 +48,8 @@ def report_script_error(rso):
             beamset_name = values["beamset_name"]
             description = values["description"]
             screenshot = img_data if img_data else None
-            file_path = save_report('error_report', patient_id, beamset_name, description,
-                                    screenshot)
-            email_report(file_path, 'error_report',source='manual')
+            file_path = save_report('error_report', patient_id=patient_id, beamset_name=beamset_name,
+                                    user_name=user_name, report_text=description, screenshot=screenshot)
+            email_report(file_path, 'error_report', source='manual')
             error_report_window.close()
             break
