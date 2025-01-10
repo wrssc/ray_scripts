@@ -125,7 +125,7 @@
             <roi>
                 <name>BrachialPlex_L</name>
                 <type>DX</type>
-                <volume units="cc">0.1</volume>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">32</dose>
                 <priority>1</priority>
             </roi>
@@ -134,7 +134,7 @@
                 <type>DX</type>
                 <ref>NRG-LU002</ref>
                 <volume units="cc">3</volume>
-                <dose units="Gy">27</dose>
+                <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -142,7 +142,7 @@
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
-                <dose units="Gy">32</dose>
+                <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -150,7 +150,7 @@
                 <type>DX</type>
                 <ref>NRG-LU002</ref>
                 <volume units="cc">0.03</volume>
-                <dose units="Gy">27</dose>
+                <dose units="Gy">32</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -158,7 +158,7 @@
                 <type>DX</type>
                 <ref>NRG-LU002</ref>
                 <volume units="cc">3</volume>
-                <dose units="Gy">27</dose>
+                <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -166,14 +166,21 @@
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
-                <dose units="Gy">32</dose>
+                <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_L</name>
                 <type>DX</type>
-                <volume units="cc">0.1</volume>
-                <dose units="Gy">37</dose>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">33</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bronchus_L</name>
+                <type>DX</type>
+                <volume units="cc">0.5</volume>
+                <dose units="Gy">21</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -181,14 +188,21 @@
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
-                <dose units="Gy">37</dose>
+                <dose units="Gy">33</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_R</name>
                 <type>DX</type>
-                <volume units="cc">0.1</volume>
-                <dose units="Gy">37</dose>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">33</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bronchus_R</name>
+                <type>DX</type>
+                <volume units="cc">0.5</volume>
+                <dose units="Gy">21</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -196,7 +210,29 @@
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
-                <dose units="Gy">37</dose>
+                <dose units="Gy">33</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bronchus</name>
+                <type>DX</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">33</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bronchus</name>
+                <type>DX</type>
+                <volume units="cc">0.5</volume>
+                <dose units="Gy">21</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bronchus_PRV05</name>
+                <type>VX</type>
+                <ref>TPO Update to ICRU Recommendation Nov2018</ref>
+                <volume units="%">2</volume>
+                <dose units="Gy">33</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -399,8 +435,15 @@
             <roi>
                 <name>Trachea</name>
                 <type>DX</type>
-                <volume units="cc">0.1</volume>
-                <dose units="Gy">37</dose>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
+            </roi>
+			 <roi>
+                <name>Trachea</name>
+                <type>DX</type>
+                <volume units="cc">5</volume>
+                <dose units="Gy">32</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -408,7 +451,7 @@
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
-                <dose units="Gy">37</dose>
+                <dose units="Gy">40</dose>
                 <priority>3</priority>
             </roi>
         </goals>
@@ -538,7 +581,7 @@
             <roi>
                 <name>BrachialPlex_L</name>
                 <type>DX</type>
-                <volume units="cc">0.1</volume>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">32</dose>
                 <priority>1</priority>
             </roi>
@@ -547,7 +590,7 @@
                 <type>DX</type>
                 <ref>NRG-LU002</ref>
                 <volume units="cc">3</volume>
-                <dose units="Gy">27</dose>
+                <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -555,7 +598,7 @@
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
-                <dose units="Gy">32</dose>
+                <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -570,7 +613,7 @@
                 <type>DX</type>
                 <ref>NRG-LU002</ref>
                 <volume units="cc">3</volume>
-                <dose units="Gy">27</dose>
+                <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -578,14 +621,21 @@
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
-                <dose units="Gy">32</dose>
+                <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_L</name>
                 <type>DX</type>
-                <volume units="cc">0.1</volume>
-                <dose units="Gy">37</dose>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">33</dose>
+                <priority>3</priority>
+            </roi>
+			   <roi>
+                <name>Bronchus_L</name>
+                <type>DX</type>
+                <volume units="cc">0.5</volume>
+                <dose units="Gy">21</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -593,14 +643,21 @@
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
-                <dose units="Gy">37</dose>
+                <dose units="Gy">33</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_R</name>
                 <type>DX</type>
-                <volume units="cc">0.1</volume>
-                <dose units="Gy">37</dose>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">33</dose>
+                <priority>3</priority>
+            </roi>
+			  <roi>
+                <name>Bronchus_R</name>
+                <type>DX</type>
+                <volume units="cc">0.5</volume>
+                <dose units="Gy">21</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -608,7 +665,29 @@
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
-                <dose units="Gy">37</dose>
+                <dose units="Gy">33</dose>
+                <priority>3</priority>
+            </roi>
+			    <roi>
+                <name>Bronchus</name>
+                <type>DX</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">33</dose>
+                <priority>3</priority>
+            </roi>
+			  <roi>
+                <name>Bronchus</name>
+                <type>DX</type>
+                <volume units="cc">0.5</volume>
+                <dose units="Gy">21</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bronchus_PRV05</name>
+                <type>VX</type>
+                <ref>TPO Update to ICRU Recommendation Nov2018</ref>
+                <volume units="%">2</volume>
+                <dose units="Gy">33</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -810,8 +889,15 @@
             <roi>
                 <name>Trachea</name>
                 <type>DX</type>
-                <volume units="cc">0.1</volume>
-                <dose units="Gy">37</dose>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
+            </roi>
+			   <roi>
+                <name>Trachea</name>
+                <type>DX</type>
+                <volume units="cc">5</volume>
+                <dose units="Gy">32</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -819,7 +905,7 @@
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
-                <dose units="Gy">37</dose>
+                <dose units="Gy">40</dose>
                 <priority>3</priority>
             </roi>
         </goals>
