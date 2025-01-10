@@ -1,3 +1,7 @@
+<!--
+  ~ __copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
+  -->
+
 <protocol>
     <name>UW Head and Neck</name>
     <AnatomicGroup>Neck</AnatomicGroup>
@@ -480,8 +484,22 @@
             <roi>
                 <name>Bone_Mandible</name>
                 <type>Max</type>
-                <volume units="cc">0.03</volume>
-                <dose units="Gy">66</dose>
+                <volume units="cc">0.5</volume>
+                <dose units="Gy">70</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bone_Mandible</name>
+                <type dir="le">VX</type>
+                <volume units="%">42</volume>
+                <dose units="Gy">44</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bone_Mandible</name>
+                <type dir="le">VX</type>
+                <volume units="%">25</volume>
+                <dose units="Gy">58</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1060,8 +1078,22 @@
             <roi>
                 <name>Bone_Mandible</name>
                 <type>Max</type>
-                <volume units="cc">0.03</volume>
-                <dose units="Gy">66</dose>
+                <volume units="cc">0.5</volume>
+                <dose units="Gy">70</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bone_Mandible</name>
+                <type dir="le">VX</type>
+                <volume units="%">42</volume>
+                <dose units="Gy">44</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bone_Mandible</name>
+                <type dir="le">VX</type>
+                <volume units="%">25</volume>
+                <dose units="Gy">58</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1640,8 +1672,21 @@
             <roi>
                 <name>Bone_Mandible</name>
                 <type>Max</type>
-                <volume units="cc">0.03</volume>
-                <dose units="Gy">66</dose>
+                <volume units="cc">0.5</volume>
+                <dose units="Gy">70</dose>
+                <priority>3</priority>
+            </roi>
+				<roi>
+                <name>Bone_Mandible</name>
+                <type dir="le">VX</type>
+                <volume units="%">42</volume>
+                <dose units="Gy">44</dose>
+                <priority>3</priority>
+            </roi>	<roi>
+                <name>Bone_Mandible</name>
+                <type dir="le">VX</type>
+                <volume units="%">25</volume>
+                <dose units="Gy">58</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -2220,8 +2265,22 @@
             <roi>
                 <name>Bone_Mandible</name>
                 <type>Max</type>
-                <volume units="cc">0.03</volume>
-                <dose units="Gy">66</dose>
+                <volume units="cc">0.5</volume>
+                <dose units="Gy">70</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bone_Mandible</name>
+                <type dir="le">VX</type>
+                <volume units="%">42</volume>
+                <dose units="Gy">44</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bone_Mandible</name>
+                <type dir="le">VX</type>
+                <volume units="%">25</volume>
+                <dose units="Gy">58</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -2800,8 +2859,22 @@
             <roi>
                 <name>Bone_Mandible</name>
                 <type>Max</type>
-                <volume units="cc">0.03</volume>
-                <dose units="Gy">66</dose>
+                <volume units="cc">0.5</volume>
+                <dose units="Gy">70</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bone_Mandible</name>
+                <type dir="le">VX</type>
+                <volume units="%">42</volume>
+                <dose units="Gy">44</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bone_Mandible</name>
+                <type dir="le">VX</type>
+                <volume units="%">25</volume>
+                <dose units="Gy">58</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -3350,8 +3423,22 @@
             <roi>
                 <name>Bone_Mandible</name>
                 <type>Max</type>
-                <volume units="cc">0.03</volume>
-                <dose units="Gy">66</dose>
+                <volume units="cc">0.5</volume>
+                <dose units="Gy">70</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bone_Mandible</name>
+                <type dir="le">VX</type>
+                <volume units="%">42</volume>
+                <dose units="Gy">44</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Bone_Mandible</name>
+                <type dir="le">VX</type>
+                <volume units="%">25</volume>
+                <dose units="Gy">58</dose>
                 <priority>3</priority>
             </roi>
             <roi>
