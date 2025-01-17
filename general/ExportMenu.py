@@ -99,17 +99,18 @@ def main():
                             break
             except AttributeError:
                 logging.debug('Could not toggle export status of any blocked rois because plan is not approved')
-
-
         else:
             approve = UserInterface.QuestionBox('The selected plan is not currently approved. Would you like to ' +
                                                 'approve it prior to export?', 'Approve Plan')
             if approve.yes:
                 ui = connect.get_current('ui')
-                ui.TitleBar.MenuItem['Plan evaluation'].Click()
-                ui.TitleBar.MenuItem['Plan evaluation'].Popup.MenuItem['Plan evaluation'].Click()
-                ui_tab_item = ui.TabControl_ToolBar.TabItem
-                ui_tab_item._Approval.Select()
+                try:
+                    ui.TitleBar.Navigation.MenuItem['Plan evaluation'].Click()
+                    ui.TitleBar.Navigation.MenuItem['Plan evaluation'].Popup.MenuItem['Plan evaluation'].Click()
+                    ui_tab_item = ui.TabControl_ToolBar.TabItem
+                    ui_tab_item._Approval.Select()
+                except Exception as e:
+                    logging.debug(f'Could not navigate to plan approval tab: {e}')
                 connect.await_user_input('Approve the plan now, then continue the script')
 
             else:
@@ -131,9 +132,9 @@ def main():
                                                 'like to approve it prior to export?', 'Approve Structure Set')
             if approve.yes:
                 ui = connect.get_current('ui')
-                ui.TitleBar.MenuItem['Patient modeling'].Click()
-                ui.TitleBar.MenuItem['Patient modeling'].Popup.MenuItem['Structure definition'].Click()
-                ui.TabControl_ToolBar.Approval.Select()
+                ui.TitleBar.Navigation.MenuItem['Patient modeling'].Click()
+                ui.TitleBar.Navigation.MenuItem['Patient modeling'].Popup.MenuItem['Structure definition'].Click()
+                ui.TabControl_ToolBar.TabItem['Approval'].Select()
                 connect.await_user_input('Approve the structure set now, then continue the script')
 
             else:
@@ -290,32 +291,40 @@ def main():
                 # Set Couch
                 t = [0, 1000, 0]  # Default
                 frameless_beamnames = ['_FSR_', '_SRS_']
-                alpha = 7.72  # cm
-                beta = 36.39  # cm
-                gamma = -0.13  # cm
+                # if response['c'] == 'TrueBeamSTx':
+                #     alpha = 7.83  # cm
+                #     beta = 36.43  # cm
+                #     gamma = -0.20  # cm
+                # elif response['c'] == 'Edge6593':
+                #     alpha = 8.29  # cm
+                #     beta = 36.35  # cm
+                #     gamma = -0.11  # cm
 
                 if use_srs_coords or any(a in beamset.DicomPlanLabel for a in frameless_beamnames) and \
                         'HeadFirstSupine' in beamset.PatientSetup.OfTreatmentSetup.PatientPosition:
-                    try:
-                        #
-                        # Determine if the DICOM origin was chosen for the set-up location
-                        poi_geometry = beamset.PatientSetup.LocalizationPoiGeometrySource.PoiGeometries[0]
-                        poi_coordinates = [poi_geometry.Point.x,
-                                           poi_geometry.Point.y,
-                                           poi_geometry.Point.z]
-                        if all(c == 0 for c in poi_coordinates):
-                            iso_lat = beamset.Beams[0].Isocenter.Position.x
-                            iso_vert = beamset.Beams[0].Isocenter.Position.y
-                            iso_long = beamset.Beams[0].Isocenter.Position.z
-                            t = [
-                                (gamma - iso_lat) * 10.,
-                                (beta - iso_long) * 10.,
-                                (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
-                            ]
-                        logging.debug('Table positions updated to {}'.format(t))
-                    except:
-                        logging.debug('Error in setting SRS/FSR table')
-                        t = [0, 1000, 0]
+                    alpha, beta, gamma = DicomExport.get_table_offsets(
+                        to_machine=response['c'],
+                        from_machine=beamset.MachineReference.MachineName,
+                        device_name='QFix_Brain_TBCouch_F2andF3',
+                        immobilization_type='Frameless')
+                    logging.debug(f'Based on machine {response["c"]} the table positions'
+                                  f' are {alpha}, {beta}, {gamma}')
+                    #
+                    # Determine if the DICOM origin was chosen for the set-up location
+                    poi_geometry = beamset.PatientSetup.LocalizationPoiGeometrySource.PoiGeometries[0]
+                    poi_coordinates = [poi_geometry.Point.x,
+                                       poi_geometry.Point.y,
+                                       poi_geometry.Point.z]
+                    if all(c == 0 for c in poi_coordinates):
+                        iso_lat = beamset.Beams[0].Isocenter.Position.x
+                        iso_vert = beamset.Beams[0].Isocenter.Position.y
+                        iso_long = beamset.Beams[0].Isocenter.Position.z
+                        t = [
+                            (gamma - iso_lat) * 10.,
+                            (beta - iso_long) * 10.,
+                            (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
+                        ]
+                    logging.debug('Table positions updated to {}'.format(t))
                 else:
                     t = [0, 1000, 0]
                 # Create a reference point
