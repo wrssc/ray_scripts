@@ -1,3 +1,7 @@
+<!--
+  ~ __copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
+  -->
+
 <protocol>
     <name>UW Prostate</name>
     <AnatomicGroup>Pelvis</AnatomicGroup>
@@ -298,6 +302,13 @@
                 <type dir="lt">VX</type>
                 <dose units="Gy">65</dose>
                 <volume units="%">15</volume>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">65</dose>
+                <volume units="cc">10</volume>
                 <priority>1</priority>
             </roi>
             <roi>

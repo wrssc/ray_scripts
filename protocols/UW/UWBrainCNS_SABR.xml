@@ -1,3 +1,7 @@
+<!--
+  ~ __copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
+  -->
+
 <protocol>
     <name>UW Brain SABR</name>
     <AnatomicGroup>Head</AnatomicGroup>
@@ -385,6 +389,12 @@
                 <dose units="Gy">4</dose>
                 <priority>3</priority>
             </roi>
+			<roi>
+                <name>Skin_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">45</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Skin_PRV03</name>
                 <type>Max</type>
@@ -437,6 +447,20 @@
                 <name>Cochlea_R</name>
                 <type dir="lt">Mean</type>
                 <dose units="Gy">13.5</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Cochlea_R_PRV05</name>
+                <type>VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">22.5</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Cochlea_L_PRV05</name>
+                <type>VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">22.5</dose>
                 <priority>3</priority>
             </roi>
         </goals>
