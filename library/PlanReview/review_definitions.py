@@ -641,6 +641,16 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
+        {
+            KEY_OUT_TEST: 'single_beamset',
+            KEY_OUT_DESC: 'Only a single beamset is present in Mobius for this plan?',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Only a single beamset is present in Mobius for future QA?',
+                                  'KEY': 'mobius_ok'},
+            KEY_OUT_OPTIONS: 'Yes,No',
+            KEY_AUTOMATION: {},
+        },
+        #
         #
         # Removed September 2023 per Physics group
         # {
