@@ -75,7 +75,7 @@
     make_unsubtracted_dose_structures: makes unsubtracted dose structures.
     make_dose_structures: makes dose structures.
     reset_primary_secondary: resets the primary and secondary scan for a given patient.
-    update_dose_grid: updates the dose grid for a given beamset.
+    rescale_dose_grid_to_all_scans: updates the dose grid for a given beamset.
     register_images: registers two CT scans.
     load_normal_mbs: loads the normal MBS settings.
     make_tbi_planning_structs: makes the planning structures for a TBI.

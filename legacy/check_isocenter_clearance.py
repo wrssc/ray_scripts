@@ -913,13 +913,13 @@ def detect_collisions_tomo(rso, roi_dict, external_roi, support_rois, clearance_
 #                 #     return None, additional_contours
 #             print_or_log(f"Checking for collisions in contour {contour_name} with {detection_type} representation")
 #
-#             contour_ranges = contour_angle_ranges(rso, contour_points, bn, representation=detection_type)
+#             contour_ranges = find_contour_angle_ranges(rso, contour_points, bn, representation=detection_type)
 #             print_or_log(f"Contour {contour_name} has the following angle ranges: {contour_ranges}")
 #
 #             if not contour_ranges:
 #                 continue
 #
-#             gantry_ranges = gantry_angular_traversal(rso)
+#             gantry_ranges = find_gantry_angular_traversal(rso)
 #
 #             for beam_name, (gantry_range, clockwise) in gantry_ranges.items():
 #                 if beam_name != bn:

@@ -34,11 +34,11 @@
     18. If user selected `make_junction_contour`, create the junction contour.
     19. If user selected `make_kidneys_contours`, create the kidney contours.
     20. If user selected `make_lung_contours`, create the lung contours.
-    21. Call `update_dose_grid()` function to update the dose grid for the TBI structures.
+    21. Call `rescale_dose_grid_to_all_scans()` function to update the dose grid for the TBI structures.
     22. Call `reset_primary_secondary()` function to reset the primary and secondary scans.
     23. Call `make_tbi_planning_structs()` function to create the TBI planning structures again.
     24. Call `make_ffs_isodose_structs()` function to create the FFS isodose structures again.
-    25. Call `update_dose_grid()` function to update the dose grid again.
+    25. Call `rescale_dose_grid_to_all_scans()` function to update the dose grid again.
     26. Save the patient.
 
     Summary of functions:
@@ -61,7 +61,7 @@
     make_unsubtracted_dose_structures: makes unsubtracted dose structures.
     make_dose_structures: makes dose structures.
     reset_primary_secondary: resets the primary and secondary scan for a given patient.
-    update_dose_grid: updates the dose grid for a given beamset.
+    rescale_dose_grid_to_all_scans: updates the dose grid for a given beamset.
     register_images: registers two CT scans.
     load_normal_mbs: loads the normal MBS settings.
     make_tbi_planning_structs: makes the planning structures for a TBI.
