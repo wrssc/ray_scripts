@@ -200,6 +200,7 @@ def iter_optimization_config_etree(etree):
                                                   r_type=int)
         o_c["warmstart_n"] = get_node_attrib(o, "warmstart", "n",
                                              r_type=int)
+        o_c["lock_dose_grid"] = get_boolean_text(o, "lock_dose_grid", False)
         # Vary Dose Grid
         o_c["vary_grid"] = get_boolean_text(o, "vary_grid")
         o_c["dose_dim1"] = get_node_attrib(o, "vary_grid", "dose_dim1",
@@ -1100,8 +1101,15 @@ def update_background_dose(plan, plan_optimization):
     # Determine the optimization for this beamset. If background dose is
     # used, then compute it.
     if plan_optimization.BackgroundDose:
-        optimized_beamsets = [bs.DicomPlanLabel for bs in plan.BeamSets
-                              if all([b.HasValidSegments for b in bs.Beams])]
+        modality = plan_optimization.BackgroundDose.ForBeamSet.DeliveryTechnique
+        if modality == 'TomoHelical':
+            optimized_beamsets = [bs.DicomPlanLabel for bs in plan.BeamSets
+                                  if all([b.BeamMU > 0 for b in bs.Beams])]
+        elif modality == 'Undefined':
+            optimized_beamsets = []
+        else:
+            optimized_beamsets = [bs.DicomPlanLabel for bs in plan.BeamSets
+                                  if all([b.HasValidSegments for b in bs.Beams])]
         for obs in optimized_beamsets:
             try:
                 plan.BeamSets[obs].ComputeDose(ComputeBeamDoses=False,
@@ -1185,7 +1193,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     # TODO: Make this a beamset setting in the xml protocols
     small_field_names = ['_SRS_', '_SBR_', '_FSR_', '_LLL_', '_LUL_', '_RLL_', '_RML_', '_RUL_']
     large_field_names = ['TBI__FFS', 'TBI__HFS', 'HFS__TBI', 'FFS__TBI',
-                         'TBI_FFS', 'TBI_HFS', 'HFS_TBI', 'FFS_TBI',
+                         'TBI_FFS', 'TBI_HFS', 'HFS_TBI', 'FFS_TBI', 'FFS__VMA', 'HFS__VMA',
                          'TBI__VMA', 'TBI']
 
     # Choose the minimum field size in cm
@@ -1205,6 +1213,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         dose_dim2 = optimization_inputs.get('dose_dim2', 0.4)
         dose_dim3 = optimization_inputs.get('dose_dim3', 0.3)
         dose_dim4 = optimization_inputs.get('dose_dim4', 0.2)
+    lock_dose_grid = optimization_inputs.get('lock_dose_grid', False)
 
     maximum_iteration = optimization_inputs.get('n_iterations', 12)
     fluence_only = optimization_inputs.get('fluence_only', False)
@@ -1263,7 +1272,14 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         'reset_beams': reset_beams,
         'gantry_spacing': gantry_spacing
     }
-    if vary_grid:
+    if vary_grid and lock_dose_grid:
+        raise ValueError('Cannot vary grid and lock grid at the same time')
+    if lock_dose_grid:
+        # Do nothing since the dose grid is locked
+        # Get the current dose grid size
+        dose_dim_initial = beamset.FractionDose.InDoseGrid.VoxelSize.x
+        logging.debug('Dose grid is locked.')
+    elif vary_grid:
         report_inputs['dose_dim1'] = dose_dim1
         report_inputs['dose_dim2'] = dose_dim2
         report_inputs['dose_dim3'] = dose_dim3
