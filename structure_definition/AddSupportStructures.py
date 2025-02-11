@@ -117,9 +117,8 @@ COUCH_SHIFT = {
     "HFS": {
         "TrueBeamCouch": [0, 6.8, 0],
         "TomoCouch": [0, 6.8, 0],
-        "QFix_Brain_TBCouch_H1andH2": [-0.05, -6.65, -14.95],
-        "QFix_H&N_TBCouch_F2andF3": [-0.05, -6.65, -14.95],
-        "Black Board External Final": [-0.05, -6.65, -14.95],
+        "QFix_Brain_TBCouch_H1andH2": [0.12, -9.75, -42.63], # 
+        "QFix_H&N_TBCouch_F2andF3": [-0.05, -6.65, -14.95], # Made up
     },
     "HFP": {
         "ProneTrueBeamCouch": [1.188, -6.6, 0],
@@ -137,8 +136,6 @@ COUCH_SHIFT = {
 
 # Magic numbers for Portrait Board
 PORTRAIT_BASE_SHIFT = {
-    "QFix_Brain_TBCouch_H1andH2": [-0.05, -6.65, -14.95],
-    "QFix_H&N_TBCouch_F2andF3": [-0.05, -6.65, -14.95],
     "Black Board External Final": [-0.05, -6.65, -14.95],
 }
 
@@ -1021,31 +1018,58 @@ def deploy_couch_model(
 
         couch_shift = COUCH_SHIFT[examination.PatientPosition][couch_roi_name]
 
-        TransformationMatrix = {
-            "M11": 1,
-            "M12": 0,
-            "M13": 0,
-            "M14": -couch_shift[0],
-            "M21": 0,
-            "M22": 1,
-            "M23": 0,
-            "M24": -(top_of_couch + couch_shift[1]),
-            "M31": 0,
-            "M32": 0,
-            "M33": 1,
-            "M34": -couch_shift[2],
-            "M41": 0,
-            "M42": 0,
-            "M43": 0,
-            "M44": 1,
-        }
-        couch.OfRoi.TransformROI3D(
-            Examination=examination, TransformationMatrix=TransformationMatrix
-        )
-        logging.info("Successfully translated the couch model")
+        # There are two classes of "couch" that must be added differently
+        if (couch_roi_name == "TrueBeamCouch") or (couch_roi_name == "TomoCouch"):
+            # CLASS 1: Simple couches with no well-defined longitudinal location
+
+            TransformationMatrix = {
+                "M11": 1,
+                "M12": 0,
+                "M13": 0,
+                "M14": -couch_shift[0],
+                "M21": 0,
+                "M22": 1,
+                "M23": 0,
+                "M24": -(top_of_couch + couch_shift[1]),
+                "M31": 0,
+                "M32": 0,
+                "M33": 1,
+                "M34": -couch_shift[2],
+                "M41": 0,
+                "M42": 0,
+                "M43": 0,
+                "M44": 1,
+            }
+            couch.OfRoi.TransformROI3D(
+                Examination=examination, TransformationMatrix=TransformationMatrix
+            )
+
+        elif (couch_roi_name == "QFix_Brain_TBCouch_H1andH2") or (couch_roi_name == "QFix_H&N_TBCouch_F2andF3"):
+            # CLASS 2: Composites of a couch and immobilization device that must be
+            # added at a specific x,y,z location.
+
+            # Compute translations to move from image center to "Flat" position
+            couch_bounding_box = couch.GetBoundingBox()
+            z_position = (couch_bounding_box[1]["z"] + couch_bounding_box[0]["z"]) / 2
+
+            T = [
+                couch_shift[0],
+                couch_shift[1] - top_of_couch,
+                couch_shift[2] - z_position,
+            ]
+
+            # Translate couch
+            transform_structure(
+                examination=examination,
+                geometry=couch,
+                translations=T,
+            )
+
+        message = f"Couch structure {couch_roi_name} has been moved to the correct position."
+        logging.info(message)
 
 
-    if not couch_roi_name == "QFix_Brain_TBCouch_H1andH2":
+    if (couch_roi_name == "TrueBeamCouch") or (couch_roi_name == "TomoCouch"):
         with CompositeAction("Fill Couch Model Longitudinally"):
 
             expand_geometry_to_inferior_boundary(examination=examination, geometry=couch)
@@ -1855,18 +1879,7 @@ def main():
     verify_localization_point(case=case, exam=examination)
 
     couch = None
-    if values["-COUCH TRUEBEAM-"]:
-        # Deploy the TrueBeam couch
-        couch = deploy_couch_model(
-            case,
-            support_structure_template=COUCH_SUPPORT_STRUCTURE_TEMPLATE,
-            support_structures_examination=COUCH_SUPPORT_STRUCTURE_EXAMINATION[
-                examination.PatientPosition
-            ],
-            source_roi_names=[
-                COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["TrueBeam"]
-            ],
-        )
+
     if values["-COUCH TRUEBEAM QFIX H1H2-"]:
         # Deploy the TrueBeam couch
         couch = deploy_couch_model(
@@ -1877,6 +1890,18 @@ def main():
             ],
             source_roi_names=[
                 COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["TrueBeam Qfix H1H2"]
+            ],
+        )
+    elif values["-COUCH TRUEBEAM-"]:
+        # Deploy the TrueBeam couch
+        couch = deploy_couch_model(
+            case,
+            support_structure_template=COUCH_SUPPORT_STRUCTURE_TEMPLATE,
+            support_structures_examination=COUCH_SUPPORT_STRUCTURE_EXAMINATION[
+                examination.PatientPosition
+            ],
+            source_roi_names=[
+                COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["TrueBeam"]
             ],
         )
     elif values["-COUCH TOMO-"]:
