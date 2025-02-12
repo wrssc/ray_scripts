@@ -422,6 +422,9 @@ def send(case,
                             if 'DoseRateSet' in c and c.DoseRateSet != 100:
                                 c.DoseRateSet = 100
                                 expected.add(c[0x300a0115], beam=b, cp=c)  # Dose Rate modified
+                            elif 'DoseRateSet' not in c:
+                                c.add_new(0x300a0115, 'DS', 100)
+                                expected.add(c[0x300a0115], beam=b, cp=c)
                             # Change the nominal beam energy
                             if 'NominalBeamEnergy' in c and c.NominalBeamEnergy != 6:
                                 c.NominalBeamEnergy = 6
@@ -435,12 +438,21 @@ def send(case,
                             if 'DoseRateSet' in c and c.DoseRateSet != 100:
                                 c.DoseRateSet = 100
                                 expected.add(c[0x300a0115], beam=b, cp=c)
+                            elif 'DoseRateSet' not in c:
+                                c.add_new(0x300a0115, 'DS', 100)
+                                expected.add(c[0x300a0115], beam=b, cp=c)
 
                     # Change Dose rate for electron fields to 1000 MU/min
                     if 'RadiationType' in b and b.RadiationType == 'ELECTRON' and 'ControlPointSequence' in b:
+                        logging.debug('Electron beam found, setting dose rate to 1000 MU/min')
                         for c in b.ControlPointSequence:
                             if 'DoseRateSet' in c and c.DoseRateSet != 1000:
+                                logging.debug(f'Dose rate for beam {b.BeamName} changed from {c.DoseRateSet} to 1000')
                                 c.DoseRateSet = 1000
+                                expected.add(c[0x300a0115], beam=b, cp=c)
+                            elif 'DoseRateSet' not in c:
+                                logging.debug(f'Dose rate for beam {b.BeamName} added as 1000')
+                                c.add_new(0x300a0115, 'DS', 1000)
                                 expected.add(c[0x300a0115], beam=b, cp=c)
 
                         # The following lines add a new accessory for the electron block which is unnecessary in ARIA
