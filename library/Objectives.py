@@ -725,9 +725,10 @@ def residual_volume(structure_name, goal_volume, case, exam):
         logging.warning('residual_volume: Volume is 0.0 for {}'.format(structure_name))
         return 0
     else:
-        logging.debug('residual_volume: Volume for {} is {}'.format(
-            structure_name, vol))
         residual_percentage = 100 * (vol - float(goal_volume)) / vol
+        if vol < float(goal_volume):
+            logging.warning('residual_volume: Goal volume exceeds structure volume')
+            return 0
         return residual_percentage
 
 
@@ -917,7 +918,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
     __help__ = 'https://github.com/wrssc/ray_scripts/wiki/CreateGoals'
     __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
-    derived_suffixes = ["_Eval","_EZ"]
+    derived_suffixes = ["_Eval", "_EZ"]
     # Adding error handling
     error_message = []
     # Potential inputs, patient, case, exam, beamset, protocol path, filename
@@ -1012,8 +1013,6 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
             for o in protocol.findall('order'):
                 if o.find('name').text == input_dialog.values['i']:
                     order = o
-                    logging.debug('Matching protocol ElementTag found for {}'.format(
-                        input_dialog.values['i']))
                     break
             order_name = input_dialog.values['i']
 
@@ -1046,7 +1045,6 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
         goal_locations = (protocol.findall('./goals/roi'))
     # Look for required structs for a protocol
     required_locations = (order.findall('./required/roi'))
-    logging.debug('Required {}'.format(required_locations))
     # Use the following loop to find the targets in protocol matching the names above
     # Find all protocol targets ignoring any derived targets
     derived_keywords = ['^.*_Eval.*?$', '^.*_EZ.*?$']
@@ -1204,7 +1202,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
             suffixes = [ds for ds in derived_suffixes if ds in p_n]
             if len(suffixes) == 1:
                 suffix = suffixes[0]
-                p_parent = p_n.replace(suffix,"")
+                p_parent = p_n.replace(suffix, "")
             elif len(suffixes) > 1:
                 suffix = ""
                 p_parent = ""
@@ -1222,7 +1220,6 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                 g.find('name').text = translation_map[p_parent][0] + suffix
                 logging.debug('Reassigned derived protocol target name:{} to {}'.format(
                     p_n, g.find('name').text))
-
 
             # TODO: Exception catching in here for an unresolved reference
             # If the goal is relative change the name of the dose attribution
@@ -1373,7 +1370,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                 else:
                     logging.debug(
                         'No match found protocol roi: {}, with a relative dose requiring protocol roi: {}'
-                            .format(o_n, o_r))
+                        .format(o_n, o_r))
                     s_dose = 0
                     pass
             else:
