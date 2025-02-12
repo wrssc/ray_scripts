@@ -1488,13 +1488,6 @@
             </roi>
             <roi>
                 <name>Lungs-CTV</name>
-                <type dir="le">VX</type>
-                <volume units="%">75</volume>
-                <dose units="Gy">5</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lungs-CTV</name>
                 <type dir="le">Mean</type>
                 <dose units="Gy">20</dose>
                 <priority>1</priority>
@@ -1505,13 +1498,6 @@
                 <volume units="%">35</volume>
                 <dose units="Gy">20</dose>
                 <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lungs-CTV</name>
-                <type dir="le">VX</type>
-                <volume units="%">60</volume>
-                <dose units="Gy">5</dose>
-                <priority>3</priority>
             </roi>
             <roi>
                 <name>Lungs-CTV</name>
@@ -1570,14 +1556,14 @@
                 <name>Skin_PRV03</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">60</dose>
+                <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Skin_PRV03</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">50</dose>
+                <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1757,13 +1743,6 @@
             </roi>
             <roi>
                 <name>Lungs-CTV</name>
-                <type dir="le">VX</type>
-                <volume units="%">75</volume>
-                <dose units="Gy">5</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lungs-CTV</name>
                 <type dir="le">Mean</type>
                 <dose units="Gy">20</dose>
                 <priority>1</priority>
@@ -1774,13 +1753,6 @@
                 <volume units="%">35</volume>
                 <dose units="Gy">20</dose>
                 <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lungs-CTV</name>
-                <type dir="le">VX</type>
-                <volume units="%">60</volume>
-                <dose units="Gy">5</dose>
-                <priority>3</priority>
             </roi>
             <roi>
                 <name>Lungs-CTV</name>
@@ -1839,14 +1811,14 @@
                 <name>Skin_PRV03</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">60</dose>
+                <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Skin_PRV03</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">50</dose>
+                <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -2026,13 +1998,6 @@
             </roi>
             <roi>
                 <name>Lungs-CTV</name>
-                <type dir="le">VX</type>
-                <volume units="%">75</volume>
-                <dose units="Gy">5</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lungs-CTV</name>
                 <type dir="le">Mean</type>
                 <dose units="Gy">20</dose>
                 <priority>1</priority>
@@ -2043,13 +2008,6 @@
                 <volume units="%">35</volume>
                 <dose units="Gy">20</dose>
                 <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lungs-CTV</name>
-                <type dir="le">VX</type>
-                <volume units="%">60</volume>
-                <dose units="Gy">5</dose>
-                <priority>3</priority>
             </roi>
             <roi>
                 <name>Lungs-CTV</name>
@@ -2108,14 +2066,14 @@
                 <name>Skin_PRV03</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">60</dose>
+                <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Skin_PRV03</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">50</dose>
+                <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -2295,13 +2253,6 @@
             </roi>
             <roi>
                 <name>Lungs-CTV</name>
-                <type dir="le">VX</type>
-                <volume units="%">75</volume>
-                <dose units="Gy">5</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lungs-CTV</name>
                 <type dir="le">Mean</type>
                 <dose units="Gy">20</dose>
                 <priority>1</priority>
@@ -2312,13 +2263,6 @@
                 <volume units="%">35</volume>
                 <dose units="Gy">20</dose>
                 <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lungs-CTV</name>
-                <type dir="le">VX</type>
-                <volume units="%">60</volume>
-                <dose units="Gy">5</dose>
-                <priority>3</priority>
             </roi>
             <roi>
                 <name>Lungs-CTV</name>
@@ -2391,14 +2335,14 @@
                 <name>Skin_PRV03</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">60</dose>
+                <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Skin_PRV03</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">50</dose>
+                <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>

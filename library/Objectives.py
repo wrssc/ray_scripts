@@ -723,9 +723,10 @@ def residual_volume(structure_name, goal_volume, case, exam):
         logging.warning('residual_volume: Volume is 0.0 for {}'.format(structure_name))
         return 0
     else:
-        logging.debug('residual_volume: Volume for {} is {}'.format(
-            structure_name, vol))
         residual_percentage = 100 * (vol - float(goal_volume)) / vol
+        if vol < float(goal_volume):
+            logging.warning('residual_volume: Goal volume exceeds structure volume')
+            return 0
         return residual_percentage
 
 
@@ -1010,8 +1011,6 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
             for o in protocol.findall('order'):
                 if o.find('name').text == input_dialog.values['i']:
                     order = o
-                    logging.debug('Matching protocol ElementTag found for {}'.format(
-                        input_dialog.values['i']))
                     break
             order_name = input_dialog.values['i']
 
@@ -1044,7 +1043,6 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
         goal_locations = (protocol.findall('./goals/roi'))
     # Look for required structs for a protocol
     required_locations = (order.findall('./required/roi'))
-    logging.debug('Required {}'.format(required_locations))
     # Use the following loop to find the targets in protocol matching the names above
     # Find all protocol targets ignoring any derived targets
     derived_keywords = ['^.*_Eval.*?$', '^.*_EZ.*?$']
