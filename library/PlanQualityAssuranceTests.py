@@ -182,6 +182,7 @@ class Tomo_Couch_Valid:
 
 
 def tomo_couch_check(case, exam, beamset, tomo_couch_name='TomoCouch', limit=2.0, shift=False):
+    import connect
     """
     Test of the couch centering relative to isocenter
     :param case: RS Case
@@ -194,16 +195,23 @@ def tomo_couch_check(case, exam, beamset, tomo_couch_name='TomoCouch', limit=2.0
 
     couch_exists = StructureOperations.check_roi(case=case, exam=exam, rois=tomo_couch_name)
     error = ''
-    if not couch_exists:
-        error = 'Exam: {}. Tomotherapy couch structures {} does not exist.'.format(exam.Name, tomo_couch_name)
-        return error
+    if not all(couch_exists):
+        error = f'Exam: {exam.Name}. Tomotherapy couch structures {tomo_couch_name} does not exist ' \
+                f'but this is a Tomo Plan! Cancel the script or continue.'
+        connect.await_user_input(error)
+        couch_exists = StructureOperations.check_roi(case=case, exam=exam, rois='TrueBeamCouch')
+        if not all(couch_exists):
+            error = f'Exam: {exam.Name} appears to have no couch! Cannot proceed'
+            return error
+        else:
+            tomo_couch_name = 'TrueBeamCouch'
 
     # Get the center coordinate of the isocenter
     for b in beamset.Beams:
         iso_center = b.Isocenter.Position
 
     # Get the center coordinate of the couch
-    couch_center = case.PatientModel.StructureSets[exam.Name].RoiGeometries['TomoCouch'].GetCenterOfRoi()
+    couch_center = case.PatientModel.StructureSets[exam.Name].RoiGeometries[tomo_couch_name].GetCenterOfRoi()
     shift = iso_center.x - couch_center.x
     if abs(iso_center.x) > limit:
         error = 'Isocenter lateral shift is {0:.2f} cm. '.format(iso_center.x) + \

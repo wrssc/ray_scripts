@@ -9,7 +9,6 @@ from PlanReview.utils.constants import (KEY_OUT_DOMAIN_NAME, KEY_OUT_DESC,
                                         KEY_INPUT_TEXT)
 
 
-
 @pytest.fixture
 def mock_window():
     """
@@ -34,6 +33,7 @@ def test_is_valid_automated_test(mock_window):
     # Test when at least one comment is not 'Script Fail: Comment Needed'
     failed_tests[0][KEY_OUT_COMMENT] = 'User Comment'
     assert is_valid_automated_test(mock_window, failed_tests) is True
+
 
 def test_is_valid_manual_tab(mock_window):
     # Test when all checkboxes are valid

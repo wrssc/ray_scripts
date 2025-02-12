@@ -417,9 +417,14 @@ def send(case,
 
                     if 'TreatmentDeliveryType' in b and b.TreatmentDeliveryType == 'SETUP':
                         # Change Dose rate for set-up fields to 100 MU/min
+                        c = b.ControlPointSequence[0]
                         for c in b.ControlPointSequence:
-                            c.DoseRateSet = 100
-                            expected.add(c[0x300a0115], beam=b, cp=c)
+                            if 'DoseRateSet' in c and c.DoseRateSet != 100:
+                                c.DoseRateSet = 100
+                                expected.add(c[0x300a0115], beam=b, cp=c)  # Dose Rate modified
+                            elif 'DoseRateSet' not in c:
+                                c.add_new(0x300a0115, 'DS', 100)
+                                expected.add(c[0x300a0115], beam=b, cp=c)
                             # Change the nominal beam energy
                             if 'NominalBeamEnergy' in c and c.NominalBeamEnergy != 6:
                                 c.NominalBeamEnergy = 6
@@ -433,12 +438,22 @@ def send(case,
                             if 'DoseRateSet' in c and c.DoseRateSet != 100:
                                 c.DoseRateSet = 100
                                 expected.add(c[0x300a0115], beam=b, cp=c)
+                            elif 'DoseRateSet' not in c:
+                                c.add_new(0x300a0115, 'DS', 100)
+                                expected.add(c[0x300a0115], beam=b, cp=c)
 
                     # Change Dose rate for electron fields to 1000 MU/min
                     if 'RadiationType' in b and b.RadiationType == 'ELECTRON' and 'ControlPointSequence' in b:
+                        logging.debug('Electron beam found, setting dose rate to 1000 MU/min')
                         for c in b.ControlPointSequence:
-                            c.DoseRateSet = 1000
-                            expected.add(c[0x300a0115], beam=b, cp=c)
+                            if 'DoseRateSet' in c and c.DoseRateSet != 1000:
+                                logging.debug(f'Dose rate for beam {b.BeamName} changed from {c.DoseRateSet} to 1000')
+                                c.DoseRateSet = 1000
+                                expected.add(c[0x300a0115], beam=b, cp=c)
+                            elif 'DoseRateSet' not in c:
+                                logging.debug(f'Dose rate for beam {b.BeamName} added as 1000')
+                                c.add_new(0x300a0115, 'DS', 1000)
+                                expected.add(c[0x300a0115], beam=b, cp=c)
 
                         # The following lines add a new accessory for the electron block which is unnecessary in ARIA
                         # If converting electron block into accessory (note, accessory ID tags are currently hard coded
@@ -840,6 +855,8 @@ def send(case,
                             logging.debug('File {} edits are consistent with expected'.format(m))
 
                         else:
+                            logging.warning(f'File {m} edits are inconsistent with expected')
+                            logging.warning(f'result: {edited[m].matches(compare(ds, dso))}')
                             status = False
                             if not ignore_errors:
                                 if isinstance(bar, UserInterface.ProgressBar):
@@ -963,7 +980,6 @@ def send(case,
     return status
 
 
-
 def machines(beamset=None):
     """machine_list = DicomExport.machines(beamset=get_current('BeamSet'))"""
 
@@ -975,6 +991,8 @@ def machines(beamset=None):
         for b in range(len(beamset.Beams)):
             beam_list.append([])
             for c in filter_xml.findall('filter'):
+                if c.attrib['type'] != 'machine/energy':
+                    continue
                 if c.find('from/machine').text == beamset.Beams[b].MachineReference.MachineName:
                     # RayStation version 10A moves the MachineReference.Energy field to Null
                     # This is now a beamset property
@@ -1035,6 +1053,124 @@ def energies(beamset=None, machine=None):
                 energy_list[c.find('from/energy').text] = t.find('energy').text
 
     return energy_list
+
+
+def get_table_offsets(to_machine, from_machine, device_name, immobilization_type):
+    """
+    Return alpha (vertical), beta (longitudinal), and gamma (lateral) offsets for a given from_machine, to_machine, device,
+    and immobilization type from the machine/table_coordinates filter XML.
+    In an HFS orientation, these offsets are applied as:
+    VRT = alpha + isoY[cm]
+    LNG = beta - isoZ[cm]
+    LAT = gamma - isoX[cm]
+
+    Args:
+        to_machine (str): The name of the 'to' machine (e.g., 'TrueBeam1358').
+        from_machine (str): The name of the 'from' machine (e.g., 'TrueBeamSTx').
+        device_name (str): The name of the device used (e.g., 'QFix_Brain_TBCouch_F2andF3').
+        immobilization_type (str): The immobilization approach/type (e.g., 'Frameless').
+
+    Returns:
+        tuple: (alpha, beta, gamma) as floats. If no match is found, returns (0.0, 0.0, 0.0).
+
+    Raises:
+        ValueError: If a matching filter element is found but lacks valid offsets.
+    """
+    # Iterate through all 'filter' nodes with type="machine/table_coordinates"
+    for filter_node in filter_xml.findall("filter"):
+        if filter_node.attrib.get('type') != 'machine/table_coordinates':
+            continue  # Skip filters of other types
+        # Check the <from> child
+        from_node = filter_node.find('from')
+        if from_node is None:
+            continue
+
+        from_machine_node = from_node.find('machine')
+        if from_machine_node is None:
+            continue
+
+        # Does the 'from_machine' match?
+        if from_machine_node.text != from_machine:
+            continue
+
+        # Check the <from>/immobilization/device entries
+        immob_node = from_node.find('immobilization')
+        if immob_node is None:
+            continue
+
+        # Gather <device> text inside <from>/immobilization>
+        from_device = immob_node.find('device')
+        if from_device is None:
+            continue
+        elif from_device.text != device_name:
+            continue
+
+        # Get the immobilization type
+        from_immob_type = immob_node.find('immobilization_type')
+        if from_immob_type is None:
+            continue
+        elif from_immob_type.text != immobilization_type:
+            continue
+
+        # Now, for each <to> under this <filter>, find a matching machine & device
+        for to_node in filter_node.findall('to'):
+            to_machine_node = to_node.find('machine')
+            if to_machine_node is None:
+                continue
+            if to_machine_node.text != to_machine:
+                continue
+
+            # Check <to>/immobilization block
+            to_immob_node = to_node.find('immobilization')
+            if to_immob_node is None:
+                continue
+
+            # The <to> side has <device> and <immobilization_type> separately
+            to_device_node = to_immob_node.find('device')
+            to_type_node = to_immob_node.find('immobilization_type')
+
+            if to_device_node is None or to_type_node is None:
+                continue
+
+            # Must match device_name and immobilization_type
+            if to_device_node.text == device_name and to_type_node.text == immobilization_type:
+                # Found a matching <to> entry; gather offsets from <offsets>
+                offsets_node = to_node.find('offsets')
+                if offsets_node is None:
+                    logging.info(
+                        f"No <offsets> found for to_machine={to_machine}, device={device_name},"
+                        f" immob_type={immobilization_type}."
+                    )
+                    return 0.0, 0.0, 0.0
+
+                alpha_node = offsets_node.find('alpha')
+                beta_node = offsets_node.find('beta')
+                gamma_node = offsets_node.find('gamma')
+
+                # Validate offset tags
+                if alpha_node is None or beta_node is None or gamma_node is None:
+                    raise ValueError(
+                        f"Missing alpha/beta/gamma in offsets for machine={to_machine}."
+                    )
+
+                try:
+                    alpha_val = float(alpha_node.text)
+                    beta_val = float(beta_node.text)
+                    gamma_val = float(gamma_node.text)
+                except ValueError as exc:
+                    raise ValueError(
+                        f"Failed to parse offsets as floats for machine={to_machine}."
+                    ) from exc
+
+                # Return as soon as we find the first matching entry
+                return alpha_val, beta_val, gamma_val
+
+    # If we reach here, no matching entry was found
+    logging.info(
+        f"No matching offsets found for from_machine={from_machine}, to_machine={to_machine}, "
+        f"device={device_name}, immobilization_type={immobilization_type}."
+    )
+    return 0.0, 0.0, 0.0
 
 
 def destinations():

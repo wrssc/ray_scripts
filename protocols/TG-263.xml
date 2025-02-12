@@ -134,6 +134,23 @@
         <Alias>Bowel_Bag,bowelbag,bagbowel,Perotineal_cavity</Alias>
     </roi>
     <roi>
+        <name>Bone_IGRT</name>
+        <TG263PrimaryName>Bone_IGRT</TG263PrimaryName>
+        <Description>Bone for IGRT</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>Bone</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Head</AnatomicGroup>
+        <NCharacters>10</NCharacters>
+        <TG263ReverseOrderName>Bone_IGRT</TG263ReverseOrderName>
+        <Export>True</Export>
+        <FMAID></FMAID>
+        <Color red="0" green="255" blue="0">#00FF00</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
         <name>Bowel_Critical_HighRisk</name>
         <TG263PrimaryName>Bowel_Critical_HighRisk</TG263PrimaryName>
         <Description>Bowel Bag or Peritoneal Cavity.
@@ -723,7 +740,7 @@
         <Export></Export>
         <FMAID>7205</FMAID>
         <Color red="58" green="251" blue="170" Hex="#3AFBAA">EvaGreen</Color>
-        <Alias>Kidney Left</Alias>
+        <Alias>Kidney Left,left kidney,L_Kidney</Alias>
     </roi>
     <roi>
         <name>Kidney_L_PRVxx</name>
@@ -808,7 +825,7 @@
         <Export></Export>
         <FMAID>7204</FMAID>
         <Color red="250" green="57" blue="105" Hex="#FA3969">ChineseNewYear</Color>
-        <Alias>Kidney Right</Alias>
+        <Alias>Kidney Right,kidney right,R_Kidney</Alias>
     </roi>
     <roi>
         <name>Kidney_R_PRVxx</name>
@@ -3349,7 +3366,7 @@
         <Export></Export>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="255">#</Color>
-        <Alias></Alias>
+        <Alias>Implant</Alias>
     </roi>
     <roi>
         <name>Scar</name>
@@ -13455,7 +13472,41 @@
         <Export></Export>
         <FMAID>26660</FMAID>
         <Color red="251" green="47" blue="132" Hex="#FB2F84">PinkPiano</Color>
-        <Alias></Alias>
+        <Alias>bronchus</Alias>
+    </roi>
+    <roi>
+        <name>Bronchus_PRVxx</name>
+        <TG263PrimaryName>Bronchus_PRVxx</TG263PrimaryName>
+        <Description>Bilateral bronchus expanded by xx mm as a planning risk volume</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Lung</MajorCategory>
+        <MinorCategory>Bronchus</MinorCategory>
+        <AnatomicGroup>Thorax</AnatomicGroup>
+        <NCharacters>14</NCharacters>
+        <TG263ReverseOrderName>PRVxx_Bronchus</TG263ReverseOrderName>
+        <Export>False</Export>
+        <FMAID></FMAID>
+        <Color red="251" green="149" blue="191" Hex="#fb95bf">PastelMagenta</Color>
+        <Alias>bronchus_prvxx</Alias>
+    </roi>
+    <roi>
+        <name>Bronchus_PRV05</name>
+        <TG263PrimaryName>Bronchus_L_PRV05</TG263PrimaryName>
+        <Description>Bilateral bronchus expanded by 05 mm as a planning risk volume</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Lung</MajorCategory>
+        <MinorCategory>Bronchus</MinorCategory>
+        <AnatomicGroup>Thorax</AnatomicGroup>
+        <NCharacters>14</NCharacters>
+        <TG263ReverseOrderName>PRV05_Bronchus</TG263ReverseOrderName>
+        <Export>False</Export>
+        <FMAID></FMAID>
+        <Color red="251" green="149" blue="191" Hex="#fb95bf">PastelMagenta</Color>
+        <Alias>bronchus_prv05</Alias>
     </roi>
     <roi>
         <name>Bronchus_L</name>
@@ -13528,7 +13579,7 @@
     <roi>
         <name>Bronchus_Main_PRVxx</name>
         <TG263PrimaryName>Bronchus_Main_PRVxx</TG263PrimaryName>
-        <Description>A PRV expansion on the left Bronchus that is xx millimeters thick</Description>
+        <Description>A PRV expansion on the main Bronchus that is xx millimeters thick</Description>
         <NCIt></NCIt>
         <TargetType>Anatomic</TargetType>
         <RTROIInterpretedType>Organ</RTROIInterpretedType>

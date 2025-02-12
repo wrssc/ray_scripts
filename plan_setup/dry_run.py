@@ -1,4 +1,4 @@
-""" Automated Dry-Run
+""" Generate Dry Run Plan
 
     This script accomplishes the following tasks:
     1. Looks through the target list and prompt user in the event it finds none
@@ -16,6 +16,7 @@
     Test Patient: MR# ZZUWQA_ScTest_29Dec2020, Name: Script_Testing^Automated Dry Run 
     Version Notes: 1.0.0 Original
     1.1.0 Update to python 3.6
+    1.1.2 Update to python 3.11
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -32,25 +33,27 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '29-Dec-2020'
-__version__ = '1.1.0'
-__status__ = 'Validation'
+__date__ = '01-May-2024'
+__version__ = '1.1.2'
+__status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
-__raystation__ = '10A.SP1'
+__raystation__ = '2024A'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2020, University of Wisconsin Board of Regents'
-__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
+__copyright__ = 'Copyright (C) 2024, University of Wisconsin Board of Regents'
+__help__ = ''
 __credits__ = []
 
 import connect
 import logging
-import UserInterface
 import random
 import sys
+from library.UserInterface.ScriptStatus import ScriptStatus
+from library.UserInterface.MessageBox import WarningBox
+from library.UserInterface.InputDialog import InputDialog
 
 
 def main():
@@ -59,7 +62,7 @@ def main():
     institution_inputs_machine_name = ['TrueBeamSTx', 'TrueBeam']
     institution_inputs_sites = ['Liver', 'Lung', 'Breast']
     institution_inputs_motion = ['MIBH', 'MEBH', 'Free-Breathing']
-    status = UserInterface.ScriptStatus(
+    status = ScriptStatus(
         steps=['SimFiducials point declaration',
                'Enter Plan Parameters',
                'Make plan for dry run',
@@ -72,7 +75,7 @@ def main():
         examination = connect.get_current("Examination")
         patient_db = connect.get_current('PatientDB')
     except:
-        UserInterface.WarningBox('This script requires a patient, case, and exam to be loaded')
+        WarningBox('This script requires a patient, case, and exam to be loaded')
         sys.exit('This script requires a patient, case, and exam to be loaded')
 
     try:
@@ -130,7 +133,7 @@ def main():
     # This dialog grabs the relevant parameters to generate the dry run
     # For now, we'll hard code a few options until these inputs do something
     v1 = {'plan_name': 'DryRun', 'motion': 'NA in version 1', 'site': 'NA in version 1'}
-    input_dialog = UserInterface.InputDialog(
+    input_dialog = InputDialog(
         inputs={
             # 'input1_plan_name': 'Enter the Plan Name, typically DryRun',
             # 'input2_site': 'Select the Site',
@@ -162,7 +165,7 @@ def main():
             'input5_target'])
 
     # Launch the dialog
-    response =  input_dialog.show()
+    response = input_dialog.show()
     # Close on cancel
     if response == {}:
         logging.info('dry_run cancelled by user')
@@ -195,7 +198,7 @@ def main():
     except:
         logging.debug("Could not click on the plan design window")
 
-    plan_names = [plan_name, 'backup_delete']
+    plan_names = [plan_name]  #, 'backup_delete']
     used_plan_names = []
     # RS 11?: plan_names = [plan_name]
     patient.Save()
@@ -236,17 +239,19 @@ def main():
             CreateSetupBeams=False,
             UseLocalizationPointAsSetupIsocenter=False,
             Comment="",
-            RbeModelReference=None,
+            RbeModelName=None,
             EnableDynamicTrackingForVero=False,
             NewDoseSpecificationPointNames=[],
-            NewDoseSpecificationPoints=[])
+            NewDoseSpecificationPoints=[],
+            MotionSynchronizationTechniqueSettings=None,
+            ToleranceTableLabel=None)
 
         beamset = plan.BeamSets[p]
         patient.Save()
 
-        plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
-                                           'y': 0.2,
-                                           'z': 0.2})
+        beamset.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
+                                              'y': 0.2,
+                                              'z': 0.2})
         try:
             isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
                 RoiGeometries[target].GetCenterOfRoi()
@@ -330,7 +335,7 @@ def main():
 
     status.next_step(text="Confirm correct placement of isocenter and delete that pesky Backup Plan")
 
-    status.finish(text="Delete that pesky Backup Plan, and close this dialog")
+    status.finish(text="Dry Run Plan Created")
 
 
 if __name__ == '__main__':

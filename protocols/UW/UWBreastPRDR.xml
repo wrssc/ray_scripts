@@ -60,45 +60,8 @@
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
                          comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
-           <treatment_frequency>
-                <option default="true">Daily</option>
-                <option>Twice daily</option>
-            </treatment_frequency>
-            <imaging_frequency>
-                <option default="true">Daily CBCT</option>
-                <option>Weekly kV</option>
-            </imaging_frequency>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
-            <treatment_frequency>
-                <option default="true">Daily</option>
-                <option>Twice daily</option>
-            </treatment_frequency>
-            <imaging_frequency>
-                <option default="true">Daily CBCT</option>
-                <option>Weekly kV</option>
-            </imaging_frequency>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
-            <treatment_frequency>
-                <option default="true">Daily</option>
-                <option>Twice daily</option>
-            </treatment_frequency>
-            <imaging_frequency>
-                <option default="true">Daily CBCT</option>
-                <option>Weekly kV</option>
-            </imaging_frequency>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
-            <motion>Free breathing</motion>
-            <motion default="true">RPM MIBH gating</motion>
+            <Instruction type="Treatment Instructions" radio=""
+                         combo="Free Breathing,DIBH">Breathing Instructions</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -418,31 +381,8 @@
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
                          comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
-            <treatment_frequency>
-                <option default="true">Daily</option>
-                <option>Twice daily</option>
-            </treatment_frequency>
-            <imaging_frequency>
-                <option default="true">Daily CBCT</option>
-                <option>Weekly kV</option>
-            </imaging_frequency>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
-            <treatment_frequency>
-                <option default="true">Daily</option>
-                <option>Twice daily</option>
-            </treatment_frequency>
-            <imaging_frequency>
-                <option default="true">Daily CBCT</option>
-                <option>Weekly kV</option>
-            </imaging_frequency>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
+            <Instruction type="Treatment Instructions" radio=""
+                         combo="Free Breathing,DIBH">Breathing Instructions</Instruction>
         </prescription>
         <goals>
             <roi>

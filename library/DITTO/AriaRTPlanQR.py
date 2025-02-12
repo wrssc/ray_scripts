@@ -30,7 +30,7 @@ import pydicom
 import pynetdicom
 import tempfile
 import PySimpleGUI as sg
-import os
+import sys
 import pathlib
 import socket
 
@@ -98,10 +98,15 @@ def aria_echo():
 def aria_rtplan_list(verbose=False):
     """
     Returns a dict of plans available in Aria for the current patient.
-    Each object in the dict will be keyed with the RTPlanLabel, and the
+    Each object in the dict will be keyed with a unique integer, 
+    starting from zero,
+    and the
     value will be a dict storing the relevant DICOM tags of the plan 
     for future searching: RTPlanLabel, StudyInstanceUID, SeriesInstanceUID,
     SOPClassUID, SOPInstanceUID.
+
+    (the key used to be the RTPlanLabel, but for cases where we had multiple
+    Aria plans with the exact same RTPlanLabel, this was an issue)
 
     Returns None if unsuccessful.
     """
@@ -126,6 +131,7 @@ def aria_rtplan_list(verbose=False):
     ds.SOPInstanceUID = ""
 
     results = {}
+    counter=0
 
     try:
         assoc = find_ae.associate(aria_host, aria_port, ae_title=aria_aet)
@@ -140,13 +146,14 @@ def aria_rtplan_list(verbose=False):
                         print("C-FIND query status: 0x{0:04X}".format(status.Status))
                     if identifier:
                         # Here's the place where we have a valid discovery.
-                        results[str(identifier.RTPlanLabel)] = {
+                        results[counter] = {
                             "RTPlanLabel": identifier.RTPlanLabel,
                             "StudyInstanceUID": identifier.StudyInstanceUID,
                             "SeriesInstanceUID": identifier.SeriesInstanceUID,
                             "SOPClassUID": identifier.SOPClassUID,
                             "SOPInstanceUID": identifier.SOPInstanceUID,
                         }
+                        counter=counter+1
 
                         if verbose:
                             print("\tRTPlanLabel: " + str(identifier.RTPlanLabel))
@@ -308,53 +315,105 @@ def rs_beamset_list(rs_plan=plan):
     return list_bs
 
 
-def gui_choose_plans(list_aria, list_raystation):
+def gui_choose_plans(list_aria, list_raystation, aria_return_type='index'):
     """
     This method takes in two lists, a list of Aria plan names and a list
     of relevant RayStation beamset names. The GUI then asks the user to
     select one of each.
 
-    The method returns a tuple (Aria plan name, RayStation beamset name)
+    The third input is "aria_return_type" which can have values of "index"
+    or "value". If the selection is "index" then the aria_return described below
+    will simply be the index of the selection in the GUI drop-down. If the selection
+    is "value" then the aria_return described below will be the value
+    selected from the drop-down itself.
 
-    (aria_plan_name, raystation_beamset_name) = gui_choose_plans(list_aria, list_raystation)
+    The method returns a tuple (aria_return, RayStation beamset name)
+
+    (aria_return, raystation_beamset_name) = gui_choose_plans(list_aria, list_raystation)
     """
-    keyAria = "keyAria"
-    keyRS = "keyRS"
+    keyAria='keyAria'
+    keyRS='keyRS'
 
-    sg.theme("DefaultNoMoreNagging")
-    layout = [[sg.Text("Choose the plans to compare:", font=("Helvetica", 16, "bold"))]]
-    layout += [
-        [
-            sg.Column(
-                [[sg.Text("Aria Plan Name")], [sg.Combo(list_aria, key=keyAria)]]
-            ),
-            sg.Column(
-                [
-                    [sg.Text("RayStation Beamset Name")],
-                    [sg.Combo(list_raystation, key=keyRS)],
-                ]
-            ),
-        ]
-    ]
-    layout += [[sg.OK(), sg.Cancel()]]
+    default_aria = None
+    default_rs = None
+    aria_index = None
+    run_gui = True
+    # Let's figure out if there are good default values for our drop-down boxes.
+    if len(list_aria)==1 and len(list_raystation)==1 and list_aria[0].lower()==list_raystation[0].lower():
+        # If there are only one option for both Aria and RayStation,
+        # and those options match each other (at least lowercase match),
+        # select those options and don't even bother showing the GUI.
+        default_aria=list_aria[0]
+        default_rs=list_raystation[0]
+        run_gui=False
+        aria_index=0 # the only available selection, since we won't read the combobox again later.
+    elif len(list_raystation)==1:
+        # If there only one RayStation beamset in the list, default to that.
+        default_rs=list_raystation[0]
+
+        # if there's a matching (lowercase match) plan in Aria for the selected RS plan, just default to that.
+        aria_match = [name for name in list_aria if name.lower()==default_rs.lower()]
+        if aria_match:
+            default_aria=aria_match[0]
+    elif len(list_aria)==1:
+        # if we get here, then there is more than one RayStation plan, but there is only one Aria plan.
+        # so just default to the Aria plan.
+        default_aria=list_aria[0]
+
+        # if there's a matching (lowercase match) plan in RayStation for the selected Aria plan, default to it.
+        rs_match = [name for name in list_raystation if name.lower()==default_aria.lower()]
+        if rs_match:
+            default_rs=rs_match[0]
+
+    sg.theme('DefaultNoMoreNagging')
+    layout =  [ [sg.Text('Choose the plans to compare:',font=('Helvetica',16,'bold'))]]
+    layout += [ [sg.Column([[sg.Text('Aria Plan Name')], [sg.Combo(list_aria,key=keyAria)]]),
+        sg.Column([[sg.Text('RayStation Beamset Name') ],[sg.Combo(list_raystation,key=keyRS)] ])]]
+    layout += [ [sg.OK(), sg.Cancel()] ]
 
     # Create the Window
-    window = sg.Window("Plan Selector", layout)
+    window = sg.Window('Plan Selector', layout, finalize=True)
+
+    # If there are good default values (as found above), pre-select them for the drop-downs
+    if default_aria:
+        # there might be more than one Aria plan with the same name. Select the LAST match.
+        selected_aria = len(list_aria)-1-list_aria[::-1].index(default_aria)
+        # attempt to set directly through the tkinter method
+        window[keyAria].widget.current(newindex=selected_aria)
+        # window[keyAria].update(list_aria[selected_aria]) # prior attempted method
+    if default_rs:
+        window[keyRS].update(list_raystation[list_raystation.index(default_rs)])
+    guiEvent, guiValues = window.read(timeout=100)
+
     # Event Loop to process "events" and get the "values" of the inputs
-    guiEvent, guiValues = window.read()
-    while True:
-        if guiEvent in (sg.WIN_CLOSED, "Cancel"):  # if user closes window
+    while run_gui:
+        guiEvent, guiValues = window.read()
+        if guiEvent in (sg.WIN_CLOSED,'Cancel'): # if user closes window
             guiValues = None
             break
-        if guiEvent in ("OK"):
+        if guiEvent in ('OK'):
+            # Need to abuse one of the underlying tkinter methods here to call this
+            # thing specifically as a widget and use the current() method, which
+            # should return the selected index. We'll store that in case we need it.
+            aria_index = window[keyAria].widget.current()
             break
     window.close()
 
     if guiValues == None:
         return (None, None)
-    aria_plan_name = str(guiValues.pop(keyAria))
+    
+    # Depending on the response the user called for, we can return either selected index or value.
+    if aria_return_type=='index':
+        aria_return = aria_index
+    elif aria_return_type=='value':
+        aria_return = str(guiValues.pop(keyAria))
+    else:
+        raise ValueError('Input type "'+aria_return_type+'" for Aria return type not known.')
+    
     rs_plan_name = str(guiValues.pop(keyRS))
-    return (aria_plan_name, rs_plan_name)
+    print('Selected Aria plan index: '+str(aria_return)+'\nSelected RayStation beamset name: '+str(rs_plan_name))
+    return (aria_return, rs_plan_name)
+
 
 def aria_qr(root_dir=None, beamset_name=None):
     """
@@ -376,7 +435,16 @@ def aria_qr(root_dir=None, beamset_name=None):
     Input: root_dir: root directory used to store the temp files written to disk
     If empty, defaults to a tempdir selected automatically.
     Should be a pathlike object.
+
+    Input2: beamset_name:
+    This is a string to auto-run this whole routine. If this string matches a 
+    RayStation beamset name (the current beamset) as well as an available Aria
+    plan name, then the user isn't presented with a GUI to select anything, this
+    just runs.
     """
+    # Key for the field we want to use as the aria plan list value
+    list_key = "RTPlanLabel"
+
     # If you run aria_get_rtplan, clean up your tmpfile mess!
     if not root_dir:
         root_dir = tempfile.gettempdir()
@@ -391,28 +459,59 @@ def aria_qr(root_dir=None, beamset_name=None):
     if not dict_aria_plans or not list_rs_bs:
         return None, None, None
 
+    list_aria_plans = [dict_aria_plans[d][list_key] for d in dict_aria_plans]
+
     if beamset_name:
-        if beamset_name in dict_aria_plans:
-            selected_aria = selected_rs = beamset_name
+        if beamset_name in list_aria_plans:
+            #raystation selection is still by string, beamset name key
+            selected_rs = beamset_name
+
+            #aria needs to be converted to the index position in the list
+            # this is most problematic if Aria has multiple plans with the same name.
+            # Not much we can do about that...just basically need to either pick the
+            # first or the last occurrence of the plan in the list.
+
+            #option 1: find the FIRST match of this in the aria list.
+            # standard python method "index" returns first occurrence.
+            # selected_aria = list_aria_plans.index(beamset_name)
+
+            # option 2: find the LAST match of this in the aria list.
+            selected_aria = len(list_aria_plans)-1-list_aria_plans[::-1].index(beamset_name)
         else:
-            return (None, None, None)
+            return None, None, None
     else:
         # Ask the user to select the plan and beamset of choice, and fail if not selected
-        list_aria_plans = list(dict_aria_plans.keys())
         (selected_aria, selected_rs) = gui_choose_plans(list_aria_plans, list_rs_bs)
-        if not selected_aria or not selected_rs:
+        if (selected_aria is None) or not selected_rs:
+            print('Nothing selected! Cancelling.')
             return None, None, None
 
     # Export the Aria RTPlan file
     aria_file_location = aria_get_rtplan(dict_aria_plans[selected_aria], root_dir)
-    print("Aria plan " + selected_aria + " saved to " + str(aria_file_location))
+    print("Aria plan " + dict_aria_plans[selected_aria][list_key] + " saved to " + str(aria_file_location))
 
     # Export the RayStation beamset file
-    case.ScriptableDicomExport(
-        ExportFolderPath=str(root_dir),
-        BeamSets=["%s:%s" % (plan.Name, selected_rs)],
-        IgnorePreConditionWarnings=True,
-    )
+    try:
+        case.ScriptableDicomExport(
+            ExportFolderPath=str(root_dir),
+            BeamSets=["%s:%s" % (plan.Name, selected_rs)],
+            IgnorePreConditionWarnings=True,
+        )
+    except:
+        yes_or_no = sg.popup_yes_no(
+            "You must save to run the APTR tool. Do you want to save the patient?"
+        )
+        if yes_or_no == "Yes":
+            get_current("Patient").Save()  # type: ignore #pylint: disable=undefined-variable
+
+            case.ScriptableDicomExport(
+                ExportFolderPath=str(root_dir),
+                BeamSets=["%s:%s" % (plan.Name, selected_rs)],
+                IgnorePreConditionWarnings=True,
+            )
+        else:
+            sys.exit(0)
+
     rs_file_location = pathlib.Path(
         root_dir, ("RP" + plan.BeamSets[selected_rs].ModificationInfo.DicomUID + ".dcm")
     )

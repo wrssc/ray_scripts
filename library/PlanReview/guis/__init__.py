@@ -5,3 +5,4 @@ from PlanReview.guis.build_tree import load_rsos
 from PlanReview.guis.progress_bar_tests import display_progress_bar
 from PlanReview.guis.gui_physics_review import launch_physics_review_gui
 from PlanReview.guis.gui_report_script_error import report_script_error
+from PlanReview.guis.parse_gui_values import get_review_gui_values, get_header_checklist_qa_values

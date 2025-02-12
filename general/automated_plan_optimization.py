@@ -39,11 +39,17 @@
                         Name: Script_Testing^Automated Plan – Whole Brain
     Test Patient: 11B:  MR# ZZUWQA_ScTest_30Dec2020,
                         Name: Script_Testing^Automated Plan – Whole Brain
+    Test Patient: 2024A: MR#: ZUWQA_ScTest_08Jun2022_AutoOptimization,
+                        Name: Script_Testing^Automated Plan Optimization
 
     Version history:
     1.0.0 Moved Most functions to the OptimizeOperations library
     1.1.0 Updated to RayStation Version 10A SP1
-    1.1.1 Updated to RaySation Version 11B
+    1.1.1 Updated to RayStation Version 11B
+    1.1.2 Updated to RayStation Version 2024A
+
+    TODO:
+        :Treat margins are not compatible (and ignored) for co-optimized beams.
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -61,18 +67,18 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2022-Jun-27'
-__version__ = '1.1.1'
+__date__ = '2024-May-06'
+__version__ = '1.1.2'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Someone else'
 __reviewed__ = 'YYYY-MM-DD'
-__raystation__ = '10A.SP1'
+__raystation__ = '2024A'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __help__ = None
-__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2024, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
 
@@ -81,11 +87,11 @@ import logging
 import sys
 import PySimpleGUI as sg
 
-import connect
-import UserInterface
-import OptimizationOperations
-from GeneralOperations import logcrit as logcrit
-from GeneralOperations import find_scope as find_scope
+# import connect
+# import UserInterface
+# import library.OptimizationOperations
+from library.api.api_utils import find_scope
+from library.OptimizationOperations import optimize_plan
 
 
 def set_frame_visibility(window, visible_frame, frames_list):
@@ -405,7 +411,7 @@ def main():
         'n_iterations': None, }
     optimization_inputs = optimization_gui(beamset, optimization_inputs)
 
-    (status, message) = OptimizationOperations.optimize_plan(patient=patient,
+    (status, message) = optimize_plan(patient=patient,
                                                              case=case,
                                                              exam=exam,
                                                              plan=plan,

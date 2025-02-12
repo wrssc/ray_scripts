@@ -1,5 +1,6 @@
 import re
 import numpy as np
+import logging
 from PlanReview.review_definitions import (
     FIELD_OF_VIEW_PREFERENCES, PASS, FAIL, )
 from .get_targets_si_extent import get_targets_si_extent
@@ -77,8 +78,10 @@ def make_fov(rso, fov_name, inner_fov_name):
                 Center=center,
                 Representation="Voxels",
                 VoxelSize=1)
+            logging.debug('Made FOV: {}'.format(name))
         return True
-    except:
+    except Exception as e:
+        logging.error(f'Error making FOV: {e}')
         return False
 
 
@@ -221,16 +224,17 @@ def check_fov_overlap_external(rso, **kwargs):
            Returns:
                 (Pass/Fail/Alert, Message to Display)
            Test Patient:
-
-               Pass: TODO
-               Fail: TODO
+                Pass: check_fov_overlap_external^test : ZZUWQA_PhysicsReview_001: Case: Pass : Plan: Pros_THI_R0A0
+                Fail: check_fov_overlap_external^test : ZZUWQA_PhysicsReview_001: Case: Fail : Plan: Pros_THI_R0A0
     """
+    pm = rso.case.PatientModel
     target_extent = kwargs.get('TARGET_EXTENT')
-    fov_name = FIELD_OF_VIEW_PREFERENCES['NAME']
-    inner_fov_name = fov_name + '_Inner'
+    fov_name = pm.GetUniqueRoiName(DesiredName=FIELD_OF_VIEW_PREFERENCES['NAME'])
+    inner_fov_name = pm.GetUniqueRoiName(DesiredName=fov_name + '_Inner')
     wall_suffix = FIELD_OF_VIEW_PREFERENCES['WALL_SUFFIX']
     contraction = FIELD_OF_VIEW_PREFERENCES['CONTRACTION']
-    name_intersection_roi = FIELD_OF_VIEW_PREFERENCES['NAME_INTERSECTION']
+    name_intersection_roi = pm.GetUniqueRoiName(
+        DesiredName=FIELD_OF_VIEW_PREFERENCES['NAME_INTERSECTION'])
     message_str = None
     pass_result = None
     sources = [inner_fov_name]
@@ -238,13 +242,11 @@ def check_fov_overlap_external(rso, **kwargs):
     # Find external
     ext_name = get_external(rso)
     #
-    # Check if pre-existing FOV
-    fov = get_roi_geometries(rso.case, rso.exam.Name, roi_names=[fov_name])
-    if fov:
-        fov_exists = True
-    else:
-        fov_exists = make_fov(rso, fov_name, inner_fov_name)
-        sources.append(fov_name)
+    fov_exists = make_fov(rso, fov_name, inner_fov_name)
+    if not fov_exists:
+        logging.error(f'Making FOV failed using {fov_name} and {inner_fov_name}')
+        raise ValueError('Making FOV failed')
+    sources.append(fov_name)
     #
     # Check initial inputs
     if not ext_name:
@@ -257,16 +259,15 @@ def check_fov_overlap_external(rso, **kwargs):
         #
         # Build walls (sources)
         walls = [
-            {'Name': fov_name + wall_suffix,
+            {'Name': pm.GetUniqueRoiName(DesiredName=fov_name + wall_suffix),
              'Outer_Source': fov_name,
              'Inner_Source': inner_fov_name,
              'In_Expand': [0.] * 6},
-            {'Name': ext_name + wall_suffix,
+            {'Name': pm.GetUniqueRoiName(DesiredName=ext_name + wall_suffix),
              'Outer_Source': ext_name,
              'Inner_Source': ext_name,
              'In_Expand': [contraction] * 6},
         ]
-        pm = rso.case.PatientModel
         for w in walls:
             w_name = pm.GetUniqueRoiName(DesiredName=w['Name'])
             make_wall(rso, name=w_name, outer_name=w['Outer_Source'], inner_name=w['Inner_Source'],
@@ -275,20 +276,19 @@ def check_fov_overlap_external(rso, **kwargs):
         #
         # Intersect the walls
         intersect_name = pm.GetUniqueRoiName(DesiredName=name_intersection_roi)
-        intersect_sources(rso, intersect_name, sources)
+        intersect_sources(rso, intersect_name, [s['Name'] for s in walls])
         #
         # Get the extent of the targets
         if not target_extent:
             target_extent = get_targets_si_extent(rso)
         #
         # Check if any slices of the intersection are on target slices
-        contours = pm.StructureSets[rso.exam.Name].RoiGeometries[
-            intersect_name].PrimaryShape.Contours
+        contours = pm.StructureSets[rso.exam.Name].RoiGeometries[intersect_name].PrimaryShape.Contours
         vertices = np.array([[g.x, g.y, g.z] for s in contours for g in s])
         if vertices.size > 0:
             suspect_vertices = np.where(np.logical_and(
-                vertices[:, 2] > target_extent[1] - FIELD_OF_VIEW_PREFERENCES['SI_PTV_BUFFER'],
-                vertices[:, 2] < target_extent[0] + FIELD_OF_VIEW_PREFERENCES['SI_PTV_BUFFER']))
+                vertices[:, 2] < target_extent[1] + FIELD_OF_VIEW_PREFERENCES['SI_PTV_BUFFER'],
+                vertices[:, 2] > target_extent[0] - FIELD_OF_VIEW_PREFERENCES['SI_PTV_BUFFER']))
             suspect_slices = np.unique(vertices[suspect_vertices][:, 2])
         else:
             # No overlap of FOV and External

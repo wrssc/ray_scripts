@@ -302,7 +302,7 @@
                 <name>PTV_p_FFS</name>
                 <type robust="True" restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">102.5</dose>
-                <weight>1</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>PTV_p_FFS</name>
@@ -326,7 +326,7 @@
                 <name>PTV_p_FFS_Eval</name>
                 <type robust="True" restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">102.5</dose>
-                <weight>500</weight>
+                <weight>5000</weight>
             </roi>
             <roi>
                 <name>PTV_p_FFS_Eval</name>
@@ -359,7 +359,7 @@
                 <name>ffs_junction_10%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">10</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_10%Rx</name>
@@ -385,7 +385,7 @@
                 <name>ffs_junction_20%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">20</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_20%Rx</name>
@@ -411,7 +411,7 @@
                 <name>ffs_junction_30%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">30</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_30%Rx</name>
@@ -437,7 +437,7 @@
                 <name>ffs_junction_40%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">40</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_40%Rx</name>
@@ -463,7 +463,7 @@
                 <name>ffs_junction_50%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">50</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_50%Rx</name>
@@ -489,7 +489,7 @@
                 <name>ffs_junction_60%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">60</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_60%Rx</name>
@@ -515,7 +515,7 @@
                 <name>ffs_junction_70%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">70</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_70%Rx</name>
@@ -541,7 +541,7 @@
                 <name>ffs_junction_80%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">80</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_80%Rx</name>
@@ -567,7 +567,7 @@
                 <name>ffs_junction_90%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">90</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_90%Rx</name>
@@ -857,7 +857,7 @@
                 <name>PTV_p_HFS</name>
                 <type robust="True" restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">102.5</dose>
-                <weight>50</weight>
+                <weight>500</weight>
             </roi>
             <roi>
                 <name>PTV_p_HFS</name>
@@ -876,7 +876,7 @@
                 <name>PTV_p_HFS_Eval</name>
                 <type robust="True" restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">102.5</dose>
-                <weight>50</weight>
+                <weight>500</weight>
             </roi>
             <roi>
                 <name>PTV_p_HFS_Eval</name>
@@ -924,7 +924,7 @@
                 <name>hfs_junction_10%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">15</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_10%Rx</name>
@@ -957,7 +957,7 @@
                 <name>hfs_junction_20%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">25</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_20%Rx</name>
@@ -990,7 +990,7 @@
                 <name>hfs_junction_30%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">35</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_30%Rx</name>
@@ -1023,7 +1023,7 @@
                 <name>hfs_junction_40%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">45</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_40%Rx</name>
@@ -1056,7 +1056,7 @@
                 <name>hfs_junction_50%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">55</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_50%Rx</name>
@@ -1089,7 +1089,7 @@
                 <name>hfs_junction_60%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">65</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_60%Rx</name>
@@ -1122,7 +1122,7 @@
                 <name>hfs_junction_70%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">75</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_70%Rx</name>
@@ -1155,7 +1155,7 @@
                 <name>hfs_junction_80%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">85</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_80%Rx</name>
@@ -1188,7 +1188,7 @@
                 <name>hfs_junction_90%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">95</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_90%Rx</name>
@@ -2034,7 +2034,7 @@
                 <name>ffs_junction_10%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">12</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_10%Rx</name>
@@ -2061,7 +2061,7 @@
                 <name>ffs_junction_20%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">20</dose>
-                <weight>0.5</weight>
+                <weight>1</weight>
             </roi>
             <roi>
                 <name>ffs_junction_20%Rx</name>
@@ -2088,7 +2088,7 @@
                 <name>ffs_junction_30%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">30</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_30%Rx</name>
@@ -2115,7 +2115,7 @@
                 <name>ffs_junction_40%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">40</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_40%Rx</name>
@@ -2142,7 +2142,7 @@
                 <name>ffs_junction_50%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">50</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_50%Rx</name>
@@ -2169,7 +2169,7 @@
                 <name>ffs_junction_60%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">60</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_60%Rx</name>
@@ -2196,7 +2196,7 @@
                 <name>ffs_junction_70%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">70</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_70%Rx</name>
@@ -2223,7 +2223,7 @@
                 <name>ffs_junction_80%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">80</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_80%Rx</name>
@@ -2250,7 +2250,7 @@
                 <name>ffs_junction_90%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">90</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>ffs_junction_90%Rx</name>
@@ -2278,7 +2278,7 @@
                 <name>Inf_1</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">10</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_1</name>
@@ -2311,7 +2311,7 @@
                 <name>Inf_2</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">20</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_2</name>
@@ -2344,7 +2344,7 @@
                 <name>Inf_3</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">30</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_3</name>
@@ -2377,7 +2377,7 @@
                 <name>Inf_4</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">40</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_4</name>
@@ -2410,7 +2410,7 @@
                 <name>Inf_5</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">50</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_5</name>
@@ -2443,7 +2443,7 @@
                 <name>Inf_6</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">65</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_6</name>
@@ -2470,7 +2470,7 @@
                 <name>Inf_7</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">70</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_7</name>
@@ -2503,7 +2503,7 @@
                 <name>Inf_8</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">80</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_8</name>
@@ -2536,7 +2536,7 @@
                 <name>Inf_9</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">90</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_9</name>
@@ -2847,7 +2847,7 @@
                 <name>Inf_1</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">10</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_1</name>
@@ -2880,7 +2880,7 @@
                 <name>Inf_2</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">20</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_2</name>
@@ -2913,7 +2913,7 @@
                 <name>Inf_3</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">30</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_3</name>
@@ -2946,7 +2946,7 @@
                 <name>Inf_4</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">40</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_4</name>
@@ -2979,7 +2979,7 @@
                 <name>Inf_5</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">50</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_5</name>
@@ -3012,7 +3012,7 @@
                 <name>Inf_6</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">65</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_6</name>
@@ -3039,7 +3039,7 @@
                 <name>Inf_7</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">70</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_7</name>
@@ -3072,7 +3072,7 @@
                 <name>Inf_8</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">80</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_8</name>
@@ -3105,7 +3105,7 @@
                 <name>Inf_9</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">90</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_9</name>
@@ -3131,7 +3131,7 @@
                 <name>Sup_1</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_1</name>
@@ -3170,7 +3170,7 @@
                 <name>Sup_2</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_2</name>
@@ -3209,7 +3209,7 @@
                 <name>Sup_3</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_3</name>
@@ -3248,7 +3248,7 @@
                 <name>Sup_4</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_4</name>
@@ -3287,7 +3287,7 @@
                 <name>Sup_5</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_5</name>
@@ -3326,7 +3326,7 @@
                 <name>Sup_6</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_6</name>
@@ -3365,7 +3365,7 @@
                 <name>Sup_7</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_7</name>
@@ -3404,7 +3404,7 @@
                 <name>Sup_8</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_8</name>
@@ -3443,7 +3443,7 @@
                 <name>Sup_9</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_9</name>
@@ -3695,7 +3695,7 @@
                 <name>Sup_1</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_1</name>
@@ -3734,7 +3734,7 @@
                 <name>Sup_2</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_2</name>
@@ -3773,7 +3773,7 @@
                 <name>Sup_3</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_3</name>
@@ -3812,7 +3812,7 @@
                 <name>Sup_4</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_4</name>
@@ -3851,7 +3851,7 @@
                 <name>Sup_5</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_5</name>
@@ -3890,7 +3890,7 @@
                 <name>Sup_6</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_6</name>
@@ -3929,7 +3929,7 @@
                 <name>Sup_7</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_7</name>
@@ -3968,7 +3968,7 @@
                 <name>Sup_8</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_8</name>
@@ -4007,7 +4007,7 @@
                 <name>Sup_9</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <weight>10</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Sup_9</name>
@@ -4473,7 +4473,7 @@
                 <name>hfs_junction_10%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">15</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_10%Rx</name>
@@ -4506,7 +4506,7 @@
                 <name>hfs_junction_20%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">25</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_20%Rx</name>
@@ -4539,7 +4539,7 @@
                 <name>hfs_junction_30%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">35</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_30%Rx</name>
@@ -4572,7 +4572,7 @@
                 <name>hfs_junction_40%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">45</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_40%Rx</name>
@@ -4605,7 +4605,7 @@
                 <name>hfs_junction_50%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">55</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_50%Rx</name>
@@ -4638,7 +4638,7 @@
                 <name>hfs_junction_60%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">65</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_60%Rx</name>
@@ -4671,7 +4671,7 @@
                 <name>hfs_junction_70%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">75</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_70%Rx</name>
@@ -4704,7 +4704,7 @@
                 <name>hfs_junction_80%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">85</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_80%Rx</name>
@@ -4737,7 +4737,7 @@
                 <name>hfs_junction_90%Rx</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">95</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>hfs_junction_90%Rx</name>
@@ -4771,7 +4771,7 @@
                 <name>Sup_9</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">10</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_9</name>
@@ -4804,7 +4804,7 @@
                 <name>Sup_8</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">20</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_8</name>
@@ -4837,7 +4837,7 @@
                 <name>Sup_7</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">30</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_7</name>
@@ -4870,7 +4870,7 @@
                 <name>Sup_6</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">40</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_6</name>
@@ -4903,7 +4903,7 @@
                 <name>Sup_5</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">50</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_5</name>
@@ -4936,7 +4936,7 @@
                 <name>Sup_4</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">60</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_4</name>
@@ -4969,7 +4969,7 @@
                 <name>Sup_3</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">70</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_3</name>
@@ -5002,7 +5002,7 @@
                 <name>Sup_2</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">80</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_2</name>
@@ -5035,7 +5035,7 @@
                 <name>Sup_1</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">90</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_1</name>
@@ -5767,7 +5767,7 @@
                 <name>Sup_9</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">10</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_9</name>
@@ -5800,7 +5800,7 @@
                 <name>Sup_8</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">20</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_8</name>
@@ -5833,7 +5833,7 @@
                 <name>Sup_7</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">30</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_7</name>
@@ -5866,7 +5866,7 @@
                 <name>Sup_6</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">40</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_6</name>
@@ -5899,7 +5899,7 @@
                 <name>Sup_5</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">50</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_5</name>
@@ -5932,7 +5932,7 @@
                 <name>Sup_4</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">60</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_4</name>
@@ -5965,7 +5965,7 @@
                 <name>Sup_3</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">70</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_3</name>
@@ -5998,7 +5998,7 @@
                 <name>Sup_2</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">80</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_2</name>
@@ -6031,7 +6031,7 @@
                 <name>Sup_1</name>
                 <type restrict_to_beamset="False">UD</type>
                 <dose units="%" roi="PTV_p_HFS">90</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Sup_1</name>
@@ -6098,7 +6098,7 @@
                 <name>Inf_9</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">90</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_9</name>
@@ -6158,7 +6158,7 @@
                 <name>Inf_8</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">80</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_8</name>
@@ -6218,7 +6218,7 @@
                 <name>Inf_7</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">70</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_7</name>
@@ -6278,7 +6278,7 @@
                 <name>Inf_6</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">60</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_6</name>
@@ -6338,7 +6338,7 @@
                 <name>Inf_5</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">50</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_5</name>
@@ -6398,7 +6398,7 @@
                 <name>Inf_4</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">40</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_4</name>
@@ -6458,7 +6458,7 @@
                 <name>Inf_3</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">30</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_3</name>
@@ -6518,7 +6518,7 @@
                 <name>Inf_2</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">20</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_2</name>
@@ -6571,7 +6571,7 @@
                 <name>Inf_1</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">10</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_1</name>
@@ -6859,7 +6859,7 @@
                 <name>Inf_9</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">90</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_9</name>
@@ -6919,7 +6919,7 @@
                 <name>Inf_8</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">80</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_8</name>
@@ -6979,7 +6979,7 @@
                 <name>Inf_7</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">70</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_7</name>
@@ -7039,7 +7039,7 @@
                 <name>Inf_6</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">60</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_6</name>
@@ -7099,7 +7099,7 @@
                 <name>Inf_5</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">50</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_5</name>
@@ -7159,7 +7159,7 @@
                 <name>Inf_4</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">40</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_4</name>
@@ -7219,7 +7219,7 @@
                 <name>Inf_3</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">30</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_3</name>
@@ -7279,7 +7279,7 @@
                 <name>Inf_2</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">20</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_2</name>
@@ -7332,7 +7332,7 @@
                 <name>Inf_1</name>
                 <type restrict_to_beamset="True">UD</type>
                 <dose units="%" roi="PTV_p_HFS">10</dose>
-                <weight>1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Inf_1</name>

@@ -824,7 +824,7 @@ class TpoDialog:
 
         self.institution = System.Windows.Forms.ComboBox()
         self.institution.Name = 'institution'
-        self.institution.Width = self.form.MaximumSize.Width / 3 - 50
+        self.institution.Width = int(self.form.MaximumSize.Width / 3) - 50
         self.institution.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         self.institution.SelectedIndexChanged += update_left
         self.left.Controls.Add(self.institution)
@@ -837,7 +837,7 @@ class TpoDialog:
 
         self.protocol = System.Windows.Forms.ComboBox()
         self.protocol.Name = 'protocol'
-        self.protocol.Width = self.form.MaximumSize.Width / 3 - 50
+        self.protocol.Width = int(self.form.MaximumSize.Width / 3) - 50
         self.protocol.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         self.protocol.SelectedIndexChanged += update_left
         self.left.Controls.Add(self.protocol)
@@ -850,7 +850,7 @@ class TpoDialog:
 
         self.order = System.Windows.Forms.ComboBox()
         self.order.Name = 'order'
-        self.order.Width = self.form.MaximumSize.Width / 3 - 50
+        self.order.Width = int(self.form.MaximumSize.Width / 3) - 50
         self.order.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         self.order.SelectedIndexChanged += update_left
         self.left.Controls.Add(self.order)
@@ -862,7 +862,7 @@ class TpoDialog:
         self.left.Controls.Add(self.diagnosis_label)
 
         self.diagnosis = System.Windows.Forms.ComboBox()
-        self.diagnosis.Width = self.form.MaximumSize.Width / 3 - 50
+        self.diagnosis.Width = int(self.form.MaximumSize.Width / 3) - 50
         self.diagnosis.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         sorted_diagnoses = sorted(self.diagnosis_list.values())
         # sorted_diagnoses = sorted(sorted_diagnoses.items())
@@ -1183,10 +1183,10 @@ class TpoDialog:
 
                 else:
                     self.status = True
-                    self.form.DialogResult = True
+                    self.form.DialogResult = System.Windows.Forms.DialogResult.OK
 
         def cancel(_s, _e):
-            self.form.DialogResult = True
+            self.form.DialogResult = System.Windows.Forms.DialogResult.OK
             self.status = False
 
         self.ok = System.Windows.Forms.Button()

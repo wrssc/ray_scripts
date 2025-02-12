@@ -113,6 +113,7 @@ import numpy as np
 import PlanOperations
 import BeamOperations
 from GeneralOperations import logcrit as logcrit
+from api.api_beamsets import set_treat_or_protect_roi_all_beams, set_treat_or_protect_margins
 
 
 def get_node_text(node, name, default=""):
@@ -368,13 +369,15 @@ def select_rois_for_treat(plan, beamset, rois=None):
                     roi_name not in roi_list:
                 roi_list.append(roi_name)
         for r in roi_list:
-            beamset.SelectToUseROIasTreatOrProtectForAllBeams(RoiName=r)
+            # beamset.SelectToUseROIasTreatOrProtectForAllBeams(RoiName=r)
+            set_treat_or_protect_roi_all_beams(beamset, r)
             logging.debug('Roi {} added to list for treat margins for beamset {}'.format(
                 r, beamset.DicomPlanLabel))
     else:
         for r in rois:
             try:
-                beamset.SelectToUseROIasTreatOrProtectForAllBeams(RoiName=r)
+                set_treat_or_protect_roi_all_beams(beamset, r)
+                # beamset.SelectToUseROIasTreatOrProtectForAllBeams(RoiName=r)
             except Exception as e:
                 try:
                     if 'No ROI named' in e.Message:
@@ -397,22 +400,18 @@ def set_treat_margins(beam, rois, margins=None):
     """ Find the ROI's in this beamset that have a target type that are used in
         the optimization. Look at the plan name to define an aperature setting for
         the Treat Margins"""
-    # TODO add functionality for single roi
     if margins is None:
         margins = {'Y1': 0.8, 'Y2': 0.8, 'X1': 0.8, 'X2': 0.8}
 
     for r in rois:
-        logging.debug('{} treat margins used [X1, X2, Y1, Y2] = [{}, {}, {}, {}]'.format(
-            r, margins['X1'], margins['X2'], margins['Y1'], margins['Y2']))
+        logging.debug(
+            f'{r} treat margins used [X1, X2, Y1, Y2] = '
+            f'[{margins["X1"]}, {margins["X2"]}, {margins["Y1"]}, {margins["Y2"]}]')
         try:
-            beam.SetTreatAndProtectMarginsForBeam(TopMargin=margins['Y2'],
-                                                  BottomMargin=margins['Y1'],
-                                                  RightMargin=margins['X2'],
-                                                  LeftMargin=margins['X1'],
-                                                  Roi=r)
+            set_treat_or_protect_margins(beam, r, margins)
         except Exception as e:
-            logging.exception(u'{}'.format(e.Message))
-            sys.exit(u'{}'.format(e.Message))
+            logging.exception(f'Error during setting treat margins {e}')
+            sys.exit(f'Error during setting margins {e}')
 
 
 def check_min_jaws(plan_opt, min_dim):
@@ -1273,10 +1272,25 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     elif any(a in beamset.DicomPlanLabel for a in large_field_names):
         dose_dim_initial = 0.4
         logging.debug(f'Large field name is in use {beamset.DicomPlanLabel}')
+        beamset.SetDefaultDoseGrid(
+            VoxelSize={
+                'x': dose_dim_initial,
+                'y': dose_dim_initial,
+                'z': dose_dim_initial})
     elif any(a in beamset.DicomPlanLabel for a in small_field_names):
         dose_dim_initial = 0.15
+        beamset.SetDefaultDoseGrid(
+            VoxelSize={
+                'x': dose_dim_initial,
+                'y': dose_dim_initial,
+                'z': dose_dim_initial})
     else:
         dose_dim_initial = 0.2
+        beamset.SetDefaultDoseGrid(
+            VoxelSize={
+                'x': dose_dim_initial,
+                'y': dose_dim_initial,
+                'z': dose_dim_initial})
 
     # Start the clock on the script at this time
     # Timing

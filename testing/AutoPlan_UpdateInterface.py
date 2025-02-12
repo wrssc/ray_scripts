@@ -71,14 +71,14 @@ import re
 import csv
 import connect
 import UserInterface
-import GeneralOperations
-from GeneralOperations import logcrit as logcrit
+from library.GeneralOperations import logcrit as logcrit
 import StructureOperations
 import Objectives
 import BeamOperations
 import AutoPlanOperations
 from PlanOperations import find_optimization_index
 import autoplan_whole_brain
+from library.api.api_utils import get_all_commissioned, find_scope
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
 import FinalDose
@@ -292,7 +292,130 @@ def automated_plan_gui(examination):
     return autoplan_values
 
 
+def extract_goal_locations(use_orders, protocol, order):
+    """
+    Extract goal locations from protocol and order based on the use_orders flag.
+
+    Args:
+        use_orders (bool): Flag to determine whether to use orders.
+        protocol: XML structure representing the protocol information.
+        order: XML structure representing the order information.
+
+    Returns:
+        list: A list of goal locations.
+    """
+    if use_orders:
+        return protocol.findall('./goals/roi'), order.findall('./goals/roi')
+    else:
+        return protocol.findall('./goals/roi'),
+
+
+def process_goal_locations(goal_locations, plan_targets):
+    """
+    Process the goal locations to extract protocol targets and related information.
+
+    Args:
+        goal_locations: A list of goal locations.
+        plan_targets: List of plan targets.
+
+    Returns:
+        tuple: A tuple containing protocol_targets, target_inputs, target_options, target_datatype, and target_initial.
+    """
+    protocol_targets = []
+    target_inputs = {}
+    target_options = {}
+    target_datatype = {}
+    target_initial = {}
+
+    for s in goal_locations:
+        for g in s:
+            g_name = g.find('name').text
+            if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
+                protocol_targets.append(g_name)
+                k_name = 'target_name_' + g_name
+                k_dose = 'target_dose_' + g_name
+                target_inputs[k_name] = 'Match a plan target to ' + g_name
+                target_options[k_name] = plan_targets
+                target_datatype[k_name] = 'combo'
+                target_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' (Dose in cGy)'
+
+                # Exact matches get an initial guess in the dropdown
+                target_initial[k_name] = next((t for t in plan_targets if t == g_name), '')
+
+    return protocol_targets, target_inputs, target_options, target_datatype, target_initial
+
+
 def target_dialog(case, protocol, order, use_orders=True):
+    """
+    Display a dialog to input target dose levels using PySimpleGUI.
+
+    Args:
+        case: Case information for the plan targets.
+        protocol: XML structure representing the protocol information.
+        order: XML structure representing the order information.
+        use_orders (bool): Flag to determine whether to use orders.
+
+    Returns:
+        tuple: A tuple containing site, number of fractions, and translation map.
+    """
+    target_prompt = 'Match the protocol targets to current plan target: '
+    dose_prompt = 'Provide dose for protocol target: '
+    plan_targets = StructureOperations.find_targets(case=case)
+
+    goal_locations = extract_goal_locations(use_orders, protocol, order)
+    protocol_targets, target_inputs, target_options, target_datatype, target_initial = process_goal_locations(
+        goal_locations, plan_targets)
+
+    # Define PySimpleGUI layout
+    # Adding input fields for number of fractions and site
+    layout = [[sg.Text('Number of fractions'), sg.Input(key='num_fx')]]
+    if use_orders:
+        layout.append([sg.Text('Enter site abbreviation, e.g. BreL for left breast'), sg.Input(key='site')])
+
+    # Adding combo boxes and input fields for each protocol target
+    for prot_target in protocol_targets:
+        target_name_key = f'target_name_{prot_target}'
+        target_dose_key = f'target_dose_{prot_target}'
+        layout.append([sg.Text(target_prompt+f'{prot_target}'), sg.Combo(plan_targets, key=target_name_key)])
+        layout.append([sg.Text(dose_prompt+f'{prot_target} (Dose in cGy)'), sg.Input(key=target_dose_key)])
+
+    # Add the OK and Cancel buttons
+    layout.append([sg.Button('OK'), sg.Button('Cancel')])
+
+    # Create the Window
+    window = sg.Window('Input Target Dose Levels', layout)
+
+    # Event loop to process "events"
+    while True:
+        event, values = window.read()
+        if event in (sg.WIN_CLOSED, 'Cancel'):
+            logging.info('Target dialog cancelled by user')
+            sys.exit('Target dialog cancelled')
+        if event == 'OK':
+            # Process inputs
+            response = values
+            break
+
+    window.close()
+
+    # Process response
+    site = response.get('site', '')
+    num_fx = int(response.get('num_fx', 0))
+    translation_map = {}
+
+    for prot_target in protocol_targets:
+        target_name_key = f'target_name_{prot_target}'
+        target_dose_key = f'target_dose_{prot_target}'
+        target_name = response.get(target_name_key, '')
+        target_dose = float(response.get(target_dose_key, 0)) / 100
+
+        if target_name and target_dose:
+            translation_map[prot_target] = {'target_name': target_name, 'target_dose': target_dose, 'unit': 'Gy'}
+
+    return site, num_fx, translation_map
+
+
+def old_target_dialog(case, protocol, order, use_orders=True):
     # TODO autoload with order data, search prescription, and warn user unassigned are ignored
     # Find RS targets
     plan_targets = StructureOperations.find_targets(case=case)
@@ -399,9 +522,9 @@ def beamset_dialog(protocol, order_targets):
         beamset_name = beamsets[0]
         beamset_etree = find_beamset_element(protocol, beamset_name=beamset_name)
         if 'Tomo' in beamset_etree.find('technique').text:
-            machines = GeneralOperations.get_all_commissioned(machine_type='Tomo')
+            machines = get_all_commissioned(machine_type='Tomo')
         else:
-            machines = GeneralOperations.get_all_commissioned(machine_type='VMAT')
+            machines = get_all_commissioned(machine_type='VMAT')
         inputs = {'m': 'Select Machine'}
         datatype = {'m': 'combo'}
         initial = {}
@@ -413,7 +536,7 @@ def beamset_dialog(protocol, order_targets):
         logging.debug('options {}'.format(options))
     else:
         beamset_name = None
-        machines = GeneralOperations.get_all_commissioned()
+        machines = get_all_commissioned()
         inputs = {'bs': 'Select Beamset', 'm': 'Select Machine'}
         datatype = {'bs': 'combo', 'm': 'combo'}
         initial = {'bs': beamsets[0]}
@@ -524,10 +647,10 @@ def autoplan(testing_bypass_dialogs={}):
     Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
     # Get current patient, case, exam
     pd = Pd(error=[],
-            patient=GeneralOperations.find_scope(level='Patient'),
-            case=GeneralOperations.find_scope(level='Case'),
-            exam=GeneralOperations.find_scope(level='Examination'),
-            db=GeneralOperations.find_scope(level='PatientDB'),
+            patient=find_scope(level='Patient'),
+            case=find_scope(level='Case'),
+            exam=find_scope(level='Examination'),
+            db=find_scope(level='PatientDB'),
             plan=None,
             beamset=None)
 
@@ -558,6 +681,7 @@ def autoplan(testing_bypass_dialogs={}):
     logcrit("Treatment Planning Order selected: {}".format(order.find('name').text))
     #
     # Determine the protocol prescription parameters
+    # TODO: Support multiple prescriptions
     rx = AutoPlanOperations.find_rx(order)
     #
     # Match the protocol targets and doses to the beamset the user is making
@@ -599,7 +723,7 @@ def autoplan(testing_bypass_dialogs={}):
     # TODO: Move to a select function like that one above
     # TODO: Sort machines by technique
     # Machines
-    machines = GeneralOperations.get_all_commissioned(machine_type=None)
+    machines = get_all_commissioned(machine_type=None)
     auto_status.next_step(text=script_steps[i][1])
     i += 1
     #
@@ -815,6 +939,8 @@ def autoplan(testing_bypass_dialogs={}):
         AutoPlanOperations.load_supports(rso=pd, supports=beamset_defs.support_roi)
     # time_user complete
     ap_report['time_user'][1] = timer()
+    ##
+    # TODO: Move this up above beamset creation. - Can't without a user wait.
     # Trim supports
     StructureOperations.trim_supports(patient=pd.patient,
                                       case=pd.case,
@@ -836,6 +962,8 @@ def autoplan(testing_bypass_dialogs={}):
         translation_map=translation_map
     )
     ap_report['time_roi'][1] = timer()
+    #
+
     #
     # Add goals and objectives
     auto_status.next_step(text=script_steps[i][1])
@@ -904,10 +1032,10 @@ def autoplan(testing_bypass_dialogs={}):
     # Create the return variable noting that people get whiny about _replace and we should
     # eventually get around to using dataclasses
     pd_out = Pd(error=[],
-                patient=GeneralOperations.find_scope(level='Patient'),
-                case=GeneralOperations.find_scope(level='Case'),
-                exam=GeneralOperations.find_scope(level='Examination'),
-                db=GeneralOperations.find_scope(level='PatientDB'),
+                patient=find_scope(level='Patient'),
+                case=find_scope(level='Case'),
+                exam=find_scope(level='Examination'),
+                db=find_scope(level='PatientDB'),
                 plan=pd.case.TreatmentPlans[new_plan_name],
                 beamset=pd.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name])
     # Update doses

@@ -259,7 +259,7 @@ class PSInputDialog:
 
             # Continue if all required inputs exist
             if len(failed) == 0:
-                self.form.DialogResult = True
+                self.form.DialogResult = System.Windows.Forms.DialogResult.OK
                 self.status = True
 
             # Otherwise warn the user
@@ -274,7 +274,7 @@ class PSInputDialog:
 
         # Executes when cancel is pressed
         def cancel(_s, _e):
-            self.form.DialogResult = True
+            self.form.DialogResult = System.Windows.Forms.DialogResult.OK
             self.status = False
 
         # OK/Cancel buttons

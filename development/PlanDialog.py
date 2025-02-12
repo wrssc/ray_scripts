@@ -36,6 +36,7 @@ import time
 import WriteTpo
 import Goals
 import GeneralOperations
+from library.api.api_beamsets import add_dose_prescription_to_roi
 
 # Define the protocol XML directory
 protocol_folder = r'../protocols'
@@ -184,7 +185,7 @@ def main():
     if len(prescriptions) > 0:
         c = 0
         for p in response['xml'].findall('prescription'):
-            prescriptions[min(c, len(prescriptions)-1)].extend(p)
+            prescriptions[min(c, len(prescriptions) - 1)].extend(p)
             c += 1
 
     else:
@@ -194,7 +195,7 @@ def main():
     response['plans'] = []
     for i in range(len(prescriptions)):
         for t in prescriptions[i].findall('technique'):
-            if t.text == response['technique'][min(i, len(response['technique'])-1)]:
+            if t.text == response['technique'][min(i, len(response['technique']) - 1)]:
                 if 'code' in t.attrib:
                     beam_name = beam_prefix + t.attrib['code'] + '{}_R{}A{}'.format(i, 0, 0)
 
@@ -301,18 +302,19 @@ def main():
                                     dose = float(response['targets'][prescriptions[i].find('roi/name').text]['dose'][0])
 
                                 if 'idl' in prescriptions[i].find('roi/dose').attrib:
-                                    idl = float(prescriptions[i].find('roi/dose').attrib['idl'])/100
+                                    idl = float(prescriptions[i].find('roi/dose').attrib['idl']) / 100
 
                                 else:
                                     idl = 1
 
                                 logging.debug('Setting ROI prescription to structure {}'.format(roi_name))
-                                beamset.AddDosePrescriptionToRoi(RoiName=roi_name,
-                                                                 PrescriptionType='DoseAtVolume',
-                                                                 DoseVolume=vol,
-                                                                 DoseValue=dose * 100,
-                                                                 RelativePrescriptionLevel=idl,
-                                                                 AutoScaleDose=False)
+                                add_dose_prescription_to_roi(beamset,
+                                                             roi_name=roi_name,
+                                                             dose_volume=vol,
+                                                             prescription_type='DoseAtVolume',
+                                                             dose_value=dose * 100,
+                                                             relative_dose_prescription_value=idl,
+                                                             auto_scale_dose=False)
 
                         else:
                             logging.warning('Could not find structure {} to set prescription to on beamset {}'.

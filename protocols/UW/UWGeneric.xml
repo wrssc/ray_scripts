@@ -23,7 +23,7 @@
         <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam">Electrons</technique>
     </prescription>
     <order>
-        <name>Single Target</name>
+        <name>Treatment Planning Order "x"</name>
         <prefix>Plan_</prefix>
         <prescription number="0" sequence="Primary">
             <roi>
@@ -36,15 +36,20 @@
              <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
+                 <option>2-3 times per week</option>
+                 <option>Weekly</option>
+                 <option>Twice weekly</option>
+                 <option>Other</option>
             </treatment_frequency>
             <imaging_frequency>
                 <option default="true">Daily CBCT</option>
+                <option>Daily 2D</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
                          comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="None,Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
         </prescription>
         <objectives>
             <roi>
@@ -470,127 +475,6 @@
                 <weight>50</weight>
             </roi>
         </objectives>
-    </order>
-    <order>
-        <name>Two Targets</name>
-        <prefix>Plan_</prefix>
-        <prescription number="0" sequence="Primary">
-            <roi>
-                <name>PTV_p1</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <roi>
-                <name>PTV_p2</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions></fractions>
-        </prescription>
-    </order>
-    <order>
-        <name>Three Targets</name>
-        <prefix>Plan_</prefix>
-        <prescription number="0" sequence="Primary">
-            <roi>
-                <name>PTV_p1</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <roi>
-                <name>PTV_p2</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <roi>
-                <name>PTV_p3</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions></fractions>
-        </prescription>
-    </order>
-    <order>
-        <name>Sequential Boost</name>
-        <prefix>Plan_</prefix>
-        <prescription number="0" sequence="Primary">
-            <roi>
-                <name>PTV_p_High</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <roi>
-                <name>PTV_p_Low</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions></fractions>
-        </prescription>
-        <prescription number="1" sequence="Boost1">
-            <roi>
-                <name>PTV_p_High</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions></fractions>
-        </prescription>
-    </order>
-    <order>
-        <name>Two Sequential Boosts</name>
-        <prefix>Plan_</prefix>
-        <prescription number="0" sequence="Primary">
-            <roi>
-                <name>PTV_p_High</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <roi>
-                <name>PTV_p_Mid</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <roi>
-                <name>PTV_p_Low</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions></fractions>
-        </prescription>
-        <prescription number="1" sequence="Boost1">
-            <roi>
-                <name>PTV_p_High</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <roi>
-                <name>PTV_p_Mid</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions></fractions>
-        </prescription>
-        <prescription number="2" sequence="Boost2">
-            <roi>
-                <name>PTV_p_High</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions></fractions>
-        </prescription>
     </order>
     <planning_structure_set>
         <name>Tomo_Rapid_IMRT</name>

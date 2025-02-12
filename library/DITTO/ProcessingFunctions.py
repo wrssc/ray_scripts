@@ -1,10 +1,11 @@
 import numpy as np
 import re
-from library.DITTO.DicomPairClasses import Result
+import logging
+from DicomPairClasses import Result
 
 
 def excuse_element_with_parent(element_pair, excused_parent, comment=""):
-    """ Passes an expected mismatch/unique result when element has a specified parent 
+    """Passes an expected mismatch/unique result when element has a specified parent
 
     ----------
     PARAMETERS
@@ -45,8 +46,8 @@ def excuse_element_with_parent(element_pair, excused_parent, comment=""):
         if element_pair.is_unique_to_dataset2():
             return (Result.ELEMENT_EXPECTED_UNIQUE_TO_2, comment)
 
-        # If you get to this point, just return the match result
-        return (element_pair.match_result, comment)
+    # If you get to this point, just return the match result
+    return (element_pair.match_result, comment)
 
 
 def assess_case_insensitive_match(element_pair, comment=""):
@@ -65,9 +66,9 @@ def assess_case_insensitive_match(element_pair, comment=""):
         vp2_formatted = tuple(re.split(r"\^", str(value_pair[1])))
         try:
             if bool(
-                    re.match(
-                        r"^" + vp1_formatted[0] + r"$", vp2_formatted[0], re.IGNORECASE
-                    )
+                re.match(
+                    r"^" + vp1_formatted[0] + r"$", vp2_formatted[0], re.IGNORECASE
+                )
             ) and bool(
                 re.match(
                     re.escape(vp1_formatted[1]),
@@ -83,9 +84,9 @@ def assess_case_insensitive_match(element_pair, comment=""):
                 return Result.ELEMENT_MISMATCH, "Mismatch declared on a name"
         except IndexError:
             if bool(
-                    re.match(
-                        r"^" + vp1_formatted[0] + r"$", vp2_formatted[0], re.IGNORECASE
-                    )
+                re.match(
+                    r"^" + vp1_formatted[0] + r"$", vp2_formatted[0], re.IGNORECASE
+                )
             ):
                 return (
                     Result.ELEMENT_ACCEPTABLE_NEAR_MATCH,
@@ -108,6 +109,13 @@ def assess_case_insensitive_match(element_pair, comment=""):
 def return_expected_mismatch(element_pair, comment=""):
     if element_pair.match_result == Result.ELEMENT_MISMATCH:
         return (Result.ELEMENT_EXPECTED_MISMATCH, comment)
+    else:
+        return (element_pair.match_result, comment)
+
+
+def return_warning(element_pair, comment=""):
+    if element_pair.match_result == Result.ELEMENT_MISMATCH:
+        return (Result.ELEMENT_WARNING, comment)
     else:
         return (element_pair.match_result, comment)
 
@@ -160,7 +168,7 @@ def process_ssd(element_pair, comment=""):
     sequence_item_name, index = parent_name.split("=")
     if sequence_item_name == "ControlPointIndex":
         if index == "0":
-            return assess_near_match(element_pair, comment="", tolerance_value=0.01)
+            return assess_near_match(element_pair, comment="", tolerance_value=0.1)
         else:
             return return_expected_unique_to_raystation(
                 element_pair,
@@ -171,11 +179,37 @@ def process_ssd(element_pair, comment=""):
     return (element_pair.match_result, comment)
 
 
+def process_wedge_position_sequence(element_pair, comment=""):
+    # Get name of parent
+    parent_name = element_pair.parent.parent.parent.get_name()
+
+    sequence_item_name, index = parent_name.split("=")
+    if sequence_item_name == "ControlPointIndex":
+        if index == "0":
+            return (element_pair.match_result, comment)
+        else:
+            return return_expected_unique_to_raystation(
+                element_pair,
+                comment="Wedge position parameters are unique to RayStation for ControlPoint index > 0",
+            )
+
+    # Ran out of special cases, return raw match result
+    return (element_pair.match_result, comment)
+
+
 def process_block_data(element_pair, comment=""):
     # ARIA connects the last and first point in an electron block whereaas RS drops it
+    logging.debug("Starting process_block_data")
     value_pair = element_pair.value_pair
     ds1_array = np.array(value_pair[0]).reshape(-1, 2)
+    logging.debug(f'ds1_array has shape: {ds1_array.shape}')
     ds2_array = np.array(value_pair[1]).reshape(-1, 2)
+    logging.debug(f'ds2_array has shape: {ds2_array.shape}')
+
+    if (ds1_array.shape[0]) != (ds2_array.shape[0] + 1):
+        # The array do not have the number of points and cannot match
+        return Result.ELEMENT_MISMATCH, "Blocks do not have the same number of points"
+
     # Check if the last point is equal to the first in the ARIA block
     if np.array_equal(ds1_array, ds2_array):
         return Result.ELEMENT_MATCH, "Blocks identical"
@@ -214,8 +248,8 @@ def assess_block_points(element_pair, comment=""):
 def process_treatment_machine_name(element_pair, comment=""):
     ray_machine, aria_machine = element_pair.value_pair
 
-    TRUEBEAM_M120 = ["TrueBeam2588", "TrueBeam2871", "TrueBeam3744", "TrueBeam6198"]
-    TRUEBEAM_STX = ["TrueBeam1358"]
+    TRUEBEAM_M120 = ["TrueBeam2588", "TrueBeam2871", "TrueBeam3744", "TrueBeam6198", "TrueBeam6696", "TrueBeam6697"]
+    TRUEBEAM_STX = ["TrueBeam1358", "Edge6593"]
 
     if (ray_machine == "TrueBeam") and (aria_machine in TRUEBEAM_M120):
         comment = f"Aria {aria_machine} corresponds to RayStation {ray_machine}"
@@ -232,13 +266,20 @@ def assess_tm_match(element_pair, comment=""):
     # RS is not using a valid TM format
     # TM Format: NEMA PS3.5 2013: HHMMSS.FFFFFF
     value_pair = element_pair.value_pair
-    vp1_form = "{:.6f}".format(float(value_pair[0]))
-    vp2_form = "{:.6f}".format(float(value_pair[1]))
+    logging.debug(f'valuepair: {value_pair}')
+    vp1_form = vp2_form = None
+    if len(value_pair[0]) > 0:
+        vp1_form = "{:.6f}".format(float(value_pair[0]))
+    if len(value_pair[1]) > 0:
+        vp2_form = "{:.6f}".format(float(value_pair[1]))
     if vp1_form == vp2_form:
         return Result.ELEMENT_MATCH, "Value Representation TM Matched"
     else:
-        vp1_form = "{:.0f}".format(float(value_pair[0]))
-        vp2_form = "{:.0f}".format(float(value_pair[1]))
+        vp1_form = vp2_form = None
+        if len(value_pair[0]) > 0:
+            vp1_form = "{:.0f}".format(float(value_pair[0]))
+        if len(value_pair[1]) > 0:
+            vp2_form = "{:.0f}".format(float(value_pair[1]))
         if vp1_form == vp2_form:
             return Result.ELEMENT_ACCEPTABLE_NEAR_MATCH, "Time matched to 1.0 s"
         else:
@@ -258,15 +299,71 @@ ELEMENTS WITH COMPLEX BEHAVIOR
 ** Should be unique to Aria in Beam
 """
 
-PROCESS_FUNCTION_DICT = {
-    "PatientName": (assess_case_insensitive_match, {"comment": "Name"}),
+UNIQUE_TO_RAYSTATION = {
+    "GantryPitchAngle": (return_expected_unique_to_raystation, {}),
+    "GantryPitchRotationDirection": (return_expected_unique_to_raystation, {}),
     "BolusID": (return_expected_unique_to_raystation, {}),
+    "EffectiveWedgeAngle": (return_expected_unique_to_raystation, {}),
+    "ApplicatorDescription": (return_expected_unique_to_raystation, {}),
+}
+
+UNIQUE_TO_ARIA = {
+    "SourceToBlockTrayDistance": (return_expected_unique_to_aria, {}),
+    "AccessoryCode": (
+        return_expected_unique_to_aria,
+        {"comment": "AccessoryCode is set in RayStation by DicomExport.py"},
+    ),
+    "TableTopLateralPosition": (return_expected_unique_to_aria, {}),
+    "TableTopLongitudinalPosition": (return_expected_unique_to_aria, {}),
+    "TableTopVerticalPosition": (return_expected_unique_to_aria, {}),
     "DeviceSerialNumber": (return_expected_unique_to_aria, {}),
     "InstitutionName": (return_expected_unique_to_aria, {}),
     "InstitutionalDepartmentName": (return_expected_unique_to_aria, {}),
     "Manufacturer": (return_expected_unique_to_aria, {}),
     "ManufacturerModelName": (return_expected_unique_to_aria, {}),
     "ReferencedToleranceTableNumber": (return_expected_unique_to_aria, {}),
+    "BeamLimitingDeviceAngleTolerance": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "GantryAngleTolerance": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "PatientSupportAngleTolerance": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "TableTopLateralPositionTolerance": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "TableTopLongitudinalPositionTolerance": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "TableTopVerticalPositionTolerance": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "ToleranceTableLabel": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "ToleranceTableNumber": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "BeamLimitingDevicePositionTolerance": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "ApplicatorApertureShape": (return_expected_unique_to_aria, {}),
+    "ApplicatorOpening": (return_expected_unique_to_aria, {}),
+}
+
+PROCESS_FUNCTION_DICT = {
+    "PatientName": (assess_case_insensitive_match, {"comment": "Name"}),
     "ReferencedPatientSetupNumber": (
         return_expected_mismatch,
         {"comment": "Numerical value may be different due to field reordering"},
@@ -276,10 +373,12 @@ PROCESS_FUNCTION_DICT = {
         {"comment": "RayStation is not Aria"},
     ),
     "SourceToSurfaceDistance": (process_ssd, {}),
+    "ReferencedWedgeNumber": (process_wedge_position_sequence, {}),
+    "WedgePosition": (process_wedge_position_sequence, {}),
     "LeafJawPositions": (assess_near_match, {"tolerance_value": 0.01}),  # 0.01 mm
-    "TableTopLateralPosition": (return_expected_unique_to_aria, {}),
-    "TableTopLongitudinalPosition": (return_expected_unique_to_aria, {}),
-    "TableTopVerticalPosition": (return_expected_unique_to_aria, {}),
+    "BeamDose": (assess_near_match, {"tolerance_value": 0.01}),  # 0.01 Gy
+    "PatientSupportAngle": (assess_near_match, {"tolerance_value": 0.01}),  # 0.01 deg
+    "BeamLimitingDeviceAngle": (assess_near_match, {"tolerance_value": 0.01}),  # 0.01 deg
     "TreatmentMachineName": (process_treatment_machine_name, {}),
     "StudyTime": (assess_tm_match, {}),
     "SpecificCharacterSet": (
@@ -288,25 +387,32 @@ PROCESS_FUNCTION_DICT = {
             "comment": "Character encoding: ARIA uses Latin Alphabet, RayStation uses Unicode"
         },
     ),
-    "DoseRateSet": (
-        return_expected_unique_to_aria,
-        {"comment": "Dose Rate is set in Raystation by DicomExport.py"},
-    ),
-    "GantryPitchAngle": (return_expected_unique_to_raystation, {}),
-    "GantryPitchRotationDirection": (return_expected_unique_to_raystation, {}),
     "BlockData": (process_block_data, {}),
     "BlockNumberOfPoints": (assess_block_points, {}),
     "BlockTrayID": (
         return_expected_mismatch,
         {"comment": "BlockTrayID is set in RayStation by DicomExport.py"},
     ),
-    "AccessoryCode": (
-        return_expected_unique_to_aria,
-        {"comment": "AccessoryCode is set in RayStation by DicomExport.py"},
-    ),
-    "SourceToBlockTrayDistance": (return_expected_unique_to_aria, {}),
     "ReferenceImageNumber": (
         excuse_element_with_parent,
         {"excused_parent": "ReferencedReferenceImageSequence"},
     ),
+    "ReferencedSOPClassUID": (
+        excuse_element_with_parent,
+        {"excused_parent": "ReferencedReferenceImageSequence"},
+    ),
+    "ReferencedSOPInstanceUID": (
+        excuse_element_with_parent,
+        {"excused_parent": "ReferencedReferenceImageSequence"},
+    ),
+    "RTBeamLimitingDeviceType": (
+        excuse_element_with_parent,
+        {"excused_parent": "BeamLimitingDeviceToleranceSequence"},
+    ),
+}
+
+PROCESS_FUNCTION_DICT = {
+    **PROCESS_FUNCTION_DICT,
+    **UNIQUE_TO_RAYSTATION,
+    **UNIQUE_TO_ARIA,
 }

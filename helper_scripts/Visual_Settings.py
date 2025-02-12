@@ -38,82 +38,141 @@ __credits__ = []
 import connect
 import logging
 import sys
+from collections import namedtuple
 import UserInterface
-import platform
-import clr
 import StructureOperations as so
+from GeneralOperations import find_scope
+from PlanReview.utils.review_api_versions import get_prescription_dose_references
 
 
-def isodose_reconfig(case, ref_dose, max_dose=None, levels=None):
+def sort_and_map_to_colors(values):
+    """
+    Sorts a list of integers in descending order and maps them to predefined colors
+    normalized by the maximum value in the list.
+
+    Args:
+        values (list): A list of up to five integers.
+
+    Returns:
+        dict: A dictionary with keys as normalized integers and values as colors.
+
+    Raises:
+        ValueError: If more than five integers are provided.
+    """
+    if len(values) > 13:
+        raise ValueError("The list can contain up to 5 integers only.")
+
+    # Define colors
+    reference_colors = [
+        so.define_sys_color([227, 26, 28]),  # BrewerRed
+        so.define_sys_color([51, 160, 44]),  # BrewerDarkGreen
+        so.define_sys_color([31, 120, 180]),  # BrewerDarkBlue
+        so.define_sys_color([255, 127, 0]),  # BrewerOrange
+        so.define_sys_color([106, 61, 154]),  # BrewerPurple
+        so.define_sys_color([177, 89, 40]),  # BrewerBrown
+        so.define_sys_color([255, 255, 51]),  # BrewerEsqueYellow
+        so.define_sys_color([166, 206, 227]),  # BrewerLightBlue
+        so.define_sys_color([178, 223, 138]),  # BrewerLightGreen
+        so.define_sys_color([251, 154, 153]),  # BrewerLightRed
+        so.define_sys_color([253, 191, 111]),  # BrewerLightOrange
+        so.define_sys_color([202, 178, 214]),  # BrewerLightPurple
+        so.define_sys_color([255, 255, 153]),  # BrewerLightYellow
+    ]
+
+    # Sort the list in descending order
+    sorted_values = sorted(values, reverse=True)
+
+    # Create the dictionary with normalized keys and color values
+    color_mapping = {value: reference_colors[i] for i, value in enumerate(sorted_values)}
+
+    return color_mapping
+
+
+def isodose_reconfig(case, ref_doses, max_dose):
     """
     This function takes the current case, an optional max_dose
     :param case: ScriptObject of RS case
-    :param ref_dose: The normalization dose in Gy
-    :param max_dose: an optional argument that can specify the maximum dose within the plan
-    :param levels: a dictionary of relative isodose levels and colors levels[10]=[R, G, B]
+    :param ref_doses: The dose levels of interest in Gy
+    :param max_dose: an optional argument that can designate the maximum dose within the plan
     :return:
     """
-    # Clear current contents
-    if max_dose:
-        max_ratio = max_dose / ref_dose
-        max_isodose = int(100 * 0.99 * max_ratio)
-    else:
-        logging.info('No max dose found. Using 115%')
-        max_isodose = int(115)
+    # Find the maximum dose in the reference doses
+    reference_dose = max(ref_doses)
+    max_ratio = max_dose / reference_dose
+    m_isodose = 0.98 * max_ratio * 100
+    m1_isodose = 100 * (0.5 + max_ratio / 2)
 
-    dose_levels = {}
-    if levels is None:
-        dose_levels = {10: so.define_sys_color([127, 0, 255]),
-                       20: so.define_sys_color([0, 0, 255]),
-                       30: so.define_sys_color([0, 127, 255]),
-                       40: so.define_sys_color([0, 255, 255]),
-                       50: so.define_sys_color([0, 255, 127]),
-                       60: so.define_sys_color([0, 255, 0]),
-                       70: so.define_sys_color([127, 255, 0]),
-                       80: so.define_sys_color([255, 255, 0]),
-                       90: so.define_sys_color([255, 127, 0]),
-                       95: so.define_sys_color([255, 0, 0]),
-                       100: so.define_sys_color([255, 0, 255]),
-                       105: so.define_sys_color([255, 0, 127]),
-                       max_isodose: so.define_sys_color([128, 20, 20])}
-    else:
-        for k, v in levels.items():
-            dose_levels[k] = so.define_sys_color(levels[k])
+    target_dose_dict = sort_and_map_to_colors(ref_doses)
 
+    rainbow_dose_levels = {
+        m_isodose: so.define_sys_color([128, 20, 20]),
+        m1_isodose: so.define_sys_color([255, 0, 127]),
+        100: so.define_sys_color([255, 0, 0]),
+        95: so.define_sys_color([255, 128, 0]),
+        90: so.define_sys_color([255, 255, 0]),
+        85: so.define_sys_color([127, 255, 0]),
+        80: so.define_sys_color([0, 255, 0]),
+        70: so.define_sys_color([0, 255, 127]),
+        60: so.define_sys_color([0, 255, 255]),
+        50: so.define_sys_color([0, 127, 255]),
+        40: so.define_sys_color([0, 0, 255]),
+        30: so.define_sys_color([127, 0, 255]),
+        20: so.define_sys_color([255, 0, 255]),
+    }
+
+    drop_range = 2.5
     dose_color_table = {}
-    for k, v in dose_levels.items():
-        dose_color_table[k] = v
+
+    # Add target doses to dose_color_table
+    for k, v in target_dose_dict.items():
+        dose_color_table[100 * k / reference_dose] = v
+
+    # Add rainbow doses to dose_color_table if they are not within drop_range of any target dose
+    for k, v in rainbow_dose_levels.items():
+        if all(abs(k - target) > drop_range for target in dose_color_table.keys()):
+            dose_color_table[k] = v
+
+    dose_color_table = {key: dose_color_table[key] for key in sorted(dose_color_table.keys(), reverse=True)}
 
     case.CaseSettings.DoseColorMap.ColorTable = dose_color_table
-    case.CaseSettings.DoseColorMap.ReferenceValue = ref_dose
     case.CaseSettings.DoseColorMap.PresentationType = 'Absolute'
+    case.CaseSettings.DoseColorMap.ReferenceValue = reference_dose
 
 
-def find_max_dose_in_plan(examination, case, plan):
-    rois = case.PatientModel.StructureSets[examination.Name].RoiGeometries
-    if so.check_structure_exists(case=case,
-                                 structure_name='External_Clean',
-                                 roi_list=rois,
-                                 option='Check'):
-        max_dose = plan.TreatmentCourse.TotalDose.GetDoseStatistic(RoiName='External_Clean', DoseType='Max')
-    elif so.check_structure_exists(case=case,
-                                   structure_name='External',
-                                   roi_list=rois,
-                                   option='Check'):
-        max_dose = plan.TreatmentCourse.TotalDose.GetDoseStatistic(RoiName='External', DoseType='Max')
+def get_beamset_dose_at_point(beamset, point):
+    """
+    Determine the maximum dose at the specified point.
+    Args:
+        beamset: (ScriptObject): The beamset to check
+        point: (dict): A dictionary with 'x', 'y', and 'z' keys representing the point to check
+    Returns:
+        (float): The maximum dose at the specified point in Gy
+    """
+    maximum_per_fraction_dose = beamset.FractionDose.InterpolateDoseInPoint(
+        Point=point, PointFrameOfReference=beamset.FrameOfReference)
+    number_of_fractions = beamset.FractionationPattern.NumberOfFractions
+    return maximum_per_fraction_dose * number_of_fractions / 100  # cGy to Gy
+
+
+
+
+def find_max_dose_in_plan(beamset):
+    max_dose_point = beamset.FractionDose.GetCoordinateOfMaxDose()
+    if max_dose_point:
+        max_dose = get_beamset_dose_at_point(beamset=beamset, point=max_dose_point)
     else:
         max_dose = None
-
     return max_dose
 
-def goal_matches_priority(e,priority):
+
+def goal_matches_priority(e, priority):
     if not priority:
         return True
-
-    if int(e.PlanningGoal.Priority) in priority:
+    if int(e.PlanningGoal.Priority) == priority:
         return True
     else:
         return False
+
 
 def parse_dose_from_goal(e):
     goal_type = e.PlanningGoal.Type
@@ -124,55 +183,85 @@ def parse_dose_from_goal(e):
     elif goal_type == 'AverageDose':
         return int(e.PlanningGoal.AcceptanceLevel)
     else:
-        k=logging.warning('unknown goal type {}'.format(goal_type))
+        k = logging.warning('unknown goal type {}'.format(goal_type))
 
-def find_goal_dose_levels(plan, priority=None):
+
+def parse_coverage_from_goal(e, filters):
+    result = False
+    for f in filters:
+        if e.PlanningGoal.GoalCriteria == f[0] and e.PlanningGoal.PrimaryAcceptanceLevel == f[1]:
+            result = True
+    return result
+
+
+def find_goal_dose_levels(plan, priority, doses=None):
     # Find the dose levels used in the evaluation of the goals and return list of isodoses
     # priority is a list of priority levels. If present, then only return dose levels of
     # those groups.
-    doses = []
+    if doses is None:
+        doses = []
+    filters = [('AtLeast', 0.95), ('AtLeast', 0.98), ('AtLeast', 0.99), ('AtLeast', 1.0)]
     for e in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions:
-        if goal_matches_priority(e,priority):
+        if goal_matches_priority(e, priority) and parse_coverage_from_goal(e, filters):
             d = parse_dose_from_goal(e)
             if d and d not in doses:
-                doses.append(d)
+                doses.append(d / 100)  # convert to Gy
     return sorted(doses)
 
 
-def main():
+def get_prescription_dose_levels(beamset):
+    dose_levels = []
+    prescription_dose_references = get_prescription_dose_references(beamset)
     try:
-        patient = connect.get_current('Patient')
-        case = connect.get_current('Case')
-        examination = connect.get_current("Examination")
-        patient_db = connect.get_current('PatientDB')
-        plan = connect.get_current('Plan')
-        beamset = connect.get_current('BeamSet')
-    except Exception as ex:
-        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-        message = template.format(type(ex).__name__, ex.args)
-        UserInterface.WarningBox(message)
-        UserInterface.WarningBox('This script requires a patient, case, and beamset to be loaded')
-        sys.exit('This script requires a patient, case, and beamset to be loaded')
-
-    # Capture the current list of ROI's to avoid saving over them in the future
-    targets = so.find_targets(case)
-    for t in targets:
-        patient.Set2DvisualizationForRoi(RoiName=t,
-                                         Mode='filled')
-
-    max_dose = find_max_dose_in_plan(examination=examination,
-                                     case=case,
-                                     plan=plan)
-
-    try:
-        ref_dose = beamset.Prescription.PrimaryDosePrescription.DoseValue
+        for pdr in prescription_dose_references:
+            dose_levels.append(pdr.DoseValue / 100)
     except AttributeError:
-        ref_dose = max_dose
-        logging.info('Neither prescription nor max dose are defined in the plan. Setting to default max_dose')
+        return dose_levels
+    return dose_levels
 
-    isodose_reconfig(case=case,
-                     ref_dose=ref_dose,
+
+def change_visualization_targets(rso):
+    # Capture the current list of ROI's to avoid saving over them in the future
+    target_types = ['Ptv', 'Ctv', 'Gtv']
+    for roi in rso.case.PatientModel.RegionsOfInterest:
+        if roi.Type in target_types:
+            roi_geom = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi.Name]
+            if roi_geom.HasContours():
+                try:
+                    rso.patient.Set2DvisualizationForRoi(RoiName=roi.Name,
+                                                         Mode='Filled')
+                except Exception as ex:
+                    try:
+                        roi.RoiVisualizationSettings.VisualizationMode2D('Filled')
+                    except:
+                        continue
+
+
+def change_visualization_isodose(rso):
+    # Change the targets to filled in
+    change_visualization_targets(rso)
+    max_dose = find_max_dose_in_plan(beamset=rso.beamset)
+    reference_doses = get_prescription_dose_levels(rso.beamset)
+    reference_doses = find_goal_dose_levels(plan=rso.plan, priority=2, doses=reference_doses)
+
+    isodose_reconfig(case=rso.case,
+                     ref_doses=reference_doses,
                      max_dose=max_dose)
+
+
+def main():
+    # Initialize return variable
+    Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan',
+                           'beamset'])
+    # Get current patient, case, exam
+    rso = Pd(error=[],
+             patient=find_scope(level='Patient'),
+             case=find_scope(level='Case'),
+             exam=find_scope(level='Examination'),
+             db=find_scope(level='PatientDB'),
+             plan=find_scope(level='Plan'),
+             beamset=find_scope(level='BeamSet'))
+    change_visualization_isodose(rso)
 
 
 if __name__ == '__main__':

@@ -88,11 +88,14 @@ def check_prv_status(rso: NamedTuple) -> Tuple[str, str]:
 
     # Look for an objective on the serial organ, if one is present, then look for one on the prv
     for p in prvs:
-        for cf in plan_optimization.Objective.ConstituentFunctions:
-            if cf.ForRegionOfInterest.Name == p[1]:
-                p[3] = True  # The prv was used in the optimization
-            elif cf.ForRegionOfInterest.Name == p[0]:
-                p[2] = True  # The oar was used in the optimization
+        try:
+            for cf in plan_optimization.Objective.ConstituentFunctions:
+                if cf.ForRegionOfInterest.Name == p[1]:
+                    p[3] = True  # The prv was used in the optimization
+                elif cf.ForRegionOfInterest.Name == p[0]:
+                    p[2] = True  # The oar was used in the optimization
+        except AttributeError:
+            return ALERT, f'No objective found for {rso.beamset.DicomPlanLabel}'
     # PRVs is then: [serial_oar, oar_prv, oar_used_in_optimization, prv_used_in_optimization]
     # Test if Serial organ used in optimization, but the prv was not!
     not_used_str = []
@@ -141,6 +144,8 @@ def check_prv_status(rso: NamedTuple) -> Tuple[str, str]:
                 message_str += f"Unused OARS have negligible dose"\
                                f" \u2264 {int(tolerance)}% clinical goal: "\
                                + format_oars_dict(serial_negligible)
+        else:
+            message_str += 'All PRVs used in optimization. '
     return pass_result, message_str
 
 

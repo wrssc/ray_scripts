@@ -90,8 +90,6 @@ def generate_pdf(rso, review_data, test_mode=False):
     tests_df = read_data(tests)
 
     # Output file
-    # output_file = generate_file_path(
-    #     patient_output_dir, patient_output_prefix, ".pdf")
     output_file = generate_file_path(
         report_output_dir, patient_output_prefix, ".pdf"
       )
@@ -408,7 +406,9 @@ def build_demographics_table(data, config):
 
 
 def parse_high_risk_boolean(value, config):
-    if value:
+    if value == "Not Specified":
+        return value, getSampleStyleSheet()['Normal']
+    elif value:
         style = getSampleStyleSheet()['Normal']
         style.fontName = 'Helvetica-Bold'
         style.backColor = config.UW_BLUE
@@ -419,23 +419,42 @@ def parse_high_risk_boolean(value, config):
 
 
 def parse_special_instructions(data):
+    """
+    Parse and extract special instructions from the given data.
+
+    This function iterates through a dictionary of data, where keys are tuples
+    and values are instruction details. It extracts and formats special instructions
+    based on predefined key patterns and conditions. Only unique instructions with
+    relevant values are included in the output.
+
+    Parameters:
+    data (dict): A dictionary containing keys as tuples and values as instruction details.
+
+    Returns:
+    str: A formatted string containing the extracted special instructions.
+
+    Notes:
+    - Handles 'radio' and 'combo' type instructions differently.
+    - Filters out instructions with empty, 'false', or duplicate values.
+    """
     special_instructions_text = ""
+
     for tuple_key, value in data.items():
         key, instruction_number = tuple_key
-        if key.startswith(KEY_TX_INST):
-            if KEY_RADIO in key:
-                # Extract the instruction name and type
-                _, instruction_name, response_type,radio_value = key.split('-')[1:]
-                if value == "false":
-                    continue
-                elif value == "true":
-                    if radio_value == "Yes":
-                        special_instructions_text += f"* {instruction_name}\n"
-                    else:
-                        continue
-            elif KEY_COMBO in key:
-                inst_key, _, comb_key, instruction_name = key.split('-')[1:]
-                special_instructions_text += f"* {instruction_name}: {value}\n"
+        # Check for 'radio' type instructions
+        if key.startswith(KEY_TX_INST) and KEY_RADIO in key:
+            _, instruction_name, response_type, radio_value = key.split('-')[1:]
+            # Check if the instruction is already seen or has 'false' value
+            if not value:
+                continue
+            special_instructions_text += f"* {instruction_name}: {radio_value}\n"
+        # Check for 'combo' type instructions
+        elif KEY_COMBO in key:
+            _, instruction_name, response_type, _ = key.split('-')[1:]
+            # Ignore empty instructions
+            if not value.strip() or value.strip() == 'None':
+                continue
+            special_instructions_text += f"* {instruction_name}: {value}\n"
     return special_instructions_text
 
 
@@ -457,8 +476,8 @@ def add_treatment_instructions_table(simulation_set, special_instructions, confi
     # Extract data from the header dictionary
     simulation_date = simulation_set.get(KEY_SIM_DATE, "Not Specified")
     patient_orientation = simulation_set.get(KEY_PATIENT_ORIENTATION, "Not Specified")
-    prior_radiotherapy = simulation_set.get(KEY_PRIOR_RT, "Not Specified")
-    implanted_medical_device = simulation_set.get(KEY_IMD, "Not Specified")
+    prior_radiotherapy = simulation_set.get(KEY_PRIOR_RT + KEY_RADIO + '-YES', "Not Specified")
+    implanted_medical_device = simulation_set.get(KEY_IMD + KEY_RADIO + '-YES', "Not Specified")
     imaging_frequency = simulation_set.get(KEY_IMAGING_FREQ, "Not Specified")
     treatment_frequency = simulation_set.get(KEY_TREAT_FREQ, "Not Specified")
 
@@ -507,7 +526,7 @@ def row_proceed_revise(data):
     status_mapping = {
         "Revise": ("Revise", str(data.get(KEY_REVISION_INFO, "")), RED_CIRCLE),
         "Proceed": ("Proceed", "", GREEN_CIRCLE),
-        "QIProceed": ("Proceed", "", GREEN_CIRCLE),
+        "Proceed (QI Issue)": ("Proceed", "", GREEN_CIRCLE),
     }
     recommendation, comment, icon = status_mapping.get(data[KEY_PROCEED_REVISE], ("", "", ""))
     return recommendation, comment, icon
@@ -560,6 +579,16 @@ def build_reviewer_table(data, config, col_fractions):
 
 
 def create_beamset_data_table(data, rso, config):
+    """
+    Creates a beamset data table based on input data, RSO object, and configuration.
+    Args:
+        data:
+        rso: (NamedTuple): Raystation Script Objects
+        config:
+
+    Returns:
+
+    """
     table_data = [["Beamset Summary", ""]]
     bold_rows = []
     nested_table_rows = []

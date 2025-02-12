@@ -1,4 +1,4 @@
-""" UW Autoplanning
+""" UW Templated Planning
 
     Automatic generation of a plan
     * Loads the ScriptStatus
@@ -67,23 +67,20 @@ __help__ = 'TODO: No Help'
 import sys
 import os
 import re
-
-# sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
-# sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
 import logging
+import connect
+import library.StructureOperations as StructureOperations
+import library.Objectives as Objectives
+import library.BeamOperations as BeamOperations
+import library.AutoPlanOperations as AutoPlanOperations
+import library.autoplan_whole_brain as autoplan_whole_brain
+import FinalDose
 from collections import namedtuple
 from timeit import default_timer as timer
-import connect
-import UserInterface
-import GeneralOperations
-from GeneralOperations import logcrit as logcrit
-import StructureOperations
-import Objectives
-import BeamOperations
-import AutoPlanOperations
-from PlanOperations import find_optimization_index, compute_dose
-import autoplan_whole_brain
-import FinalDose
+from library.UserInterface import InputDialog, ScriptStatus
+from library.GeneralOperations import logcrit as logcrit
+from library.api.api_utils import get_all_commissioned, find_scope
+from library.PlanOperations import find_optimization_index, compute_dose
 
 
 # from Objectives import add_goals_and_objectives_from_protocol
@@ -131,8 +128,8 @@ def build_target_inputs(protocol_targets, plan_targets):
     i = 1
     for p in protocol_targets:
         k = str(i).zfill(2)
-        k_name = f'{k}Aname_{p}'
-        k_dose = f'{k}Bdose_{p}'
+        k_name = f'{k}Aname%{p}'
+        k_dose = f'{k}Bdose%{p}'
         target_inputs[k_name] = f'Match a plan target to {p}'
         target_inputs[k_dose] = f'Provide dose for protocol target: {p} Dose in cGy'
         target_options[k_name] = plan_targets
@@ -145,13 +142,12 @@ def build_target_inputs(protocol_targets, plan_targets):
     return target_inputs, target_initial, target_datatype, target_options, target_required
 
 
-def process_target_dialog_response(response, target_required):
+def process_target_dialog_response(response):
     """
     Processes the user's response from the target dialog.
 
     Args:
         response (dict): User response from the dialog.
-        target_required (list): List of required fields in the dialog.
 
     Returns:
         tuple: Processed site, number of fractions, and translation map.
@@ -167,8 +163,8 @@ def process_target_dialog_response(response, target_required):
             num_fx = int(v)
         elif k == '00_site':
             site = str(v)
-        elif k in target_required and v:
-            i, p = k.split("_", 1)
+        elif v:
+            i, p = k.split("%", 1)
             if p not in translation_map:
                 translation_map[p] = [None] * 3
             if 'name' in i:
@@ -176,6 +172,7 @@ def process_target_dialog_response(response, target_required):
             if 'dose' in i:
                 translation_map[p][1] = float(v) / 100.0
                 translation_map[p][2] = 'Gy'
+    logging.debug('Translation map: {}'.format(translation_map))
     return site, num_fx, translation_map
 
 
@@ -202,7 +199,7 @@ def target_dialog(case, protocol, order, use_orders=True):
     target_required.append('00_nfx')
 
     # Display dialog
-    target_dose_level_dialog = UserInterface.InputDialog(
+    target_dose_level_dialog = InputDialog(
         inputs=target_inputs,
         title='Input Target Dose Levels',
         datatype=target_datatype,
@@ -212,7 +209,7 @@ def target_dialog(case, protocol, order, use_orders=True):
 
     # Process dialog response
     response = target_dose_level_dialog.show()
-    return process_target_dialog_response(response, target_required)
+    return process_target_dialog_response(response)
 
 
 def find_beamset_element(protocol, beamset_name):
@@ -236,9 +233,9 @@ def beamset_dialog(protocol, order_targets):
         beamset_name = beamsets[0]
         beamset_etree = find_beamset_element(protocol, beamset_name=beamset_name)
         if 'Tomo' in beamset_etree.find('technique').text:
-            machines = GeneralOperations.get_all_commissioned(machine_type='Tomo')
+            machines = get_all_commissioned(machine_type='Tomo')
         else:
-            machines = GeneralOperations.get_all_commissioned(machine_type='VMAT')
+            machines = get_all_commissioned(machine_type='VMAT')
         inputs = {'m': 'Select Machine'}
         datatype = {'m': 'combo'}
         initial = {}
@@ -250,7 +247,7 @@ def beamset_dialog(protocol, order_targets):
         logging.debug('options {}'.format(options))
     else:
         beamset_name = None
-        machines = GeneralOperations.get_all_commissioned()
+        machines = get_all_commissioned()
         inputs = {'bs': 'Select Beamset', 'm': 'Select Machine'}
         datatype = {'bs': 'combo', 'm': 'combo'}
         initial = {'bs': beamsets[0]}
@@ -265,7 +262,7 @@ def beamset_dialog(protocol, order_targets):
 
     #
     # Beamset dialog
-    selected_beam_parameters = UserInterface.InputDialog(
+    selected_beam_parameters = InputDialog(
         inputs=inputs,
         title='Beamset Configuration',
         datatype=datatype,
@@ -327,10 +324,10 @@ def copy_plan_set_copy_current(rso, new_plan_name):
     # Create the return variable noting that people get whiny about _replace and we should
     # eventually get around to using dataclasses
     pd_out = Pd(error=[],
-                patient=GeneralOperations.find_scope(level='Patient'),
-                case=GeneralOperations.find_scope(level='Case'),
-                exam=GeneralOperations.find_scope(level='Examination'),
-                db=GeneralOperations.find_scope(level='PatientDB'),
+                patient=find_scope(level='Patient'),
+                case=find_scope(level='Case'),
+                exam=find_scope(level='Examination'),
+                db=find_scope(level='PatientDB'),
                 plan=rso.case.TreatmentPlans[new_plan_name],
                 beamset=rso.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name])
     return pd_out
@@ -427,7 +424,7 @@ def autoplan(autoplan_parameters, **kwargs):
             steps.append(v[0])
             instruct.append(v[1])
 
-        auto_status = UserInterface.ScriptStatus(
+        auto_status = ScriptStatus(
             steps=steps,
             docstring=__doc__,
             help=__help__)
@@ -447,15 +444,15 @@ def autoplan(autoplan_parameters, **kwargs):
     # Get current patient, case, exam
     exam = None
     if exam_name:
-        case = GeneralOperations.find_scope(level='Case')
+        case = find_scope(level='Case')
         for exam in case.Examinations:
             if exam.Name == exam_name:
                 break
     rso = Pd(error=[],
-             patient=GeneralOperations.find_scope(level='Patient'),
-             case=GeneralOperations.find_scope(level='Case'),
-             exam=exam if exam else GeneralOperations.find_scope(level='Examination'),
-             db=GeneralOperations.find_scope(level='PatientDB'),
+             patient=find_scope(level='Patient'),
+             case=find_scope(level='Case'),
+             exam=exam if exam else find_scope(level='Examination'),
+             db=find_scope(level='PatientDB'),
              plan=None,
              beamset=None)
 
@@ -535,7 +532,7 @@ def autoplan(autoplan_parameters, **kwargs):
 
     # TODO: Sort machines by technique
     # Machines
-    _ = GeneralOperations.get_all_commissioned(machine_type=None)
+    _ = get_all_commissioned(machine_type=None)
     if not ignore_status:
         auto_status.next_step(text=script_steps[status_index][1])
         status_index += 1
@@ -883,11 +880,15 @@ def autoplan(autoplan_parameters, **kwargs):
     if not ignore_status:
         auto_status.next_step(text=script_steps[status_index][1])
         status_index += 1
-    strip_roi_support = beamset_etree.find('roi_support').text
-    strip_roi_support = strip_roi_support.replace(" ", "")
-    strip_roi_support = strip_roi_support.strip()
-    beamset_defs.support_roi = strip_roi_support.split(",")
-    if user_prompts:
+    try:
+        strip_roi_support = beamset_etree.find('roi_support').text
+    except AttributeError:
+        sys.exit('No support structures specified beamset template')
+    if strip_roi_support:
+        strip_roi_support = strip_roi_support.replace(" ", "")
+        strip_roi_support = strip_roi_support.strip()
+        beamset_defs.support_roi = strip_roi_support.split(",")
+    if user_prompts and strip_roi_support:
         AutoPlanOperations.load_supports(rso=rso,
                                          supports=beamset_defs.support_roi,
                                          quiet=user_prompts)

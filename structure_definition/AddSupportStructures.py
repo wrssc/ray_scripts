@@ -27,6 +27,7 @@ This script was tested with:
 Version History:
 v0.1.0: First working edition
 v1.0.0: Validated in RS 11B, python 3.8
+v1.1: Validation in RayStation 2024A
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -460,8 +461,12 @@ def add_structures_from_template(
         )
         logging.info(message)
 
-        case.PatientModel.StructureSets[examination.Name] \
+        try:
+            case.PatientModel.StructureSets[examination.Name] \
             .RoiGeometries[roi].DeleteGeometry()
+        except AttributeError:
+            case.PatientModel.StructureSets[examination.Name] \
+            .RoiGeometries[roi].DeleteRoiGeometry()
 
     # Add structure from template
     # Notes: The use of AlignToImageCenter drops structures in center of image.

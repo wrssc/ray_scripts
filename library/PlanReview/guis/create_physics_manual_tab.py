@@ -104,12 +104,12 @@ def create_manual_check_row(item, word_wrap_limit, user_text_length=80, ):
     return row, line_count
 
 
-def excluded_check_boxes(check_dict, key, values):
+def excluded_check_boxes(key, values):
     # Check if conditions are met to include the key in the extracted values
     exclude_check = False
     # Check if prior rt was selected
-    prior_rt = values.get(KEY_PRIOR_RT, False)
-    imd = values.get(KEY_IMD, False)
+    prior_rt = values.get(KEY_PRIOR_RT + KEY_RADIO + '-YES', False)
+    imd = values.get(KEY_IMD + KEY_RADIO + '-YES', False)
     if key == REVIEW_LEVELS['PRIOR_RT'] and not prior_rt:
         exclude_check = True
     if key == REVIEW_LEVELS['IMPLANTED_DEVICE'] and not imd:
@@ -122,7 +122,7 @@ def extract_values_manual_tab(values, passing, failed, check_boxes):
     for key in check_boxes:
         sorted_values[key] = {}
         for item in check_boxes[key]:
-            if excluded_check_boxes(item, key, values):
+            if excluded_check_boxes(key, values):
                 continue
             phrases = item[KEY_OUT_OPTIONS].split(',')
             for p in phrases:
@@ -650,10 +650,10 @@ def is_visible_tab(tab, window):
     visible = True
     # Logic for determining if a tab should be visible or not
     if tab.__dict__.get('Key', None) == REVIEW_LEVELS['IMPLANTED_DEVICE']:
-        if not window[KEY_IMD].get():
+        if not window[KEY_IMD + KEY_RADIO + '-YES'].get():
             visible = False
     elif tab.__dict__.get('Key', None) == REVIEW_LEVELS['PRIOR_RT']:
-        if not window[KEY_PRIOR_RT].get():
+        if not window[KEY_PRIOR_RT + KEY_RADIO + '-YES'].get():
             visible = False
     return visible
 
@@ -696,69 +696,144 @@ def is_valid_automated_test(window, failed_tests, response_required=True):
     is_valid = True
     if response_required:
         for test in failed_tests:
+            if test[KEY_OUT_DOMAIN_TYPE] == DOMAIN_TYPE['SANDBOX_KEY']:
+                continue
             window_key = create_key(test[KEY_OUT_DOMAIN_NAME], test[KEY_OUT_DESC],
                                     KEY_INPUT_TEXT)
             comment = window[window_key].get()
             if comment == FAILED_AUTOMATED_TEST:
-                update_window_error(window, window_key, bg=True)
+                new_update_window_error(window, [window_key], bg=True)
                 is_valid = False
             elif not comment or comment == FAILED_AUTOMATED_TEST:
-                update_window_error(window, window_key, bg=True)
+                new_update_window_error(window, [window_key], bg=True)
                 is_valid = False
     return is_valid
+
+
+def no_failed_tests_present(failed_tests):
+    """
+    Excluding tests in the sandbox, check if there are any failed tests present.
+    Args:
+        failed_tests: List of failed tests.
+
+    Returns:
+        bool: True if no failed tests are present, False otherwise
+    """
+    no_failed_tests = True
+    # Check to see if any failed tests that are not in the sandbox
+    for test in failed_tests:
+        if test[KEY_OUT_DOMAIN_TYPE] != DOMAIN_TYPE['SANDBOX_KEY']:
+            return False
+    return no_failed_tests
+
+
+def new_update_window_error(window, keys, bg=False):
+    error_text_color = '#8B0000'
+    error_bg_color = '#8B0000'
+    error_bg_text = '#ffffff'
+
+    for key in keys:
+        if bg:
+            window[key].update(text_color=error_bg_text, background_color=error_bg_color)
+        else:
+            window[key].update(text_color=error_text_color)
 
 
 def is_valid_manual_tab(window, values, check_boxes, failed_tests, response_required=True):
     is_valid = True
     is_valid_auto = True
+
     if response_required:
-        for key in check_boxes:
-            for item in check_boxes[key]:
-                # Check if this is a valid check box
-                if excluded_check_boxes(item, key, values):
+        for key, items in check_boxes.items():
+            for item in items:
+                if excluded_check_boxes(key, values) or key == REVIEW_LEVELS['SANDBOX']:
                     continue
+                logging.debug(f'---Checkbox information:{key}: {item}')
+
                 options = ['Yes', 'No']
                 check_box_radio_keys = [
-                    create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}{o}')
-                    for o in options]
-                if not check_radio_on(values, check_box_radio_keys):
-                    for r in check_box_radio_keys:
-                        update_window_error(window, r)
+                    create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}{o}') for o in options
+                ]
+                input_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_INPUT_TEXT}')
+
+                if not any(values[k] for k in check_box_radio_keys):
+                    new_update_window_error(window, check_box_radio_keys)
                     is_valid = False
-                else:
-                    input_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_INPUT_TEXT}')
-                    if values[check_box_radio_keys[1]] and not values[input_key]:
-                        update_window_error(window, input_key, bg=True)
-                        is_valid = False
+
+                if values[check_box_radio_keys[1]] and not values[input_key]:
+                    new_update_window_error(window, [input_key], bg=True)
+                    is_valid = False
+
         is_valid_auto = is_valid_automated_test(window, failed_tests)
+
         if not is_valid or not is_valid_auto:
             Sg.popup_error('Please fill in all the required fields.')
+    else:
+        # For this review a response is not required but have the user confirm failed tests
+        # are present
+        if no_failed_tests_present(failed_tests):
+            Sg.popup_error('Several tests are still failing. Please review them and repair the plan or report '
+                           'an inaccurate test to the developer.')
+            is_valid = False
+
     return all([is_valid, is_valid_auto])
 
 
-def copy_and_filter_checkbox_dict(dict1, dict2):
-    # Create filtered copies of dict1 and dict2 without the KEY_REVIEW_TYPE key
-    f_dict1 = {k: v for k, v in dict1.items() if k != KEY_REVIEW_TYPE}
-    f_dict2 = {k: v for k, v in dict2.items() if k != KEY_REVIEW_TYPE}
-    return f_dict1, f_dict2
+def copy_and_filter_checkbox_dict(checkbox_dict1, checkbox_dict2):
+    """
+    Create filtered copies of checkbox_dict1 and checkbox_dict2
+    without the KEY_REVIEW_TYPE key.
+
+    Args:
+        checkbox_dict1: First CHECK_BOX dictionary.
+        checkbox_dict2: Second CHECK_BOX dictionary.
+
+    Returns:
+        filtered_dict1: Filtered copy of checkbox_dict1.
+        filtered_dict2: Filtered copy of checkbox_dict2.
+    """
+    filtered_dict1 = {k: v for k, v in checkbox_dict1.items() if k != KEY_REVIEW_TYPE}
+    filtered_dict2 = {k: v for k, v in checkbox_dict2.items() if k != KEY_REVIEW_TYPE}
+    return filtered_dict1, filtered_dict2
 
 
-def merge_dicts(dict1, dict2):
-    # Get filtered versions of the dictionaries
-    f_dict1, f_dict2 = copy_and_filter_checkbox_dict(dict1, dict2)
-    # Create a copy of f_dict1 to start merging
-    merged = f_dict1.copy()
+def merge_dicts(checkbox_dict1, checkbox_dict2):
+    """
+    Merges two CHECK_BOX dictionaries of the form:
+        {
+            REVIEW_LEVEL['LEVEL_KEY']: [
+                {
+                    KEY_OUT_TEST: 'Test Name',
+                    # Other test-related key-value pairs...
+                },
+                # Additional test dictionaries...
+            ],
+            # Additional review levels...
+        }
+    Removes empty review levels and duplicate tests.
 
-    for key, value in f_dict2.items():
-        if key in merged:
-            # Merge unique items from dict2[key] into merged[key]
-            # Filter out duplicate keys
-            merged[key] = [d for d in merged[key] if d not in value] + value
-        else:
-            # Add key and value from dict2 if not in dict1
-            merged[key] = value
+    Args:
+        checkbox_dict1: a CHECK_BOX dictionary
+        checkbox_dict2: the CHECK_BOX dictionary to be merged into checkbox_dict1
 
-    # Remove outer level keys with empty lists
+    Returns:
+        merged: a merged CHECK_BOX dictionary with the KEY_REVIEW_TYPE key removed and
+                duplicate tests removed
+
+    """
+    merged, checkbox_dict2_filtered = copy_and_filter_checkbox_dict(checkbox_dict1, checkbox_dict2)
+    keys_in_merged = [
+        item[KEY_OUT_TEST] for review_level, review_list in merged.items() for item in review_list]
+    for review_level, review_list in checkbox_dict2_filtered.items():
+        if review_level in merged:
+            for check_box_dict in review_list:
+                if check_box_dict[KEY_OUT_TEST] not in keys_in_merged:
+                    merged[review_level].append({k: v for k, v in check_box_dict.items()})
+                    keys_in_merged.append(check_box_dict[KEY_OUT_TEST])
+        elif review_list:
+            merged[review_level] = review_list
+            keys_in_merged.extend([item[KEY_OUT_TEST] for item in review_list])
+    # Double check that there are no empty review levels
     merged = {k: v for k, v in merged.items() if v}
 
     return merged
@@ -844,9 +919,12 @@ def build_manual_check_box_list(rso, beamsets, review_type="Physics", chars_per_
     # Add in technique-specific checklist
     for beamset_name in beamsets:
         technique = rso.plan.BeamSets[beamset_name].DeliveryTechnique
+        modality = rso.plan.BeamSets[beamset_name].Modality
         # Check if technique-specific checklist exists
         if "T3D" in beamset_name:
             technique_checklist = TECHNIQUE_MAP["T3D"][review_type]
+        elif "Electrons" in modality:
+            technique_checklist = TECHNIQUE_MAP["SMLC_Electrons"][review_type]
         elif technique in TECHNIQUE_MAP:
             technique_checklist = TECHNIQUE_MAP[technique][review_type]
         else:
@@ -911,12 +989,12 @@ def get_tests_from_tree(tree_children):
     return passing_tests, failed_tests
 
 
-def get_key(components, window):
+def get_key(components, values):
     key_string = "".join(components)
-    if create_key(key_string) in window.AllKeysDict:
-        return True
-    else:
-        return False
+    logging.debug(f'---Getting the key {key_string}')
+
+    # Check if the radio button is selected based on its key
+    return values.get(create_key(key_string), False)
 
 
 def process_check_box_values(window, values, checks):
@@ -937,15 +1015,15 @@ def process_check_box_values(window, values, checks):
             parsed_item = {KEY_OUT_DESC: item[KEY_OUT_DESC]}
             radio_pre = f"{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}"
             input_key = create_key(f"{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_INPUT_TEXT}")
-            if excluded_check_boxes(item, test_level, values):
+            if excluded_check_boxes(test_level, values):
                 continue
-            if get_key([radio_pre, 'Yes'], window):
+            if get_key([radio_pre, 'Yes'], values):
                 parsed_item[KEY_OUT_RESULT] = PASS
                 parsed_item[KEY_OUT_ICON] = GREEN_CIRCLE
-            elif get_key([radio_pre, 'No'], window):
+            elif get_key([radio_pre, 'No'], values):
                 parsed_item[KEY_OUT_RESULT] = FAIL
                 parsed_item[KEY_OUT_ICON] = RED_CIRCLE
-            elif get_key([radio_pre, 'NA'], window):
+            elif get_key([radio_pre, 'NA'], values):
                 parsed_item[KEY_OUT_RESULT] = NA
                 parsed_item[KEY_OUT_ICON] = BLUE_CIRCLE
             else:

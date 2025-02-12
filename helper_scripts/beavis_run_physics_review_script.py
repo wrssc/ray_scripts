@@ -1,5 +1,5 @@
-""" Physics Review with Document
-    --version 1.0.1--Run basic plan integrity checks and parse the log file.
+""" BEAmset reVIew Script
+    --version 1.0.3--Run basic plan integrity checks and parse the log file.
 
     """
 
@@ -9,4 +9,9 @@ from pathlib import Path
 plan_review_path = Path(__file__).parent.parent / "library" / "PlanReview"
 sys.path.insert(1, str(plan_review_path))
 from PlanReview.physics_review import physics_review
+
+# Similarly, point to the DITTO folder where more magic happens
+ditto_path = Path(__file__).parent.parent / "library" / "DITTO"
+sys.path.insert(1, str(ditto_path))
+
 physics_review(do_physics_review=True)

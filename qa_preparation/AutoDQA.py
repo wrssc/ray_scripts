@@ -63,15 +63,17 @@ import os
 import re
 import numpy as np
 import connect
-import UserInterface
-import DicomExport
 from collections import namedtuple, OrderedDict
 from datetime import datetime
 import pyperclip
 import PySimpleGUI as sg
+import UserInterface
+import DicomExport
+from api.api_qa_preparation import create_dqa_plan
 
 clinic_options = {'--MACHINES--': ['TrueBeam1358', 'TrueBeam2588', 'TrueBeam2871',
-                                   'TrueBeam3744', 'TrueBeam6198', 'HDA0488'],
+                                   'TrueBeam3744', 'TrueBeam6198', 'TrueBeam6696',
+                                   'TrueBeam6697', 'Edge6593','HDA0488'],
                   '--QA_DEVICES--': ['Plus_02 (JC)', 'Plus_04 (UH)',
                                      'Plus_05 (EC)', 'Plus_06 (UH)'],
                   '--X_GRID--': [-3.0, -2.0, -1.0, 0., 1.0, 2.0, 3.0, ],
@@ -176,36 +178,36 @@ def find_qa_plan(plan, beamset, qa_plan_name):
     return None
 
 
-def create_qa(beamset, phantom, qa_plan_name, phantom_id, iso, dosegrid, rot=None):
-    try:
-        beamset.CreateQAPlan(
-            PhantomName=phantom,
-            PhantomId=phantom_id,
-            QAPlanName=qa_plan_name,
-            IsoCenter=iso,
-            DoseGrid=dosegrid,
-            GantryAngle=None,
-            CollimatorAngle=None,
-            CouchRotationAngle=rot,
-            ComputeDoseWhenPlanIsCreated=True,
-            NumberOfMonteCarloHistories=None,
-            MotionSynchronizationTechniqueSettings=None,
-            RemoveCompensators=False,
-            EnableDynamicTracking=False)
-        return "success"
-    except Exception as e:
-        return str(e.Message)
+# def create_qa(beamset, phantom, qa_plan_name, phantom_id, iso, dosegrid, rot=None):
+#     try:
+#         beamset.CreateQAPlan(
+#             PhantomName=phantom,
+#             PhantomId=phantom_id,
+#             QAPlanName=qa_plan_name,
+#             IsoCenter=iso,
+#             DoseGrid=dosegrid,
+#             GantryAngle=None,
+#             CollimatorAngle=None,
+#             CouchRotationAngle=rot,
+#             ComputeDoseWhenPlanIsCreated=True,
+#             NumberOfMonteCarloHistories=None,
+#             MotionSynchronizationTechniqueSettings=None,
+#             RemoveCompensators=False,
+#             EnableDynamicTracking=False)
+#         return "success"
+#     except Exception as e:
+#         return str(e.Message)
 
 
 def make_vmat_qa_plan(plan, beamset, qa_plan_name):
     # Make a qa plan
-    qa_status = create_qa(beamset=beamset,
-                          phantom=clinic_options['--VMAT_QA_PHANTOM--'],
-                          phantom_id=clinic_options['--VMAT_PHANTOM_ID--'],
-                          qa_plan_name=qa_plan_name,
-                          iso={'x': 0, 'y': 0, 'z': 0},
-                          dosegrid={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                          rot=0)
+    qa_status = create_dqa_plan(beamset=beamset,
+                                phantom_name=clinic_options['--VMAT_QA_PHANTOM--'],
+                                phantom_id=clinic_options['--VMAT_PHANTOM_ID--'],
+                                qa_plan_name=qa_plan_name,
+                                iso={'x': 0, 'y': 0, 'z': 0},
+                                dose_grid={'x': 0.2, 'y': 0.2, 'z': 0.2},
+                                couch_rotation=0)
     if qa_status == "success":
         qa_plan = find_qa_plan(plan, beamset, qa_plan_name)
         return qa_plan
@@ -216,19 +218,20 @@ def make_vmat_qa_plan(plan, beamset, qa_plan_name):
 
 def make_tomo_qa_plan(plan, beamset, qa_plan_name):
     # Make a qa plan
-    qa_status = create_qa(beamset=beamset,
-                          phantom=clinic_options['--TOMO_QA_PHANTOM--'],
-                          phantom_id=clinic_options['--TOMO_PHANTOM_ID--'],
-                          qa_plan_name=qa_plan_name,
-                          iso={'x': 0, 'y': 0, 'z': 0},
-                          dosegrid={'x': 0.2, 'y': 0.2, 'z': 0.2})
+    qa_status = create_dqa_plan(beamset=beamset,
+                                phantom_name=clinic_options['--TOMO_QA_PHANTOM--'],
+                                qa_plan_name=qa_plan_name,
+                                phantom_id=clinic_options['--TOMO_PHANTOM_ID--'],
+                                iso={'x': 0, 'y': 0, 'z': 0},
+                                dose_grid={'x': 0.2, 'y': 0.2, 'z': 0.2},
+                                couch_rotation=0)
     if "No phantom found" in qa_status:
-        qa_status = create_qa(beamset=beamset,
-                              phantom=clinic_options['--ALT_TOMO_QA_PHANTOM--'],
-                              phantom_id=clinic_options['--ALT_TOMO_PHANTOM_ID--'],
-                              qa_plan_name=qa_plan_name,
-                              iso={'x': 0, 'y': 0, 'z': 0},
-                              dosegrid={'x': 0.2, 'y': 0.2, 'z': 0.2})
+        qa_status = create_dqa_plan(beamset=beamset,
+                                    phantom_name=clinic_options['--ALT_TOMO_QA_PHANTOM--'],
+                                    phantom_id=clinic_options['--ALT_TOMO_PHANTOM_ID--'],
+                                    qa_plan_name=qa_plan_name,
+                                    iso={'x': 0, 'y': 0, 'z': 0},
+                                    dose_grid={'x': 0.2, 'y': 0.2, 'z': 0.2}, couch_rotation=0)
     if qa_status == "success":
         qa_plan = find_qa_plan(plan, beamset, qa_plan_name)
         return qa_plan
@@ -501,9 +504,9 @@ def shift_iso(verification_plan, percent_dose_region=80.):
                                                                                                               a['z'])
         + "Closest shift coordinates are [x,y,z]: [{},{},{}]".format(shift['x'], shift['y'], shift['z']))
     iso_name = verification_plan.BeamSet.DicomPlanLabel \
-            +"_X:{:03.0f}".format(10. * shift['x'])\
-            +"_Y:{:03.0f}".format(-10. * shift['y'])\
-            +"_Z:{:03.0f}".format(10. * shift['z'])
+               + "_X:{:03.0f}".format(10. * shift['x']) \
+               + "_Y:{:03.0f}".format(-10. * shift['y']) \
+               + "_Z:{:03.0f}".format(10. * shift['z'])
     # Shift the isocenter of the beams
     for b in beams:
         b.Isocenter.EditIsocenter(Name=iso_name, Position=shift, Color="Purple")
@@ -545,7 +548,6 @@ def main():
     try:
         patient = connect.get_current('Patient')
         case = connect.get_current('Case')
-        exam = connect.get_current('Examination')
 
     except Exception:
         UserInterface.WarningBox('This script requires a patient to be loaded')
@@ -564,7 +566,6 @@ def main():
         sys.exit('Dialog canceled')
     # user_prompt = prompt_beamsets(plan)
     beamset_list = user_prompt['-BEAMSETS-']
-    bypass_export_check = True
     for b in beamset_list:
         try:
             beamset = plan.BeamSets[b]

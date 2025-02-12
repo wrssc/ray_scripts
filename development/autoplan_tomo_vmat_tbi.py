@@ -147,6 +147,7 @@ from typing import Optional, List
 script_dir = os.path.dirname(os.path.abspath(__file__))
 general_dir = os.path.join(script_dir, '..', 'general')
 sys.path.insert(1, general_dir)
+from library.api.api_case import get_rigid_registrations
 from AutoPlan import multi_autoplan, autoplan  # noqa: E402
 
 #
@@ -179,6 +180,7 @@ FW = 39  # 39 cm of MLC based field
 CENTRAL_JUNCTION_WIDTH = 1.2 * 9
 # FFS_MAX_TREATMENT_LENGTH = 111.5
 FFS_MAX_TREATMENT_LENGTH = 99  # TODO - A fudge - based junction placement on packing HFS
+                               #  replace with a function of patient height
 FFS_OVERSHOOT = 3  # cm - Distance of overshoot of beam past toes
 FFS_SHIFT_BUFFER = 2
 FFS_TREATMENT_LENGTH = (FFS_MAX_TREATMENT_LENGTH
@@ -207,8 +209,8 @@ TARGET_HFS = "PTV_p_HFS"
 EVAL_SUFFIX = "_Eval"
 JUNCTION_PREFIX_FFS = "ffs_junction_"
 JUNCTION_PREFIX_HFS = "hfs_junction_"
-SKIN_AVOIDANCE = 'Avoid_Skin_PRV05'
-SKIN_AVOIDANCE_CONTRACT = 0.5  # cm contraction
+SKIN_AVOIDANCE = 'Avoid_Skin_PRV03'
+SKIN_AVOIDANCE_CONTRACT = 0.3  # cm contraction
 LUNG_AVOID_NAME = "Lungs_m07"
 LUNGS = "Lungs"
 LUNGS_EVAL_MARGIN = 1.0  # cm contraction for margin
@@ -923,13 +925,14 @@ def make_box(patient_data, box_name, length=None, z_center=None):
     patient_model = case.PatientModel
     #
     # Get the Bounding box of the External contour
-    external_name = find_types(case,
-                               roi_type='External')[0]
+    external_name = find_types(case, roi_type='External')[0]
     bb_external = patient_model.StructureSets[exam.Name] \
         .RoiGeometries[external_name].GetBoundingBox()
     c_external = get_center(patient_data, roi_name=external_name)
     z_center = c_external['z'] if z_center is None else z_center
     length = bb_external[1].z - bb_external[0].z if length is None else length
+    logging.debug(f'Measured length of external contour: {bb_external[1].z - bb_external[0].z}')
+    logging.debug(f'Building a box with length {length} centered at {z_center}')
     # Create the box
     box_geom = create_roi(
         case=case,
@@ -1215,7 +1218,7 @@ def make_ptv(pdata, junction_prefix, avoid_name, color=None):
                            examination=pdata.exam, **temp_defs)
     # Make Eval structure
     # Boolean Definitions
-    roi_exclude.append('Avoid_Skin_PRV05')
+    roi_exclude.append(SKIN_AVOIDANCE)
     roi_exclude.append('Lungs')
     temp_defs = get_boolean_defs(
         roi_name=eval_name, a_sources=[external_name],
@@ -1525,7 +1528,8 @@ def update_dose_grid(pdata):
 def check_registration_approval(pd_ffs, ffs_scan_name, hfs_scan_name):
     approved = False
     # Look through registration objects
-    for r in pd_ffs.case.Registrations:
+    registrations = get_rigid_registrations(pd_ffs.case)
+    for r in registrations:
         try:
             _ = r.RegistrationSource
         except AttributeError:
@@ -1677,7 +1681,7 @@ def load_normal_mbs(pd_hfs, pd_ffs, quiet=False):
 def make_derived_rois(pd_hfs, pd_ffs):
     """
     Make the derived structures for the plan:
-    Lungs, Avoid_Skin_PRV05, External_PRV10,
+    Lungs, Avoid_Skin_PRV03, External_PRV10,
     :param pd_hfs:
     :param pd_ffs:
     :return:
@@ -2132,18 +2136,20 @@ def cut_rois_to_image(source: namedtuple, destination: namedtuple,
     """
 
     # Maximum possible height for bounding box (in cm)
-    wadlow = 272
+    wadlow = 200  # 272 cm is the maximum height of a human but in RS 2024a is the maximum
 
     # Placeholder for ROIs to be deleted
     delete_list = []
 
     # Create a bounding box larger than possible body size
     big_box = make_box(destination, box_name='big_box', length=wadlow)
-    delete_list.append(big_box)
+    # TODO: uncomment
+    # delete_list.append(big_box)
 
     # Create a bounding box as large as the external examination
     box_name = make_box(destination, box_name=f'fov_box')
-    delete_list.append(box_name)
+    # TODO: uncomment
+    # delete_list.append(box_name)
 
     # Subtract smaller box from the large one
     destination.case.PatientModel.RoiSubtractionPostProcessing(
@@ -2387,7 +2393,8 @@ def get_new_grid(case, beamset_a, beamset_b):
 
 
 def find_transform(case, from_name, to_name):
-    for r in case.Registrations:
+    registrations = get_rigid_registrations(case)
+    for r in registrations:
         if r.StructureRegistrations[0].FromExamination.Name == from_name \
                 and r.StructureRegistrations[0].ToExamination.Name == to_name:
             return r
@@ -2634,10 +2641,10 @@ def tbi_gui(bypass=False):
             # '-MACHINE-': "TrueBeam_NoTrack",
             '-THI-': True,
             '-VMAT-': False,
-            '-FFS PLAN-': False,
+            '-FFS PLAN-': True,
             '-HFS PLAN-': True,
-            '-FFS ISODOSE-': False,
-            '-FFS STRUCTURES-': False,
+            '-FFS ISODOSE-': True,
+            '-FFS STRUCTURES-': True,
             '-SUM DOSE-': True
         }
 
@@ -2883,7 +2890,13 @@ def main():
             # HFS protocol declarations
             hfs_multiplan, ffs_multiplan = multiplan_data(
                 pd_hfs, hfs_pois, ffs_pois, nfx=nfx, rx=rx)
-            tbi_hfs_protocol = multi_autoplan(hfs_multiplan)
+            try:
+                tbi_hfs_protocol = multi_autoplan(hfs_multiplan)
+            except Exception as e:
+                toggle_ptv_type(tbi_hfs_protocol['rso'],
+                                rois=[TARGET_FFS, TARGET_FFS + EVAL_SUFFIX],
+                                roi_type='Ptv')
+                raise RuntimeError(f'Error in multi_autoplan: {e}')
         else:
             raise RuntimeError(
                 'Plan selected that is not VMAT or TOMO. Exiting')

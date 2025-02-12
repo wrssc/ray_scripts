@@ -335,7 +335,6 @@
             <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
         </beam>
     </beamset>
-
     <beamset>
         <name>BreL Tangents</name>
         <technique>SMLC</technique>
@@ -704,5 +703,177 @@
             <CouchAngle>90</CouchAngle>
             <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
         </beam>
+    </beamset>
+    <beamset>
+        <name>7 field SNS</name>
+        <technique>SMLC</technique>
+        <DicomName>7F_SNS_R0A0</DicomName>
+        <description>7 Field Step and Shoot</description>
+        <roi_support></roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1</Name>
+            <Energy>6</Energy>
+            <GantryAngle>231</GantryAngle>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2</Name>
+            <Energy>6</Energy>
+            <GantryAngle>283</GantryAngle>
+            <CollimatorAngle>350</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>3</Name>
+            <Energy>6</Energy>
+            <GantryAngle>334</GantryAngle>
+            <CollimatorAngle>355</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="9" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>4</Name>
+            <Energy>6</Energy>
+            <GantryAngle>026</GantryAngle>
+            <CollimatorAngle>025</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>5</Name>
+            <Energy>6</Energy>
+            <GantryAngle>077</GantryAngle>
+            <CollimatorAngle>345</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>6</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>6</Name>
+            <Energy>6</Energy>
+            <GantryAngle>129</GantryAngle>
+            <CollimatorAngle>005</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>7</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>7</Name>
+            <Energy>6</Energy>
+            <GantryAngle>179.9</GantryAngle>
+            <CollimatorAngle>5</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>5 field SNS</name>
+        <technique>SMLC</technique>
+        <DicomName>5F_SNS_R0A0</DicomName>
+        <description>5 Field Step and Shoot</description>
+        <roi_support></roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1</Name>
+            <Energy>6</Energy>
+            <GantryAngle>252</GantryAngle>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2</Name>
+            <Energy>6</Energy>
+            <GantryAngle>324</GantryAngle>
+            <CollimatorAngle>350</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>3</Name>
+            <Energy>6</Energy>
+            <GantryAngle>036</GantryAngle>
+            <CollimatorAngle>355</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="9" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>4</Name>
+            <Energy>6</Energy>
+            <GantryAngle>108</GantryAngle>
+            <CollimatorAngle>025</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>5</Name>
+            <Energy>6</Energy>
+            <GantryAngle>179.9</GantryAngle>
+            <CollimatorAngle>345</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+     <beamset>
+        <name>3 field SNS</name>
+        <technique>SMLC</technique>
+        <DicomName>3F_SNS_R0A0</DicomName>
+        <description>3 Field Step and Shoot</description>
+        <roi_support></roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1</Name>
+            <Energy>6</Energy>
+            <GantryAngle>300</GantryAngle>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2</Name>
+            <Energy>6</Energy>
+            <GantryAngle>060</GantryAngle>
+            <CollimatorAngle>350</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>3</Name>
+            <Energy>6</Energy>
+            <GantryAngle>179.9</GantryAngle>
+            <CollimatorAngle>355</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="9" y1="-15" y2="15">False</LockAperture>
+        </beam>
+
     </beamset>
 </templates>

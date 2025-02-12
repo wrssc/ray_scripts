@@ -3,7 +3,7 @@
   -->
 
 <protocol>
-    <name>UW Breast SBRT</name>
+    <name>UW Breast Hypofractionation to 11</name>
     <AnatomicGroup>Breast</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_CHEST</protocol>
@@ -17,62 +17,6 @@
         <institution>East</institution>
         <institution>Johnson Creek</institution>
     </institutions>
-    <diagnoses>
-        <icd version="10">C50011</icd>
-        <icd version="10">C50012</icd>
-        <icd version="10">C50019</icd>
-        <icd version="10">C50021</icd>
-        <icd version="10">C50022</icd>
-        <icd version="10">C50029</icd>
-        <icd version="10">C50111</icd>
-        <icd version="10">C50112</icd>
-        <icd version="10">C50119</icd>
-        <icd version="10">C50121</icd>
-        <icd version="10">C50122</icd>
-        <icd version="10">C50129</icd>
-        <icd version="10">C50211</icd>
-        <icd version="10">C50212</icd>
-        <icd version="10">C50219</icd>
-        <icd version="10">C50221</icd>
-        <icd version="10">C50222</icd>
-        <icd version="10">C50229</icd>
-        <icd version="10">C50311</icd>
-        <icd version="10">C50312</icd>
-        <icd version="10">C50319</icd>
-        <icd version="10">C50321</icd>
-        <icd version="10">C50322</icd>
-        <icd version="10">C50329</icd>
-        <icd version="10">C50411</icd>
-        <icd version="10">C50412</icd>
-        <icd version="10">C50419</icd>
-        <icd version="10">C50421</icd>
-        <icd version="10">C50422</icd>
-        <icd version="10">C50429</icd>
-        <icd version="10">C50511</icd>
-        <icd version="10">C50512</icd>
-        <icd version="10">C50519</icd>
-        <icd version="10">C50521</icd>
-        <icd version="10">C50522</icd>
-        <icd version="10">C50529</icd>
-        <icd version="10">C50611</icd>
-        <icd version="10">C50612</icd>
-        <icd version="10">C50619</icd>
-        <icd version="10">C50621</icd>
-        <icd version="10">C50622</icd>
-        <icd version="10">C50629</icd>
-        <icd version="10">C50811</icd>
-        <icd version="10">C50812</icd>
-        <icd version="10">C50819</icd>
-        <icd version="10">C50821</icd>
-        <icd version="10">C50822</icd>
-        <icd version="10">C50829</icd>
-        <icd version="10">C50911</icd>
-        <icd version="10">C50912</icd>
-        <icd version="10">C50919</icd>
-        <icd version="10">C50921</icd>
-        <icd version="10">C50922</icd>
-        <icd version="10">C50929</icd>
-    </diagnoses>
     <prescription>
         <frequency>Daily</frequency>
         <imaging>Weekly kV</imaging>
@@ -108,22 +52,8 @@
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
                          comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
-            <treatment_frequency>
-                 <option default="false">Daily</option>
-                <option default="true">2 to 3 times per week</option>
-                <option default="false">Weekly</option>
-            </treatment_frequency>
-            <imaging_frequency>
-                <option default="true">Daily CBCT</option>
-                <option>Weekly kV</option>
-            </imaging_frequency>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
-            <motion>Free breathing</motion>
-            <motion default="true">RPM MIBH gating</motion>
+            <Instruction type="Treatment Instructions" radio=""
+                         combo="Free Breathing,DIBH">Breathing Instructions</Instruction>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -161,20 +91,6 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">2.64</dose>
-                <volume units="Gy">0.03</volume>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">1</dose>
-                <volume units="cc">0.03</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
                 <name>Uninvolved_Breast</name>
                 <type dir="le">VX</type>
                 <dose units="Gy">15</dose>
@@ -196,11 +112,25 @@
                 <priority>3</priority>
             </roi>
             <roi>
+                <name>Breast_R</name>
+                <type>Max</type>
+                <dose units="Gy">2.64</dose>
+                <volume units="Gy">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Breast_R</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>Skin_PRV03</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">27</dose>
-                <priority>3</priority>
+                <priority>5</priority>
             </roi>
         </goals>
         <objectives>
@@ -288,7 +218,7 @@
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
                          comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -328,20 +258,6 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Breast_L</name>
-                <type>Max</type>
-                <dose units="Gy">2.64</dose>
-                <volume units="Gy">0.03</volume>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Breast_L</name>
-                <type>Max</type>
-                <dose units="Gy">1</dose>
-                <volume units="cc">0.03</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
                 <name>Uninvolved_Breast</name>
                 <type dir="le">VX</type>
                 <dose units="Gy">15</dose>
@@ -363,11 +279,25 @@
                 <priority>3</priority>
             </roi>
             <roi>
+                <name>Breast_L</name>
+                <type>Max</type>
+                <dose units="Gy">2.64</dose>
+                <volume units="Gy">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Breast_L</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>Skin_PRV03</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">27</dose>
-                <priority>3</priority>
+                <priority>5</priority>
             </roi>
         </goals>
         <objectives>
@@ -450,13 +380,14 @@
                 <option default="false">Weekly</option>
             </treatment_frequency>
             <imaging_frequency>
-                <option default="true">Daily CBCT</option>
+                <option default="true">Daily Planar Imaging</option>
+                <option>Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
                          comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -692,15 +623,15 @@
                 <option default="false">Weekly</option>
             </treatment_frequency>
             <imaging_frequency>
-                <option default="true">Daily CBCT</option>
+                <option default="true">Daily Planar Imaging</option>
+                <option>Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
                          comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
-            <motion>Free breathing</motion>
-            <motion default="true">RPM MIBH gating</motion>
+            <Instruction type="Treatment Instructions" radio=""
+                         combo="Free Breathing,DIBH">Breathing Instructions</Instruction>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -940,9 +871,8 @@
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
                          comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
-            <motion>Free breathing</motion>
-            <motion default="true">RPM MIBH gating</motion>
+            <Instruction type="Treatment Instructions" radio=""
+                         combo="Free Breathing,DIBH">Breathing Instructions</Instruction>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -1182,9 +1112,8 @@
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
                          comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
-            <motion>Free breathing</motion>
-            <motion default="true">RPM MIBH gating</motion>
+            <Instruction type="Treatment Instructions" radio=""
+                         combo="Free Breathing,DIBH">Breathing Instructions</Instruction>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>

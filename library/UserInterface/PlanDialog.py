@@ -1340,10 +1340,10 @@ class PlanDialog:
 
                 else:
                     self.status = True
-                    self.form.DialogResult = True
+                    self.form.DialogResult = System.Windows.Forms.DialogResult.OK
 
         def cancel(_s, _e):
-            self.form.DialogResult = True
+            self.form.DialogResult = System.Windows.Forms.DialogResult.OK
             self.status = False
 
         self.ok = System.Windows.Forms.Button()

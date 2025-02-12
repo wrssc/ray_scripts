@@ -71,7 +71,7 @@ from ReviewDefinitions import *
 import ExamTests
 import BeamSetReviewTests
 import PlanReviewTests
-from GeneralOperations import find_scope
+from library.api.api_utils import find_scope
 
 """
 

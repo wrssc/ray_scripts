@@ -36,10 +36,53 @@
              are available.
 
 
+    1.0.2: Minor changes
+           * Added a sandbox test to check if the max dose point is within the PTVs and reports
+             the value as a percentage of prescribed
+           * Refactor of the comparison of user-entered and DICOM date to handle anonymized cases
+           * Revised the way special instructions are parsed to handle unused instructions
+           * For multiple beamset plans the check lists from all plan types are now combined
+           * Exempted anything within the sandbox tab from required user input
+           * Changed the way empty review levels are handled to ensure tabs are ordered correctly
+           * Fixed a bug causing user-indicated failed tests to be overriden to passing.
+           * Fixed a bug with treatment instructions to include the radio-response, e.g.
+             "Full Bladder: No"
+           * Rephrased the comment in the fraction size check to make clear that the intent of the
+             check is to ensure the fraction size is appropriate with the MD.
+           * Fixed a bug preventing the order finding script from matching on the appropriate entry in
+             the log file.
+           * Updated the UW Prostate SBRT template to remove the twice-daily fractionation option
+           * Remove the 8 Gy x 1 and 4 Gy x 5 from the check for commonly mistyped fraction sizes
+           * Reformatted the gui-handling to exist as a class. This is the first step to restoring the
+             test tree during a load.
+           * Made the Prior RT and IMD checkboxes Radio buttons, and made them a mandatory entry
+           * Modified the clearance testing function to account for whether or not the gantry passes through
+             the problem areas in the plan.
+           * Modified the clearance testing function to assume a direction to static gantry beams then
+             check for collisions in that direction.
+           * Enhanced the clearance testing function to account for non-coplanar beams.
+    1.0.3: Last update before release
+           * Add an option to the radio selection of special instructions to include "None". This gets ignored
+             in the report.
+           * Incorporated the latest DITTO check for Aria plan transfer
+               * Specifically exclude TomoTherapy beamsets from DITTO checks
+           * Fixed a bug preventing PriorRT and IMD selections from being included in PDF report
+           * Fixed a bug causing TomoTherapy optimization checklists to not be grouped.
+           * Ironically, if the PRV check passes, no message was displayed. I did not have a test for this.
+           * Corrected an error that arises if the check_fov_overlap_script is run, interrupted, then the plan is locked
+             preventing creation of new structures.
+           * Added a check for the front page data of the number of fractions and the prescription dose
+
+
+
+
+
+
+
     PRERELEASE:
+    TODO: Fix the slice spacing check to pick just the pertinent technique
     TODO: Need a required prompt for all entries in the first tab
     TESTS:
-    TODO: Clearance check: LOOK AT WHERE THE BEAM WILL GO!
     TODO: Add a check on MU/rx in cGy and flag over the 5
     TODO: For GTV, and CTV types. Are these all within a PTV?
     POST RELEASE
@@ -57,10 +100,6 @@
            checkboxes and into automated checks
     TODO:: Experiment with very long tool tips for a help prompt under automated checks
     TODO:: DOSIMETRY REVIEW
-        -Previous Treatment check boxes along with
-        0 Yes: Please refer to D-Evaluation for Prior Radiotherapy document
-        -CIED Pacemaker check box:
-        0 Yes: Please refer to D-Implantable Cardiac Device Note
         -In the plan, the target is in a Choose One
         location in the patient.  This Choose One   the TPO.
         -'test_name': 'Beam added with no collision via machine geometry'
@@ -74,8 +113,6 @@
        different beamsets, and flag for merge
     TODO:
        Check bad regions of Frame
-    TODO: For a given couch angle, check the arc direction for a kick toward
-           gantry rotation
     TODO:
        def check_plan_name(bs):
          Check plan name for appropriate
@@ -103,11 +140,6 @@
          Pelvis; 1.8 - 2.4
          Prostate(low; risk)    1.6 - 2.2
          Prostate(high; risk)    2.0 - 2.4
-    TODO: Check collisions
-       put a circle down at isocenter equal in dimension to ganty (collimator
-       pin)/bore clearance
-       union patient/supports
-       determine gantry positions
     TODO:
        def - check the front edges of the couch and suspended headboard
     TODO:
@@ -158,7 +190,7 @@
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '2023-Nov-20'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 __status__ = 'Clinical'
 __deprecated__ = False
 __reviewer__ = 'Someone else'
@@ -168,7 +200,7 @@ __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __help__ = ''
-__copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2024, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
 import sys
@@ -176,14 +208,14 @@ import os
 import PySimpleGUI as Sg
 import logging
 from collections import namedtuple
-from GeneralOperations import find_scope
+from library.api.api_utils import find_scope
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '.'))
-from PlanReview.guis import launch_physics_review_gui
-from PlanReview.utils.get_user_name import get_user_name
-from PlanReview.documentation.generate_physics_pdf import generate_pdf
+from library.PlanReview.guis.gui_physics_review import launch_physics_review_gui
+from library.PlanReview.utils.get_user_name import get_user_name
+from library.PlanReview.documentation.generate_physics_pdf import generate_pdf
 
 
-def physics_review(do_physics_review=True):
+def physics_review(do_physics_review=True, review_type='Physics'):
     """
         patient_key
             |
@@ -243,9 +275,10 @@ def physics_review(do_physics_review=True):
         review_data = None
     else:
         # Gui
-        review_data = launch_physics_review_gui(rso)
+        review_data = launch_physics_review_gui(rso, review_type=review_type)
         if not review_data:
-            sys.exit('Physics review canceled')
+            return 'Physics review canceled'
+            # sys.exit('Physics review canceled')
 
     if do_physics_review:
         # generate_doc(rso, ata=header, test_mode=doc_only)
