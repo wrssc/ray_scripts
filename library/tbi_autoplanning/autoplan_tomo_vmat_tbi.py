@@ -57,34 +57,13 @@ Version History:
 TODO:
     - Handle patients that are too short to maintain a pelvis junction.
     - Provide immediate warnings about VMAT height limits.
-    - Correct the definition of the PTV_p_FFS structure to exclude the entire External ROI.
-    - Remove the C90 beam from the head isocenter.
-    - Update the feet isocenter configuration so that beams focus on one foot at a time.
-        - Consider adding functionality for the script to create individual feet OTVs.
-    - Clean up PTV/PTVeval contours to eliminate "ditzels."
-        - Verify that PTV structures are correct when first created and avoid editing them later.
-        - If ditzels occur (which may cause the dose grid to be too small, as seen by Tera), reset to the default dose grid.
-    - Ensure the RS clinical goals template matches TPO requirements.
-        - Coordinate with Abby and Alyx regarding any missing goals to add to the template.
-    - Kidney Handling:
-        - Manually crop out kidneys from the PTV if kidney sparing is intended.
-        - Add a kidney sparing button.
-    - Ensure PTV contours are set back to "target" type (and not "unknown") before plan approval.
-        - Handle interruptions in the script by resetting the PTV type manually and notify Adam if it happens.
-    - Adjust lung goal handling for P3:
-        - Treat P3 lung goals (e.g., Rx 13.2 Gy: <7.3 Gy, Rx 12 Gy: <6.6 Gy, Rx 8 Gy: <6 Gy) similarly to P1.
-        - Set the P3 goal as a constraint; initially use high weights then switch to a constraint.
-        - COMPLETE: Update the script to use the existing "VMAT TBI..." templates provided by Jacob.
+    - Consider adding functionality for the script to create individual feet OTVs.
     - Larger changes:
-        - COMPLETE: Allow co-optimization of all isocenters together.
-            - COMPLETE: Consider skipping the background dose calculation if it is the highest priority.
-            - COMPLETE: Aim for a one-button solution for each task.
             - Add a "separate beamset" button to facilitate splitting beamsets.
             - Optionally, copy the plan pre-split as a backup.
         - Improve isocenter placement for shorter patients (i.e., lower junction placement) and support a single orientation.
             - Use reliable estimates of patient height to calculate isocenter positions.
             - Consider manual placement of the junction—but be cautious about potential clearance issues.
-        - COMPLETE: Enhance the plan summation process.
 
 License:
 --------
@@ -121,20 +100,21 @@ import AutoPlanOperations
 from StructureOperations import (create_roi, create_poi,
                                  make_wall, make_externalclean, make_boolean_structure, check_roi,
                                  find_types, exclude_from_export, change_roi_type)
+from roi_operations import (roi_in_list)
 from collections import namedtuple
 import PySimpleGUI as Sg
 import re
 from typing import Optional, List
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-general_dir = os.path.join(script_dir, '../../development', 'general')
-sys.path.insert(1, general_dir)
+# general_dir = os.path.join(script_dir, '../../../', 'general')
+# sys.path.insert(1, general_dir)
 from library.api.api_case import get_rigid_registrations
-from AutoPlan import multi_autoplan  # noqa: E402
+from general.AutoPlan import multi_autoplan  # noqa: E402
 
 DEBUG = True
 # Hard-coded path to protocols
-PROTOCOL_FOLDER = r'../protocols'
+PROTOCOL_FOLDER = r'../../protocols'
 INSTITUTION_FOLDER = r'UW'
 AUTOPLAN_FOLDER = r'AutoPlans'
 PATH_PROTOCOLS = os.path.join(os.path.dirname(__file__),
@@ -150,6 +130,7 @@ PROTOCOL_FILE_TOMO = "TomoTBI.xml"
 PROTOCOL_NAME_TOMO = "UW Tomo TBI"
 ORDER_NAME_FFS_TOMO = "TomoTBI_FFS"
 ORDER_NAME_HFS_TOMO = "TomoTBI_HFS"
+ORDER_NAME_HFS_KIDNEY_TOMO = "TomoTBI_Kidney_HFS"
 BEAMSET_TEMPLATE_FFS_TOMO = "Tomo_TBI_FFS_FW50"
 BEAMSET_TEMPLATE_HFS_TOMO = "Tomo_TBI_HFS_FW50"
 TOMO_MACHINE = "HDA0488"
@@ -161,51 +142,13 @@ BEAMSET_FFS_VMAT = "VMAT-FFS-TBI"
 VMAT_MACHINE = "TrueBeam"
 # ORDER NAMES
 HFS_PELVIS_ORDER_NAME = 'VMAT_TBI_HFS_PELVIS_UPDATED'
+HFS_PELVIS_KIDNEY_ORDER_NAME = 'VMAT_TBI_HFS_PELVIS_KIDNEY'
 HFS_CHEST_ORDER_NAME = 'VMAT_TBI_HFS_CHEST_NOOBJ'
 HFS_HEAD_ORDER_NAME = 'VMAT_TBI_HFS_HEAD_NOOBJ'
 FFS_PELVIS_ORDER_NAME = 'VMAT_TBI_FFS_PELVIS_UPDATED'
 FFS_LEGS_ORDER_NAME = 'VMAT_TBI_FFS_LEGS_NOOBJ'
 FFS_FEET_ORDER_NAME = 'VMAT_TBI_FFS_FEET_NOOBJ'
-HFS_5ISO_XML_CONFIG = {0: (HFS_PELVIS_ORDER_NAME, 'TBI_HFS_5Pelv'),
-                       1: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_4AbdI'),
-                       2: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_3AbdS'),
-                       3: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_2Chst'),
-                       4: (HFS_HEAD_ORDER_NAME, 'TBI_HFS_1Head')}
-FFS_5ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_6Pelv'),
-                       1: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_7LegS'),
-                       2: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_8LegI'),
-                       3: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_9Knee'),
-                       4: (FFS_FEET_ORDER_NAME, 'TBI_FFS_10Feet')}
-HFS_4ISO_XML_CONFIG = {0: (HFS_PELVIS_ORDER_NAME, 'TBI_HFS_4Pelv'),
-                       1: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_3Abdo'),
-                       2: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_2Chst'),
-                       3: (HFS_HEAD_ORDER_NAME, 'TBI_HFS_1Head')}
-FFS_4ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_5Pelv'),
-                       1: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_6LegS'),
-                       2: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_7LegI'),
-                       3: (FFS_FEET_ORDER_NAME, 'TBI_FFS_8Feet')}
-HFS_3ISO_XML_CONFIG = {0: (HFS_PELVIS_ORDER_NAME, 'TBI_HFS_3Pelv'),
-                       1: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_2Chst'),
-                       2: (HFS_HEAD_ORDER_NAME, 'TBI_HFS_1Head')}
-FFS_3ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_4Pelv'),
-                       1: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_5Leg'),
-                       2: (FFS_FEET_ORDER_NAME, 'TBI_FFS_6Feet')}
-HFS_2ISO_XML_CONFIG = {0: (HFS_PELVIS_ORDER_NAME, 'TBI_HFS_2Pelv'),
-                       1: (HFS_HEAD_ORDER_NAME, 'TBI_HFS_1Head')}
-FFS_2ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_3Pelv'),
-                       1: (FFS_FEET_ORDER_NAME, 'TBI_FFS_4Feet')}
-HFS_1ISO_XML_CONFIG = {0: (HFS_PELVIS_ORDER_NAME, 'TBI_HFS_1Head')}
-FFS_1ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_2Pelv')}
-HFS_XML_CONFIG = {5: HFS_5ISO_XML_CONFIG,
-                  4: HFS_4ISO_XML_CONFIG,
-                  3: HFS_3ISO_XML_CONFIG,
-                  2: HFS_2ISO_XML_CONFIG,
-                  1: HFS_1ISO_XML_CONFIG}
-FFS_XML_CONFIG = {5: FFS_5ISO_XML_CONFIG,
-                  4: FFS_4ISO_XML_CONFIG,
-                  3: FFS_3ISO_XML_CONFIG,
-                  2: FFS_2ISO_XML_CONFIG,
-                  1: FFS_1ISO_XML_CONFIG}
+
 ORDER_TARGET_NAME_FFS = "PTV_p_FFS"
 ORDER_TARGET_NAME_HFS = "PTV_p_HFS"
 # PLAN CONVENTIONS
@@ -256,12 +199,16 @@ EXTERNAL_SETUP_EXP = 1.0  # cm expansion
 EXTERNAL_NAME = "ExternalClean"
 AVOID_HFS_NAME = "Avoid_HFS"
 AVOID_FFS_NAME = "Avoid_FFS"
-SKIN_AVOIDANCE = 'Avoid_Skin_PRV03'
-SKIN_AVOIDANCE_CONTRACT = 0.3  # cm contraction
+SKIN_AVOIDANCE = 'Avoid_Skin_PRV05'
+SKIN_AVOIDANCE_CONTRACT = 0.5  # cm contraction
 LUNG_AVOID_NAME = "Lungs_m07"
+LUNG_AVOID_MARGIN = 0.7  # cm contraction
 LUNGS = "Lungs"
 LUNGS_EVAL_MARGIN = 1.0  # cm contraction for margin
 LUNGS_EVAL_NAME = LUNGS + "_m10"
+KIDNEYS = "Kidneys"
+KIDNEY_AVOID_NAME = KIDNEYS + "_m05"
+KIDNEY_AVOID_MARGIN = 0.5  # cm contraction
 # TARGET CONTOURS:
 TARGET_FFS = "PTV_p_FFS"
 TARGET_HFS = "PTV_p_HFS"
@@ -463,7 +410,7 @@ def check_external(patient_data):
 
 def check_ffs_structure_prerequisites(pd_ffs, pd_hfs):
     PRECONTOURING_HFS_CONTOUR_NAMES = ["Lung_L", "Lung_R", "Kidney_R", "Kidney_L"]
-    PRECONTOURING_FFS_CONTOUR_NAMES = ["Kidney_R", "Kidney_L"]
+    PRECONTOURING_FFS_CONTOUR_NAMES = ["Kidney_R", "Kidney_L", "Leg_Distal_R", "Leg_Distal_L"]
     patient_data = [pd_ffs, pd_hfs]
     # Check external contours
     for pdat in patient_data:
@@ -489,7 +436,7 @@ def check_ffs_structure_prerequisites(pd_ffs, pd_hfs):
 
 def check_ffs_plan_prerequisites(pd_ffs, pd_hfs, vmat=False, otv_junctions=False):
     PREPLANNING_HFS_CONTOUR_NAMES = [
-        "Lung_L", "Lung_R", "Kidney_R", "Kidney_L", LUNG_AVOID_NAME,
+        "Lung_L", "Lung_R", "Kidney_R", "Kidney_L", LUNG_AVOID_NAME, KIDNEY_AVOID_NAME,
         LUNGS_EVAL_NAME, SKIN_AVOIDANCE, EXTERNAL_SETUP, AVOID_HFS_NAME, TARGET_HFS, HFS_TARGET_EVAL_NAME]
     PREPLANNING_FFS_CONTOUR_NAMES = [
         "Kidney_R", "Kidney_L", SKIN_AVOIDANCE, EXTERNAL_SETUP, AVOID_FFS_NAME, TARGET_FFS, FFS_TARGET_EVAL_NAME]
@@ -562,6 +509,8 @@ def check_registration(pdata_hfs, pdata_ffs):
                 ffs_to_hfs_found = True
                 break
     except Exception as e:
+        if "Object has no member 'RegistrationSource'" in str(e):
+            raise RuntimeError('Approve the registration between HFS and FFS')
         logging.error(f'Error checking registration: {e}')
         raise RuntimeError(f'No registration from HFS to FFS found:  {e}')
     if not ffs_to_hfs_found:
@@ -639,7 +588,7 @@ def plan_transfer_successful(pd_hfs, pd_ffs, nfx):
                     is_clinical = bs.IsApprovedToUseAsBackgroundDose()
                     is_scaled = bs.FractionationPattern.NumberOfFractions == nfx
                     logging.debug(f'Beamset {bs.DicomPlanLabel} is clinical: {is_clinical}, '
-                                    f'is scaled: {is_scaled}')
+                                  f'is scaled: {is_scaled}')
                     logging.debug(f'Beamset {bs.DicomPlanLabel} comment: {bs.Comment}'
                                   f'UID: {uid}')
                     if uid:
@@ -650,7 +599,7 @@ def plan_transfer_successful(pd_hfs, pd_ffs, nfx):
                 logging.debug(f'Checking beamset {bs.DicomPlanLabel} for {FFS_PLACEHOLDER_NAME}')
                 if FFS_PLACEHOLDER_NAME == bs.DicomPlanLabel:
                     logging.debug(f'Beamset {bs.DicomPlanLabel} comment: {bs.Comment}'
-                                    f'UID: {uid}')
+                                  f'UID: {uid}')
                     if f'<FFS_UID>:{uid}' in bs.Comment:
                         return True
     return False
@@ -748,11 +697,6 @@ def check_exported_plan(pd_ffs, pd_hfs):
                            f'Please re-export the FFS plan')
 
 
-def toggle_ptv_type(rs_obj, rois, roi_type):
-    # Sometimes in the course of RayStation planning, we need to change our type
-    # 'cause of stupid dose grids.
-    for r in rois:
-        change_roi_type(rs_obj.case, roi_name=r, roi_type=roi_type)
 
 
 def check_midfield_junctions(patient_data, poi_name_list):
@@ -795,56 +739,6 @@ def check_midfield_junctions(patient_data, poi_name_list):
     return missing_junctions
 
 
-def roi_in_list(case, structure_name, roi_list=None):
-    if not roi_list:
-        roi_obj_list = [r for r in case.PatientModel.RegionsOfInterest]
-    else:
-        roi_obj_list = []
-        for n in roi_list:
-            roi_obj_list += [r for r in case.PatientModel.RegionsOfInterest
-                             if r.Name == n]
-
-    if any(roi.Name == structure_name for roi in roi_obj_list):
-        return True
-    else:
-        return False
-
-
-def poi_in_list(case, poi_name, poi_list=None):
-    if not poi_list:
-        poi_obj_list = [p for p in case.PatientModel.PointsOfInterest]
-    else:
-        poi_obj_list = []
-        for n in poi_list:
-            poi_obj_list += [p for p in case.PatientModel.PointsOfInterest
-                             if p.Name == n]
-
-    if any(poi.Name == poi_name for poi in poi_obj_list):
-        return True
-    else:
-        return False
-
-
-def delete_roi(case, structure_name):
-    if roi_in_list(case, structure_name):
-        try:
-            case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
-            return True
-        except Exception as e:
-            logging.warning(f'Could not delete {structure_name}: {e}')
-            return False
-    else:
-        return True
-
-
-def roi_has_contours(patient_data, structure_name):
-    logging.debug(f'Checking for contours in {patient_data.case.CaseName} for {structure_name}')
-    if roi_in_list(patient_data.case, structure_name):
-        roi_geom = get_roi_geometry(patient_data.case, patient_data.exam, structure_name)
-        logging.debug(f'ROI {structure_name} has contours: {roi_geom.HasContours()}')
-        if roi_geom.HasContours():
-            return True
-    return False
 
 
 def volume_threshold_roi(patient_data, roi_name, min_vol=1., max_vol=1.e6):
@@ -914,6 +808,44 @@ def get_most_superior(patient_data, roi_name):
         return bb_roi[1].z
     else:
         return None
+
+
+def estimate_patient_height(pd_hfs, pd_ffs, external_roi_name="External", junction_name="junction"):
+    """
+    Estimate patient height using HFS and FFS scans.
+
+    The function obtains the top (head) and bottom (feet) positions from the external ROI
+    and uses a common junction point (defined in both scans) to cross-check the computation.
+
+    Args:
+        pd_hfs: Patient data for the HFS (Head First Supine) scan.
+        pd_ffs: Patient data for the FFS (Feet First Supine) scan.
+        external_roi_name (str): Name of the external ROI. Default is "External".
+        junction_name (str): Name of the junction POI. Default is "junction".
+
+    Returns:
+        float: Estimated patient height (in the same unit as the z-coordinate, typically centimeters).
+    """
+    # Retrieve the superior-most z-coordinate from the HFS scan (e.g., top of the head)
+    head_top = get_most_superior(pd_hfs, external_roi_name)
+
+    # Retrieve the inferior-most z-coordinate from the FFS scan (e.g., bottom of the feet)
+    feet_bottom = get_most_inferior(pd_ffs, external_roi_name)
+
+    # Retrieve the z-coordinate of the junction point from both scans
+    junction_hfs_z = get_point_position(pd_hfs, junction_name).z
+    junction_ffs_z = get_point_position(pd_ffs, junction_name).z
+
+    # For clarity, compute distances above and below the junction point:
+    head_to_junction = head_top - junction_hfs_z  # distance from head to junction
+    junction_to_feet = junction_ffs_z - feet_bottom  # distance from junction to feet
+
+    # The estimated patient height is the sum of these two distances.
+    estimated_height = head_to_junction + junction_to_feet
+
+    logging.info(f"Patient height estimation: {estimated_height:.2f} cm")
+
+    return estimated_height
 
 
 def get_center(rs_obj, roi_name):
@@ -1080,7 +1012,7 @@ def make_poi(case, exam, coords, name, color):
     return name
 
 
-def find_hfff_junction_coords(pd_ffs):
+def find_hfff_junction_coords(pd_ffs, max_treatment_length=FFS_MAX_TREATMENT_LENGTH):
     # Find the inferior most point from the ffs scan on the external
     [external_name] = find_types(
         pd_ffs.case, roi_type='External')
@@ -1091,7 +1023,7 @@ def find_hfff_junction_coords(pd_ffs):
         'x': 0,
         'y': center['y'],
         # Place the junction 1/2 field width away from the isocenter
-        'z': ffs_ext_z - FFS_OVERSHOOT - FFS_SHIFT_BUFFER + FFS_MAX_TREATMENT_LENGTH
+        'z': ffs_ext_z - FFS_OVERSHOOT - FFS_SHIFT_BUFFER + max_treatment_length
     }
 
 
@@ -1123,15 +1055,6 @@ def determine_prefix(exam):
         return 'hfs'
     elif exam.PatientPosition == 'FFS':
         return 'ffs'
-
-
-def find_roi_prefix(case, roi_match):
-    # Return all structures whose name contains roi_prefix
-    found_roi = []
-    for r in case.PatientModel.RegionsOfInterest:
-        if roi_match in r.Name:
-            found_roi.append(r.Name)
-    return found_roi
 
 
 def update_all_remove_expression(pdata, roi_name):
@@ -1428,7 +1351,7 @@ def make_lung_contours(pdata, color=None):
     Make the Lungs and avoidance structures for lung
     """
     lungs_defs = get_boolean_defs(
-        roi_name="Lungs",
+        roi_name=LUNGS,
         a_sources=["Lung_L", "Lung_R"],
         a_operation="Union",
         color=color,
@@ -1439,9 +1362,9 @@ def make_lung_contours(pdata, color=None):
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **lungs_defs)
     lung_avoid_defs = get_boolean_defs(
         roi_name=LUNG_AVOID_NAME,
-        a_sources=["Lungs"],
+        a_sources=[LUNGS],
         a_operation="Union",
-        a_exp=[0.7] * 6,
+        a_exp=[LUNG_AVOID_MARGIN] * 6,
         a_margin_type="Contract",
         color=color,
         roi_type='Organ',
@@ -1452,7 +1375,7 @@ def make_lung_contours(pdata, color=None):
     # Boolean Definitions for Lung Evaluation
     lung_eval_defs = get_boolean_defs(
         roi_name=LUNGS_EVAL_NAME,
-        a_sources=["Lungs"],
+        a_sources=[LUNGS],
         a_operation="Union",
         a_exp=[LUNGS_EVAL_MARGIN] * 6,
         a_margin_type="Contract",
@@ -1463,11 +1386,34 @@ def make_lung_contours(pdata, color=None):
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **lung_eval_defs)
 
 
-def get_roi_geometry(case, exam, roi_name):
-    for roig in case.PatientModel.StructureSets[exam.Name].RoiGeometries:
-        if roig.OfRoi.Name == roi_name:
-            return roig
-    return None
+def make_kidney_contours(pdata, color=None):
+    """
+    Make the Lungs and avoidance structures for lung
+    """
+    kidneys_defs = get_boolean_defs(
+        roi_name=KIDNEYS,
+        a_sources=["Kidney_L", "Kidney_R"],
+        a_operation="Union",
+        color=color,
+        export=True,
+        roi_type="Organ"
+    )
+    make_boolean_structure(
+        patient=pdata.patient, case=pdata.case, examination=pdata.exam, **kidneys_defs)
+    kidneys_avoid_defs = get_boolean_defs(
+        roi_name=KIDNEY_AVOID_NAME,
+        a_sources=[KIDNEYS],
+        a_operation="Union",
+        a_exp=[KIDNEY_AVOID_MARGIN] * 6,
+        a_margin_type="Contract",
+        color=color,
+        roi_type='Organ',
+    )
+    make_boolean_structure(
+        patient=pdata.patient, case=pdata.case, examination=pdata.exam, **kidneys_avoid_defs)
+
+
+
 
 
 def make_otv(pdata: namedtuple, poi_name: str, point_index: int,
@@ -1594,10 +1540,7 @@ def make_avoid(pdata, z_start, avoid_name, color=None):
     pdata.case.PatientModel.RegionsOfInterest[box_name].DeleteRoi()
 
 
-# TODO: Make PTV_p_Eval_HFS(-skin and 7 mm lungs)
-#       Make PTV_p_Eval_FFS(-skin)
-
-def make_ptv(pdata, junction_prefix, avoid_name, color=None):
+def make_ptv(pdata, junction_prefix, avoid_name, color=None, kidney_sparing=False):
     # Find all contours matching prefix and along with otv_name
     # return the external minus these objects
     #
@@ -1625,7 +1568,9 @@ def make_ptv(pdata, junction_prefix, avoid_name, color=None):
     # Make Eval structure
     # Boolean Definitions
     roi_exclude.append(SKIN_AVOIDANCE)
-    roi_exclude.append('Lungs')
+    roi_exclude.append(LUNGS_EVAL_NAME)
+    if kidney_sparing:
+        roi_exclude.append(KIDNEY_AVOID_NAME)
     temp_defs = get_boolean_defs(
         roi_name=eval_name, a_sources=[external_name],
         a_operation="Intersection", b_sources=roi_exclude, b_operation="Union",
@@ -1920,8 +1865,8 @@ def register_images(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, testing):
             RegistrationName=None)
         if not testing:
             connect.await_user_input(
-                'Check the fusion alignment of the boney anatomy in the hips. Then continue '
-                'script.')
+                'Check the fusion alignment of the boney anatomy in the hips.\n '
+                'Approve the registration.\n Then continue script.')
     else:
         logging.info(f'Approved registration found between {pd_ffs.exam.Name} and {pd_hfs.exam.Name}.')
 
@@ -1978,7 +1923,7 @@ def load_normal_mbs(pd_hfs, pd_ffs, quiet=False):
 def make_derived_rois(pd_hfs, pd_ffs):
     """
     Make the derived structures for the plan:
-    Lungs, Avoid_Skin_PRV03, External_PRV10,
+    LUNGS, KIDNEYS, SKIN_AVOIDANCE, EXTERNAL_SETUP,
     :param pd_hfs:
     :param pd_ffs:
     :return:
@@ -1989,6 +1934,7 @@ def make_derived_rois(pd_hfs, pd_ffs):
     #
     # Build lung contours and avoidance on the HFS scan
     make_lung_contours(pd_hfs, color=[192, 192, 192])
+    make_kidney_contours(pd_hfs, color=[192, 192, 192])
     #
     # Make the External_PRV10 set up structure
     try:
@@ -2033,12 +1979,13 @@ def make_derived_rois(pd_hfs, pd_ffs):
             Algorithm="Auto")
 
 
-def make_central_junction_structs(pd_hfs, pd_ffs):
+def make_central_junction_structs(pd_hfs, pd_ffs, kidney_sparing):
     """
 
     Args:
         pd_hfs: hfs named tuple
         pd_ffs: ffs named tuple
+        kidney_sparing: Boolean to determine if kidney sparing is used
 
     Returns:
 
@@ -2074,7 +2021,7 @@ def make_central_junction_structs(pd_hfs, pd_ffs):
     make_avoid(pd_ffs, z_start=ffs_poi_junction.Point.z,
                avoid_name=AVOID_FFS_NAME)
     ffs_ptv_list = make_ptv(pdata=pd_ffs, junction_prefix=JUNCTION_PREFIX_FFS,
-                            avoid_name=AVOID_FFS_NAME)
+                            avoid_name=AVOID_FFS_NAME, kidney_sparing=False)
     cut_rois_to_image(pd_ffs, pd_hfs, ffs_ptv_list)
 
     for i in range(len(j_i)):
@@ -2092,7 +2039,7 @@ def make_central_junction_structs(pd_hfs, pd_ffs):
     hfs_avoid_start = hfs_poi_junction.Point.z - dim_si * float(len(j_i))
     make_avoid(pd_hfs, z_start=hfs_avoid_start, avoid_name=AVOID_HFS_NAME)
     hfs_ptv_list = make_ptv(pdata=pd_hfs, junction_prefix=JUNCTION_PREFIX_HFS,
-                            avoid_name=AVOID_HFS_NAME)
+                            avoid_name=AVOID_HFS_NAME, kidney_sparing=kidney_sparing)
     cut_rois_to_image(pd_hfs, pd_ffs, hfs_ptv_list)
 
     return ffs_poi_junction, hfs_poi_junction
@@ -2156,7 +2103,7 @@ def beamset_complete(rso, beamset_name):
     return [beamset_exists, beamset_has_valid_segments, beamset_has_dose]
 
 
-def get_tomo_plan_defs(rso, target, nfx, rx, optimize=False):
+def get_tomo_plan_defs(rso, target, nfx, rx, optimize=False, kidney_sparing=False):
     iso_target = tomo_calc_iso(rso, target=target)
     protocol = {
         'protocol_name': PROTOCOL_NAME_TOMO,
@@ -2173,7 +2120,7 @@ def get_tomo_plan_defs(rso, target, nfx, rx, optimize=False):
     if rso.exam.PatientPosition == 'HFS':
         # HFS protocol declarations
         protocol['translation_map'] = {ORDER_TARGET_NAME_HFS: (TARGET_HFS, rx, r'cGy')}
-        protocol['order_name'] = ORDER_NAME_HFS_TOMO
+        protocol['order_name'] = ORDER_NAME_HFS_KIDNEY_TOMO if kidney_sparing else ORDER_NAME_HFS_TOMO
         protocol['plan_name'] = HFS_TOMO_PLAN_NAME
         protocol['beamset_name'] = HFS_TOMO_BEAMSET_NAME
         protocol['beamset_template'] = BEAMSET_TEMPLATE_HFS_TOMO
@@ -2193,7 +2140,7 @@ def get_tomo_plan_defs(rso, target, nfx, rx, optimize=False):
     return protocol
 
 
-def get_vmat_plan_defs(rso, hfs_pois, ffs_pois, nfx, rx, optimize=False):
+def get_vmat_plan_defs(rso, hfs_pois, ffs_pois, nfx, rx, optimize=False, kidney_sparing=False):
     """
         This function generates data dictionaries for multiple plan treatments.
 
@@ -2204,6 +2151,7 @@ def get_vmat_plan_defs(rso, hfs_pois, ffs_pois, nfx, rx, optimize=False):
             nfx (int): Number of fractions.
             rx (int): Radiation dose.
             optimize (bool): If True, optimization should be performed.
+            kidney_sparing (bool): If True, kidney sparing takes place.
 
         Returns:
             tuple: Returns two lists of dictionaries, hfs_dict and ffs_dict, that include data
@@ -2325,6 +2273,56 @@ def get_vmat_plan_defs(rso, hfs_pois, ffs_pois, nfx, rx, optimize=False):
             optimization_instructions['optimize_with_background'] = VMAT_FFS_TRANSFER_NAME
         return optimization_instructions
 
+    def get_xml_config(patient_position, n_pts):
+        if kidney_sparing:
+            pelvis_order_name = HFS_PELVIS_KIDNEY_ORDER_NAME
+        else:
+            pelvis_order_name = HFS_PELVIS_ORDER_NAME
+        HFS_5ISO_XML_CONFIG = {0: (pelvis_order_name, 'TBI_HFS_5Pelv'),
+                               1: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_4AbdI'),
+                               2: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_3AbdS'),
+                               3: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_2Chst'),
+                               4: (HFS_HEAD_ORDER_NAME, 'TBI_HFS_1Head')}
+        FFS_5ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_6Pelv'),
+                               1: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_7LegS'),
+                               2: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_8LegI'),
+                               3: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_9Knee'),
+                               4: (FFS_FEET_ORDER_NAME, 'TBI_FFS_10Feet')}
+        HFS_4ISO_XML_CONFIG = {0: (HFS_PELVIS_ORDER_NAME, 'TBI_HFS_4Pelv'),
+                               1: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_3Abdo'),
+                               2: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_2Chst'),
+                               3: (HFS_HEAD_ORDER_NAME, 'TBI_HFS_1Head')}
+        FFS_4ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_5Pelv'),
+                               1: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_6LegS'),
+                               2: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_7LegI'),
+                               3: (FFS_FEET_ORDER_NAME, 'TBI_FFS_8Feet')}
+        HFS_3ISO_XML_CONFIG = {0: (HFS_PELVIS_ORDER_NAME, 'TBI_HFS_3Pelv'),
+                               1: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_2Chst'),
+                               2: (HFS_HEAD_ORDER_NAME, 'TBI_HFS_1Head')}
+        FFS_3ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_4Pelv'),
+                               1: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_5Leg'),
+                               2: (FFS_FEET_ORDER_NAME, 'TBI_FFS_6Feet')}
+        HFS_2ISO_XML_CONFIG = {0: (HFS_PELVIS_ORDER_NAME, 'TBI_HFS_2Pelv'),
+                               1: (HFS_HEAD_ORDER_NAME, 'TBI_HFS_1Head')}
+        FFS_2ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_3Pelv'),
+                               1: (FFS_FEET_ORDER_NAME, 'TBI_FFS_4Feet')}
+        HFS_1ISO_XML_CONFIG = {0: (HFS_PELVIS_ORDER_NAME, 'TBI_HFS_1Head')}
+        FFS_1ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_2Pelv')}
+        HFS_XML_CONFIG = {5: HFS_5ISO_XML_CONFIG,
+                          4: HFS_4ISO_XML_CONFIG,
+                          3: HFS_3ISO_XML_CONFIG,
+                          2: HFS_2ISO_XML_CONFIG,
+                          1: HFS_1ISO_XML_CONFIG}
+        FFS_XML_CONFIG = {5: FFS_5ISO_XML_CONFIG,
+                          4: FFS_4ISO_XML_CONFIG,
+                          3: FFS_3ISO_XML_CONFIG,
+                          2: FFS_2ISO_XML_CONFIG,
+                          1: FFS_1ISO_XML_CONFIG}
+        if patient_position == 'HFS':
+            return HFS_XML_CONFIG[n_pts]
+        else:
+            return FFS_XML_CONFIG[n_pts]
+
     def create_dict(pois, beamset_names,
                     site, order_target_name, target, name_offset=0):
         """
@@ -2353,17 +2351,16 @@ def get_vmat_plan_defs(rso, hfs_pois, ffs_pois, nfx, rx, optimize=False):
             n_pts = len(pois)
             if site == "HFS_":
                 target_poi = pois[len(pois) - 1 - i]
-                xml_config = HFS_XML_CONFIG[n_pts]
+                xml_config = get_xml_config('HFS', n_pts)
                 order_name = xml_config[i][0]
                 template = xml_config[i][1]
                 logging.debug(f'Order name is {order_name} and template is {template}')
-
                 translation_map = create_translation_map(
                     len(pois) - 1 - i, len(pois), j_range, site, rx, name_offset)
                 exam_name = "HFS"
             else:
                 target_poi = pois[i]
-                xml_config = FFS_XML_CONFIG[n_pts]
+                xml_config = get_xml_config('FFS', n_pts)
                 order_name = xml_config[i][0]
                 template = xml_config[i][1]
                 logging.debug(f'Order name is {order_name} and template is {template}')
@@ -2605,6 +2602,20 @@ def calculate_junction(pd_hfs, pd_ffs):
     # Map the junction point to the hfs scan
     transform_object(source=pd_ffs, destination=pd_hfs, pois=[JUNCTION_POINT],
                      rois=None)
+    # Check patient height
+    patient_height = estimate_patient_height(pd_hfs, pd_ffs, external_roi_name="ExternalClean")
+    # If the patient height * 0.6 is less than max treatment length, then use 0.6 * patient height
+    # use an alternative method to set the junction point
+    if patient_height * 0.6 < FFS_MAX_TREATMENT_LENGTH:
+        ffs_treatment_length = int(patient_height * 0.6)
+        logging.info(f'Patient height is {patient_height} cm, '
+                     f'using 60% of patient height as treatment length: {ffs_treatment_length} cm')
+        central_junction_start = find_hfff_junction_coords(pd_ffs,
+                                                           max_treatment_length=ffs_treatment_length)
+        place_hfff_junction_poi(pd_hfs=pd_ffs, coord_hfs=central_junction_start)
+        transform_object(source=pd_ffs, destination=pd_hfs, pois=[JUNCTION_POINT],
+                         rois=None)
+
     # HFS Junction
     hfs_poi_junction = pd_hfs.case.PatientModel.StructureSets[pd_hfs.exam.Name] \
         .PoiGeometries[JUNCTION_POINT]
@@ -2846,7 +2857,7 @@ def dose_calc_gui(case, plans, beamsets):
 
 
 def make_structures(pd_hfs, pd_ffs,
-                    make_vmat_plan, make_tomo_plan, testing=False):
+                    make_vmat_plan, make_tomo_plan, kidney_sparing, testing=False):
     hfs_scan_name = pd_hfs.exam.Name
     ffs_scan_name = pd_ffs.exam.Name
     make_derived_rois(pd_hfs, pd_ffs)
@@ -2878,7 +2889,7 @@ def make_structures(pd_hfs, pd_ffs,
     make_lung_contours(pd_hfs, color=[192, 192, 192])
 
     ffs_poi_junction, hfs_poi_junction = make_central_junction_structs(
-        pd_hfs, pd_ffs)
+        pd_hfs, pd_ffs, kidney_sparing=kidney_sparing)
 
 
 def make_vmat_planning_structures(pd_hfs, pd_ffs, nfx, rx, make_otvs=True, make_junctions=True):
@@ -3108,6 +3119,7 @@ def generate_planning_structures(values):
     rx = int(values['-TOTAL DOSE-'])
     make_vmat_plan = values['-VMAT-']
     make_tomo_plan = values['-TOMO-']
+    kidney_sparing = values['-KIDNEY-']
     make_junctions = False
 
     # Get patient and case
@@ -3122,10 +3134,17 @@ def generate_planning_structures(values):
     check_prerequisites(pd_ffs, pd_hfs, '-FFS STRUCTURES-', make_vmat_plan, otv_junctions=False)
 
     # Build the central junctions and lung contours
-    make_structures(pd_hfs, pd_ffs, make_vmat_plan, make_tomo_plan, testing=False)
+    make_structures(pd_hfs, pd_ffs, make_vmat_plan, make_tomo_plan, testing=False,
+                    kidney_sparing=kidney_sparing)
     if make_vmat_plan:
         hfs_multiplan, ffs_multiplan = make_vmat_planning_structures(
             pd_hfs, pd_ffs, nfx, rx, make_otvs=False, make_junctions=make_junctions)
+    toggle_ptv_type(pd_ffs,
+                    rois=HFS_TARGET_NAMES,
+                    roi_type='Ptv')
+    toggle_ptv_type(pd_ffs,
+                    rois=FFS_TARGET_NAMES,
+                    roi_type='Ptv')
 
 
 def make_ffs_plan(values):
@@ -3162,11 +3181,12 @@ def make_ffs_plan(values):
         ffs_pois = find_pois(pd_ffs)
         # Load each treating beamset and the objectives of the VMAT autoplan
         hfs_multiplan, ffs_multiplan = get_vmat_plan_defs(
-            pd_ffs, hfs_pois, ffs_pois, nfx=nfx, rx=rx)
+            pd_ffs, hfs_pois, ffs_pois, nfx=nfx, rx=rx, )
         pd_ffs_out = multi_autoplan(ffs_multiplan)
     if make_tomo_plan:
         reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
-        tbi_ffs_protocol = get_tomo_plan_defs(pd_ffs, JUNCTION_PREFIX_FFS + "10%Rx", nfx, rx, optimize=False)
+        tbi_ffs_protocol = get_tomo_plan_defs(pd_ffs, JUNCTION_PREFIX_FFS + "10%Rx",
+                                              nfx, rx, optimize=False, )
         pd_ffs_out = multi_autoplan([tbi_ffs_protocol])
     toggle_ptv_type(pd_ffs,
                     rois=HFS_TARGET_NAMES,
@@ -3254,9 +3274,9 @@ def make_hfs_plan(values):
     # Implement the logic to make HFS plan
     nfx = int(values['-NFX-'])
     rx = int(values['-TOTAL DOSE-'])
-    logging.debug(f'NFX: {nfx}, RX: {rx}')
     make_vmat_plan = values['-VMAT-']
     make_tomo_plan = values['-TOMO-']
+    kidney_sparing = values['-KIDNEY-']
 
     # Get patient and case
     temp_case = GeneralOperations.find_scope(level='Case')
@@ -3304,14 +3324,16 @@ def make_hfs_plan(values):
         is_clinical_dose = pd_hfs.beamset.IsApprovedToUseAsBackgroundDose()
 
     if make_tomo_plan:
-        tbi_hfs_protocol = get_tomo_plan_defs(pd_hfs, TARGET_HFS, nfx, rx, optimize=False)
+        tbi_hfs_protocol = get_tomo_plan_defs(pd_hfs, TARGET_HFS, nfx, rx,
+                                              optimize=False, kidney_sparing=kidney_sparing)
         hfs_multiplan = [tbi_hfs_protocol]
 
     else:
         # and that an FFS plan is present.
         hfs_pois = find_pois(pd_hfs)
         ffs_pois = find_pois(pd_ffs)
-        hfs_multiplan, ffs_multiplan = get_vmat_plan_defs(pd_hfs, hfs_pois, ffs_pois, nfx=nfx, rx=rx)
+        hfs_multiplan, ffs_multiplan = get_vmat_plan_defs(pd_hfs, hfs_pois, ffs_pois, nfx=nfx, rx=rx,
+                                                          kidney_sparing=kidney_sparing)
     try:
         tbi_hfs_protocol = multi_autoplan(hfs_multiplan)
     except Exception as e:
@@ -3457,7 +3479,6 @@ def export_background_dose(values):
         series = []
         for study in studies:
             series += pd.db.QuerySeriesFromPath(Path=patient_data_path, SearchCriterias=study)
-            logging.debug(f'Series: {series}')
         # Filter queried series to only contain the series of the current patient
         # Get time in format M/D/YYYY H:MM:SS AM/PM
         modification_time = ffs_eval.ModificationInfo.ModificationTime
@@ -3497,7 +3518,7 @@ def export_background_dose(values):
 
         layout = [
             [Sg.Text("Multiple exported dose files were located leading to potentially importing the incorrect dose.\n"
-             f"Would you like to remove all contents of:\n{dir_path}?")],
+                     f"Would you like to remove all contents of:\n{dir_path}?")],
             [Sg.Button("Yes", key="-YES-"), Sg.Button("No", key="-NO-")]
         ]
         window = Sg.Window("Confirm Deletion", layout, modal=True)
@@ -3555,7 +3576,7 @@ def export_background_dose(values):
     mod_date = py_datetime.strftime("%Y%m%d")
     # Path to the DICOM repository
     patient_path = find_patient_directory(DICOM_PATH, pd_ffs.patient.PatientID, mod_date)
-    logging.debug(f'Patient directory: {patient_path}')
+
     # Ask the user to export
     connect.await_user_input(f'Export to Target: PACS-RayStation\n '
                              f'Evaluation Fx Dose {FFS_VMAT_PLAN_NAME} (HFS)\n'

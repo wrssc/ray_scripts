@@ -465,7 +465,6 @@ def autoplan(autoplan_parameters, **kwargs):
         status_index = 0
         auto_status.next_step(text=script_steps[status_index][1])
         status_index += 1
-    logging.debug("Loading file {}".format(input_protocol_name))
     (protocol_file, protocol) = AutoPlanOperations.select_protocol(folder=path_protocols,
                                                                    protocol_name=input_protocol_name)
     protocol_name = protocol.find('name').text
