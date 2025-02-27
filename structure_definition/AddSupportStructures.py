@@ -84,7 +84,9 @@ COUCH_SOURCE_ROI_NAMES = {
         "TrueBeam Qfix H1H2": "QFix_Brain_TBCouch_H1andH2",
         "TrueBeam Qfix F2F3": "QFix_H&N_TBCouch_F2andF3",
         "TomoTherapy": "TomoCouch",
-        "QFix Portrait Board": "Black Board External Final"
+        "QFix Portrait Board": "Black Board External Final",
+        "QFix_BoardOnly": "QFix_BoardOnly",
+
 
     },
     "HFP": {"TrueBeam": "ProneTrueBeamCouch", "TomoTherapy": "TomoCouch"},
@@ -120,6 +122,8 @@ COUCH_SHIFT = {
         "QFix_Brain_TBCouch_H1andH2": [0.12, -9.75, -42.63],
         "QFix_H&N_TBCouch_F2andF3": [0.15, -9.80, -42.61],
         "Black Board External Final": [0.13, -9.72, -42.60],
+        "QFix_BoardOnly": [0.13, -9.72, -42.60],
+
     },
     "HFP": {
         "ProneTrueBeamCouch": [1.188, -6.6, 0],
@@ -746,9 +750,9 @@ def expand_geometry_to_superior_boundary(examination, geometry):
 
 
     image_bb = examination.Series[0].ImageStack.GetBoundingBox()
-    extent_sup = image_bb[1]["z"]
+    extent_sup = image_bb[1]["z"] + PADDING_MARGIN
 
-    # If superior edge of couch is inside image boundary
+    # If superior edge of couch is inside image boundary plus the padding margin
     if geometry.GetBoundingBox()[1]["z"] < extent_sup:
         # Extend couch until it exceeds image boundary
         while geometry.GetBoundingBox()[1]["z"] < extent_sup:
@@ -772,7 +776,7 @@ def expand_geometry_to_superior_boundary(examination, geometry):
 
         MarginSettings = {
             "Type": "Contract",
-            "Superior": contract_sup-PADDING_MARGIN,
+            "Superior": contract_sup,
             "Inferior": 0,
             "Anterior": 0,
             "Posterior": 0,
@@ -808,7 +812,7 @@ def expand_geometry_to_superior_boundary(examination, geometry):
 
         MarginSettings = {
             "Type": "Expand",
-            "Superior": expand_sup+PADDING_MARGIN,
+            "Superior": expand_sup,
             "Inferior": 0,
             "Anterior": 0,
             "Posterior": 0,
@@ -852,7 +856,7 @@ def expand_geometry_to_inferior_boundary(examination, geometry):
     PADDING_MARGIN = 0.5  # mm
 
     image_bb = examination.Series[0].ImageStack.GetBoundingBox()
-    extent_inf = image_bb[0]["z"]
+    extent_inf = image_bb[0]["z"] - PADDING_MARGIN
 
     # If inferior edge of couch is inside image boundary
     if geometry.GetBoundingBox()[0]["z"] > extent_inf:
@@ -881,7 +885,7 @@ def expand_geometry_to_inferior_boundary(examination, geometry):
         MarginSettings = {
             "Type": "Contract",
             "Superior": 0,
-            "Inferior": contract_inf-PADDING_MARGIN,
+            "Inferior": contract_inf,
             "Anterior": 0,
             "Posterior": 0,
             "Right": 0,
@@ -917,7 +921,7 @@ def expand_geometry_to_inferior_boundary(examination, geometry):
         MarginSettings = {
             "Type": "Expand",
             "Superior": 0,
-            "Inferior": expand_inf+PADDING_MARGIN,
+            "Inferior": expand_inf,
             "Anterior": 0,
             "Posterior": 0,
             "Right": 0,
@@ -1046,7 +1050,7 @@ def deploy_couch_model(
                 Examination=examination, TransformationMatrix=TransformationMatrix
             )
 
-        elif (couch_roi_name == "QFix_Brain_TBCouch_H1andH2") or (couch_roi_name == "QFix_H&N_TBCouch_F2andF3") or (couch_roi_name == "Black Board External Final"):
+        elif (couch_roi_name == "QFix_Brain_TBCouch_H1andH2") or (couch_roi_name == "QFix_H&N_TBCouch_F2andF3") or (couch_roi_name == "Black Board External Final") or (couch_roi_name == "QFix_BoardOnly"):
             # CLASS 2: Composites of a couch and immobilization device that must be
             # added at a specific x,y,z location.
 
@@ -1943,16 +1947,29 @@ def main():
         )
 
     if values["-COUCH TOMO QFIX-"] and values["-USE PORTRAIT-"]:
-        couch = deploy_couch_model(
-            case,
-            support_structure_template=COUCH_SUPPORT_STRUCTURE_TEMPLATE,
-            support_structures_examination=COUCH_SUPPORT_STRUCTURE_EXAMINATION[
-                examination.PatientPosition
-            ],
-            source_roi_names=[
-                COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["QFix Portrait Board"]
-            ],
-        )
+
+        try:
+            couch = deploy_couch_model(
+                case,
+                support_structure_template=COUCH_SUPPORT_STRUCTURE_TEMPLATE,
+                support_structures_examination=COUCH_SUPPORT_STRUCTURE_EXAMINATION[
+                    examination.PatientPosition
+                ],
+                source_roi_names=[
+                    COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["QFix Portrait Board"]
+                ],
+            )
+        except:  # System.InvalidOperationException
+            couch = deploy_couch_model(
+                case,
+                support_structure_template=COUCH_SUPPORT_STRUCTURE_TEMPLATE,
+                support_structures_examination=COUCH_SUPPORT_STRUCTURE_EXAMINATION[
+                    examination.PatientPosition
+                ],
+                source_roi_names=[
+                    COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["QFix_BoardOnly"]
+                ],
+            )
 
     if values["-USE CIVCO-"]:
         deploy_civco_breastboard_model(
