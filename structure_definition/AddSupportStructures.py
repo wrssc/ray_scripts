@@ -82,7 +82,7 @@ COUCH_SOURCE_ROI_NAMES = {
     "HFS": {
         "TrueBeam": "TrueBeamCouch",
         "TrueBeam Qfix H1H2": "QFix_Brain_TBCouch_H1andH2",
-        "TrueBeam Qfix F2F3": "QFix_Brain_TBCouch_F2andF3",
+        "TrueBeam Qfix F2F3": "QFix_H&N_TBCouch_F2andF3",
         "TomoTherapy": "TomoCouch",
         "QFix Portrait Board": "Black Board External Final"
 
@@ -117,8 +117,9 @@ COUCH_SHIFT = {
     "HFS": {
         "TrueBeamCouch": [0, 6.8, 0],
         "TomoCouch": [0, 6.8, 0],
-        "QFix_Brain_TBCouch_H1andH2": [0.12, -9.75, -42.63], # 
-        "QFix_H&N_TBCouch_F2andF3": [-0.05, -6.65, -14.95], # Made up
+        "QFix_Brain_TBCouch_H1andH2": [0.12, -9.75, -42.63],
+        "QFix_H&N_TBCouch_F2andF3": [0.15, -9.80, -42.61],
+        "Black Board External Final": [0.13, -9.72, -42.60],
     },
     "HFP": {
         "ProneTrueBeamCouch": [1.188, -6.6, 0],
@@ -132,11 +133,6 @@ COUCH_SHIFT = {
         "ProneTrueBeamCouch": [1.188, -6.6, 0],
         "TomoCouch": [0.256, -6.6, 0],
     },
-}
-
-# Magic numbers for Portrait Board
-PORTRAIT_BASE_SHIFT = {
-    "Black Board External Final": [-0.05, -6.65, -14.95],
 }
 
 # Magic numbers for Civco Incline Breast Board
@@ -746,6 +742,9 @@ def expand_geometry_to_superior_boundary(examination, geometry):
     longitudinal direction.
 
     """
+    PADDING_MARGIN = 0.5  # mm
+
+
     image_bb = examination.Series[0].ImageStack.GetBoundingBox()
     extent_sup = image_bb[1]["z"]
 
@@ -773,7 +772,7 @@ def expand_geometry_to_superior_boundary(examination, geometry):
 
         MarginSettings = {
             "Type": "Contract",
-            "Superior": contract_sup,
+            "Superior": contract_sup-PADDING_MARGIN,
             "Inferior": 0,
             "Anterior": 0,
             "Posterior": 0,
@@ -809,7 +808,7 @@ def expand_geometry_to_superior_boundary(examination, geometry):
 
         MarginSettings = {
             "Type": "Expand",
-            "Superior": expand_sup,
+            "Superior": expand_sup+PADDING_MARGIN,
             "Inferior": 0,
             "Anterior": 0,
             "Posterior": 0,
@@ -849,6 +848,9 @@ def expand_geometry_to_inferior_boundary(examination, geometry):
     longitudinal direction.
 
     """
+
+    PADDING_MARGIN = 0.5  # mm
+
     image_bb = examination.Series[0].ImageStack.GetBoundingBox()
     extent_inf = image_bb[0]["z"]
 
@@ -879,7 +881,7 @@ def expand_geometry_to_inferior_boundary(examination, geometry):
         MarginSettings = {
             "Type": "Contract",
             "Superior": 0,
-            "Inferior": contract_inf,
+            "Inferior": contract_inf-PADDING_MARGIN,
             "Anterior": 0,
             "Posterior": 0,
             "Right": 0,
@@ -915,7 +917,7 @@ def expand_geometry_to_inferior_boundary(examination, geometry):
         MarginSettings = {
             "Type": "Expand",
             "Superior": 0,
-            "Inferior": expand_inf,
+            "Inferior": expand_inf+PADDING_MARGIN,
             "Anterior": 0,
             "Posterior": 0,
             "Right": 0,
@@ -1019,7 +1021,7 @@ def deploy_couch_model(
         couch_shift = COUCH_SHIFT[examination.PatientPosition][couch_roi_name]
 
         # There are two classes of "couch" that must be added differently
-        if (couch_roi_name == "TrueBeamCouch") or (couch_roi_name == "TomoCouch"):
+        if (couch_roi_name == "TrueBeamCouch") or (couch_roi_name == "TomoCouch") or (couch_roi_name == "ProneTrueBeamCouch"):
             # CLASS 1: Simple couches with no well-defined longitudinal location
 
             TransformationMatrix = {
@@ -1044,7 +1046,7 @@ def deploy_couch_model(
                 Examination=examination, TransformationMatrix=TransformationMatrix
             )
 
-        elif (couch_roi_name == "QFix_Brain_TBCouch_H1andH2") or (couch_roi_name == "QFix_H&N_TBCouch_F2andF3"):
+        elif (couch_roi_name == "QFix_Brain_TBCouch_H1andH2") or (couch_roi_name == "QFix_H&N_TBCouch_F2andF3") or (couch_roi_name == "Black Board External Final"):
             # CLASS 2: Composites of a couch and immobilization device that must be
             # added at a specific x,y,z location.
 
@@ -1065,22 +1067,14 @@ def deploy_couch_model(
                 translations=T,
             )
 
-        message = f"Couch structure {couch_roi_name} has been moved to the correct position."
+        message = f"Couch structure {couch_roi_name} has been moved to position."
         logging.info(message)
 
-
-    if (couch_roi_name == "TrueBeamCouch") or (couch_roi_name == "TomoCouch"):
+    if (couch_roi_name == "TrueBeamCouch") or (couch_roi_name == "TomoCouch") or  (couch_roi_name == "ProneTrueBeamCouch"):
         with CompositeAction("Fill Couch Model Longitudinally"):
 
             expand_geometry_to_inferior_boundary(examination=examination, geometry=couch)
             expand_geometry_to_superior_boundary(examination=examination, geometry=couch)
-
-    if NOTIFY:
-        sg.popup_notify(
-            f"The table structure called {couch_roi_name} was added successfully.",
-            title="Table structure successfully added",
-            display_duration_in_ms=DISPLAY_DURATION_IN_MS,
-        )
 
     position_before_manual_change = couch.GetCenterOfRoi()
 
@@ -1119,6 +1113,19 @@ def deploy_couch_model(
     log_string += f"{manual_translation}"
 
     logging.info(log_string)
+
+    if (couch_roi_name == "TrueBeamCouch") or (couch_roi_name == "TomoCouch") or  (couch_roi_name == "ProneTrueBeamCouch"):
+        with CompositeAction("Fill Couch Model Longitudinally Again"):
+
+            expand_geometry_to_inferior_boundary(examination=examination, geometry=couch)
+            expand_geometry_to_superior_boundary(examination=examination, geometry=couch)
+
+    if NOTIFY:
+        sg.popup_notify(
+            f"The table structure called {couch_roi_name} was added successfully.",
+            title="Table structure successfully added",
+            display_duration_in_ms=DISPLAY_DURATION_IN_MS,
+        )
 
     get_current("Patient").Save()
     return couch
@@ -1430,10 +1437,17 @@ def deploy_civco_breastboard_model(
     if use_wingboard:
         patient.SetRoiVisibility(RoiName=wingboard_body.OfRoi.Name, IsVisible=True)
 
-    message = (
-        "Please use the Translate and Rotate tools to adjust the "
-        f"{incline_body.OfRoi.Name} and {wingboard_body.OfRoi.Name}, as needed."
-    )
+    if use_wingboard:
+        message = (
+            "Please use the Translate and Rotate tools to adjust the "
+            f"{incline_body.OfRoi.Name} and {wingboard_body.OfRoi.Name}, as needed."
+        )
+    else:
+        message = (
+            "Please use the Translate and Rotate tools to adjust the "
+            f"{incline_body.OfRoi.Name}, as needed."
+        )
+
     await_user_input(message)
 
     # Make invisible again
@@ -1880,7 +1894,7 @@ def main():
 
     couch = None
 
-    if values["-COUCH TRUEBEAM QFIX H1H2-"]:
+    if values["-COUCH TRUEBEAM QFIX H1H2-"] and values["-USE PORTRAIT-"]:
         # Deploy the TrueBeam couch
         couch = deploy_couch_model(
             case,
@@ -1890,6 +1904,18 @@ def main():
             ],
             source_roi_names=[
                 COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["TrueBeam Qfix H1H2"]
+            ],
+        )
+    elif values["-COUCH TRUEBEAM QFIX F2F3-"] and values["-USE PORTRAIT-"]:
+        # Deploy the TrueBeam couch
+        couch = deploy_couch_model(
+            case,
+            support_structure_template=COUCH_SUPPORT_STRUCTURE_TEMPLATE,
+            support_structures_examination=COUCH_SUPPORT_STRUCTURE_EXAMINATION[
+                examination.PatientPosition
+            ],
+            source_roi_names=[
+                COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["TrueBeam Qfix F2F3"]
             ],
         )
     elif values["-COUCH TRUEBEAM-"]:
@@ -1913,6 +1939,18 @@ def main():
             ],
             source_roi_names=[
                 COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["TomoTherapy"]
+            ],
+        )
+
+    if values["-COUCH TOMO QFIX-"] and values["-USE PORTRAIT-"]:
+        couch = deploy_couch_model(
+            case,
+            support_structure_template=COUCH_SUPPORT_STRUCTURE_TEMPLATE,
+            support_structures_examination=COUCH_SUPPORT_STRUCTURE_EXAMINATION[
+                examination.PatientPosition
+            ],
+            source_roi_names=[
+                COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["QFix Portrait Board"]
             ],
         )
 
