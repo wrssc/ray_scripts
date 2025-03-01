@@ -1017,7 +1017,7 @@ def update_dose_grid(pdata):
     dg = pdata.plan.GetDoseGrid()
     bb = [{k: dg.Corner[k] + dg.VoxelSize[k] * dg.NrVoxels[k] for k in dg.Corner.keys()},
           dg.Corner]
-    types = ['Ptv', 'Support', 'External']
+    types = ['Ptv', 'Support', 'Fixation', 'External']
     #
     # Loop over all structure sets looking for support, external or target types
     # For all found, compute a bounding box and expand the current dose grid if necessary.

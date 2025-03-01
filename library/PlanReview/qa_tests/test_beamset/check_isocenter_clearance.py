@@ -532,6 +532,7 @@ def find_externals_and_supports(rso):
     from PlanReview.utils import get_roi_names_from_type
     external = get_roi_names_from_type(rso, roi_type='External')[0]
     supports = get_roi_names_from_type(rso, roi_type='Support')
+    supports += get_roi_names_from_type(rso, roi_type='Fixation')
     return external, supports
 
 
