@@ -59,12 +59,6 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_p_Lump</name>
-                <type>Min</type>
-                <dose units="%" roi="PTV_p_Lump">93.33</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
                 <name>PTV_p_Lump_Eval</name>
                 <type dir="ge">VX</type>
                 <volume units="%">100</volume>
@@ -231,12 +225,6 @@
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
-            <roi>
-                <name>PTV_p_Lump</name>
-                <type>Min</type>
-                <dose units="%" roi="PTV_p_Lump">93.33</dose>
-                <priority>4</priority>
-            </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
                 <type dir="ge">VX</type>
