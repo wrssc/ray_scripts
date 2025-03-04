@@ -3,30 +3,16 @@
 Currently supported
 * TrueBeam Couch
 * TomoTherapy Couch
+* QFix Portrait Board
 * Civco Breast Board (w/ and w/o Monarch board)
 
-This script accomplishes the following tasks:
-1. Asks user for desired support structures
-
-Couches
-1. Create and automatically drop a couch
-
-Civco Incline Board
-1. Create and automatically place Civco incline board base
-2. Create and automatically place Civco incline board body
-    (with user-supplied angle)
-3. Create and automatically place Civco Monarch board (with user-supplied index)
-
 This script was tested with:
-* Patient: INCLINE BOARD
-* MRN: 20210713
-* Case: 1
-* RayStation: Launcher
-* Title: Clinical
+U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\RayStation\Script Testing\RayStation 11B\Support Structures Testing 11B.xlsx
 
 Version History:
 v0.1.0: First working edition
 v1.0.0: Validated in RS 11B, python 3.8
+v2.0.0: Added support for HFP, FFS, FFS. Added support for QFix Portrait Board
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -45,13 +31,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
-__date__ = "2021-09-14"
-__version__ = "1.0.0"
+__date__ = "2025-03-04"
+__version__ = "2.0.0"
 __status__ = "Released"
 __deprecated__ = False
-__reviewer__ = "Adam Bayliss"
-__reviewed__ = "11/2/2021"
-__raystation__ = "11B"
+__reviewer__ = NONE
+__reviewed__ = NONE
+__raystation__ = ["11B", "2024A"]
 __maintainer__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
 __license__ = "GPLv3"
