@@ -1,16 +1,28 @@
-# poi_roi_operations.py
-import logging
+# roi_operations.py
 from typing import Optional, List
 from collections import namedtuple
+import sys
+import logging
+import connect
+
 from library.StructureOperations import (
-    create_roi, create_poi, change_roi_type, make_boolean_structure,
-    find_types, exclude_from_export)
-from .tbi_definitions import (LUNGS, LUNG_AVOID_NAME, LUNG_AVOID_MARGIN,
-                              LUNGS_EVAL_NAME, LUNGS_EVAL_MARGIN,
-                              KIDNEYS, KIDNEY_AVOID_NAME, KIDNEY_AVOID_MARGIN,
-                              AVOID_FFS_NAME, AVOID_HFS_NAME, SKIN_AVOIDANCE,
-                              FFS_TARGET_EVAL_NAME, HFS_TARGET_EVAL_NAME,
-                              COLORS)
+    create_roi, make_boolean_structure, change_roi_type,
+    find_types, exclude_from_export, make_wall)
+import library.AutoPlanOperations as AutoPlanOperations
+from .tbi_definitions import (
+    CENTRAL_JUNCTION_WIDTH, FFS_MAX_TREATMENT_LENGTH, LUNG_AVOID_MARGIN, LUNGS_EVAL_MARGIN, \
+    KIDNEYS, KIDNEY_AVOID_MARGIN, COLORS, MBS_ROIS, EXTERNAL_NAME, EXTERNAL_SETUP, EXTERNAL_SETUP_EXP, \
+    SKIN_AVOIDANCE_CONTRACT, HFS_TARGET_NAMES, FFS_TARGET_NAMES,\
+    LUNG_AVOID_NAME, FFS_TARGET_EVAL_NAME, HFS_TARGET_EVAL_NAME, SKIN_AVOIDANCE, \
+    LUNGS_EVAL_NAME, KIDNEY_AVOID_NAME, AVOID_HFS_NAME, AVOID_FFS_NAME, LUNGS, \
+    JUNCTION_PREFIX_FFS, JUNCTION_PREFIX_HFS, JUNCTION_POINT
+)
+from .tbi_utils import reset_primary_secondary, determine_prefix, register_images, get_center
+
+from .poi_operations import (
+    validate_poi_name, get_most_inferior, get_most_superior, find_hfff_junction_coords, find_pois, get_point_position,
+    place_hfff_junction_poi, determine_junction_pair, place_hfs_vmat_pois, place_ffs_vmat_pois, estimate_patient_height)
+from .tbi_plan_builders import get_vmat_plan_defs
 
 
 def get_roi_geometry(case, exam, roi_name):
@@ -36,21 +48,6 @@ def roi_in_list(case, structure_name, roi_list=None):
         return False
 
 
-def poi_in_list(case, poi_name, poi_list=None):
-    if not poi_list:
-        poi_obj_list = [p for p in case.PatientModel.PointsOfInterest]
-    else:
-        poi_obj_list = []
-        for n in poi_list:
-            poi_obj_list += [p for p in case.PatientModel.PointsOfInterest
-                             if p.Name == n]
-
-    if any(poi.Name == poi_name for poi in poi_obj_list):
-        return True
-    else:
-        return False
-
-
 def roi_has_contours(patient_data, structure_name):
     logging.debug(f'Checking for contours in {patient_data.case.CaseName} for {structure_name}')
     if roi_in_list(patient_data.case, structure_name):
@@ -68,32 +65,6 @@ def find_roi_prefix(case, roi_match):
         if roi_match in r.Name:
             found_roi.append(r.Name)
     return found_roi
-
-
-def toggle_ptv_type(rs_obj, rois, roi_type):
-    # Sometimes in the course of RayStation planning, we need to change our type
-    # 'cause of stupid dose grids.
-    for r in rois:
-        change_roi_type(rs_obj.case, roi_name=r, roi_type=roi_type)
-
-
-def validate_poi_name(poi_name):
-    """
-    Validate the format of the POI name. The last character should be an integer.
-
-    Args:
-        poi_name (str): The name of the POI.
-
-    Returns:
-        int: The integer at the end of the POI name.
-    """
-    try:
-        return int(poi_name[-1])
-    except ValueError:
-        logging.error(f'Error: The name of the POI {poi_name} '
-                      'does not contain an integer in the last digit.')
-        raise ValueError(f'Error: The name of the POI {poi_name} does not '
-                         'contain an integer in the last digit.')
 
 
 # =================================================================
@@ -129,8 +100,6 @@ def copy_roi(pdata, roi_name):
     update_all_remove_expression(pdata, roi_name=copy_roi_name)
 
     return copy_roi_name
-
-
 
 
 # =================================================================
@@ -364,8 +333,6 @@ def make_box(patient_data, box_name, length=None, z_center=None):
                            f"on exam {exam.Name}")
 
 
-
-
 def make_central_junction_contour(pdata, z_inf_box,
                                   dim_si, dose_level, color=None, j_name=None):
     #  Make the Box Roi and junction region in the area of interest
@@ -405,6 +372,30 @@ def make_central_junction_contour(pdata, z_inf_box,
         roi_type='Ptv')
     update_all_remove_expression(pdata=pdata, roi_name=junction_name)
     pdata.case.PatientModel.RegionsOfInterest[box_name].DeleteRoi()
+
+
+def material_override_overlap(pd_ffs, pd_hfs):
+    check_struct = {
+        'HFS': (pd_hfs.case.PatientModel.StructureSets[pd_hfs.exam.Name],
+                find_types(pd_hfs.case, roi_type='Support')),
+        'FFS': (pd_ffs.case.PatientModel.StructureSets[pd_ffs.exam.Name],
+                find_types(pd_ffs.case, roi_type='Support')),
+    }
+    for key, (ss, support) in check_struct.items():
+        # Use the ComparisonOfRoiGeometries to check each contour to measure
+        # if there is any overlap with every other contour
+        if len(support) > 1:
+            for i in range(len(support)-1):
+                for j in range(i + 1, len(support)):
+                    if ss.RoiGeometries[support[i]].HasContours() and \
+                            ss.RoiGeometries[support[j]].HasContours():
+                        compare = ss.ComparisonOfRoiGeometries(
+                            RoiA=support[i],
+                            RoiB=support[j],
+                            ComputeDistanceToAgreementMeasures=False)
+                        if compare['DiceSimilarityCoefficient'] > 0.001:
+                            return True, support[i], support[j]
+    return False, None, None
 
 
 def make_avoid(pdata, z_start, avoid_name, color=None):
@@ -753,6 +744,7 @@ def cut_rois_to_image(source: namedtuple, destination: namedtuple,
     for roi_to_delete in delete_list:
         delete_roi(source.case, roi_to_delete)
 
+
 # ===================================
 # TRANSFORMATIONS
 # ===================================
@@ -827,61 +819,6 @@ def transform_object(source: namedtuple, destination: namedtuple,
                 Transformations=[trans])
 
 
-def get_center(rs_obj, roi_name):
-    # Given a structure name, depending on the patient orientation
-    # solve for the most inferior extent of the roi and return that coordinate
-    #
-    # Check for an empty contour
-    [roi_check] = check_roi(rs_obj.case, rs_obj.exam, rois=roi_name)
-    if not roi_check:
-        return None
-    bb_roi = rs_obj.case.PatientModel.StructureSets[rs_obj.exam.Name] \
-        .RoiGeometries[roi_name].GetBoundingBox()
-    c = {'x': bb_roi[0].x + (bb_roi[1].x - bb_roi[0].x) / 2,
-         'y': bb_roi[0].y + (bb_roi[1].y - bb_roi[0].y) / 2,
-         'z': bb_roi[0].z + (bb_roi[1].z - bb_roi[0].z) / 2}
-    return c
-
-
-def place_ffs_vmat_pois(pd_ffs, junction, offset):
-    # create a set of points that ensures coverage from junction point
-    # to the limit of the ffs scan
-    [external_name] = find_types(pd_ffs.case,
-                                 roi_type='External')
-
-    ffs_ext_z = get_most_inferior(pd_ffs, roi_name=external_name)
-    last_iso_position = round_iso(ffs_ext_z - FFS_OVERSHOOT - FFS_SHIFT_BUFFER + FW / 2)
-    first_iso_position = round_iso(junction.Point.z - FW / 2)
-    isocenter_distance = ((first_iso_position - last_iso_position)
-                          / (FFS_ISO_NUMBER - 1))
-    isocenter_distance = round_iso(isocenter_distance)
-    ffs_junction_width = FW - isocenter_distance
-    logging.info(f'Distance from inferior most point at {ffs_ext_z:.2f} '
-                 f'to junction {junction.Point.z:.2f} '
-                 f'is {float(ffs_ext_z - junction.Point.z):.2f} with '
-                 f'spacing {isocenter_distance:.2f} requires '
-                 f'{FFS_ISO_NUMBER} isocenters, '
-                 f'with an overlap of {ffs_junction_width}')
-    # Junction location
-    pois = []
-    # Round the positions of the isocenter to the nearest mm.
-    coords = {'x': round_iso(junction.Point.x),
-              'y': round_iso(junction.Point.y)}
-    for i in range(FFS_ISO_NUMBER):
-        if i != FFS_ISO_NUMBER - 1:
-            coords['z'] = first_iso_position - i * isocenter_distance
-        else:
-            coords['z'] = last_iso_position
-        color_lst = [str(c) for c in COLORS[i + offset + 1]]
-        color = ",".join(color_lst)
-        poi = make_poi(pd_ffs.case, pd_ffs.exam,
-                       coords, name=f"{FFS_POI}{i + offset + 1}",
-                       color=color)
-        pois.append(poi)
-
-    return ffs_junction_width
-
-
 def make_midfield_junctions(rs_obj, poi_name_list, junction_width):
     # Determine the coordinates of each isocenter
     # Find the mid-point between isocenter pairs
@@ -921,108 +858,378 @@ def make_midfield_junctions(rs_obj, poi_name_list, junction_width):
                                       j_name=f'_iso{n0}{n1}', j_range=range(1, 3))
 
 
-def place_hfs_vmat_pois(pd_hfs, junction):
-    # create a set of points that ensures coverage from junction point
-    # to the limit of the ffs scan
-    [external_name] = find_types(pd_hfs.case,
-                                 roi_type='External')
-    j_z = junction.Point.z
-    hfs_ext_z = get_most_superior(pd_hfs, roi_name=external_name)
-    hfs_treatment_length = hfs_ext_z + HFS_OVERSHOOT + HFS_SHIFT_BUFFER - j_z
-    iso_number = math.ceil(hfs_treatment_length / (FW - HFS_OVERLAP))
-    last_iso_position = round_iso(j_z - CENTRAL_JUNCTION_WIDTH + FW / 2)
-    first_iso_position = round_iso(hfs_ext_z + HFS_OVERSHOOT + HFS_SHIFT_BUFFER - FW / 2)
-    isocenter_distance = round_iso((first_iso_position - last_iso_position) / (iso_number - 1))
-    hfs_junction_width = FW - isocenter_distance
-
-    logging.info(f'Distance from superior most point at {hfs_ext_z} '
-                 f'to junction {junction.Point.z:.2f} '
-                 f'is {hfs_ext_z - junction.Point.z:.2f} with '
-                 f'spaced {isocenter_distance:.2f} requires '
-                 f'{iso_number} isocenters')
-    if hfs_ext_z + HFS_OVERSHOOT + HFS_SHIFT_BUFFER - j_z \
-            >= HFS_MAX_TREATMENT_LENGTH:
-        sys.exit('This patient may be too tall for tx')
-    elif isocenter_distance >= FW - HFS_OVERLAP:
-        # Increase the isocenter number by 1
-        iso_number += 1
-        isocenter_distance = round_iso((first_iso_position - last_iso_position) / (iso_number - 1))
-        hfs_junction_width = FW - isocenter_distance
-        logging.info(f'Distancing incorrect: FW: {FW} with Overlap {HFS_OVERLAP} '
-                     f'with greater computed isocenter distance {isocenter_distance},'
-                     f' increasing isocenter by 1 to {iso_number}')
-
-    # Junction location
-    pois = []
-    for i in range(iso_number):
-        for p in pd_hfs.case.PatientModel.PointsOfInterest:
-            if p.Name == f"{HFS_POI}{i + 1}":
-                p.DeleteRoi()
-        coords = {'x': junction.Point.x, 'y': junction.Point.y}
-        if i != iso_number - 1:
-            coords['z'] = junction.Point.z - CENTRAL_JUNCTION_WIDTH + FW / 2 \
-                          + (iso_number - 1 - i) * isocenter_distance
+def determine_otv_center_length(pdata, poi_name, orientation, junction_pair):
+    """
+    Args:
+        pdata (named tuple): RS objects
+        poi_name (str): the name of the point of interest (isocenter)
+        orientation (str):'ffs' or 'hfs'
+        junction_pair (tuple): widths of two junctions around poi
+    Returns:
+        tuple: otv_center, otv_length
+    """
+    pois = find_pois(pdata)
+    poi0 = get_point_position(pdata, poi_name)
+    poi_index = pois.index(poi_name)
+    logging.debug(f'Current poi {poi_name}: index {poi_index}')
+    if orientation == 'hfs':
+        if poi_index == 0:
+            [external_name] = find_types(pdata.case,
+                                         roi_type='External')
+            sup_extent = get_most_superior(pdata, external_name)
+            # Inferior extent at junction edge
+            poi_inf = get_point_position(pdata, pois[poi_index + 1])
+            i_diff = poi0.z - poi_inf.z
+            inf_extent = poi_inf.z + junction_pair[1] / 2 + i_diff / 2
+            #    logging.debug(f'{poi_name}:: Inferior point {pois[poi_index+1]}:'
+            #                  f' z {poi_inf.z}, Placed at inf_extent {inf_extent}')
+            otv_length = sup_extent - inf_extent
+            otv_center = inf_extent + otv_length / 2
+        elif poi_index == len(pois) - 1:
+            poi_sup = get_point_position(pdata, pois[poi_index - 1])
+            s_diff = poi_sup.z - poi0.z
+            sup_extent = poi_sup.z - junction_pair[0] / 2 - s_diff / 2
+            # Inferior extent at junction point
+            poi_inf = get_point_position(pdata, JUNCTION_POINT)
+            inf_extent = poi_inf.z
+            otv_length = sup_extent - inf_extent
+            otv_center = sup_extent - otv_length / 2
         else:
-            coords['z'] = last_iso_position
-        color_lst = [str(c) for c in COLORS[i]]
-        color = ",".join(color_lst)
-        poi = make_poi(pd_hfs.case, pd_hfs.exam,
-                       coords, name=f"{HFS_POI}{i + 1}", color=color)
-        pois.append(poi)
-    return hfs_junction_width
+            poi_inf = get_point_position(pdata, pois[poi_index + 1])
+            poi_sup = get_point_position(pdata, pois[poi_index - 1])
+            s_diff = poi_sup.z - poi0.z
+            sup_extent = poi_sup.z - junction_pair[0] / 2 - s_diff / 2
+            i_diff = poi0.z - poi_inf.z
+            inf_extent = poi_inf.z + junction_pair[1] / 2 + i_diff / 2
+            otv_length = sup_extent - inf_extent
+            otv_center = sup_extent - otv_length / 2
+        return otv_center, otv_length
+    else:
+        if poi_index == 0:
+            poi_sup = get_point_position(pdata, JUNCTION_POINT)
+            sup_extent = poi_sup.z - junction_pair[0]
+            poi_inf = get_point_position(pdata, pois[poi_index + 1])
+            i_diff = poi0.z - poi_inf.z
+            inf_extent = poi_inf.z + junction_pair[1] / 2 + i_diff / 2
+            otv_length = sup_extent - inf_extent
+            otv_center = sup_extent - otv_length / 2
+            logging.debug(f'{poi_name}:: otv_length {otv_length}, otv_center {otv_center}')
+        elif poi_index == len(pois) - 1:
+            [external_name] = find_types(pdata.case,
+                                         roi_type='External')
+            inf_extent = get_most_inferior(pdata, external_name)
+            poi_sup = get_point_position(pdata, pois[poi_index - 1])
+            s_diff = poi_sup.z - poi0.z
+            sup_extent = poi_sup.z - junction_pair[0] / 2 - s_diff / 2
+            otv_length = sup_extent - inf_extent
+            otv_center = sup_extent - otv_length / 2
+        else:
+            poi_inf = get_point_position(pdata, pois[poi_index + 1])
+            i_diff = poi0.z - poi_inf.z
+            inf_extent = poi_inf.z + junction_pair[1] / 2 + i_diff / 2
+            poi_sup = get_point_position(pdata, pois[poi_index - 1])
+            s_diff = poi_sup.z - poi0.z
+            sup_extent = poi_sup.z - junction_pair[0] / 2 - s_diff / 2
+            otv_length = sup_extent - inf_extent
+            otv_center = sup_extent - otv_length / 2
+        return otv_center, otv_length
 
 
-def make_poi(case, exam, coords, name, color):
-    for p in case.PatientModel.PointsOfInterest:
-        if p.Name == name:
-            p.DeleteRoi()
-    _ = create_poi(
-        case=case,
-        exam=exam,
-        coords=[coords['x'], coords['y'], coords['z']],
-        name=name,
-        color=color,
-        diameter=1,
-        rs_type='Control')
-    return name
+def make_central_junction_structs(pd_hfs, pd_ffs, kidney_sparing):
+    """
+
+    Args:
+        pd_hfs: hfs named tuple
+        pd_ffs: ffs named tuple
+        kidney_sparing: Boolean to determine if kidney sparing is used
+
+    Returns:
+
+    """
+    reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+    # Set the central junction point, and map it to the hfs scan
+    hfs_poi_junction, ffs_poi_junction = calculate_junction(pd_hfs, pd_ffs)
+    # IsoDose levels declaration and colors.
+    j_i = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    dim_si = CENTRAL_JUNCTION_WIDTH / len(j_i)
+    dose_levels = {10: [127, 0, 255],
+                   20: [0, 0, 255],
+                   30: [0, 127, 255],
+                   40: [0, 255, 255],
+                   50: [0, 255, 127],
+                   60: [0, 255, 0],
+                   70: [127, 255, 0],
+                   80: [255, 255, 0],
+                   90: [255, 127, 0],
+                   95: [255, 0, 0],
+                   100: [255, 0, 255]}
+
+    for i in range(len(j_i)):
+        # Place the inferior-most edge of box-10% to be at one box width from
+        # the junction
+        roi_inf_box_edge = ffs_poi_junction.Point.z - dim_si * float(i + 1)
+        make_central_junction_contour(
+            pd_ffs,
+            z_inf_box=roi_inf_box_edge,
+            dim_si=dim_si,
+            dose_level=str(int(j_i[i])) + "%Rx",
+            color=dose_levels[j_i[i]])
+    make_avoid(pd_ffs, z_start=ffs_poi_junction.Point.z,
+               avoid_name=AVOID_FFS_NAME)
+    ffs_ptv_list = make_ptv(pdata=pd_ffs, junction_prefix=JUNCTION_PREFIX_FFS,
+                            avoid_name=AVOID_FFS_NAME, kidney_sparing=False)
+    cut_rois_to_image(pd_ffs, pd_hfs, ffs_ptv_list)
+
+    for i in range(len(j_i)):
+        # Place the inferior edge of the HFS junction at:
+        # junction_z - N_isodose_levels * box width
+        roi_inf_box_edge = hfs_poi_junction.Point.z \
+                           - dim_si * float(len(j_i) - i)
+        logging.debug(
+            f'Z location for Junction {str(j_i[i])} is {roi_inf_box_edge}')
+        make_central_junction_contour(
+            pd_hfs, z_inf_box=roi_inf_box_edge, dim_si=dim_si,
+            dose_level=str(int(j_i[i])) + "%Rx", color=dose_levels[j_i[i]])
+    #
+    # HFS avoid starts at junction point - number of dose levels * dim_si
+    hfs_avoid_start = hfs_poi_junction.Point.z - dim_si * float(len(j_i))
+    make_avoid(pd_hfs, z_start=hfs_avoid_start, avoid_name=AVOID_HFS_NAME)
+    hfs_ptv_list = make_ptv(pdata=pd_hfs, junction_prefix=JUNCTION_PREFIX_HFS,
+                            avoid_name=AVOID_HFS_NAME, kidney_sparing=kidney_sparing)
+    cut_rois_to_image(pd_hfs, pd_ffs, hfs_ptv_list)
+
+    return ffs_poi_junction, hfs_poi_junction
 
 
-def find_hfff_junction_coords(pd_ffs, max_treatment_length=FFS_MAX_TREATMENT_LENGTH):
-    # Find the inferior most point from the ffs scan on the external
-    [external_name] = find_types(
-        pd_ffs.case, roi_type='External')
-    ffs_ext_z = get_most_inferior(pd_ffs, roi_name=external_name)
-    _ = get_most_superior(pd_ffs, roi_name=external_name)
-    center = get_center(pd_ffs, external_name)
-    return {
-        'x': 0,
-        'y': center['y'],
-        # Place the junction 1/2 field width away from the isocenter
-        'z': ffs_ext_z - FFS_OVERSHOOT - FFS_SHIFT_BUFFER + max_treatment_length
-    }
+def calculate_junction(pd_hfs, pd_ffs):
+    # Determine the central junction using ffs scan
+    central_junction_start = find_hfff_junction_coords(pd_ffs)
+    # Place junction point
+    place_hfff_junction_poi(pd_hfs=pd_ffs, coord_hfs=central_junction_start)
+    # Map the junction point to the hfs scan
+    transform_object(source=pd_ffs, destination=pd_hfs, pois=[JUNCTION_POINT],
+                     rois=None)
+    # Check patient height
+    patient_height = estimate_patient_height(pd_hfs, pd_ffs, external_roi_name="ExternalClean")
+    # If the patient height * 0.6 is less than max treatment length, then use 0.6 * patient height
+    # use an alternative method to set the junction point
+    if patient_height * 0.6 < FFS_MAX_TREATMENT_LENGTH:
+        ffs_treatment_length = int(patient_height * 0.6)
+        logging.info(f'Patient height is {patient_height} cm, '
+                     f'using 60% of patient height as treatment length: {ffs_treatment_length} cm')
+        central_junction_start = find_hfff_junction_coords(pd_ffs,
+                                                           max_treatment_length=ffs_treatment_length)
+        place_hfff_junction_poi(pd_hfs=pd_ffs, coord_hfs=central_junction_start)
+        transform_object(source=pd_ffs, destination=pd_hfs, pois=[JUNCTION_POINT],
+                         rois=None)
+
+    # HFS Junction
+    hfs_poi_junction = pd_hfs.case.PatientModel.StructureSets[pd_hfs.exam.Name] \
+        .PoiGeometries[JUNCTION_POINT]
+    # FFS Junction
+    ffs_poi_junction = pd_ffs.case.PatientModel.StructureSets[pd_ffs.exam.Name] \
+        .PoiGeometries[JUNCTION_POINT]
+    # Return poi rs object
+    return hfs_poi_junction, ffs_poi_junction
 
 
-def place_hfff_junction_poi(pd_hfs, coord_hfs):
-    # Create a junction point and use the coordinates determined above
-
-    _ = create_poi(
-        case=pd_hfs.case,
-        exam=pd_hfs.exam,
-        coords=[coord_hfs['x'], coord_hfs['y'], coord_hfs['z']],
-        name=JUNCTION_POINT,
-        color='Red',
-        diameter=1,
-        rs_type='Control'
-    )
+def convert_array_to_transform(t):
+    # Converts into the expected values for an RS transform dictionary
+    return {'M11': t[0], 'M12': t[1], 'M13': t[2], 'M14': t[3],
+            'M21': t[4], 'M22': t[5], 'M23': t[6], 'M24': t[7],
+            'M31': t[8], 'M32': t[9], 'M33': t[10], 'M34': t[11],
+            'M41': t[12], 'M42': t[13], 'M43': t[14], 'M44': t[15]}
 
 
+def set_all_ptvs_to_ptv_type(pd_ffs, pd_hfs):
+    all_ptvs = HFS_TARGET_NAMES + FFS_TARGET_NAMES
+    toggle_ptv_type(pd_ffs,rois=all_ptvs, roi_type='Ptv')
+    toggle_ptv_type(pd_hfs,rois=all_ptvs, roi_type='Ptv')
 
 
+def toggle_ptv_type(rs_obj, rois, roi_type):
+    # Sometimes in the course of RayStation planning, we need to change our type
+    # 'cause of stupid dose grids.
+    for r in rois:
+        change_roi_type(rs_obj.case, roi_name=r, roi_type=roi_type)
 
 
+def make_vmat_planning_structures(pd_hfs, pd_ffs, nfx, rx, make_otvs=True, make_junctions=True):
+    #
+    # HFS
+    # Add points for isocenters in VMAT
+    hfs_poi_junction = pd_hfs.case.PatientModel \
+        .StructureSets[pd_hfs.exam.Name].PoiGeometries[JUNCTION_POINT]
+    hfs_junction_width = place_hfs_vmat_pois(pd_hfs, hfs_poi_junction)
+    hfs_pois = find_pois(pd_hfs)
+    if make_junctions:
+        # Add the midfield junctions
+        make_midfield_junctions(pd_hfs, hfs_pois, junction_width=hfs_junction_width)
+    if make_otvs:
+        # Iterate over POIs and create OTVs
+        for index, point in enumerate(hfs_pois):
+            make_otv(pd_hfs, point, index, hfs_junction_width, hfs_pois)
+
+    # Do the same for FFS
+    ffs_poi_junction = pd_ffs.case.PatientModel.StructureSets[pd_ffs.exam.Name] \
+        .PoiGeometries[JUNCTION_POINT]
+    ffs_junction_width = place_ffs_vmat_pois(
+        pd_ffs, ffs_poi_junction, len(hfs_pois))
+    ffs_pois = find_pois(pd_ffs)
+    if make_junctions:
+        make_midfield_junctions(pd_ffs, ffs_pois, junction_width=ffs_junction_width)
+    if make_otvs:
+        for index, point in enumerate(ffs_pois):
+            make_otv(pd_ffs, point, index, ffs_junction_width, ffs_pois)
+
+    hfs_multiplan, ffs_multiplan = get_vmat_plan_defs(
+        pd_hfs, hfs_pois, ffs_pois, nfx=nfx, rx=rx, )
+    return hfs_multiplan, ffs_multiplan
 
 
+def load_normal_mbs(pd_hfs, pd_ffs, quiet=False):
+    reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+    # TODO: CHECK FOR PLANNING STRUCTURES AND THEN ADD ANY MISSING
+    # Loop through MBS rois, if present, pop.
+    rois = [r.OfRoi.Name for r in
+            pd_hfs.case.PatientModel.StructureSets[pd_hfs.exam.Name].RoiGeometries
+            if r.HasContours]
+    logging.debug('Type of MBS_ROIS is {} '.format(type(MBS_ROIS)))
+    mbs_list = [v for k, v in MBS_ROIS.items() if k not in rois]
+    adapt_list = [k for k in MBS_ROIS.keys() if k not in rois]
+    #
+    # Begin making planning structures
+    if mbs_list:
+        pd_hfs.case.PatientModel.MBSAutoInitializer(
+            MbsRois=mbs_list,
+            CreateNewRois=True,
+            Examination=pd_hfs.exam,
+            UseAtlasBasedInitialization=True)
+        connect.await_user_input('Review placement of MBS structures')
+
+    if adapt_list:
+        pd_hfs.case.PatientModel.AdaptMbsMeshes(
+            Examination=pd_hfs.exam,
+            RoiNames=adapt_list,
+            CustomStatistics=None,
+            CustomSettings=None)
+    # Loop through MBS rois, if present, pop.
+    rois = [r.OfRoi.Name for r in
+            pd_ffs.case.PatientModel.StructureSets[pd_ffs.exam.Name].RoiGeometries
+            if r.HasContours]
+    mbs_list = [v for k, v in MBS_ROIS.items() if k not in rois]
+    adapt_list = [k for k in MBS_ROIS.keys() if k not in rois]
+    # Try a repeat on FFS
+    if mbs_list:
+        pd_ffs.case.PatientModel.MBSAutoInitializer(
+            MbsRois=mbs_list,
+            CreateNewRois=False,
+            Examination=pd_ffs.exam,
+            UseAtlasBasedInitialization=True)
+    if adapt_list:
+        pd_hfs.case.PatientModel.AdaptMbsMeshes(
+            Examination=pd_ffs.exam,
+            RoiNames=adapt_list,
+            CustomStatistics=None,
+            CustomSettings=None)
+    if not quiet:
+        connect.await_user_input('Check the MBS loaded structures on both exams.')
 
 
+def make_derived_rois(pd_hfs, pd_ffs):
+    """
+    Make the derived structures for the plan:
+    LUNGS, KIDNEYS, SKIN_AVOIDANCE, EXTERNAL_SETUP,
+    :param pd_hfs:
+    :param pd_ffs:
+    :return:
+    """
+    rois = {'Lungs': LUNGS, 'Skin_Avoid': SKIN_AVOIDANCE,
+            'External_Setup': EXTERNAL_SETUP}
+    reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+    #
+    # Build lung contours and avoidance on the HFS scan
+    make_lung_contours(pd_hfs, color=[192, 192, 192])
+    make_kidney_contours(pd_hfs, color=[192, 192, 192])
+    #
+    # Make the External_PRV10 set up structure
+    try:
+        pd_hfs.case.PatientModel.CreateRoi(
+            Name=rois['External_Setup'],
+            Color="255, 128, 0",
+            Type="IrradiatedVolume",
+            TissueName=None,
+            RbeCellTypeName=None,
+            RoiMaterial=None)
+    except Exception as e:
+        if "There already exists" in "{}".format(e):
+            pass
+
+    # Create geometry for the External_PRV10
+    pd_hfs.case.PatientModel.RegionsOfInterest[rois['External_Setup']] \
+        .SetMarginExpression(
+        SourceRoiName=EXTERNAL_NAME,
+        MarginSettings={'Type': "Expand",
+                        'Superior': EXTERNAL_SETUP_EXP,
+                        'Inferior': EXTERNAL_SETUP_EXP,
+                        'Anterior': EXTERNAL_SETUP_EXP,
+                        'Posterior': EXTERNAL_SETUP_EXP,
+                        'Right': EXTERNAL_SETUP_EXP,
+                        'Left': EXTERNAL_SETUP_EXP})
+    # Make skin subtraction
+    n_tuples = [pd_hfs, pd_ffs]
+    for n in n_tuples:
+        make_wall(
+            wall=rois['Skin_Avoid'],
+            sources=["ExternalClean"],
+            delta=SKIN_AVOIDANCE_CONTRACT,
+            patient=n.patient,
+            case=n.case,
+            examination=n.exam,
+            inner=True,
+            struct_type="Organ")
+        #
+        n.case.PatientModel.RegionsOfInterest[rois['External_Setup']] \
+            .UpdateDerivedGeometry(
+            Examination=n.exam,
+            Algorithm="Auto")
 
 
+def make_structures(pd_hfs, pd_ffs,
+                    make_vmat_plan, make_tomo_plan, kidney_sparing, testing=False):
+    hfs_scan_name = pd_hfs.exam.Name
+    ffs_scan_name = pd_ffs.exam.Name
+    make_derived_rois(pd_hfs, pd_ffs)
+    if make_vmat_plan:
+        # Load the Tomo Supports for the couch
+        reset_primary_secondary(pd_hfs.exam, pd_ffs.exam)
+        AutoPlanOperations.load_supports(rso=pd_hfs,
+                                         supports=["TrueBeamCouch", "Baseplate_Override_PMMA"],
+                                         quiet=testing)
+        reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+        AutoPlanOperations.load_supports(rso=pd_ffs, supports=["TrueBeamCouch"],
+                                         quiet=testing)
+    elif make_tomo_plan:
+        # Load TrueBeam couch and baseplate
+        reset_primary_secondary(pd_hfs.exam, pd_ffs.exam)
+        AutoPlanOperations.load_supports(rso=pd_hfs,
+                                         supports=["TomoCouch", "Baseplate_Override_PMMA"],
+                                         quiet=testing)
+        reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+        AutoPlanOperations.load_supports(rso=pd_ffs, supports=["TomoCouch"],
+                                         quiet=testing)
+
+    register_images(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, testing)
+    if not testing:
+        connect.await_user_input(
+            'Check the fusion alignment of the boney anatomy in the hips.\n '
+            'Approve the registration.\n Then continue script.')
+
+    reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+    load_normal_mbs(pd_hfs, pd_ffs, quiet=testing)
+    # Build lung contours & avoidance on the HFS scan
+    reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+    make_lung_contours(pd_hfs, color=[192, 192, 192])
+
+    ffs_poi_junction, hfs_poi_junction = make_central_junction_structs(
+        pd_hfs, pd_ffs, kidney_sparing=kidney_sparing)
