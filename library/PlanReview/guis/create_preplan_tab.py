@@ -1169,9 +1169,10 @@ def load_preplan(window, values, sites, protocols, instructions,
                 # The key is a tuple, so see if there is a match on the first element in keys
                 # then match to whatever second element is in the tuple
                 for k in window.key_dict:
-                    if k[0] == key[0]:
-                        window[k].update(value=value)
-                        break
+                    if type(k) is tuple:
+                        if k[0] == key[0]:
+                            window[k].update(value=value)
+                            break
         except KeyError:
             logging.warning(f'Key {key} not found in window')
             continue
