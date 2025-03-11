@@ -30,6 +30,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import sys
 import logging
 import time
+import math
 
 import connect
 import UserInterface
@@ -303,7 +304,7 @@ def main():
                         poi_coordinates = [poi_geometry.Point.x,
                                            poi_geometry.Point.y,
                                            poi_geometry.Point.z]
-                        if all(c == 0 for c in poi_coordinates):
+                        if all(math.isclose(c, 0) for c in poi_coordinates):
                             iso_lat = beamset.Beams[0].Isocenter.Position.x
                             iso_vert = beamset.Beams[0].Isocenter.Position.y
                             iso_long = beamset.Beams[0].Isocenter.Position.z
@@ -313,11 +314,12 @@ def main():
                                 (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
                             ]
                         logging.debug('Table positions updated to {}'.format(t))
-                    except:
-                        logging.debug('Error in setting SRS/FSR table')
+                    except Exception as e:
+                        logging.debug(f'Error in setting SRS/FSR table: {e}')
                         t = [0, 1000, 0]
                 else:
                     t = [0, 1000, 0]
+                    logging.debug(f'Table positions set to default {t}')
                 # Create a reference point
                 create_reference_point = True
                 # Convert Block names
