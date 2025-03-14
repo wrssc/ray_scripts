@@ -1657,7 +1657,7 @@
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
-                <priority>2</priority>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_FFS_Eval</name>
@@ -2591,26 +2591,63 @@
         </validation>
         <goals>
             <!-- Target PTV -->
+            <!-- Coverage -->
+            <roi>
+                <name>PTV_p_FFS_Eval</name>
+                <type dir="ge">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p_FFS">90</dose>
+                <priority>4</priority>
+            </roi>
             <roi>
                 <name>PTV_p_FFS_Eval</name>
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_FFS_Eval</name>
+                <type dir="ge">VX</type>
+                <volume units="%">85</volume>
+                <dose units="%" roi="PTV_p_FFS">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_p_FFS_Eval</name>
                 <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p_FFS">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_FFS_Eval</name>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_FFS">100</dose>
+                <dose units="%" roi="PTV_p_FFS">90</dose>
+                <priority>4</priority>
+            </roi>
+            <!-- Hotspots -->
+            <roi>
+                <name>PTV_p_FFS_Eval</name>
+                <type dir="le">DX</type>
+                <volume units="%">5</volume>
+                <dose units="%" roi="PTV_p_FFS">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_FFS_Eval</name>
                 <type dir="le">DX</type>
-                <volume units="%">2</volume>
+                <volume units="cc">1</volume>
                 <dose units="%" roi="PTV_p_FFS">120</dose>
-                <priority>2</priority>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_FFS_Eval</name>
+                <type dir="le">DX</type>
+                <volume units="cc">1</volume>
+                <dose units="%" roi="PTV_p_FFS">130</dose>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_FFS_Eval</name>
@@ -2620,11 +2657,11 @@
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>OTV_iso</name>
+                <name>PTV_p_FFS_Eval</name>
                 <type dir="le">DX</type>
-                <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p_FFS">115</dose>
-                <priority>6</priority>
+                <volume units="cc">0.03</volume>
+                <dose units="%" roi="PTV_p_FFS">140</dose>
+                <priority>4</priority>
             </roi>
             <!-- External Clean -->
             <roi>
@@ -3511,27 +3548,64 @@
             <copy_final_plan>False</copy_final_plan>
         </validation>
         <goals>
-            <!-- Target PTV -->
+                       <!-- Target PTV -->
+            <!-- Coverage -->
+            <roi>
+                <name>PTV_p_FFS_Eval</name>
+                <type dir="ge">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p_FFS">90</dose>
+                <priority>4</priority>
+            </roi>
             <roi>
                 <name>PTV_p_FFS_Eval</name>
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_FFS">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_FFS_Eval</name>
+                <type dir="ge">VX</type>
+                <volume units="%">85</volume>
+                <dose units="%" roi="PTV_p_FFS">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_p_FFS_Eval</name>
                 <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p_FFS">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_FFS_Eval</name>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_FFS">100</dose>
+                <dose units="%" roi="PTV_p_FFS">90</dose>
+                <priority>4</priority>
+            </roi>
+            <!-- Hotspots -->
+            <roi>
+                <name>PTV_p_FFS_Eval</name>
+                <type dir="le">DX</type>
+                <volume units="%">5</volume>
+                <dose units="%" roi="PTV_p_FFS">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_FFS_Eval</name>
                 <type dir="le">DX</type>
-                <volume units="%">2</volume>
+                <volume units="cc">1</volume>
                 <dose units="%" roi="PTV_p_FFS">120</dose>
-                <priority>2</priority>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_FFS_Eval</name>
+                <type dir="le">DX</type>
+                <volume units="cc">1</volume>
+                <dose units="%" roi="PTV_p_FFS">130</dose>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_FFS_Eval</name>
@@ -3541,11 +3615,11 @@
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>OTV_iso</name>
+                <name>PTV_p_FFS_Eval</name>
                 <type dir="le">DX</type>
-                <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p_FFS">115</dose>
-                <priority>6</priority>
+                <volume units="cc">0.03</volume>
+                <dose units="%" roi="PTV_p_FFS">140</dose>
+                <priority>4</priority>
             </roi>
             <!-- External Clean -->
             <roi>
@@ -3660,20 +3734,64 @@
             <copy_final_plan>False</copy_final_plan>
         </validation>
         <goals>
-            <!-- Target PTV -->
+                      <!-- Target PTV -->
+            <!-- Coverage -->
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="ge">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p_HFS">90</dose>
+                <priority>4</priority>
+            </roi>
             <roi>
                 <name>PTV_p_HFS_Eval</name>
                 <type dir="ge">VX</type>
-                <volume units="%">95</volume>
+                <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_HFS">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_HFS_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p_HFS">120</dose>
+                <type dir="ge">VX</type>
+                <volume units="%">85</volume>
+                <dose units="%" roi="PTV_p_HFS">100</dose>
                 <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p_HFS">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p_HFS">90</dose>
+                <priority>4</priority>
+            </roi>
+            <!-- Hotspots -->
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="le">DX</type>
+                <volume units="%">5</volume>
+                <dose units="%" roi="PTV_p_HFS">110</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="le">DX</type>
+                <volume units="cc">1</volume>
+                <dose units="%" roi="PTV_p_HFS">120</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="le">DX</type>
+                <volume units="cc">1</volume>
+                <dose units="%" roi="PTV_p_HFS">130</dose>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_HFS_Eval</name>
@@ -3683,11 +3801,11 @@
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>OTV_iso</name>
+                <name>PTV_p_HFS_Eval</name>
                 <type dir="le">DX</type>
-                <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p_HFS">115</dose>
-                <priority>6</priority>
+                <volume units="cc">0.03</volume>
+                <dose units="%" roi="PTV_p_HFS">140</dose>
+                <priority>4</priority>
             </roi>
             <!-- Kidneys -->
             <roi>
@@ -5082,20 +5200,64 @@
             <copy_final_plan>False</copy_final_plan>
         </validation>
         <goals>
-            <!-- Target PTV -->
+                                 <!-- Target PTV -->
+            <!-- Coverage -->
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="ge">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p_HFS">90</dose>
+                <priority>4</priority>
+            </roi>
             <roi>
                 <name>PTV_p_HFS_Eval</name>
                 <type dir="ge">VX</type>
-                <volume units="%">95</volume>
+                <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_HFS">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_HFS_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p_HFS">120</dose>
+                <type dir="ge">VX</type>
+                <volume units="%">85</volume>
+                <dose units="%" roi="PTV_p_HFS">100</dose>
                 <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p_HFS">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p_HFS">90</dose>
+                <priority>4</priority>
+            </roi>
+            <!-- Hotspots -->
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="le">DX</type>
+                <volume units="%">5</volume>
+                <dose units="%" roi="PTV_p_HFS">110</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="le">DX</type>
+                <volume units="cc">1</volume>
+                <dose units="%" roi="PTV_p_HFS">120</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="le">DX</type>
+                <volume units="cc">1</volume>
+                <dose units="%" roi="PTV_p_HFS">130</dose>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_HFS_Eval</name>
@@ -5105,11 +5267,11 @@
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>OTV_iso</name>
+                <name>PTV_p_HFS_Eval</name>
                 <type dir="le">DX</type>
-                <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p_HFS">115</dose>
-                <priority>6</priority>
+                <volume units="cc">0.03</volume>
+                <dose units="%" roi="PTV_p_HFS">140</dose>
+                <priority>4</priority>
             </roi>
             <!-- Kidneys -->
             <roi>
@@ -6205,20 +6367,64 @@
             <copy_final_plan>False</copy_final_plan>
         </validation>
         <goals>
-            <!-- Target PTV -->
+                                 <!-- Target PTV -->
+            <!-- Coverage -->
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="ge">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p_HFS">90</dose>
+                <priority>4</priority>
+            </roi>
             <roi>
                 <name>PTV_p_HFS_Eval</name>
                 <type dir="ge">VX</type>
-                <volume units="%">95</volume>
+                <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_HFS">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_HFS_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p_HFS">120</dose>
+                <type dir="ge">VX</type>
+                <volume units="%">85</volume>
+                <dose units="%" roi="PTV_p_HFS">100</dose>
                 <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p_HFS">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p_HFS">90</dose>
+                <priority>4</priority>
+            </roi>
+            <!-- Hotspots -->
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="le">DX</type>
+                <volume units="%">5</volume>
+                <dose units="%" roi="PTV_p_HFS">110</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="le">DX</type>
+                <volume units="cc">1</volume>
+                <dose units="%" roi="PTV_p_HFS">120</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="le">DX</type>
+                <volume units="cc">1</volume>
+                <dose units="%" roi="PTV_p_HFS">130</dose>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_HFS_Eval</name>
@@ -6228,11 +6434,11 @@
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>OTV_iso</name>
+                <name>PTV_p_HFS_Eval</name>
                 <type dir="le">DX</type>
-                <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p_HFS">115</dose>
-                <priority>6</priority>
+                <volume units="cc">0.03</volume>
+                <dose units="%" roi="PTV_p_HFS">140</dose>
+                <priority>4</priority>
             </roi>
             <!-- Kidneys -->
             <roi>
@@ -6993,15 +7199,15 @@
             <roi>
                 <name>PTV_p_FFS_Eval</name>
                 <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_FFS">90</dose>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p_FFS">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_FFS_Eval</name>
                 <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_p_FFS">95</dose>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p_FFS">90</dose>
                 <priority>4</priority>
             </roi>
             <!-- Hotspot Goal -->
@@ -7855,22 +8061,15 @@
             <roi>
                 <name>PTV_p_HFS_Eval</name>
                 <type dir="ge">VX</type>
-                <volume units="%">100</volume>
-                <dose units="%" roi="PTV_p_HFS">85</dose>
+                <volume units="%">85</volume>
+                <dose units="%" roi="PTV_p_HFS">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_p_HFS_Eval</name>
                 <type dir="ge">VX</type>
-                <volume units="%">100</volume>
-                <dose units="%" roi="PTV_p_HFS">90</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_HFS_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_HFS">90</dose>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p_HFS">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -7878,6 +8077,13 @@
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_HFS">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p_HFS">90</dose>
                 <priority>4</priority>
             </roi>
             <!-- Hotspot Goal -->
@@ -8829,29 +9035,29 @@
             <roi>
                 <name>PTV_p_HFS_Eval</name>
                 <type dir="ge">VX</type>
-                <volume units="%">100</volume>
-                <dose units="%" roi="PTV_p_HFS">85</dose>
+                <dose units="%" roi="PTV_p_HFS">100</dose>
+                <volume units="%">85</volume>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_p_HFS_Eval</name>
                 <type dir="ge">VX</type>
-                <volume units="%">100</volume>
-                <dose units="%" roi="PTV_p_HFS">90</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_HFS_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_HFS">90</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_HFS_Eval</name>
-                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p_HFS">100</dose>
                 <volume units="%">90</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_p_HFS">95</dose>
+                <volume units="%">90</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_HFS_Eval</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p_HFS">90</dose>
+                <volume units="%">95</volume>
                 <priority>4</priority>
             </roi>
             <!-- Hotspot Goal -->
@@ -10234,7 +10440,7 @@
             <GantryAngle>182</GantryAngle>
             <GantryStopAngle>178</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>0</CollimatorAngle>
+            <CollimatorAngle>358</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
             <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
@@ -10246,7 +10452,7 @@
             <GantryAngle>178</GantryAngle>
             <GantryStopAngle>182</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-            <CollimatorAngle>0</CollimatorAngle>
+            <CollimatorAngle>2</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
             <JawLimits x1="-10" x2="20" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
@@ -10278,7 +10484,7 @@
             <GantryAngle>178</GantryAngle>
             <GantryStopAngle>182</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-            <CollimatorAngle>0</CollimatorAngle>
+            <CollimatorAngle>358</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
             <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
@@ -10290,7 +10496,7 @@
             <GantryAngle>182</GantryAngle>
             <GantryStopAngle>178</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>0</CollimatorAngle>
+            <CollimatorAngle>2</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
             <JawLimits x1="-10" x2="20" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
@@ -10322,7 +10528,7 @@
             <GantryAngle>182</GantryAngle>
             <GantryStopAngle>178</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>0</CollimatorAngle>
+            <CollimatorAngle>358</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
             <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
@@ -10334,7 +10540,7 @@
             <GantryAngle>178</GantryAngle>
             <GantryStopAngle>182</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-            <CollimatorAngle>0</CollimatorAngle>
+            <CollimatorAngle>2</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
             <JawLimits x1="-10" x2="20" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
@@ -10366,7 +10572,7 @@
             <GantryAngle>178</GantryAngle>
             <GantryStopAngle>182</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-            <CollimatorAngle>0</CollimatorAngle>
+            <CollimatorAngle>358</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
             <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
@@ -10378,7 +10584,7 @@
             <GantryAngle>182</GantryAngle>
             <GantryStopAngle>178</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>0</CollimatorAngle>
+            <CollimatorAngle>2</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
             <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>

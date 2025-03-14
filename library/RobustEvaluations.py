@@ -3,10 +3,10 @@
 """
 Single-file script to:
   - Use the already-defined namedtuple 'rso' referencing a RayStation plan
-  - Extract clinical goals and DVH data
-  - Write to JSON
-  - Read from JSON
-  - Perform box-stem style plotting of clinical goals
+  - Extract clinical goals and DVH data (nominal and robust) in a tidy (long) format
+  - Export all planning data to a single JSON file (a complete "core dump")
+    including placeholders for objectives and other optimization data.
+  - Read the JSON back into Pandas DataFrames for analysis/plotting.
 
 Author: You
 """
@@ -14,30 +14,27 @@ Author: You
 import connect
 import os
 import json
-import numpy
+import numpy as np
 import pandas as pd
-import copy
 import math
-from math import isclose, ceil
+import datetime
+from math import isclose, ceil, sqrt
 from collections import namedtuple
 import matplotlib.pyplot as plt
-# If you prefer not to rely on seaborn for styling, remove it:
 import seaborn
 from cycler import cycler
+import logging
 
 
 ###############################################################################
-# (1) Basic stubs or utilities for fetching structure lists
+# (1) Basic utilities for fetching ROI lists
 ###############################################################################
 def find_targets(case):
     """
-    Stub: Return a list of target ROI names in 'case'.
-    In real usage, you might parse specific naming conventions or
-    parse the 'Type' of each ROI to guess 'Ptv' or 'Gtv'.
+    Return a list of target ROI names from the case.
     """
     target_rois = []
     for roi in case.PatientModel.RegionsOfInterest:
-        # Example heuristic for a target:
         if "PTV" in roi.Name.upper():
             target_rois.append(roi.Name)
     return list(set(target_rois))
@@ -45,280 +42,567 @@ def find_targets(case):
 
 def find_organs_at_risk(case):
     """
-    Stub: Return a list of OAR ROI names in 'case'.
-    In real usage, you might parse 'Type' or naming conventions
-    to guess: 'BODY', 'Bladder', 'Rectum', etc.
+    Return a list of organ-at-risk (OAR) ROI names from the case.
     """
     oar_rois = []
     for roi in case.PatientModel.RegionsOfInterest:
-        # Example heuristic for OAR:
         if "PTV" not in roi.Name.upper():
             oar_rois.append(roi.Name)
     return list(set(oar_rois))
 
 
-###############################################################################
-# (2) Functions to extract clinical goals and DVH from rso.plan
-###############################################################################
-def get_clinical_goal(rso, roi_name=None):
+def compute_individual_perturbed_doses(
+        rso,
+        max_shift_x,
+        max_shift_y,
+        max_shift_z,
+        max_roll,
+        max_yaw,
+        max_pitch,
+        density_perturbation
+):
     """
-    Return all clinical goals from rso.plan, optionally filtering by roi_name.
-    Returns a dict-of-dicts keyed by index:
-      { 0: {'roi':..., 'acceptance_level':..., ... }, 1: {...}, etc. }
+    Compute perturbed doses by perturbing one parameter at a time (no mixed perturbations).
+    For each parameter (x, y, z, roll, yaw, pitch) compute both positive (max) and negative (min)
+    perturbations.
+
+    Parameters:
+      rso: RayStation object (namedtuple) with beamset, exam, etc.
+      max_shift_x, max_shift_y, max_shift_z: maximum patient shift values (e.g., in cm)
+      max_roll, max_yaw, max_pitch: maximum rotation angles (in degrees)
+      density_perturbation: density perturbation factor (unitless)
+
+    Returns:
+      A dictionary mapping perturbation labels (e.g., "x_max", "yaw_min") to the perturbed dose results.
     """
-    clinical_goal = {}
+    results = {}
+
+    # Common parameters for ComputePerturbedDose
+    common_params = {
+        "DensityPerturbation": density_perturbation,
+        "RotationPoint": {'x': 0, 'y': 0, 'z': 0},
+        "OnlyOneDosePerImageSet": False,
+        "AllowGridExpansion": False,
+        "ExaminationNames": [rso.exam.Name],
+        "FractionNumbers": [0],
+        "ComputeBeamDoses": True
+    }
+
+    # Define perturbations in a dictionary:
+    # For shifts, we supply a PatientShift dict; for rotations, we supply a single angle.
+    perturbations = {
+        "x": {"key": "PatientShift",
+              "positive": {"x": max_shift_x, "y": 0, "z": 0},
+              "negative": {"x": -max_shift_x, "y": 0, "z": 0}},
+        "y": {"key": "PatientShift",
+              "positive": {"x": 0, "y": max_shift_y, "z": 0},
+              "negative": {"x": 0, "y": -max_shift_y, "z": 0}},
+        "z": {"key": "PatientShift",
+              "positive": {"x": 0, "y": 0, "z": max_shift_z},
+              "negative": {"x": 0, "y": 0, "z": -max_shift_z}},
+        "roll": {"key": "RollDegrees",
+                 "positive": max_roll,
+                 "negative": -max_roll},
+        "yaw": {"key": "YawDegrees",
+                "positive": max_yaw,
+                "negative": -max_yaw},
+        "pitch": {"key": "PitchDegrees",
+                  "positive": max_pitch,
+                  "negative": -max_pitch}
+    }
+
+    # Loop over each perturbation type and compute positive and negative cases.
+    for param, details in perturbations.items():
+        for sign, value in zip(["max", "min"], [details["positive"], details["negative"]]):
+            # Set up the default parameters: no shift and no rotation.
+            params = {
+                "PatientShift": {'x': 0, 'y': 0, 'z': 0},
+                "YawDegrees": 0,
+                "PitchDegrees": 0,
+                "RollDegrees": 0
+            }
+            # Update only the parameter we're perturbing.
+            if details["key"] == "PatientShift":
+                params["PatientShift"] = value
+            else:
+                params[details["key"]] = value
+
+            # Merge common parameters with our specific ones.
+            call_params = common_params.copy()
+            call_params.update(params)
+
+            # Call the RayStation API.
+            results[f"{param}_{sign}"] = rso.beamset.ComputePerturbedDose(
+                DensityPerturbation=call_params["DensityPerturbation"],
+                PatientShift=call_params["PatientShift"],
+                RotationPoint=call_params["RotationPoint"],
+                YawDegrees=call_params["YawDegrees"],
+                PitchDegrees=call_params["PitchDegrees"],
+                RollDegrees=call_params["RollDegrees"],
+                OnlyOneDosePerImageSet=call_params["OnlyOneDosePerImageSet"],
+                AllowGridExpansion=call_params["AllowGridExpansion"],
+                ExaminationNames=call_params["ExaminationNames"],
+                FractionNumbers=call_params["FractionNumbers"],
+                ComputeBeamDoses=call_params["ComputeBeamDoses"]
+            )
+    return results
+
+
+###############################################################################
+# (2) Tidy (long) data extraction functions
+###############################################################################
+def get_tidy_goals(rso):
+    """
+    Build a tidy list of nominal clinical goal observations.
+    Each row (dict) includes patient, plan, beamset, scenario, ROI, and goal details.
+    """
+    tidy_goals = []
     plan = rso.plan
+    scenario = "nominal"
     evaluation_functions = plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions
-    i_g = 0
     for ef in evaluation_functions:
-        if (roi_name is None) or (roi_name == ef.ForRegionOfInterest.Name):
-            cgoal = {}
-            cgoal['roi'] = ef.ForRegionOfInterest.Name
-            cgoal['roi_type'] = ef.ForRegionOfInterest.Type
-            cgoal['acceptance_level'] = ef.PlanningGoal.AcceptanceLevel
-            cgoal['goal_criteria'] = ef.PlanningGoal.GoalCriteria
-            cgoal['parameter_value'] = ef.PlanningGoal.ParameterValue
-            cgoal['priority'] = ef.PlanningGoal.Priority
-            cgoal['type'] = ef.PlanningGoal.Type
-            cgoal['goal_value'] = ef.GetClinicalGoalValue()
-            cgoal['goal_evaluation'] = ef.EvaluateClinicalGoal()
-            cgoal['robustness'] = ef.UseRobustness
-            clinical_goal[i_g] = cgoal
-            i_g += 1
-    return clinical_goal
+        row = {}
+        row["patient"] = rso.patient.Name
+        row["plan"] = rso.plan.Name
+        row["PlanUID"] = rso.plan.UniqueId if rso.plan else None
+        row["beamset"] = rso.beamset.DicomPlanLabel if rso.beamset else None
+        row["BeamsetUID"] = rso.beamset.UniqueId if rso.beamset else None
+        row["scenario"] = scenario
+        row["roi"] = ef.ForRegionOfInterest.Name
+        row["roi_type"] = ef.ForRegionOfInterest.Type
+        row["acceptance_level"] = ef.PlanningGoal.AcceptanceLevel
+        row["goal_criteria"] = ef.PlanningGoal.GoalCriteria
+        row["parameter_value"] = ef.PlanningGoal.ParameterValue
+        row["priority"] = ef.PlanningGoal.Priority
+        row["type"] = ef.PlanningGoal.Type
+        row["goal_value"] = ef.GetClinicalGoalValue()
+        row["goal_evaluation"] = ef.EvaluateClinicalGoal()
+        row["robustness"] = ef.UseRobustness
+        # Build a human-readable goal string
+        if row["type"] == 'VolumeAtDose':
+            row[
+                "goal_str"] = f"{row['roi']}:: V({float(row['parameter_value']) / 100:.2f}Gy) {row['goal_criteria']} {float(row['acceptance_level']) * 100:.2f}%"
+        elif row["type"] == 'DoseAtVolume':
+            row[
+                "goal_str"] = f"{row['roi']}:: D({float(row['parameter_value']) * 100:.2f}%) {row['goal_criteria']} {float(row['acceptance_level']) / 100:.2f}Gy"
+        elif row["type"] == 'DoseAtAbsoluteVolume':
+            row[
+                "goal_str"] = f"{row['roi']}:: D({float(row['parameter_value']) * 100:.2f}cc) {row['goal_criteria']} {float(row['acceptance_level']) / 100:.2f}Gy"
+        else:
+            row["goal_str"] = f"{row['roi']}:: UnknownGoalType"
+        tidy_goals.append(row)
+    return tidy_goals
 
 
-def get_dvh(rso, roi_name, precision=0.01):
+def get_tidy_goal(rso, evaluation_goal, dose_on_exam, scenario):
+    row = {
+        "patient": rso.patient.Name,
+        "plan": rso.plan.Name,
+        "PlanUID": rso.plan.UniqueId if rso.plan else None,
+        "beamset": rso.beamset.DicomPlanLabel if rso.beamset else None,
+        "BeamsetUID": rso.beamset.UniqueId if rso.beamset else None,
+        "scenario": scenario,
+        "roi": evaluation_goal.ForRegionOfInterest.Name,
+        "roi_type": evaluation_goal.ForRegionOfInterest.Type,
+        "acceptance_level": evaluation_goal.PlanningGoal.AcceptanceLevel,
+        "goal_criteria": evaluation_goal.PlanningGoal.GoalCriteria,
+        "parameter_value": evaluation_goal.PlanningGoal.ParameterValue,
+        "priority": evaluation_goal.PlanningGoal.Priority,
+        "type": evaluation_goal.PlanningGoal.Type
+    }
+    try:
+        row["goal_value"] = evaluation_goal.GetClinicalGoalValueForEvaluationDose(
+            DoseDistribution=dose_on_exam,
+            ScaleFractionDoseToBeamSet=True)
+        row["goal_evaluation"] = evaluation_goal.EvaluateClinicalGoalForEvaluationDose(
+            DoseDistribution=dose_on_exam,
+            ScaleFractionDoseToBeamSet=True)
+    except Exception as e:
+        print(f"Error evaluating goal: {e}")
+        row["goal_value"] = None
+        row["goal_evaluation"] = None
+    if row["goal_evaluation"] is None or row["goal_value"] is None:
+        n_fx = dose_on_exam.ForBeamSet.FractionationPattern.NumberOfFractions
+
+        # Get the goal manually
+        if row["type"] == "VolumeAtDose":
+            row["goal_value"] = dose_on_exam.GetRelativeVolumeAtDose(
+                RoiName=row["roi"],
+                DoseValues=[row['acceptance_level'] * 100 * n_fx],
+            )[0]
+            row["goal_evaluation"]
+        elif row["type"] == "DoseAtVolume":
+            row["goal_value"] = dose_on_exam.GetDoseAtRelativeVolume(
+                RoiName=row["roi"],
+                RelativeVolumes=[row['acceptance_level']],
+            )[0]
+        elif row["type"] == "DoseAtAbsoluteVolume":
+            # We need to convert the acceptance level to a relative volume
+            # by dividing by the total volume of the ROI.
+            volume = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[row["roi"]].GetRoiVolume()
+            row["goal_value"] = dose_on_exam.GetDoseAtRelativeVolume(
+                RoiName=row["roi"],
+                RelativeVolumes=[row['acceptance_level'] / volume],
+            )[0]
+        elif row["type"] == "AbsoluteVolumeAtDose":
+            volume = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[row["roi"]].GetRoiVolume()
+            row["goal_value"] = dose_on_exam.GetRelativeVolumeAtDose(
+                RoiName=row["roi"],
+                DoseValues=[row['acceptance_level'] * 100 / n_fx])[0]
+        elif row["type"] == "AverageDose":
+            row["goal_value"] = dose_on_exam.GetDoseStatistic(
+                RoiName=row["roi"],
+                DoseType="Average"
+            ) * n_fx
+        elif row["type"] == "ConformityIndex" or row["type"] == "HomogeneityIndex":
+            # Have to compute it manually
+            # Get the prescription dose
+            # TODO
+            row["goal_value"] = None
+        else:
+            logging.warning(f"Unknown goal type: {row['type']}")
+        # Evaluate the goal
+        if row["goal_value"] is not None:
+            if row["goal_criteria"] == "AtMost":
+                if row["goal_value"] <= row["acceptance_level"]:
+                    row["goal_evaluation"] = True
+                else:
+                    row["goal_evaluation"] = False
+            elif row["goal_criteria"] == "AtLeast":
+                if row["goal_value"] >= row["acceptance_level"]:
+                    row["goal_evaluation"] = True
+                else:
+                    row["goal_evaluation"] = False
+            else:
+                logging.warning(f"Unknown goal criteria: {row['goal_criteria']}")
+
+
+    try:
+        row["isocenter_shift"] = dose_on_exam.PerturbedDoseProperties.IsocenterShift
+        row["xAxisRotationAngle"] = dose_on_exam.PerturbedDoseProperties.xAxisRotationAngle
+        row["yAxisRotationAngle"] = dose_on_exam.PerturbedDoseProperties.yAxisRotationAngle
+        row["zAxisRotationAngle"] = dose_on_exam.PerturbedDoseProperties.zAxisRotationAngle
+    except Exception:
+        row["isocenter_shift"] = None
+        row["xAxisRotationAngle"] = None
+        row["yAxisRotationAngle"] = None
+        row["zAxisRotationAngle"] = None
+    if row["type"] == 'VolumeAtDose':
+        row[
+            "goal_str"] = f"{row['roi']}:: V({float(row['parameter_value']) / 100:.2f}Gy) {row['goal_criteria']} {float(row['acceptance_level']) * 100:.2f}%"
+    elif row["type"] == 'DoseAtVolume':
+        row[
+            "goal_str"] = f"{row['roi']}:: D({float(row['parameter_value']) * 100:.2f}%) {row['goal_criteria']} {float(row['acceptance_level']) / 100:.2f}Gy"
+    elif row["type"] == 'DoseAtAbsoluteVolume':
+        row[
+            "goal_str"] = f"{row['roi']}:: D({float(row['parameter_value']) * 100:.2f}cc) {row['goal_criteria']} {float(row['acceptance_level']) / 100:.2f}Gy"
+    else:
+        row["goal_str"] = f"{row['roi']}:: UnknownGoalType"
+    return row
+
+
+def get_tidy_robust_goals(rso):
     """
-    Returns a 2D numpy array of [volume_fraction, dose_at_that_volume].
-      volume_fraction: from 0 -> 1.0  (in steps of 'precision')
-      dose_at_that_volume: dose [Gray]
+    Build a tidy list of robust clinical goal observations.
+    For each robust dose (from DoseOnExaminations) we call the robust evaluation methods
+    and capture dose perturbation properties to generate a scenario label.
     """
-    plan_dose = rso.plan.TreatmentCourse.TotalDose
-    number_dvh_points = int(1. / precision) + 1
-    vols = [precision * x for x in range(number_dvh_points)]
-    dose_values = plan_dose.GetDoseAtRelativeVolumes(RoiName=roi_name, RelativeVolumes=vols)
-    dose_array = numpy.column_stack([vols, dose_values])
-    return dose_array
+    tidy_robust = []
+    if not rso.case.TreatmentDelivery.FractionEvaluations \
+            and not rso.case.TreatmentDelivery.RadiationSetScenarioGroups:
+        return tidy_robust  # No robust evaluations available
+    for radiation_set in rso.case.TreatmentDelivery.RadiationSetScenarioGroups:
+        if not radiation_set.ReferencedRadiationSet.DicomPlanLabel == rso.beamset.DicomPlanLabel:
+            continue
+        # Each one of these is made for scenario such as a 1 cm uniform shift
+        for discrete_scenario in radiation_set.DiscreteFractionDoseScenarios:
+            if not discrete_scenario.DoseValues or \
+                    not discrete_scenario.ForBeamSet.DicomPlanLabel == rso.beamset.DicomPlanLabel:
+                continue
+            for ef in rso.plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions:
+                pert_props = discrete_scenario.PerturbedDoseProperties
+                shift = pert_props.IsoCenterShift  # dict with x, y, z
+                descriptor = f"scenario_robust_shift_x{shift.get('x', 0):.1f}_y{shift.get('y', 0):.1f}_z{shift.get('z', 0):.1f}"
+                if pert_props.xAxisRotationAngle or pert_props.yAxisRotationAngle or pert_props.zAxisRotationAngle:
+                    rot = f"_rot_{pert_props.xAxisRotationAngle:.1f}_{pert_props.yAxisRotationAngle:.1f}_{pert_props.zAxisRotationAngle:.1f}"
+                else:
+                    rot = "_rot_0.0_0.0_0.0"
+                scenario = descriptor + rot
+                row = get_tidy_goal(rso, ef, discrete_scenario, scenario)
+                tidy_robust.append(row)
+
+    for frac_eval in rso.case.TreatmentDelivery.FractionEvaluations:
+        for dose_on_exam in frac_eval.DoseOnExaminations:
+            if not dose_on_exam.OnExamination.Name == rso.exam.Name:
+                continue
+            for dose_eval in dose_on_exam.DoseEvaluations:
+                if not dose_eval.ForBeamSet.DicomPlanLabel == rso.beamset.DicomPlanLabel or \
+                        not dose_eval.DoseValues or not dose_eval.PerturbedDoseProperties:
+                    continue
+                pert_props = dose_eval.PerturbedDoseProperties
+                shift = pert_props.IsoCenterShift  # dict with x, y, z
+                descriptor = f"robust_shift_x{shift.get('x', 0):.1f}_y{shift.get('y', 0):.1f}_z{shift.get('z', 0):.1f}"
+                rot = f"_rot_{pert_props.xAxisRotationAngle:.1f}_{pert_props.yAxisRotationAngle:.1f}_{pert_props.zAxisRotationAngle:.1f}"
+                scenario = descriptor + rot
+                for ef in rso.plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions:
+                    row = get_tidy_goal(rso, ef, dose_eval, scenario)
+                    # row = {"patient": rso.patient.Name, "plan": rso.plan.Name,
+                    #        "PlanUID": rso.plan.UniqueId if rso.plan else None,
+                    #        "beamset": rso.beamset.DicomPlanLabel if rso.beamset else None,
+                    #        "BeamsetUID": rso.beamset.UniqueId if rso.beamset else None, "scenario": scenario,
+                    #        "roi": ef.ForRegionOfInterest.Name, "roi_type": ef.ForRegionOfInterest.Type,
+                    #        "acceptance_level": ef.PlanningGoal.AcceptanceLevel,
+                    #        "goal_criteria": ef.PlanningGoal.GoalCriteria,
+                    #        "parameter_value": ef.PlanningGoal.ParameterValue, "priority": ef.PlanningGoal.Priority,
+                    #        "type": ef.PlanningGoal.Type}
+                    # try:
+                    #     row["goal_value"] = ef.GetClinicalGoalValueForEvaluationDose(
+                    #         DoseDistribution=dose_on_exam,
+                    #         ScaleFractionDoseToBeamSet=True)
+                    #     row["goal_evaluation"] = ef.EvaluateClinicalGoalForEvaluationDose(
+                    #         DoseDistribution=dose_on_exam,
+                    #         ScaleFractionDoseToBeamSet=True)
+                    # except Exception:
+                    #     row["goal_value"] = None
+                    #     row["goal_evaluation"] = None
+                    # try:
+                    #     row["isocenter_shift"] = dose_eval.PerturbedDoseProperties.IsocenterShift
+                    #     row["xAxisRotationAngle"] = dose_eval.PerturbedDoseProperties.xAxisRotationAngle
+                    #     row["yAxisRotationAngle"] = dose_eval.PerturbedDoseProperties.yAxisRotationAngle
+                    #     row["zAxisRotationAngle"] = dose_eval.PerturbedDoseProperties.zAxisRotationAngle
+                    # except Exception:
+                    #     row["isocenter_shift"] = None
+                    #     row["xAxisRotationAngle"] = None
+                    #     row["yAxisRotationAngle"] = None
+                    #     row["zAxisRotationAngle"] = None
+                    # if row["type"] == 'VolumeAtDose':
+                    #     row[
+                    #         "goal_str"] = f"{row['roi']}:: V({float(row['parameter_value']) / 100:.2f}Gy) {row['goal_criteria']} {float(row['acceptance_level']) * 100:.2f}%"
+                    # elif row["type"] == 'DoseAtVolume':
+                    #     row[
+                    #         "goal_str"] = f"{row['roi']}:: D({float(row['parameter_value']) * 100:.2f}%) {row['goal_criteria']} {float(row['acceptance_level']) / 100:.2f}Gy"
+                    # elif row["type"] == 'DoseAtAbsoluteVolume':
+                    #     row[
+                    #         "goal_str"] = f"{row['roi']}:: D({float(row['parameter_value']) * 100:.2f}cc) {row['goal_criteria']} {float(row['acceptance_level']) / 100:.2f}Gy"
+                    # else:
+                    #     row["goal_str"] = f"{row['roi']}:: UnknownGoalType"
+                    tidy_robust.append(row)
+    return tidy_robust
+
+
+def get_tidy_dvh(rso, precision=0.01):
+    """
+    Build a tidy list of nominal DVH data.
+    Each row represents one dose-volume bin for one ROI.
+    """
+    tidy_dvh = []
+    scenario = "nominal"
+    roi_list = list(set(find_targets(rso.case) + find_organs_at_risk(rso.case)))
+    for roi in roi_list:
+        dvh_array = get_dvh(rso, roi, precision)
+        for vals in dvh_array:
+            row = {}
+            row["patient"] = rso.patient.Name
+            row["plan"] = rso.plan.Name
+            row["PlanUID"] = rso.plan.UniqueId if rso.plan else None
+            row["beamset"] = rso.beamset.DicomPlanLabel if rso.beamset else None
+            row["BeamsetUID"] = rso.beamset.UniqueId if rso.beamset else None
+            row["scenario"] = scenario
+            row["roi"] = roi
+            row["volume_fraction"] = vals[0]
+            row["dose_Gy"] = vals[1]
+            tidy_dvh.append(row)
+    return tidy_dvh
+
+
+def get_tidy_robust_dvh(rso, precision=0.01):
+    """
+    Build a tidy list of robust DVH data.
+    For each robust evaluation dose, compute DVH data (here we use the same
+    method as nominal as a placeholder) and label with the robust scenario.
+    """
+    tidy_robust_dvh = []
+    if not hasattr(rso.case.TreatmentDelivery, "FractionEvaluations"):
+        return tidy_robust_dvh
+    for frac_eval in rso.case.TreatmentDelivery.FractionEvaluations:
+        for dose_on_exam in frac_eval.DoseOnExaminations:
+            try:
+                dose_eval = dose_on_exam.DoseEvaluations[0]
+                pert_props = dose_eval.PerturbedDoseProperties
+                shift = pert_props.IsocenterShift
+                descriptor = f"robust_shift_x{shift.get('x', 0):.1f}_y{shift.get('y', 0):.1f}_z{shift.get('z', 0):.1f}"
+                rot = f"_rot_{pert_props.xAxisRotationAngle:.1f}_{pert_props.yAxisRotationAngle:.1f}_{pert_props.zAxisRotationAngle:.1f}"
+                scenario = descriptor + rot
+            except Exception:
+                scenario = "robust_generic"
+            roi_list = list(set(find_targets(rso.case) + find_organs_at_risk(rso.case)))
+            for roi in roi_list:
+                # As a placeholder, we call get_dvh() but override the scenario.
+                dvh_array = get_dvh(rso, roi, precision)
+                for vals in dvh_array:
+                    row = {}
+                    row["patient"] = rso.patient.Name
+                    row["plan"] = rso.plan.Name
+                    row["PlanUID"] = rso.plan.UniqueId if rso.plan else None
+                    row["beamset"] = rso.beamset.DicomPlanLabel if rso.beamset else None
+                    row["BeamsetUID"] = rso.beamset.UniqueId if rso.beamset else None
+                    row["scenario"] = scenario
+                    row["roi"] = roi
+                    row["volume_fraction"] = vals[0]
+                    row["dose_Gy"] = vals[1]
+                    tidy_robust_dvh.append(row)
+    return tidy_robust_dvh
 
 
 ###############################################################################
-# (3) Export the data to JSON
+# (3) Export the data to a single JSON (core dump)
 ###############################################################################
-def export_plan_data(rso, output_json):
+def export_plan_data(rso, output_dir):
     """
-    Extracts clinical goals + DVHs for each target/OAR in the 'rso.plan',
-    writes them to a JSON file 'output_json'.
+    Extracts nominal goals, robust goals, DVH (nominal and robust),
+    and placeholders for objectives and optimization data from rso.plan.
+    All are exported to a single JSON file. The filename includes a timestamp.
     """
-    data_dict = {'PatientName': rso.patient.Name, 'PlanName': rso.plan.Name,
-                 'PlanUID': rso.plan.UniqueId if rso.plan else None,
-                 'BeamsetName': rso.beamset.DicomPlanLabel if rso.beamset else None,
-                 'BeamsetUID': rso.beamset.UniqueId if rso.beamset else None,
-                 'goals': get_clinical_goal(rso, roi_name=None)}
+    timestamp = datetime.datetime.now().strftime("%Y%m%dT%H%M%S")
+    base_filename = f"{rso.patient.Name}_{rso.plan.Name}_{rso.beamset.DicomPlanLabel}_{timestamp}.json"
+    output_json = os.path.join(output_dir, base_filename)
 
-    # Gather goals
+    data_dict = {
+        "PatientName": rso.patient.Name,
+        "PlanName": rso.plan.Name,
+        "PlanUID": rso.plan.UniqueId if rso.plan else None,
+        "BeamsetName": rso.beamset.DicomPlanLabel if rso.beamset else None,
+        "BeamsetUID": rso.beamset.UniqueId if rso.beamset else None,
+        "ExportTimestamp": timestamp,
+        "goals": get_tidy_goals(rso),  # Nominal goals
+        "robust_goals": get_tidy_robust_goals(rso),  # Robust goals (if any)
+        "DVH": get_tidy_dvh(rso, precision=0.01),  # Nominal DVH data
+        "robust_DVH": get_tidy_robust_dvh(rso, precision=0.01),  # Robust DVH data (placeholder)
+        "objectives": [],  # Placeholder for objectives data during optimization
+        "optimization_data": {}  # Placeholder for additional optimization details
+    }
 
-    # For demonstration, gather targets/OARs
-    tars = find_targets(rso.case)
-    oars = find_organs_at_risk(rso.case)
-    # Store each ROI DVH
-    data_dict['DVH'] = {}
-    for t in tars + oars:
-        dvh_array = get_dvh(rso, t, precision=0.01)
-        data_dict['DVH'][t] = dvh_array.tolist()
-
-    # Write to JSON
     with open(output_json, 'w') as fp:
         json.dump(data_dict, fp, indent=2)
     print(f"Exported plan data to {output_json}")
 
 
 ###############################################################################
-# (4) Read the JSON data back in and produce DataFrames + box-stem style plots
+# (4) Read the JSON back and create DataFrames for analysis/plotting
 ###############################################################################
-#
-# You provided a large block of code that compares multiple “patients/plans.”
-# For a single plan or a single comparison scenario, you can adapt that code.
-# Below is a condensed version that:
-#  - loads the JSON
-#  - turns the goals into a DataFrame
-#  - demonstrates a simple DVH plot
-#  - includes your box-stem “Goal” class for more advanced comparisons
-#
-
-def empty_copy(obj):
-    class Empty(obj.__class__):
-        def __init__(self):
-            pass
-
-    newcopy = Empty()
-    newcopy.__class__ = obj.__class__
-    return newcopy
-
-
-class Goal:
+def read_tidy_data(json_file):
     """
-    Your existing 'Goal' class, condensed a bit for brevity.
-    This version sets self.goal_str in the constructor
-    and can store the 'goal_value' for display/plots.
-    """
-
-    def __init__(self, initial=None):
-        tr_dict = {
-            'AtLeast': '≥',
-            'AtMost': '≤',
-            'DoseAtVolume': 'D',
-            'VolumeAtDose': 'V',
-            'DoseAtAbsoluteVolume': 'D'
-        }
-        if initial is None:
-            self.roi = numpy.nan
-            self.parameter_value = numpy.nan
-            self.goal_criteria = numpy.nan
-            self.priority = numpy.nan
-            self.goal_value = numpy.nan
-            self.roi_type = numpy.nan
-            self.type = numpy.nan
-            self.acceptance_level = numpy.nan
-            self.goal_evaluation = numpy.nan
-            self.goal_str = numpy.nan
-        else:
-            self.roi = initial['roi']
-            self.parameter_value = initial['parameter_value']
-            self.goal_criteria = initial['goal_criteria']
-            self.priority = initial['priority']
-            self.goal_value = initial['goal_value']
-            self.roi_type = initial['roi_type']
-            self.type = initial['type']
-            self.acceptance_level = initial['acceptance_level']
-            self.goal_evaluation = initial['goal_evaluation']
-            self.goal_str = None
-            # Build a readable string
-            if self.type == 'VolumeAtDose':
-                val = f"{float(self.acceptance_level) * 100:.2f}%"
-                par = f"{float(self.parameter_value) / 100:.2f}Gy"
-                self.goal_str = f"{self.roi}:: V({par}) {tr_dict[self.goal_criteria]} {val}"
-            elif self.type == 'DoseAtVolume':
-                val = f"{float(self.acceptance_level) / 100:.2f}Gy"
-                par = f"{float(self.parameter_value) * 100:.2f}%"
-                self.goal_str = f"{self.roi}:: D({par}) {tr_dict[self.goal_criteria]} {val}"
-            elif self.type == 'DoseAtAbsoluteVolume':
-                val = f"{float(self.acceptance_level) / 100:.2f}Gy"
-                par = f"{float(self.parameter_value) * 100:.2f}cc"
-                self.goal_str = f"{self.roi}:: D({par}) {tr_dict[self.goal_criteria]} {val}"
-            else:
-                # Fallback
-                self.goal_str = f"{self.roi}:: UnknownGoalType"
-
-    def __eq__(self, other):
-        return (
-                other and
-                self.roi == other.roi and
-                isclose(self.parameter_value, other.parameter_value, abs_tol=1e-3) and
-                self.goal_criteria == other.goal_criteria and
-                self.priority == other.priority and
-                self.roi_type == other.roi_type and
-                self.type == other.type and
-                isclose(self.acceptance_level, other.acceptance_level, abs_tol=1e-3)
-        )
-
-    def __copy__(self):
-        new_copy = empty_copy(self)
-        new_copy.roi = self.roi
-        new_copy.parameter_value = self.parameter_value
-        new_copy.goal_criteria = self.goal_criteria
-        new_copy.priority = self.priority
-        new_copy.goal_value = numpy.nan
-        new_copy.roi_type = self.roi_type
-        new_copy.type = self.type
-        new_copy.acceptance_level = self.acceptance_level
-        new_copy.goal_evaluation = numpy.nan
-        new_copy.goal_str = self.goal_str
-        return new_copy
-
-    def getall(self):
-        """
-        Return a dict of all fields.
-        """
-        return {
-            'roi': self.roi,
-            'parameter_value': self.parameter_value,
-            'goal_criteria': self.goal_criteria,
-            'priority': self.priority,
-            'goal_value': self.goal_value,
-            'roi_type': self.roi_type,
-            'type': self.type,
-            'acceptance_level': self.acceptance_level,
-            'goal_evaluation': self.goal_evaluation,
-            'goal_str': self.goal_str
-        }
-
-
-# Utility function if you want to compare sets of goals:
-def different_goals(check, ref):
-    """
-    Return a list of goals in 'check' that are not matched in 'ref'.
-    """
-    unmatched = []
-    for ckkey, ckval in check.items():
-        matched = False
-        for rfkey, rfval in ref.items():
-            if ckval == rfval:
-                matched = True
-                break
-        if not matched:
-            unmatched.append(ckval)
-    return unmatched
-
-
-###############################################################################
-def read_and_compare_goals(json_file):
-    """
-    Example function:
-      - read the single JSON with plan data
-      - parse goals into a dictionary
-      - convert them into your 'Goal' objects
-      - create a DataFrame
-      - do a simple demonstration of box-plotting or direct printing
+    Reads the JSON file and converts tidy lists into Pandas DataFrames.
+    Returns DataFrames for nominal goals, robust goals, nominal DVH, robust DVH,
+    and placeholders for objectives if needed.
     """
     with open(json_file, 'r') as fp:
-        data_dict = json.load(fp)
+        data = json.load(fp)
 
-    # Build a dictionary of Goal objects indexed by an integer
-    goal_dict = {}
-    for idx_str, gdict in data_dict['goals'].items():
-        idx_int = int(idx_str)
-        goal_dict[idx_int] = Goal(gdict)
+    df_goals = pd.DataFrame(data.get("goals", []))
+    df_robust = pd.DataFrame(data.get("robust_goals", []))
+    df_dvh = pd.DataFrame(data.get("DVH", []))
+    df_robust_dvh = pd.DataFrame(data.get("robust_DVH", []))
+    df_objectives = pd.DataFrame(data.get("objectives", []))  # may be empty
 
-    # Convert these to a DataFrame:
-    # Each goal gets a row; columns are the fields in 'Goal.getall()'
-    df_goals = pd.DataFrame.from_dict({idx: g.getall() for idx, g in goal_dict.items()},
-                                      orient='index')
-    df_goals.sort_index(inplace=True)
+    print("\n=== Nominal Goals DataFrame ===")
+    print(df_goals.head())
+    print("\n=== Robust Goals DataFrame ===")
+    print(df_robust.head())
+    print("\n=== Nominal DVH DataFrame ===")
+    print(df_dvh.head())
+    print("\n=== Robust DVH DataFrame ===")
+    print(df_robust_dvh.head())
 
-    print("\n=== Clinical Goals from JSON ===")
-    print(df_goals)
+    return df_goals, df_robust, df_dvh, df_robust_dvh, df_objectives
 
-    # Simple box plot example of 'goal_value' vs. 'acceptance_level' (normalized)
-    # We'll do it with a single plan, so you might not have multiple to compare.
-    # But to demonstrate, let's treat each row as a "sample" for a boxplot:
-    val_array = df_goals['goal_value'].values
-    normed_array = df_goals['goal_value'] / df_goals['acceptance_level']
 
-    fig, axes = plt.subplots(1, 2, figsize=(8, 4))
-    # left subplot: absolute goal_value
-    axes[0].boxplot(val_array, showmeans=True)
-    axes[0].set_title("Goal Values (absolute)")
-    axes[0].grid(True)
+###############################################################################
+# (5) Main function orchestrating the export and read-back demonstration
+###############################################################################
+def main():
+    """
+    Retrieves current patient/plan/beamset from RayStation,
+    exports all planning data (goals, DVH, robust evaluations, etc.)
+    into a single JSON file (a complete snapshot), and then reads
+    the file back into DataFrames.
+    """
+    try:
+        patient = connect.get_current("Patient")
+    except:
+        patient = None
+    try:
+        case = connect.get_current("Case")
+    except:
+        case = None
+    try:
+        plan = connect.get_current("Plan")
+    except:
+        plan = None
+    try:
+        beam_set = connect.get_current("BeamSet")
+    except:
+        beam_set = None
+    try:
+        examination = connect.get_current("Examination")
+    except:
+        examination = None
+    try:
+        machine_db = connect.get_current("MachineDB")
+    except:
+        machine_db = None
+    try:
+        patient_db = connect.get_current("PatientDB")
+    except:
+        patient_db = None
+    try:
+        ui = connect.get_current("ui")
+    except:
+        ui = None
 
-    # right subplot: normalized
-    axes[1].boxplot(normed_array, showmeans=True)
-    axes[1].set_title("Goal Values / Acceptance Level")
-    axes[1].axhline(y=1.0, color='r', linestyle='--')  # reference line
-    axes[1].grid(True)
+    # Create a namedtuple for easy passing
+    Pd = namedtuple('Pd', [
+        'error', 'patient_db', 'machine_db', 'ui',
+        'case', 'patient', 'exam', 'plan', 'beamset'
+    ])
+    rso = Pd(
+        error=[],
+        patient_db=patient_db,
+        machine_db=machine_db,
+        ui=ui,
+        case=case,
+        patient=patient,
+        exam=examination,
+        plan=plan,
+        beamset=beam_set
+    )
 
-    plt.suptitle("Clinical Goals for Plan: " + data_dict['PlanName'])
-    plt.show()
+    # Define output directory and ensure it exists
+    output_dir = os.path.join(os.getcwd(), "exports")
+    os.makedirs(output_dir, exist_ok=True)
 
-    # Return the df if you want to do more with it
-    return df_goals
+    # Export all planning data into one JSON file
+    export_plan_data(rso, output_dir)
+
+    # For demonstration, read the latest exported JSON file
+    exported_files = [f for f in os.listdir(output_dir) if f.endswith(".json")]
+    if exported_files:
+        latest_file = os.path.join(output_dir, sorted(exported_files)[-1])
+        print(f"\nReading data from {latest_file}")
+        df_goals, df_robust, df_dvh, df_robust_dvh, df_objectives = read_tidy_data(latest_file)
+
+    # (Optional) Further analysis or plotting can be done using the DataFrames.
+    # For example, plotting nominal DVH curves:
+    if not df_dvh.empty:
+        for roi in df_dvh["roi"].unique():
+            subset = df_dvh[df_dvh["roi"] == roi]
+            plt.plot(subset["dose_Gy"], 1 - subset["volume_fraction"], label=roi)
+        plt.xlabel("Dose (Gy)")
+        plt.ylabel("1 - Volume Fraction")
+        plt.title("Nominal DVH Curves")
+        plt.legend()
+        plt.show()
+
+
+if __name__ == "__main__":
+    main()
