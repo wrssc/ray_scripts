@@ -1,4 +1,7 @@
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 import sys
 import logging
 from math import ceil

@@ -66,7 +66,10 @@ import connect
 from collections import namedtuple, OrderedDict
 from datetime import datetime
 import pyperclip
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 import UserInterface
 import DicomExport
 from api.api_qa_preparation import create_dqa_plan

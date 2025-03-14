@@ -1,4 +1,7 @@
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 from typing import Tuple
 from PIL import ImageFont
 

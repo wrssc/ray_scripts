@@ -1,4 +1,7 @@
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 from PlanReview.review_definitions import (
     ICON_SCALE_ISODOSE, ICON_SMALL_SCALE_ISODOSE, ICON_SMALL_MATERIAL, ICON_MATERIAL,
     ICON_SMALL_WINDOW_LEVEL, ICON_WINDOW_LEVEL, ICON_PAUSE, ICON_SMALL_PAUSE)

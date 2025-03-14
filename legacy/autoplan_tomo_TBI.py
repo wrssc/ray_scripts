@@ -119,7 +119,10 @@ import AutoPlanOperations
 import StructureOperations
 from collections import namedtuple
 import numpy as np
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
 from AutoPlan import autoplan

@@ -61,7 +61,10 @@ __copyright__ = "Copyright (C) 2021, University of Wisconsin Board of Regents"
 from connect import CompositeAction, get_current, await_user_input
 from StructureOperations import exists_roi, find_types
 
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 import numpy as np
 from sys import exit
 import logging

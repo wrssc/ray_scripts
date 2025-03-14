@@ -40,7 +40,10 @@ __help__ = ""
 __copyright__ = "Copyright (C) 2024, University of Wisconsin Board of Regents"
 
 import math
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 from collections import namedtuple
 from library.GeneralOperations import find_scope
 import sys

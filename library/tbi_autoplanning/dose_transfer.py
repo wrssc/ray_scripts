@@ -6,7 +6,10 @@ import shutil
 import sys
 import connect
 
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 
 from .tbi_definitions import TOMO_FFS_TRANSFER_NAME, VMAT_FFS_TRANSFER_NAME, HFS_TOMO_PLAN_NAME, \
     HFS_VMAT_PLAN_NAME, FFS_PLACEHOLDER_NAME, DICOM_PATH, FFS_VMAT_PLAN_NAME

@@ -205,8 +205,13 @@ __credits__ = ['']
 
 import sys
 import os
-import PySimpleGUI as Sg
 import logging
+try:
+    import FreeSimpleGUI as Sg
+    logging.info('Using FreeSimpleGUI')
+except ImportError:
+    logging.info('FreeSimpleGUI not found, using PySimpleGUI')
+    import PySimpleGUI as Sg
 from collections import namedtuple
 from library.api.api_utils import find_scope
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '.'))

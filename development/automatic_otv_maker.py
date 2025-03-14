@@ -18,7 +18,10 @@ __help__ = None
 __copyright__ = "Copyright (C) 2024, University of Wisconsin Board of Regents"
 
 from connect import get_current
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 import sys
 from pathlib import Path
 import re

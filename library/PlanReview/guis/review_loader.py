@@ -1,6 +1,9 @@
 import os
 import json
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 from PlanReview.review_definitions import OUTPUT_DIR
 from PlanReview.utils.io_file_utils import str_key_to_tuple
 from PlanReview.utils.python_utilities import update_window_key_dict

@@ -141,7 +141,10 @@ from StructureOperations import (create_roi, create_poi,
                                  find_types, exclude_from_export, change_roi_type)
 from collections import namedtuple
 import numpy as np
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 import re
 from typing import Optional, List
 
@@ -3511,6 +3514,9 @@ def tbi_gui():
     Returns:
         dict: A dictionary containing the user's selections.
     """
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
     import PySimpleGUI as Sg
 
     def make_toggle_button(text, key, disabled=False):

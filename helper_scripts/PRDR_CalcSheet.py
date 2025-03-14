@@ -58,7 +58,10 @@ __help__ = ''
 __credits__ = []
 
 import sys
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 import pandas as pd
 from collections import namedtuple
 
