@@ -1,4 +1,4 @@
-""" Automatically create and place support structures
+"""Automatically create support structures
 
 Currently supported
 * TrueBeam Couch
@@ -7,7 +7,7 @@ Currently supported
 * Civco Breast Board (w/ and w/o Monarch board)
 
 This script was tested with:
-U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\RayStation\Script Testing\RayStation 11B\Support Structures Testing 11B.xlsx
+"U:\\UWHealth\\RadOnc\\ShareAll\\Users\\DJacqmin\\RayStation\\Script Testing\\RayStation 11B\\Support Structures Testing 11B.xlsx"
 
 Version History:
 v0.1.0: First working edition
@@ -35,8 +35,8 @@ __date__ = "2025-03-04"
 __version__ = "2.0.0"
 __status__ = "Released"
 __deprecated__ = False
-__reviewer__ = NONE
-__reviewed__ = NONE
+__reviewer__ = None
+__reviewed__ = None
 __raystation__ = ["11B", "2024A"]
 __maintainer__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
@@ -72,8 +72,6 @@ COUCH_SOURCE_ROI_NAMES = {
         "TomoTherapy": "TomoCouch",
         "QFix Portrait Board": "Black Board External Final",
         "QFix_BoardOnly": "QFix_BoardOnly",
-
-
     },
     "HFP": {"TrueBeam": "ProneTrueBeamCouch", "TomoTherapy": "TomoCouch"},
     "FFS": {"TrueBeam": "TrueBeamCouch", "TomoTherapy": "TomoCouch"},
@@ -109,7 +107,6 @@ COUCH_SHIFT = {
         "QFix_H&N_TBCouch_F2andF3": [0.15, -9.80, -42.61],
         "Black Board External Final": [0.13, -9.72, -42.60],
         "QFix_BoardOnly": [0.13, -9.72, -42.60],
-
     },
     "HFP": {
         "ProneTrueBeamCouch": [1.188, -6.6, 0],
@@ -321,10 +318,17 @@ def get_support_structures_GUI(examination):
                             size=(20, 1),
                             key="-COUCH TOMO-",
                             enable_events=True,
-
                         )
                     ],
-                    [sg.Radio("None", "RADIOCOUCH", size=(10, 1), key="-COUCH NONE-",enable_events=True,)],
+                    [
+                        sg.Radio(
+                            "None",
+                            "RADIOCOUCH",
+                            size=(10, 1),
+                            key="-COUCH NONE-",
+                            enable_events=True,
+                        )
+                    ],
                 ],
                 title="Treatment Table",
                 relief=sg.RELIEF_SUNKEN,
@@ -347,8 +351,7 @@ def get_support_structures_GUI(examination):
                 "Use QFix Portrait Board",
                 enable_events=True,
                 visible=portrait_checkbox,
-                key="-USE PORTRAIT-"
-
+                key="-USE PORTRAIT-",
             )
         ]
     )
@@ -375,7 +378,6 @@ def get_support_structures_GUI(examination):
                             size=(40, 1),
                             key="-COUCH TRUEBEAM QFIX F2F3-",
                             visible=True,
-
                         )
                     ],
                     [
@@ -386,7 +388,6 @@ def get_support_structures_GUI(examination):
                             size=(40, 1),
                             key="-COUCH TOMO QFIX-",
                             visible=False,
-
                         )
                     ],
                 ],
@@ -595,11 +596,13 @@ def add_structures_from_template(
         logging.info(message)
 
         try:
-            case.PatientModel.StructureSets[examination.Name] \
-            .RoiGeometries[roi].DeleteGeometry()
+            case.PatientModel.StructureSets[examination.Name].RoiGeometries[
+                roi
+            ].DeleteGeometry()
         except AttributeError:
-            case.PatientModel.StructureSets[examination.Name] \
-            .RoiGeometries[roi].DeleteRoiGeometry()
+            case.PatientModel.StructureSets[examination.Name].RoiGeometries[
+                roi
+            ].DeleteRoiGeometry()
 
     # Add structure from template
     # Notes: The use of AlignToImageCenter drops structures in center of image.
@@ -733,7 +736,6 @@ def expand_geometry_to_superior_boundary(examination, geometry):
 
     """
     PADDING_MARGIN = 0.5  # mm
-
 
     image_bb = examination.Series[0].ImageStack.GetBoundingBox()
     extent_sup = image_bb[1]["z"] + PADDING_MARGIN
@@ -1011,7 +1013,11 @@ def deploy_couch_model(
         couch_shift = COUCH_SHIFT[examination.PatientPosition][couch_roi_name]
 
         # There are two classes of "couch" that must be added differently
-        if (couch_roi_name == "TrueBeamCouch") or (couch_roi_name == "TomoCouch") or (couch_roi_name == "ProneTrueBeamCouch"):
+        if (
+            (couch_roi_name == "TrueBeamCouch")
+            or (couch_roi_name == "TomoCouch")
+            or (couch_roi_name == "ProneTrueBeamCouch")
+        ):
             # CLASS 1: Simple couches with no well-defined longitudinal location
 
             TransformationMatrix = {
@@ -1036,7 +1042,12 @@ def deploy_couch_model(
                 Examination=examination, TransformationMatrix=TransformationMatrix
             )
 
-        elif (couch_roi_name == "QFix_Brain_TBCouch_H1andH2") or (couch_roi_name == "QFix_H&N_TBCouch_F2andF3") or (couch_roi_name == "Black Board External Final") or (couch_roi_name == "QFix_BoardOnly"):
+        elif (
+            (couch_roi_name == "QFix_Brain_TBCouch_H1andH2")
+            or (couch_roi_name == "QFix_H&N_TBCouch_F2andF3")
+            or (couch_roi_name == "Black Board External Final")
+            or (couch_roi_name == "QFix_BoardOnly")
+        ):
             # CLASS 2: Composites of a couch and immobilization device that must be
             # added at a specific x,y,z location.
 
@@ -1060,11 +1071,19 @@ def deploy_couch_model(
         message = f"Couch structure {couch_roi_name} has been moved to position."
         logging.info(message)
 
-    if (couch_roi_name == "TrueBeamCouch") or (couch_roi_name == "TomoCouch") or  (couch_roi_name == "ProneTrueBeamCouch"):
+    if (
+        (couch_roi_name == "TrueBeamCouch")
+        or (couch_roi_name == "TomoCouch")
+        or (couch_roi_name == "ProneTrueBeamCouch")
+    ):
         with CompositeAction("Fill Couch Model Longitudinally"):
 
-            expand_geometry_to_inferior_boundary(examination=examination, geometry=couch)
-            expand_geometry_to_superior_boundary(examination=examination, geometry=couch)
+            expand_geometry_to_inferior_boundary(
+                examination=examination, geometry=couch
+            )
+            expand_geometry_to_superior_boundary(
+                examination=examination, geometry=couch
+            )
 
     position_before_manual_change = couch.GetCenterOfRoi()
 
@@ -1104,11 +1123,19 @@ def deploy_couch_model(
 
     logging.info(log_string)
 
-    if (couch_roi_name == "TrueBeamCouch") or (couch_roi_name == "TomoCouch") or  (couch_roi_name == "ProneTrueBeamCouch"):
+    if (
+        (couch_roi_name == "TrueBeamCouch")
+        or (couch_roi_name == "TomoCouch")
+        or (couch_roi_name == "ProneTrueBeamCouch")
+    ):
         with CompositeAction("Fill Couch Model Longitudinally Again"):
 
-            expand_geometry_to_inferior_boundary(examination=examination, geometry=couch)
-            expand_geometry_to_superior_boundary(examination=examination, geometry=couch)
+            expand_geometry_to_inferior_boundary(
+                examination=examination, geometry=couch
+            )
+            expand_geometry_to_superior_boundary(
+                examination=examination, geometry=couch
+            )
 
     if NOTIFY:
         sg.popup_notify(
@@ -1893,7 +1920,9 @@ def main():
                 examination.PatientPosition
             ],
             source_roi_names=[
-                COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["TrueBeam Qfix H1H2"]
+                COUCH_SOURCE_ROI_NAMES[examination.PatientPosition][
+                    "TrueBeam Qfix H1H2"
+                ]
             ],
         )
     elif values["-COUCH TRUEBEAM QFIX F2F3-"] and values["-USE PORTRAIT-"]:
@@ -1905,7 +1934,9 @@ def main():
                 examination.PatientPosition
             ],
             source_roi_names=[
-                COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["TrueBeam Qfix F2F3"]
+                COUCH_SOURCE_ROI_NAMES[examination.PatientPosition][
+                    "TrueBeam Qfix F2F3"
+                ]
             ],
         )
     elif values["-COUCH TRUEBEAM-"]:
@@ -1942,7 +1973,9 @@ def main():
                     examination.PatientPosition
                 ],
                 source_roi_names=[
-                    COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["QFix Portrait Board"]
+                    COUCH_SOURCE_ROI_NAMES[examination.PatientPosition][
+                        "QFix Portrait Board"
+                    ]
                 ],
             )
         except:  # System.InvalidOperationException
@@ -1953,7 +1986,9 @@ def main():
                     examination.PatientPosition
                 ],
                 source_roi_names=[
-                    COUCH_SOURCE_ROI_NAMES[examination.PatientPosition]["QFix_BoardOnly"]
+                    COUCH_SOURCE_ROI_NAMES[examination.PatientPosition][
+                        "QFix_BoardOnly"
+                    ]
                 ],
             )
 
