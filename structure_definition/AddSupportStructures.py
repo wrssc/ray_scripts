@@ -71,7 +71,7 @@ COUCH_SOURCE_ROI_NAMES = {
         "TrueBeam Qfix F2F3": "QFix_H&N_TBCouch_F2andF3",
         "TomoTherapy": "TomoCouch",
         "QFix Portrait Board": "Black Board External Final",
-        "QFix_BoardOnly": "QFix_BoardOnly",
+        "QFix_Board_Only": "QFix_Board_Only",
     },
     "HFP": {"TrueBeam": "ProneTrueBeamCouch", "TomoTherapy": "TomoCouch"},
     "FFS": {"TrueBeam": "TrueBeamCouch", "TomoTherapy": "TomoCouch"},
@@ -106,7 +106,7 @@ COUCH_SHIFT = {
         "QFix_Brain_TBCouch_H1andH2": [0.12, -9.75, -42.63],
         "QFix_H&N_TBCouch_F2andF3": [0.15, -9.80, -42.61],
         "Black Board External Final": [0.13, -9.72, -42.60],
-        "QFix_BoardOnly": [0.13, -9.72, -42.60],
+        "QFix_Board_Only": [0.13, -9.72, -42.60],
     },
     "HFP": {
         "ProneTrueBeamCouch": [1.188, -6.6, 0],
@@ -1046,7 +1046,7 @@ def deploy_couch_model(
             (couch_roi_name == "QFix_Brain_TBCouch_H1andH2")
             or (couch_roi_name == "QFix_H&N_TBCouch_F2andF3")
             or (couch_roi_name == "Black Board External Final")
-            or (couch_roi_name == "QFix_BoardOnly")
+            or (couch_roi_name == "QFix_Board_Only")
         ):
             # CLASS 2: Composites of a couch and immobilization device that must be
             # added at a specific x,y,z location.
@@ -1987,7 +1987,7 @@ def main():
                 ],
                 source_roi_names=[
                     COUCH_SOURCE_ROI_NAMES[examination.PatientPosition][
-                        "QFix_BoardOnly"
+                        "QFix_Board_Only"
                     ]
                 ],
             )
