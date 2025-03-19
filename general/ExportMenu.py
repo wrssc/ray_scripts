@@ -311,7 +311,7 @@ def main():
                                   f' are {alpha}, {beta}, {gamma}')
                     #
                     # Determine if the DICOM origin was chosen for the set-up location
-                    poi_geometry = beamset.PatientSetup.LocalizationPoiGeometrySource.PoiGeometries[0]
+                    poi_geometry = beamset.PatientSetup.PatientSetupDevice.SetupReferencePoint
                     poi_coordinates = [poi_geometry.Point.x,
                                        poi_geometry.Point.y,
                                        poi_geometry.Point.z]
