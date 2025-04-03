@@ -2,7 +2,10 @@
 Create the information entry prompt for the dose and physics review
 """
 
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 import sys
 import logging
 from library.PlanReview.utils.protocol_loading import get_order_instructions, \

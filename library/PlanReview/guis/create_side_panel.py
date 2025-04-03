@@ -1,5 +1,8 @@
 from typing import List, Dict, Union, Any, Optional, Tuple
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 import logging
 from PlanReview.review_definitions import ICON_CHECKER
 from PlanReview.utils.constants import (

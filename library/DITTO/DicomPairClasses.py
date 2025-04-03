@@ -2,7 +2,10 @@
 
 from enum import Flag
 from colorama import Fore, Style
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 from pathlib import Path
 
 image_root = Path(__file__).parent / "images"

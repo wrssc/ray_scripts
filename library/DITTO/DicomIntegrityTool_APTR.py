@@ -2,7 +2,10 @@ import json
 import datetime
 from pathlib import Path
 import pydicom
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 from DicomPairTreeFunctions import compare_dicomrt_plans
 from AriaPlanTransferReviewChecks import run_aria_plan_transfer_checks
 

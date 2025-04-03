@@ -205,7 +205,10 @@ __credits__ = ['']
 
 import sys
 import os
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 import logging
 from collections import namedtuple
 from library.api.api_utils import find_scope

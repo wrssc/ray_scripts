@@ -1,6 +1,9 @@
 import sys
 import os
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 
 treedata = sg.TreeData()
 

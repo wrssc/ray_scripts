@@ -105,7 +105,10 @@ __credits__ = ['']
 
 
 """
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 import tkinter as Tk
 from collections import namedtuple, OrderedDict
 from System import Environment

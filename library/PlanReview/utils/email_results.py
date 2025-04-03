@@ -5,7 +5,10 @@ import io
 import os
 import smtplib
 import xml.etree.ElementTree as ET
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 import time
 import sys
 from email.mime.application import MIMEApplication

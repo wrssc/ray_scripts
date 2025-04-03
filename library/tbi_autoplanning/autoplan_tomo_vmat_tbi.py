@@ -91,7 +91,10 @@ import logging
 import connect
 import os
 import traceback
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 import re
 import library.AutoPlanOperations as AutoPlanOperations
 import library.GeneralOperations as GeneralOperations

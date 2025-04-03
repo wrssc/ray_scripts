@@ -62,7 +62,10 @@ __credits__ = ['']
 __help__ = 'TODO: No Help'
 
 import sys
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 import os
 import logging
 import xml.etree.ElementTree
