@@ -647,7 +647,7 @@ def add_row(table_data, cell1, cell2):
 def create_beamsets_table(data, bold_rows, nested_table_rows, config):
     col_fractions = [0.4, 0.6]
     main_table = Table(data,
-                       splitByRow=0,
+                       splitByRow=1, # Added to accommodate large number of rows
                        colWidths=[c * config.NARROW_TABLE_WIDTH for c in col_fractions],
                        spaceAfter=30)
     main_table.setStyle(TableStyle([

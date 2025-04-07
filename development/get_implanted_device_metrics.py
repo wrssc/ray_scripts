@@ -1,6 +1,4 @@
-""" Implanted Medical Device Metrics
-
-"""
+"""Implanted Medical Device Metrics"""
 
 __author__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
@@ -27,7 +25,7 @@ from pathlib import Path
 
 ditto_path = Path(__file__).parent.parent / "library"
 sys.path.insert(1, str(ditto_path))
-import ImplantedDeviceOperations as ido
+import ImplantedDeviceOperations_MLC as ido
 
 
 def main():

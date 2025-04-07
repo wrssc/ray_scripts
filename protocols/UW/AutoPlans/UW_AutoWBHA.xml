@@ -1164,7 +1164,7 @@
         <technique>TomoHelical</technique>
         <DicomName>Brai_THI_R_A_</DicomName>
         <description>Protocol for TomoBrain, e.g. Hippocampal avoidance</description>
-        <roi_support>TomoCouch,S-frame</roi_support>
+        <roi_support>TomoCouch,Black Board External Final</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -1186,7 +1186,7 @@
         <DicomName>BrHA6A_VMA_R_A_</DicomName>
         <description>6 Arc arrangement for treatment of the whole brain using hippocampal avoidance.
         </description>
-        <roi_support>Sframe_F1_TBCouch_HN</roi_support>
+        <roi_support>QFix_H&amp;N_TBCouch_F2andF3</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>

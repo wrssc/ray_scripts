@@ -993,7 +993,11 @@ def extract_values_preplan_tab(main_window):
                 else:
                     beamset_dict[beamset_key] = value if value else ''
 
-        num_targets = beamset_dict.get(create_tuple_key(KEY_BEAMSET_TARGET_COUNT, i), 0)
+        # If the target count has not been selected, it will not be an integer, return 0
+        if not isinstance(beamset_dict[create_tuple_key(KEY_BEAMSET_TARGET_COUNT, i)], int):
+            num_targets = 0
+        else:
+            num_targets = beamset_dict.get(create_tuple_key(KEY_BEAMSET_TARGET_COUNT, i), 0)
 
         for j in range(num_targets):
             for key in [KEY_BEAMSET_TARGET_NAME, KEY_BEAMSET_DOSE, KEY_BEAMSET_FRACTION_DOSE]:

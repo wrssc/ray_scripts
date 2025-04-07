@@ -98,7 +98,7 @@ def add_dose_prescription_to_roi_v11(beamset, roi_name, dose_volume, prescriptio
 def add_dose_prescription_to_roi_v12(beamset, roi_name, dose_volume, prescription_type,
                                      dose_value, relative_dose_prescription_value,
                                      auto_scale_dose=False):
-    beamset.AddDosePrescriptionToRoi(RoiName=roi_name,
+    beamset.AddRoiPrescriptionDoseReference(RoiName=roi_name,
                                      DoseVolume=dose_volume,
                                      PrescriptionType=prescription_type,
                                      DoseValue=dose_value,
