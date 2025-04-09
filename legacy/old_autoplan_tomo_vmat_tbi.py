@@ -3514,7 +3514,7 @@ def tbi_gui():
     Returns:
         dict: A dictionary containing the user's selections.
     """
-try:
+    try:
     import FreeSimpleGUI as Sg
 except ImportError:
     import PySimpleGUI as Sg
