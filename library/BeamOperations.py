@@ -553,7 +553,7 @@ def create_beamset(patient, case, exam, plan,
                     info = [bs.DicomPlanLabel for bs in plan.BeamSets if b.DicomName in bs.DicomPlanLabel]
                     # info = plan.QueryBeamSetInfo(Filter={'Name': '^{0}'.format(new_bs_name)})
                     logging.debug('Beamset info: {}'.format(info))
-                    if info[0] == new_bs_name:
+                    if info and info[0] == new_bs_name:
                         # Ensure the maximum DicomPlanLabel length of 16 chars is not exceeded
                         if len(new_bs_name) > 14:
                             new_bs_name = b.DicomName[:14] + str(i).zfill(2)

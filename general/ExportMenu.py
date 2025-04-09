@@ -30,6 +30,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import sys
 import logging
 import time
+import math
 
 import connect
 import UserInterface
@@ -315,7 +316,7 @@ def main():
                     poi_coordinates = [poi_geometry.Point.x,
                                        poi_geometry.Point.y,
                                        poi_geometry.Point.z]
-                    if all(c == 0 for c in poi_coordinates):
+                    if all(math.isclose(c, 0) for c in poi_coordinates):
                         iso_lat = beamset.Beams[0].Isocenter.Position.x
                         iso_vert = beamset.Beams[0].Isocenter.Position.y
                         iso_long = beamset.Beams[0].Isocenter.Position.z
