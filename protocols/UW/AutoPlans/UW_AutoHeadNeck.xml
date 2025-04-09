@@ -2477,7 +2477,6 @@
                 <dose units="Gy">30</dose>
                 <weight>1</weight>
             </roi>
-
             <roi>
                 <name>Lens_L</name>
                 <type>Max</type>

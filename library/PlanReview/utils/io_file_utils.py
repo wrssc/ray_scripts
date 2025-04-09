@@ -2,7 +2,10 @@ import os
 import glob
 import re
 import logging
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 from datetime import datetime
 import json
 from PlanReview.review_definitions import OUTPUT_DIR, DATAFILE_EVENT_LIST

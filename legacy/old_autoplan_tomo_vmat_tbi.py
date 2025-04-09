@@ -1,4 +1,4 @@
-""" Automated Plan - Tomo/VMAT TBI
+""" Old Automated Plan - Tomo/VMAT TBI
 
     This module contains various functions used in a TBI (Total Body Irradiation)
     treatment planning script.
@@ -75,7 +75,7 @@
     make_unsubtracted_dose_structures: makes unsubtracted dose structures.
     make_dose_structures: makes dose structures.
     reset_primary_secondary: resets the primary and secondary scan for a given patient.
-    update_dose_grid: updates the dose grid for a given beamset.
+    rescale_dose_grid_to_all_scans: updates the dose grid for a given beamset.
     register_images: registers two CT scans.
     load_normal_mbs: loads the normal MBS settings.
     make_tbi_planning_structs: makes the planning structures for a TBI.
@@ -114,7 +114,7 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '07-Oct-2021'
+__date__ = '04-Feb-2025'
 __version__ = '0.0.0'
 __status__ = 'Development'
 __deprecated__ = False
@@ -124,7 +124,7 @@ __raystation__ = '11 SP1'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/AutoPlanTomoTBI'
 __credits__ = []
 
@@ -133,6 +133,7 @@ import logging
 import connect
 import sys
 import os
+import traceback
 import GeneralOperations
 import AutoPlanOperations
 from StructureOperations import (create_roi, create_poi,
@@ -140,7 +141,10 @@ from StructureOperations import (create_roi, create_poi,
                                  find_types, exclude_from_export, change_roi_type)
 from collections import namedtuple
 import numpy as np
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 import re
 from typing import Optional, List
 
@@ -148,31 +152,99 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 general_dir = os.path.join(script_dir, '..', 'general')
 sys.path.insert(1, general_dir)
 from library.api.api_case import get_rigid_registrations
-from AutoPlan import multi_autoplan, autoplan  # noqa: E402
+from AutoPlan import multi_autoplan  # noqa: E402
 
-#
+DEBUG = True
+# Hard-coded path to protocols
+PROTOCOL_FOLDER = r'../protocols'
+INSTITUTION_FOLDER = r'UW'
+AUTOPLAN_FOLDER = r'AutoPlans'
+PATH_PROTOCOLS = os.path.join(os.path.dirname(__file__),
+                              PROTOCOL_FOLDER, INSTITUTION_FOLDER, AUTOPLAN_FOLDER)
+
+PATH_TO_OUTPUT = os.path.normpath(
+    "Q:\\RadOnc\\RayStation\\RayScripts\\AutoPlanData")
+DICOM_PATH = os.path.normpath('\\\\m-rayscon02587\\DicomImageStorage')
+
 # PROTOCOL/ORDER/BEAMSET INPUTS
+# TOMO PROTOCOL
+PROTOCOL_FILE_TOMO = "TomoTBI.xml"
 PROTOCOL_NAME_TOMO = "UW Tomo TBI"
-PROTOCOL_NAME_VMAT = "UW VMAT TBI"
 ORDER_NAME_FFS_TOMO = "TomoTBI_FFS"
-ORDER_TARGET_NAME_FFS = "PTV_p_FFS"
 ORDER_NAME_HFS_TOMO = "TomoTBI_HFS"
-SUP_HFS_ORDER, MID_HFS_ORDER, INF_HFS_ORDER = 'VMAT_TBI_HFS_HEAD', \
-    'VMAT_TBI_HFS_CHEST_ABD', \
-    'VMAT_TBI_HFS_PELVIS'
-SUP_FFS_ORDER, MID_FFS_ORDER, INF_FFS_ORDER = 'VMAT_TBI_FFS_PELVIS', \
-    'VMAT_TBI_FFS_LEGS', \
-    'VMAT_TBI_FFS_FEET'
-ORDER_TARGET_NAME_HFS = "PTV_p_HFS"
 BEAMSET_TEMPLATE_FFS_TOMO = "Tomo_TBI_FFS_FW50"
-BEAMSET_NAME_FFS_TOMO = "FFS__TBI_Tomo"
 BEAMSET_TEMPLATE_HFS_TOMO = "Tomo_TBI_HFS_FW50"
-BEAMSET_NAME_HFS_TOMO = "HFS__TBI_Tomo"
+TOMO_MACHINE = "HDA0488"
+# VMAT PROTOCOL
+PROTOCOL_FILE_VMAT = "UW_VMAT_TBI.xml"
+PROTOCOL_NAME_VMAT = "UW VMAT TBI"
 BEAMSET_HFS_VMAT = "VMAT-HFS-TBI"
 BEAMSET_FFS_VMAT = "VMAT-FFS-TBI"
-TOMO_MACHINE = "HDA0488"
 VMAT_MACHINE = "TrueBeam"
-#
+# ORDER NAMES
+HFS_PELVIS_ORDER_NAME = 'VMAT_TBI_HFS_PELVIS_UPDATED'
+HFS_CHEST_ORDER_NAME = 'VMAT_TBI_HFS_CHEST_NOOBJ'
+HFS_HEAD_ORDER_NAME = 'VMAT_TBI_HFS_HEAD_NOOBJ'
+FFS_PELVIS_ORDER_NAME = 'VMAT_TBI_FFS_PELVIS_UPDATED'
+FFS_LEGS_ORDER_NAME = 'VMAT_TBI_FFS_LEGS_NOOBJ'
+FFS_FEET_ORDER_NAME = 'VMAT_TBI_FFS_FEET_NOOBJ'
+HFS_5ISO_XML_CONFIG = {0: (HFS_PELVIS_ORDER_NAME, 'TBI_HFS_5Pelv'),
+                       1: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_4AbdI'),
+                       2: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_3AbdS'),
+                       3: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_2Chst'),
+                       4: (HFS_HEAD_ORDER_NAME, 'TBI_HFS_1Head')}
+FFS_5ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_6Pelv'),
+                       1: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_7LegS'),
+                       2: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_8LegI'),
+                       3: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_9Knee'),
+                       4: (FFS_FEET_ORDER_NAME, 'TBI_FFS_10Feet')}
+HFS_4ISO_XML_CONFIG = {0: (HFS_PELVIS_ORDER_NAME, 'TBI_HFS_4Pelv'),
+                       1: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_3Abdo'),
+                       2: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_2Chst'),
+                       3: (HFS_HEAD_ORDER_NAME, 'TBI_HFS_1Head')}
+FFS_4ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_5Pelv'),
+                       1: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_6LegS'),
+                       2: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_7LegI'),
+                       3: (FFS_FEET_ORDER_NAME, 'TBI_FFS_8Feet')}
+HFS_3ISO_XML_CONFIG = {0: (HFS_PELVIS_ORDER_NAME, 'TBI_HFS_3Pelv'),
+                       1: (HFS_CHEST_ORDER_NAME, 'TBI_HFS_2Chst'),
+                       2: (HFS_HEAD_ORDER_NAME, 'TBI_HFS_1Head')}
+FFS_3ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_4Pelv'),
+                       1: (FFS_LEGS_ORDER_NAME, 'TBI_FFS_5Leg'),
+                       2: (FFS_FEET_ORDER_NAME, 'TBI_FFS_6Feet')}
+HFS_2ISO_XML_CONFIG = {0: (HFS_PELVIS_ORDER_NAME, 'TBI_HFS_2Pelv'),
+                       1: (HFS_HEAD_ORDER_NAME, 'TBI_HFS_1Head')}
+FFS_2ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_3Pelv'),
+                       1: (FFS_FEET_ORDER_NAME, 'TBI_FFS_4Feet')}
+HFS_1ISO_XML_CONFIG = {0: (HFS_PELVIS_ORDER_NAME, 'TBI_HFS_1Head')}
+FFS_1ISO_XML_CONFIG = {0: (FFS_PELVIS_ORDER_NAME, 'TBI_FFS_2Pelv')}
+HFS_XML_CONFIG = {5: HFS_5ISO_XML_CONFIG,
+                  4: HFS_4ISO_XML_CONFIG,
+                  3: HFS_3ISO_XML_CONFIG,
+                  2: HFS_2ISO_XML_CONFIG,
+                  1: HFS_1ISO_XML_CONFIG}
+FFS_XML_CONFIG = {5: FFS_5ISO_XML_CONFIG,
+                  4: FFS_4ISO_XML_CONFIG,
+                  3: FFS_3ISO_XML_CONFIG,
+                  2: FFS_2ISO_XML_CONFIG,
+                  1: FFS_1ISO_XML_CONFIG}
+ORDER_TARGET_NAME_FFS = "PTV_p_FFS"
+ORDER_TARGET_NAME_HFS = "PTV_p_HFS"
+# PLAN CONVENTIONS
+DEFAULT_VOXEL_SIZE = {'x': 0.4, 'y': 0.4, 'z': 0.4}  # [cm]
+# TOMO PLAN CONVENTIONS
+HFS_TOMO_PLAN_NAME = "HFS__TBI_Tomo_Auto"
+HFS_TOMO_BEAMSET_NAME = "HFS__TBI_Tomo"
+FFS_TOMO_BEAMSET_NAME = "FFS__TBI_Tomo"
+FFS_TOMO_PLAN_NAME = "FFS__TBI_Tomo_Auto"
+TOMO_FFS_TRANSFER_NAME = "Tomo_FFS_Trnsfr"
+FFS_PLACEHOLDER_NAME = "Empty plan"  # Default name assigned by RS upon plan import
+# VMAT PLAN CONVENTIONS
+HFS_VMAT_BEAMSET_NAME = "HFS__VMA"
+HFS_VMAT_PLAN_NAME = HFS_VMAT_BEAMSET_NAME + "_Auto"
+FFS_VMAT_BEAMSET_NAME = "FFS__VMA"
+FFS_VMAT_PLAN_NAME = FFS_VMAT_BEAMSET_NAME + "_Auto"
+VMAT_FFS_TRANSFER_NAME = "VMAT_FFS_Trnsfr"
 # CLEARANCE ASSUMPTIONS FOR VMAT
 MIN_FFS_OVERLAP = 2  # Minimum Overlap
 HFS_OVERLAP = 5  # Minimum Overlap
@@ -180,7 +252,7 @@ FW = 39  # 39 cm of MLC based field
 CENTRAL_JUNCTION_WIDTH = 1.2 * 9
 # FFS_MAX_TREATMENT_LENGTH = 111.5
 FFS_MAX_TREATMENT_LENGTH = 99  # TODO - A fudge - based junction placement on packing HFS
-                               #  replace with a function of patient height
+#  replace with a function of patient height
 FFS_OVERSHOOT = 3  # cm - Distance of overshoot of beam past toes
 FFS_SHIFT_BUFFER = 2
 FFS_TREATMENT_LENGTH = (FFS_MAX_TREATMENT_LENGTH
@@ -196,28 +268,33 @@ HFS_TREATMENT_LENGTH = (HFS_MAX_TREATMENT_LENGTH
                         + HFS_SHIFT_BUFFER
                         + CENTRAL_JUNCTION_WIDTH)
 # CONTOUR AND POI CONVENTIONS
+# POI:
 JUNCTION_POINT = "junction"
 HFS_POI = 'HFS_POI'
 FFS_POI = 'FFS_POI'
+# CONTOURS:
 EXTERNAL_SETUP = 'External_PRV10'
 EXTERNAL_SETUP_EXP = 1.0  # cm expansion
 EXTERNAL_NAME = "ExternalClean"
 AVOID_HFS_NAME = "Avoid_HFS"
 AVOID_FFS_NAME = "Avoid_FFS"
-TARGET_FFS = "PTV_p_FFS"
-TARGET_HFS = "PTV_p_HFS"
-EVAL_SUFFIX = "_Eval"
-JUNCTION_PREFIX_FFS = "ffs_junction_"
-JUNCTION_PREFIX_HFS = "hfs_junction_"
 SKIN_AVOIDANCE = 'Avoid_Skin_PRV03'
 SKIN_AVOIDANCE_CONTRACT = 0.3  # cm contraction
 LUNG_AVOID_NAME = "Lungs_m07"
 LUNGS = "Lungs"
 LUNGS_EVAL_MARGIN = 1.0  # cm contraction for margin
 LUNGS_EVAL_NAME = LUNGS + "_m10"
-HFS_CONTOURS = ["Lung_L", "Lung_R", "Kidney_R", "Kidney_L", LUNG_AVOID_NAME,
-                LUNGS_EVAL_NAME, AVOID_HFS_NAME, TARGET_HFS]
-FFS_CONTOURS = ["Kidney_R", "Kidney_L", AVOID_FFS_NAME, TARGET_FFS]
+# TARGET CONTOURS:
+TARGET_FFS = "PTV_p_FFS"
+TARGET_HFS = "PTV_p_HFS"
+EVAL_SUFFIX = "_Eval"
+JUNCTION_PREFIX_FFS = "ffs_junction_"
+JUNCTION_PREFIX_HFS = "hfs_junction_"
+HFS_TARGET_EVAL_NAME = TARGET_HFS + EVAL_SUFFIX
+FFS_TARGET_EVAL_NAME = TARGET_FFS + EVAL_SUFFIX
+HFS_TARGET_NAMES = [TARGET_HFS, HFS_TARGET_EVAL_NAME]
+FFS_TARGET_NAMES = [TARGET_FFS, FFS_TARGET_EVAL_NAME]
+# ALL CONTOURS
 
 MBS_ROIS = {'Kidney_L': {'CaseType': "Abdomen",
                          'ModelName': r"Kidney (Left)",
@@ -235,9 +312,17 @@ MBS_ROIS = {'Kidney_L': {'CaseType': "Abdomen",
                        'ModelName': r"Lung (Right)",
                        'RoiName': r"Lung_R",
                        'RoiColor': "54, 247, 223"}}
-COLORS = [[127, 0, 255], [0, 0, 255], [0, 127, 255], [0, 255, 255],
-          [0, 255, 127], [0, 255, 0], [127, 255, 0], [255, 255, 0],
-          [255, 127, 0], [255, 0, 0], [255, 0, 255]]
+COLORS = [[127, 0, 255],
+          [0, 0, 255],
+          [0, 127, 255],
+          [0, 255, 255],
+          [0, 255, 127],
+          [0, 255, 0],
+          [127, 255, 0],
+          [255, 255, 0],
+          [255, 127, 0],
+          [255, 0, 0],
+          [255, 0, 255]]
 
 
 def rename_exams(case):
@@ -275,58 +360,103 @@ def rename_exams(case):
     return hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam
 
 
-def check_prerequisites(pd_ffs, pd_hfs, do_structure_definition,
-                        make_vmat_plan):
+def hfs_ffs_exam_present(case):
+    """
+    Check if the case has both HFS and FFS exams
+    :param case: patient case
+    :return: True if both HFS and FFS exams are present, False otherwise
+    """
+    hfs_exam = False
+    ffs_exam = False
+    for e in case.Examinations:
+        if e.PatientPosition == 'HFS':
+            hfs_exam = True
+        elif e.PatientPosition == 'FFS':
+            ffs_exam = True
+    return hfs_exam, ffs_exam
+
+
+def check_prerequisites(pd_ffs, pd_hfs, phase, vmat, n_fx=None, rx=None, otv_junctions=False):
     """
     Check if prerequisite points, contours, registrations are present based on work expected
     :param pd_ffs: patient data for feet-first supine
     :param pd_hfs: patient data for head-first supine
-    :param do_structure_definition: boolean indicating whether to do structure definition
-    :param make_vmat_plan: if True, check for pois and midfield junction structures
+    :param phase: phase of planning
+    :param otv_junctions: whether to check for junctions
     :raises RuntimeError: if any prerequisite is missing
+
+    FFS Planning:
+        Generate Structures:
+            * A case with a CT scan in the FFS position
+            * A case with a CT scan in the HFS position
+            VMAT:
+            TOMO:
+        Make FFS Plan:
+            * check_contours(pd_hfs, PREPLANNING_HFS_CONTOUR_NAMES) and check_contours(pd_ffs, PREPLANNING_FFS_CONTOUR_NAMES)
+            * Kidneys, Skin_Avoid, External_PRV10, Avoid_FFS,
+            * ffs_junction_10%,... on FFS exam
+            * hfs_junction_10%,... on HFS exam
+            * Points: junction, SimFiducials on both exams
+            * PTV_HFS, PTV_HFS_Eval, PTV_FFS, PTV_FFS_Eval on both exams
+            VMAT:
+                find_pois(pd_ffs) and find_pois(pd_hfs)
+            TOMO:
+        Optimize FFS Plan:
+            All the stuff for FFS planning +
+            VMAT:
+                An existing plan called FFS__VMA_Auto, beamset FFS__VMA
+            TOMO:
+                An existing plan called FFS__Tomo_Auto, beamset FFS__Tomo
+
+    HFS Planning:
+        Calculate FFS Plan on HFS Image:
+            VMAT:
+                All the stuff for Optimize FFS Plan
+                A plan called FFS__VMA_Auto, beamset FFS__VMA with valid beams segments
+            TOMO:
+        Make HFS Plan:
+            VMAT:
+                All the stuff for Calculate FFS Plan on HFS Image
+                A valid evaluation dose existing on the HFS image set from the FFS plan
+            TOMO:
+        Optimize HFS Plan:
+            * check_contours(pd_hfs, PREPLANNING_HFS_CONTOUR_NAMES) and check_contours(pd_ffs, PREPLANNING_FFS_CONTOUR_NAMES)
+            VMAT:
+                find_pois(pd_ffs) and find_pois(pd_hfs)
+            TOMO:
+
+    Post-Planning
+        Separate Beamsets
+            VMAT:
+                An existing plan called FFS__VMA_Auto, beamset FFS__VMA
+                An existing plan called HFS__VMA_Auto, beamset HFS__VMA
+                Valid Beams and Beamsets for all of these with calculated dose
+                Plan for HFS should have a background dose evaluation of FFS plan
+        Composite Dose...
     """
-    patient_data = [pd_ffs, pd_hfs]
-
-    # Check external contours
-    for pdat in patient_data:
-        if not check_external(pdat):
-            raise RuntimeError(f'Exam {pdat.exam.Name} has an invalid external contour')
-    if not do_structure_definition:
-        # Contours for Lung, Kidney, supports, central junction, and image registration should be present
-        hfs_missing = check_contours(pd_hfs, HFS_CONTOURS)
-        ffs_missing = check_contours(pd_ffs, FFS_CONTOURS)
-        if hfs_missing or ffs_missing:
-            logging.error(f'Missing contours: HFS {hfs_missing}, FFS {ffs_missing}')
-            raise RuntimeError(f'Missing contours: HFS {hfs_missing}, FFS {ffs_missing}')
-        # Check junction contours
-        dose_levels = [str(i * 10) + "%Rx" for i in range(1, 10)]
-        for pdat in patient_data:
-            prefix = determine_prefix(pdat.exam)
-            junction_contours = [f'{prefix}_junction_{dose}' for dose in dose_levels]
-            missing_junctions = check_contours(pdat, junction_contours)
-            if missing_junctions:
-                raise RuntimeError(f'Missing junction contours in {pdat.exam.Name}: {missing_junctions}')
-    if make_vmat_plan and not do_structure_definition:
-        # Check if POIs created by place_ffs_vmat_pois and place_hfs_vmat_pois exist
-        try:
-            pois_ffs = find_pois(pd_ffs)
-            pois_hfs = find_pois(pd_hfs)
-        except RuntimeError as e:
-            raise RuntimeError("Required POIs not found. " + str(e))
-
-        # Check that each poi has a valid position
-        for poi in pois_ffs + pois_hfs:
-            try:
-                _ = get_point_position(pd_ffs if poi in pois_ffs else pd_hfs, poi)
-            except RuntimeError as e:
-                raise RuntimeError("Missing position data for POI. " + str(e))
-
-        # Check if the junctions created by make_midfield_junctions are present
-        missing_junctions_ffs = check_midfield_junctions(pd_ffs, pois_ffs)
-        missing_junctions_hfs = check_midfield_junctions(pd_hfs, pois_hfs)
-
-        if missing_junctions_ffs or missing_junctions_hfs:
-            raise RuntimeError(f'Missing junctions: FFS {missing_junctions_ffs}, HFS {missing_junctions_hfs}')
+    if phase == '-FFS STRUCTURES-':
+        check_ffs_structure_prerequisites(pd_ffs, pd_hfs)
+    if '-FFS PLAN-' in phase:
+        check_ffs_structure_prerequisites(pd_ffs, pd_hfs)
+        check_ffs_plan_prerequisites(pd_ffs, pd_hfs, vmat, otv_junctions)
+    if '-CALC FFS PLAN ON HFS-' in phase:
+        check_ffs_structure_prerequisites(pd_ffs, pd_hfs)
+        check_ffs_plan_prerequisites(pd_ffs, pd_hfs, vmat, otv_junctions)
+        check_plan_validity(pd_ffs, vmat, n_fx, rx)
+    if '-FFS EXPORT-' in phase:
+        check_ffs_structure_prerequisites(pd_ffs, pd_hfs)
+        check_ffs_plan_prerequisites(pd_ffs, pd_hfs, vmat, otv_junctions)
+        check_plan_validity(pd_ffs, vmat, n_fx, rx)
+        check_evaluation_dose_transfer(pd_ffs, pd_hfs)
+        check_empty_plans(pd_ffs, pd_hfs, exists=False, unique=False)
+    if '-HFS PLAN-' in phase:
+        check_ffs_structure_prerequisites(pd_ffs, pd_hfs)
+        check_ffs_plan_prerequisites(pd_ffs, pd_hfs, vmat, otv_junctions)
+        check_plan_validity(pd_ffs, vmat, n_fx, rx)
+        check_evaluation_dose_transfer(pd_ffs, pd_hfs)
+        if not plan_transfer_successful(pd_hfs, pd_ffs, n_fx):
+            check_empty_plans(pd_ffs, pd_hfs, exists=True, unique=True)
+            check_exported_plan(pd_ffs, pd_hfs)
 
 
 def check_external(patient_data):
@@ -353,18 +483,314 @@ def check_external(patient_data):
     return True
 
 
+def check_ffs_structure_prerequisites(pd_ffs, pd_hfs):
+    PRECONTOURING_HFS_CONTOUR_NAMES = ["Lung_L", "Lung_R", "Kidney_R", "Kidney_L"]
+    PRECONTOURING_FFS_CONTOUR_NAMES = ["Kidney_R", "Kidney_L"]
+    patient_data = [pd_ffs, pd_hfs]
+    # Check external contours
+    for pdat in patient_data:
+        if not check_external(pdat):
+            raise RuntimeError(f'Exam {pdat.exam.Name} has an invalid external contour')
+    # Check current case for HFS and FFS scans
+    for pdat in patient_data:
+        hfs_scan_present, ffs_scan_present = hfs_ffs_exam_present(pdat.case)
+        if not hfs_scan_present or not ffs_scan_present:
+            raise RuntimeError('This script requires a head first and feet first scan'
+                               f' in the case {pdat.case.CaseName}: HFS {hfs_scan_present}, FFS {ffs_scan_present}')
+    # Check for missing pre-contouring contours
+    logging.debug(f'HFS: Checking precontouring contours for Case {pd_hfs.case.CaseName} '
+                  f'Exam: {pd_hfs.exam.Name}, for {PRECONTOURING_HFS_CONTOUR_NAMES}')
+    hfs_missing = check_contours(pd_hfs, PRECONTOURING_HFS_CONTOUR_NAMES)
+    logging.debug(f'FFS: Checking precontouring contours for Case {pd_ffs.case.CaseName} '
+                  f'Exam: {pd_ffs.exam.Name}, for {PRECONTOURING_FFS_CONTOUR_NAMES}')
+    ffs_missing = check_contours(pd_ffs, PRECONTOURING_FFS_CONTOUR_NAMES)
+    if hfs_missing or ffs_missing:
+        logging.error(f'Missing precontouring contours: HFS {hfs_missing}, FFS {ffs_missing}')
+        raise RuntimeError(f'Missing precontouring contours: HFS {hfs_missing}, FFS {ffs_missing}')
+
+
+def check_ffs_plan_prerequisites(pd_ffs, pd_hfs, vmat=False, otv_junctions=False):
+    PREPLANNING_HFS_CONTOUR_NAMES = [
+        "Lung_L", "Lung_R", "Kidney_R", "Kidney_L", LUNG_AVOID_NAME,
+        LUNGS_EVAL_NAME, SKIN_AVOIDANCE, EXTERNAL_SETUP, AVOID_HFS_NAME, TARGET_HFS, HFS_TARGET_EVAL_NAME]
+    PREPLANNING_FFS_CONTOUR_NAMES = [
+        "Kidney_R", "Kidney_L", SKIN_AVOIDANCE, EXTERNAL_SETUP, AVOID_FFS_NAME, TARGET_FFS, FFS_TARGET_EVAL_NAME]
+    POI_NAMES = [JUNCTION_POINT, 'SimFiducials']
+    FFS_JUNCTION = [JUNCTION_PREFIX_FFS + str(i * 10) + "%Rx" for i in range(1, 10)]
+    HFS_JUNCTION = [JUNCTION_PREFIX_HFS + str(i * 10) + "%Rx" for i in range(1, 10)]
+    hfs_missing = check_contours(pd_hfs, PREPLANNING_HFS_CONTOUR_NAMES)
+    ffs_missing = check_contours(pd_ffs, PREPLANNING_FFS_CONTOUR_NAMES)
+    if hfs_missing or ffs_missing:
+        logging.error(f'Missing contours: HFS {hfs_missing}, FFS {ffs_missing}, please run'
+                      f'the Generate Structures script first')
+        raise RuntimeError(f'Missing contours: HFS {hfs_missing}, FFS {ffs_missing}')
+    # Check junction contours
+    hfs_junction_missing = check_contours(pd_hfs, HFS_JUNCTION)
+    ffs_junction_missing = check_contours(pd_ffs, FFS_JUNCTION)
+    if hfs_junction_missing or ffs_junction_missing:
+        raise RuntimeError(f'Missing junction contours in HFS {hfs_junction_missing}, FFS {ffs_junction_missing}')
+    # Check for junction and SimFiducials
+    for p in POI_NAMES:
+        for pd in [pd_ffs, pd_hfs]:
+            # Check if the POI exists
+            if not poi_in_list(pd.case, p):
+                raise RuntimeError(f'Missing POI {p} in {pd.exam.Name}')
+            # Check if the POI has a valid position
+            _ = get_point_position(pd, p)
+    # Check registrations for an HFS to FFS registration
+    check_registration(pd_hfs, pd_ffs)
+    if vmat:
+        # Check if POIs created by place_ffs_vmat_pois and place_hfs_vmat_pois exist
+        try:
+            pois_ffs = find_pois(pd_ffs)
+            pois_hfs = find_pois(pd_hfs)
+        except RuntimeError as e:
+            raise RuntimeError("Required POIs not found. " + str(e))
+        # Check that each poi has a valid position
+        for poi in pois_ffs + pois_hfs:
+            try:
+                _ = get_point_position(pd_ffs if poi in pois_ffs else pd_hfs, poi)
+            except RuntimeError as e:
+                raise RuntimeError("Missing position data for POI. " + str(e))
+
+
 def check_contours(patient_data, roi_list):
     """
     Check if the patient data has all required contours
     :param patient_data: data for a single patient
     :param roi_list: list of names of required contours
+    :param exam_name: name of the exam to check
     :return: list of names of missing contours, empty if all are present
     """
+    logging.debug(f'Checking contours for Case {patient_data.case.CaseName} '
+                  f'Exam: {patient_data.exam.Name}: {roi_list}')
     missing_contours = []
     for r in roi_list:
         if not roi_has_contours(patient_data, r):
             missing_contours.append(r)
     return missing_contours
+
+
+def check_registration(pdata_hfs, pdata_ffs):
+    registrations = [r for r in pdata_hfs.case.Registrations]
+    hfs_exam_name = pdata_hfs.exam.Name
+    ffs_exam_name = pdata_ffs.exam.Name
+    ffs_to_hfs_found = False
+    try:
+        for r in registrations:
+            # Backwards, potential API bug?
+            if r.RegistrationSource.FromExamination.Name == ffs_exam_name \
+                    and r.RegistrationSource.ToExamination.Name == hfs_exam_name:
+                ffs_to_hfs_found = True
+                break
+    except Exception as e:
+        logging.error(f'Error checking registration: {e}')
+        raise RuntimeError(f'No registration from HFS to FFS found:  {e}')
+    if not ffs_to_hfs_found:
+        raise RuntimeError('No registration from HFS to FFS found')
+
+
+def check_plan_validity(patient_data, vmat, n_fx, rx):
+    if vmat:
+        try:
+            plan = patient_data.case.TreatmentPlans[f'{FFS_VMAT_PLAN_NAME}']
+        except Exception as e:
+            raise RuntimeError(f'No plan {FFS_VMAT_PLAN_NAME} found: {e}')
+        try:
+            beamset = plan.BeamSets[FFS_VMAT_BEAMSET_NAME]
+        except Exception as e:
+            raise RuntimeError(f'No beamset {FFS_VMAT_BEAMSET_NAME} found in plan {FFS_VMAT_PLAN_NAME}: {e}')
+    else:
+        try:
+            plan = patient_data.case.TreatmentPlans[FFS_TOMO_PLAN_NAME]
+        except Exception as e:
+            raise RuntimeError(f'No plan {FFS_TOMO_PLAN_NAME} found: {e}')
+        try:
+            beamset = plan.BeamSets[FFS_TOMO_BEAMSET_NAME]
+        except Exception as e:
+            raise RuntimeError(f'No beamset {FFS_TOMO_BEAMSET_NAME} found in plan {FFS_TOMO_PLAN_NAME}: {e}')
+    beamset_exists, beamset_has_valid_segments, beamset_has_dose = beamset_complete(patient_data,
+                                                                                    beamset.DicomPlanLabel)
+    if not beamset_exists:
+        raise RuntimeError(f'Beamset {beamset.DicomPlanLabel} does not exist')
+    if not beamset_has_valid_segments:
+        raise RuntimeError(f'Beamset {beamset.DicomPlanLabel} does not have valid segments')
+    if not beamset_has_dose:
+        raise RuntimeError(f'Beamset {beamset.DicomPlanLabel} is not calculated')
+    # Check if the plan has the correct number of fractions and prescription
+    if beamset.Prescription.PrimaryPrescriptionDoseReference.DoseValue != rx:
+        raise RuntimeError(f'Beamset {beamset.DicomPlanLabel} has incorrect prescription dose'
+                           f' Input: {beamset.Prescription.PrimaryPrescriptionDoseReference.DoseValue} != '
+                           f' Plan: {rx}')
+    if beamset.FractionationPattern.NumberOfFractions != n_fx:
+        raise RuntimeError(f'Beamset {beamset.DicomPlanLabel} has incorrect number of fractions.'
+                           f' Input: {n_fx} != Plan: {beamset.FractionationPattern.NumberOfFractions}')
+
+
+def check_evaluation_dose_transfer(pd_ffs, pd_hfs):
+    evaluation_doses = get_available_evaluation_doses(pd_ffs.case)
+    if not evaluation_doses:
+        raise RuntimeError('No evaluation doses found: Run the Calculate FFS Plan on HFS Image script first')
+    eval_dose = get_evaluation_dose_values(pd_ffs.beamset.DicomPlanLabel,
+                                           pd_hfs.exam.Name,
+                                           'HFS',
+                                           evaluation_doses)
+    if eval_dose is None:
+        raise RuntimeError(f'No evaluation dose found for {pd_ffs.beamset.DicomPlanLabel} '
+                           f'on {pd_hfs.exam.Name}')
+
+
+def plan_transfer_successful(pd_hfs, pd_ffs, nfx):
+    # Look through the existing plans in the HFS representation,
+    # and check if the FFS plan has been transferred
+    # Find the corresponding dose evaluation
+    _, ffs_dose_evaluation = find_dose_evaluation(pd_ffs, pd_hfs)
+
+    modality = pd_ffs.beamset.DeliveryTechnique
+    hfs_transfer_name = TOMO_FFS_TRANSFER_NAME if modality == 'TomoHelical' else VMAT_FFS_TRANSFER_NAME
+    hfs_plan_name = HFS_TOMO_PLAN_NAME if modality == 'TomoHelical' else HFS_VMAT_PLAN_NAME
+
+    uid = None
+    if ffs_dose_evaluation:
+        uid = ffs_dose_evaluation.ModificationInfo.DicomUID
+    for tp in pd_hfs.case.TreatmentPlans:
+        if hfs_plan_name == tp.Name:
+            for bs in tp.BeamSets:
+                if bs.DicomPlanLabel == hfs_transfer_name:
+                    is_clinical = bs.IsApprovedToUseAsBackgroundDose()
+                    is_scaled = bs.FractionationPattern.NumberOfFractions == nfx
+                    if uid:
+                        if f'<FFS_UID>:{uid}' in bs.Comment and is_clinical and is_scaled:
+                            return True
+        elif FFS_PLACEHOLDER_NAME == tp.Name:
+            for bs in tp.BeamSets:
+                if FFS_PLACEHOLDER_NAME == bs.DicomPlanLabel:
+                    if f'<FFS_UID>:{uid}' in bs.Comment:
+                        return True
+    return False
+
+
+def find_dose_evaluation(pd_ffs, pd_hfs):
+    """
+    Find the dose evaluation for the FFS plan on the HFS exam and
+    the dose evaluation
+    """
+    fraction_evaluations = [f for f in pd_ffs.case.TreatmentDelivery.FractionEvaluations]
+    ffs_dose_on_examination = None
+    ffs_dose_evaluation = None
+    for f in fraction_evaluations:
+        for dose_exam in f.DoseOnExaminations:
+            dose_eval = dose_exam.DoseEvaluations[0]
+            if dose_eval.ForBeamSet.DicomPlanLabel == pd_ffs.beamset.DicomPlanLabel and \
+                    dose_exam.OnExamination.Name == pd_hfs.exam.Name and \
+                    dose_exam.OnExamination.PatientPosition == pd_hfs.exam.PatientPosition:
+                ffs_dose_evaluation = dose_eval
+                ffs_dose_on_examination = dose_exam
+    return ffs_dose_on_examination, ffs_dose_evaluation
+
+
+def check_empty_plans(pd_ffs, pd_hfs, exists=True, unique=True):
+    # Check for containers already existing in the hfs plan.
+    empty_plans = []
+    hfs_plan_names = potential_transfer_plan_names(pd_ffs)
+    for tp in pd_hfs.case.TreatmentPlans:
+        logging.debug(f'Looking in {tp.Name} for {hfs_plan_names}')
+        if any([n in tp.Name for n in hfs_plan_names]):
+            empty_plans.append(tp.Name)
+    if exists:
+        if len(empty_plans) == 0:
+            raise RuntimeError(
+                f'No {FFS_PLACEHOLDER_NAME} found in the HFS exam, run the export script first')
+        elif len(empty_plans) > 1:
+            raise RuntimeError(f'Multiple plans with name {hfs_plan_names} found in the HFS exam, delete all '
+                               f'plans with plan name "{hfs_plan_names}" and re-export the FFS plan')
+    else:
+        if len(empty_plans) > 0:
+            raise RuntimeError(f'{FFS_PLACEHOLDER_NAME} found in the HFS exam, delete all plans with'
+                               f'plan name "{FFS_PLACEHOLDER_NAME}" and re-export the FFS plan')
+    if unique and len(empty_plans) > 1:
+        raise RuntimeError(
+            f'Multiple plans with name {FFS_PLACEHOLDER_NAME} found in the HFS exam, delete all plans with'
+            f'plan name "{FFS_PLACEHOLDER_NAME}" and re-export the FFS plan')
+
+
+def potential_transfer_plan_names(pd_ffs):
+    modality = pd_ffs.beamset.DeliveryTechnique
+    return [FFS_PLACEHOLDER_NAME, HFS_TOMO_PLAN_NAME] if modality == 'TomoHelical' \
+        else [FFS_PLACEHOLDER_NAME, HFS_VMAT_PLAN_NAME]
+
+
+def potential_transfer_beamset_names(pd_ffs):
+    modality = pd_ffs.beamset.DeliveryTechnique
+    return [FFS_PLACEHOLDER_NAME, TOMO_FFS_TRANSFER_NAME] if modality == 'TomoHelical' \
+        else [FFS_PLACEHOLDER_NAME, VMAT_FFS_TRANSFER_NAME]
+
+
+def check_exported_plan(pd_ffs, pd_hfs):
+    _, ffs_dose_evaluation = find_dose_evaluation(pd_ffs, pd_hfs)
+    uid = None
+    if ffs_dose_evaluation:
+        uid = ffs_dose_evaluation.ModificationInfo.DicomUID
+    if not uid:
+        raise RuntimeError(f'No UID found for the FFS plan on the HFS exam, run the export script first')
+
+    hfs_plan_names = potential_transfer_plan_names(pd_ffs)
+    hfs_beamset_names = potential_transfer_beamset_names(pd_ffs)
+    empty_plan = None
+    for tp in pd_hfs.case.TreatmentPlans:
+        if any([n in tp.Name for n in hfs_plan_names]):
+            empty_plan = tp
+            break
+    if not empty_plan:
+        raise RuntimeError(
+            f'No plan {FFS_PLACEHOLDER_NAME} found in the HFS exam, run the export script first')
+    empty_beamset = None
+    for bs in empty_plan.BeamSets:
+        if any([n in bs.DicomPlanLabel for n in hfs_beamset_names]):
+            empty_beamset = bs
+            break
+    if not empty_beamset:
+        raise RuntimeError(f'No beamset found for {hfs_beamset_names}, please re-export the FFS plan')
+    if not empty_beamset.FractionDose.DoseValues.AlgorithmProperties.DoseAlgorithm == 'Imported':
+        raise RuntimeError(f'{empty_beamset.DicomPlanLabel} beamset does not have an imported dose. '
+                           f'Please re-export the FFS plan')
+    if not empty_beamset.HasImportedDose():
+        raise RuntimeError(f'{empty_beamset.DicomPlanLabel} beamset does not have an imported dose type. '
+                           f'Please re-export the FFS plan')
+    if f'<FFS_UID:{uid}>' not in empty_beamset.Comment:
+        raise RuntimeError(f'{empty_beamset.DicomPlanLabel} beamset does not have a matching UID. '
+                           f'Please re-export the FFS plan')
+
+
+def get_latest_study_instance(data):
+    """
+    Returns the dictionary with the latest timestamp extracted from the StudyInstanceUID.
+
+    Parameters:
+    data (list): List of dictionaries containing StudyInstanceUID keys.
+
+    Returns:
+    dict: Dictionary with the latest timestamp.
+    """
+
+    # Function to extract timestamp from StudyInstanceUID
+    def extract_timestamp(uid, desc):
+        try:
+            if 'Evaluation Fx Dose' not in desc:
+                return 0, 0, 0
+            # Get the last three numeric groups separated by '.'
+            return tuple(map(int, uid.split('.')[-3:]))
+        except Exception as e:
+            logging.warning(f"Error parsing StudyInstanceUID: {uid}. Error: {e}")
+            return 0, 0, 0
+
+    # Sort data by timestamp extracted from StudyInstanceUID
+    latest_entry = max(data, key=lambda x: extract_timestamp(x['StudyInstanceUID'], x['SeriesDescription']))
+
+    # Log the selected dictionary
+    logging.info(f"The following series will be loaded: {latest_entry}")
+
+    return latest_entry
 
 
 def toggle_ptv_type(rs_obj, rois, roi_type):
@@ -429,6 +855,21 @@ def roi_in_list(case, structure_name, roi_list=None):
         return False
 
 
+def poi_in_list(case, poi_name, poi_list=None):
+    if not poi_list:
+        poi_obj_list = [p for p in case.PatientModel.PointsOfInterest]
+    else:
+        poi_obj_list = []
+        for n in poi_list:
+            poi_obj_list += [p for p in case.PatientModel.PointsOfInterest
+                             if p.Name == n]
+
+    if any(poi.Name == poi_name for poi in poi_obj_list):
+        return True
+    else:
+        return False
+
+
 def delete_roi(case, structure_name):
     if roi_in_list(case, structure_name):
         try:
@@ -442,8 +883,10 @@ def delete_roi(case, structure_name):
 
 
 def roi_has_contours(patient_data, structure_name):
+    logging.debug(f'Checking for contours in {patient_data.case.CaseName} for {structure_name}')
     if roi_in_list(patient_data.case, structure_name):
         roi_geom = get_roi_geometry(patient_data.case, patient_data.exam, structure_name)
+        logging.debug(f'ROI {structure_name} has contours: {roi_geom.HasContours()}')
         if roi_geom.HasContours():
             return True
     return False
@@ -559,8 +1002,9 @@ def place_ffs_vmat_pois(pd_ffs, junction, offset):
                  f'with an overlap of {ffs_junction_width}')
     # Junction location
     pois = []
-    coords = {'x': junction.Point.x,
-              'y': junction.Point.y}
+    # Round the positions of the isocenter to the nearest mm.
+    coords = {'x': round_iso(junction.Point.x),
+              'y': round_iso(junction.Point.y)}
     for i in range(FFS_ISO_NUMBER):
         if i != FFS_ISO_NUMBER - 1:
             coords['z'] = first_iso_position - i * isocenter_distance
@@ -610,9 +1054,9 @@ def make_midfield_junctions(rs_obj, poi_name_list, junction_width):
             f'So the beginning of the junction {junction_width:.2f} will be placed at '
             f'{z_junct:.2f}')
 
-        # with junction width
+        # Make two mid-field junctions
         make_generic_junction_structs(rs_obj, z_junct, junction_width,
-                                      j_name=f'_iso{n0}{n1}')
+                                      j_name=f'_iso{n0}{n1}', j_range=range(1, 3))
 
 
 def place_hfs_vmat_pois(pd_hfs, junction):
@@ -931,24 +1375,49 @@ def make_box(patient_data, box_name, length=None, z_center=None):
     c_external = get_center(patient_data, roi_name=external_name)
     z_center = c_external['z'] if z_center is None else z_center
     length = bb_external[1].z - bb_external[0].z if length is None else length
+    if length > 200:
+        # Need to make multiple boxes
+        n_box = int(length / 200)
+        box_length = length / n_box
+    else:
+        n_box = 1
+        box_length = length
     logging.debug(f'Measured length of external contour: {bb_external[1].z - bb_external[0].z}')
     logging.debug(f'Building a box with length {length} centered at {z_center}')
-    # Create the box
-    box_geom = create_roi(
-        case=case,
-        examination=exam,
-        roi_name=box_name,
-        delete_existing=True)
-    box_geom.OfRoi.CreateBoxGeometry(
-        Size={'x': abs(bb_external[1].x - bb_external[0].x) + 2,
-              'y': abs(bb_external[1].y - bb_external[0].y) + 2,
-              'z': length},
-        Examination=patient_data.exam,
-        Center={'x': c_external['x'],
-                'y': c_external['y'],
-                'z': z_center},
-        Representation='Voxels',
-        VoxelSize=None)
+    delete_boxes = []
+    for i in range(n_box):
+        # Create the box
+        box_geom = create_roi(
+            case=case,
+            examination=exam,
+            roi_name=box_name + f'_{i}' if n_box > 1 else box_name,
+            delete_existing=True)
+        z_center = z_center + i * box_length
+        box_geom.OfRoi.CreateBoxGeometry(
+            Size={'x': abs(bb_external[1].x - bb_external[0].x) + 2,
+                  'y': abs(bb_external[1].y - bb_external[0].y) + 2,
+                  'z': box_length},
+            Examination=patient_data.exam,
+            Center={'x': c_external['x'],
+                    'y': c_external['y'],
+                    'z': z_center},
+            Representation='Voxels',
+            VoxelSize=None)
+        delete_boxes.append(box_name + f'_{i}')
+    if n_box > 1:
+        #
+        # Boolean Definitions for Kidneys
+        box_defs = get_boolean_defs(
+            roi_name=box_name,
+            a_sources=delete_boxes,
+            a_operation="Union",
+            export=False,
+        )
+        make_boolean_structure(
+            patient=patient_data.patient, case=case,
+            examination=exam, **box_defs)
+        for b in delete_boxes:
+            case.PatientModel.RegionsOfInterest[b].DeleteRoi()
     # Exclude it from export
     exclude_from_export(case, box_name)
     if roi_has_contours(patient_data, box_name):
@@ -1198,9 +1667,9 @@ def make_ptv(pdata, junction_prefix, avoid_name, color=None):
     # Get exam orientation
     prefix = determine_prefix(pdata.exam)
     if prefix == 'ffs':
-        eval_name = TARGET_FFS + EVAL_SUFFIX
+        eval_name = FFS_TARGET_EVAL_NAME
     else:
-        eval_name = TARGET_HFS + EVAL_SUFFIX
+        eval_name = HFS_TARGET_EVAL_NAME
     #
     # PTV_name
     ptv_name = "PTV_p_" + prefix.upper()
@@ -1485,31 +1954,56 @@ def reset_primary_secondary(exam1, exam2):
     exam2.SetSecondary()
 
 
-def update_dose_grid(pdata):
-    # TODO: This still doesn't work. The two dose grids need to be compared using a common
-    # point on the patient since the dose grid is relative to the patient on the two scans.
-
+def rescale_dose_grid_to_all_scans(pdata):
     pm = pdata.case.PatientModel
-    dg = pdata.plan.GetDoseGrid()
-    bb = [{k: dg.Corner[k] + dg.VoxelSize[k] * dg.NrVoxels[k] for k in dg.Corner.keys()},
-          dg.Corner]
+    dg = pdata.beamset.GetDoseGrid()
+    origin_frame_of_reference = pdata.beamset.FrameOfReference
+    origin_exam_name = pdata.exam.Name
+    logging.debug(f'Current dose grid corner: {dg.Corner}, Voxel size: {dg.VoxelSize}, '
+                  f'Number of voxels: {dg.NrVoxels}')
+    bb = [dg.Corner,
+          {k: dg.Corner[k] + dg.VoxelSize[k] * dg.NrVoxels[k] for k in dg.Corner.keys()}]
     types = ['Ptv', 'Support', 'External']
     #
     # Loop over all structure sets looking for support, external or target types
     # For all found, compute a bounding box and expand the current dose grid if necessary.
+    logging.debug(f'Current dose grid bounding box: {bb}')
     for s in pm.StructureSets:
+        structure_frame_of_reference = s.OnExamination.EquipmentInfo.FrameOfReference
+        if structure_frame_of_reference != origin_frame_of_reference:
+            transform_needed = True
+            destination_name = s.OnExamination.Name
+            logging.debug(f'Need to transform from {origin_exam_name} to {destination_name}')
+        else:
+            transform_needed = False
+            destination_name = None
         for r in s.RoiGeometries:
             if r.OfRoi.Type in types:
                 try:
                     bs = s.RoiGeometries[r.OfRoi.Name].GetBoundingBox()
-                    for c, v in bs[0].items():
+                    if transform_needed:
+                        bs_tr = [pdata.case.TransformPointFromExaminationToExamination(
+                            FromExamination=destination_name,
+                            ToExamination=origin_exam_name,
+                            Point=b) for b in bs]
+                    else:
+                        bs_tr = bs
+                    for c, v in bs_tr[0].items():
                         if v < bb[0][c]:
+                            logging.debug(f'Corner point for {r.OfRoi.Name} '
+                                          f'in exam {s.OnExamination.Name} '
+                                          f'is {bs_tr[0]}')
+                            logging.debug(f'Dose grid update for exam {s.OnExamination.Name}: '
+                                          f'Inferior Corner Extended from {bb[0][c]} to {v} by {r.OfRoi.Name}.')
                             bb[0][c] = v
-                            print('{}:{} is {} < {} '.format(r.OfRoi.Name, c, v, bb[0][c]))
-                    for c, v in bs[1].items():
+                    for c, v in bs_tr[1].items():
                         if v > bb[1][c]:
+                            logging.debug(f'Corner point for {r.OfRoi.Name} '
+                                          f'in exam {s.OnExamination.Name} '
+                                          f'is {bs_tr[1]}')
+                            logging.debug(f'Dose grid update for exam {s.OnExamination.Name}: '
+                                          f'Superior Corner Extended from {bb[1][c]} to {v} by {r.OfRoi.Name}.')
                             bb[1][c] = v
-                            print('{}:{} is {} > {} '.format(r.OfRoi.Name, c, v, bb[1][c]))
                 except Exception as e:
                     no_geom_set = "no geometry set for ROI"
                     if no_geom_set in f"{e}":
@@ -1518,11 +2012,39 @@ def update_dose_grid(pdata):
                         logging.warning(f'Error in updating dose grid: {e}')
 
     vs = dg.VoxelSize
+    # Update the dose grid
     span = {k: abs(bb[1][k] - bb[0][k]) for k in bb[1].keys()}
+    logging.debug(f'New dose grid span: {span}')
     update_number_voxels = {k: math.ceil(v / vs[k]) for (k, v) in span.items()}
-    pdata.plan.UpdateDoseGrid(Corner=bb[0],
-                              VoxelSize=vs,
-                              NumberOfVoxels=update_number_voxels)
+    # Check if a dose grid update is necessary
+    update = False
+    if update_number_voxels != dg.NrVoxels or \
+            bb[0] != dg.Corner or \
+            vs != dg.VoxelSize:
+        update = True
+    logging.debug(f'Corner is at {bb[0]}, Voxel size is {vs}, Number of voxels is {update_number_voxels}')
+    if update:
+        pdata.beamset.UpdateDoseGrid(Corner=bb[0],
+                                     VoxelSize=vs,
+                                     NumberOfVoxels=update_number_voxels)
+    return update
+
+
+def copy_dose_grid(case,
+                   source_exam_name,
+                   destination_exam_name,
+                   source_beamset,
+                   destination_beamset):
+    source_dose_grid = source_beamset.GetDoseGrid()
+    destination_corner = case.TransformPointFromExaminationToExamination(
+        FromExamination=source_exam_name,
+        ToExamination=destination_exam_name,
+        Point=source_dose_grid.Corner)
+    destination_beamset.UpdateDoseGrid(
+        Corner=destination_corner,
+        VoxelSize=source_dose_grid.VoxelSize,
+        NumberOfVoxels=source_dose_grid.NrVoxels
+    )
 
 
 def check_registration_approval(pd_ffs, ffs_scan_name, hfs_scan_name):
@@ -1815,15 +2337,141 @@ def check_fiducials(pd, fiducial_name):
     return True, all(fiducial_check)
 
 
-def multiplan_data(rso, hfs_pois, ffs_pois, nfx, rx):
+def beamset_complete(rso, beamset_name):
+    """Check if a beamset with a matching name exists and if it has valid segments and dose.
+
+    Searches through all TreatmentPlans in the provided RSO object for a beamset whose
+    DicomPlanLabel matches the given beamset_name. If found, it then validates each beam
+    in the beamset by ensuring that for each beam, BeamMU > 0 and either:
+      - The DeliveryTechnique is 'TomoHelical', or
+      - The beam has valid segments (HasValidSegments is True).
+    Finally, it checks if the beamset has associated dose values.
+
+    Args:
+        rso: A RayStation object with a nested structure (e.g., rso.case.TreatmentPlans).
+        beamset_name: The name of the beamset to search for.
+
+    Returns:
+        A list of booleans in the order:
+          [beamset_exists, beamset_has_valid_segments, beamset_has_dose]
+    """
+    # Find the beamset with the matching name, if it exists.
+    beamset = next(
+        (bs for plan in rso.case.TreatmentPlans for bs in plan.BeamSets
+         if bs.DicomPlanLabel == beamset_name),
+        None
+    )
+
+    # If no beamset is found, return all False.
+    if beamset is None:
+        return [False, False, False]
+
+    # Mark that the beamset exists.
+    beamset_exists = True
+
+    # Validate each beam: Must have BeamMU > 0 and either be 'TomoHelical' or have valid segments.
+    beamset_has_valid_segments = all(
+        b.BeamMU > 0 and (b.DeliveryTechnique == 'TomoHelical' or b.HasValidSegments)
+        for b in beamset.Beams
+    )
+
+    # Check that the beamset has dose values.
+    beamset_has_dose = beamset.FractionDose.DoseValues is not None
+
+    return [beamset_exists, beamset_has_valid_segments, beamset_has_dose]
+
+
+def get_tomo_plan_defs(rso, target, nfx, rx, optimize=False):
+    iso_target = tomo_calc_iso(rso, target=target)
+    protocol = {
+        'protocol_name': PROTOCOL_NAME_TOMO,
+        'planning_strategy': 'Sequential',
+        'num_fx': nfx,
+        'site': 'TBI_',
+        'machine': TOMO_MACHINE,
+        'iso': {'type': 'ROI', 'target': iso_target},
+        'optimize': optimize,
+        'user_prompts': False,
+        'rso': None,
+    }
+
+    if rso.exam.PatientPosition == 'HFS':
+        # HFS protocol declarations
+        protocol['translation_map'] = {ORDER_TARGET_NAME_HFS: (TARGET_HFS, rx, r'cGy')}
+        protocol['order_name'] = ORDER_NAME_HFS_TOMO
+        protocol['plan_name'] = HFS_TOMO_PLAN_NAME
+        protocol['beamset_name'] = HFS_TOMO_BEAMSET_NAME
+        protocol['beamset_template'] = BEAMSET_TEMPLATE_HFS_TOMO
+        protocol['optimization_instructions'] = {'optimize_with': None,
+                                                 'optimize_with_background': TOMO_FFS_TRANSFER_NAME,
+                                                 'lock_dose_grid': True}
+
+        #       'protocol_name': PROTOCOL_NAME_TOMO,
+        #      'translation_map': {
+        #       ORDER_TARGET_NAME_HFS: (TARGET_HFS, rx, r'cGy')},
+        #   'order_name': ORDER_NAME_HFS_TOMO,
+        #   'planning_strategy': 'Sequential',
+        #   'optimization_instructions': {'optimize_with': None,
+        #                                 'optimize_with_background': TOMO_FFS_TRANSFER_NAME,
+        #                                 'lock_dose_grid': True,
+        #                                 },
+        #   'num_fx': nfx,
+        #   'site': 'TBI_',
+        #   'beamset_name': HFS_TOMO_BEAMSET_NAME,
+        #   'machine': TOMO_MACHINE,
+        #   'beamset_template': BEAMSET_TEMPLATE_HFS_TOMO,
+        #   'iso': {'type': 'ROI', 'target': iso_target},
+        #   'optimize': optimize,
+        #   'user_prompts': True,
+        #   'rso': None,
+        #
+    elif rso.exam.PatientPosition == 'FFS':
+        # iso_target = tomo_calc_iso(
+        #     rso,
+        #     target=target)
+        # FFS protocol declarations
+        protocol['translation_map'] = {ORDER_TARGET_NAME_FFS: (TARGET_FFS, rx, r'cGy')}
+        protocol['order_name'] = ORDER_NAME_FFS_TOMO
+        protocol['plan_name'] = FFS_TOMO_PLAN_NAME
+        protocol['beamset_name'] = FFS_TOMO_BEAMSET_NAME
+        protocol['beamset_template'] = BEAMSET_TEMPLATE_FFS_TOMO
+        protocol['optimization_instructions'] = {'optimize_with': None,
+                                                 'optimize_with_background': None,
+                                                 'lock_dose_grid': False}
+
+        # protocol = {
+        #     'protocol_name': PROTOCOL_NAME_TOMO,
+        #     'translation_map': {
+        #         ORDER_TARGET_NAME_FFS: (TARGET_FFS, rx, r'cGy')},
+        #     'order_name': ORDER_NAME_FFS_TOMO,
+        #     'planning_strategy': 'Sequential',
+        #     'optimization_instructions': {'optimize_with': None,
+        #                                   'optimize_with_background': None,
+        #                                   'lock_dose_grid': False,
+        #                                   },
+        #     'num_fx': nfx,
+        #     'site': 'TBI_',
+        #     'beamset_name': FFS_TOMO_BEAMSET_NAME,
+        #     'machine': TOMO_MACHINE,
+        #     'beamset_template': BEAMSET_TEMPLATE_FFS_TOMO,
+        #     'iso': {'type': 'ROI', 'target': iso_target},
+        #     'optimize': optimize,
+        #     'user_prompts': True,
+        # }
+    return protocol
+
+
+def get_vmat_plan_defs(rso, hfs_pois, ffs_pois, nfx, rx, optimize=False):
     """
         This function generates data dictionaries for multiple plan treatments.
 
         Args:
+            rso (object): RayStation object.
             hfs_pois (list): A list of HFS (Head-First Supine) Points of Interest (POIs).
             ffs_pois (list): A list of FFS (Feet-First Supine) POIs.
             nfx (int): Number of fractions.
             rx (int): Radiation dose.
+            optimize (bool): If True, optimization should be performed.
 
         Returns:
             tuple: Returns two lists of dictionaries, hfs_dict and ffs_dict, that include data
@@ -1860,16 +2508,14 @@ def multiplan_data(rso, hfs_pois, ffs_pois, nfx, rx):
     ffs_data = {
         5: [
             f'TBI_FFS_{offset + 1}Pelv',
-            f'TBI_FFS_{offset + 2}FemS',
-            f'TBI_FFS_{offset + 3}FemI',
+            f'TBI_FFS_{offset + 2}LegS',
+            f'TBI_FFS_{offset + 3}LegI',
             f'TBI_FFS_{offset + 4}Knee',
             f'TBI_FFS_{offset + 5}Feet'],
-        4:
-            [f'TBI_FFS_{offset + 1}Pelv',
-             f'TBI_FFS_{offset + 2}Femr',
-             f'TBI_FFS_{offset + 3}Knee',
-             f'TBI_FFS_{offset + 4}Feet'],
-
+        4: [f'TBI_FFS_{offset + 1}Pelv',
+            f'TBI_FFS_{offset + 2}LegS',
+            f'TBI_FFS_{offset + 3}LegI',
+            f'TBI_FFS_{offset + 4}Feet'],
         3: [
             f'TBI_FFS_{offset + 1}Pelv',
             f'TBI_FFS_{offset + 2}Legs',
@@ -1902,14 +2548,13 @@ def multiplan_data(rso, hfs_pois, ffs_pois, nfx, rx):
                     'ROI Name in xml': ('Plan ROI Name, Dose, Dose units', e.g.
                     'OTV_iso':('OTV_iso1',800,'cGy')
             """
-        translation_map = {}
+        if site == 'HFS_':
+            prefix = 'hfs'
+            translation_map = {HFS_TARGET_EVAL_NAME: (f'{HFS_TARGET_EVAL_NAME}', rx, r'cGy')}
+        else:
+            prefix = 'ffs'
+            translation_map = {FFS_TARGET_EVAL_NAME: (f'{FFS_TARGET_EVAL_NAME}', rx, r'cGy')}
         for j in j_range:
-            # Define the indices used for 'HFS_' and other sites
-            if site == 'HFS_':
-                prefix = 'hfs'
-            else:
-                prefix = 'ffs'
-
             # Set the sup_value and inf_value keys for each point
             sup_key = f'Sup_{j}'
             inf_key = f'Inf_{j}'
@@ -1942,61 +2587,24 @@ def multiplan_data(rso, hfs_pois, ffs_pois, nfx, rx):
             Returns:
                 dict: Optimization instructions.
             """
-        optimization_instructions = {}
+        optimization_instructions = {'optimize_with': None, 'lock_dose_grid': True}
         if site == 'HFS_':
-            optimization_instructions['optimize_with'] = None
             optimization_instructions['order'] = len(pois) - i
-            optimization_instructions['optimize_with_background'] = prior_beamset_name  # list(
-            # range(i, len(pois) - 1 - i))
-        else:
-            optimization_instructions['optimize_with'] = None
-            optimization_instructions['order'] = i + offset
-            optimization_instructions[
-                'optimize_with_background'] = prior_beamset_name  # list(range(offset, offset + i))
+            optimization_instructions['optimize_with_background'] = VMAT_FFS_TRANSFER_NAME
         return optimization_instructions
 
-    def beamset_complete(rso, beamset_name):
-        """
-        Check the beamsets for one with a matching name. If found, and has dose
-        return True
-        :param rso: raystation object (namedtuple)
-        :param beamset_name: name of beamset to check
-        :return: True: beamset found and has dose. False: no beamset with dose
-                       found
-        """
-        beamset_exists = False
-        beamset_has_valid_segments = False
-        beamset_has_dose = False
-        beamsets = [bs for p in rso.case.TreatmentPlans for bs in p.BeamSets]
-        for bs in beamsets:
-            if bs.DicomPlanLabel == beamset_name:
-                # Check that each beam has valid segments
-                valid_segments = [b.HasValidSegments for b in bs.Beams]
-                if all(valid_segments):
-                    beamset_has_valid_segments = True
-                    # Check for dose
-                    if bs.FractionDose.DoseValues is not None:
-                        beamset_has_dose = True
-                break
-        return all(
-            [beamset_exists, beamset_has_valid_segments, beamset_has_dose])
-
-    def create_dict(pois, beamset_names, template, sup_order, mid_order, inf_order, site,
-                    order_target_name, target, offset=0):
+    def create_dict(pois, beamset_names,
+                    site, order_target_name, target, name_offset=0):
         """
             Creates a dictionary of plan parameters.
 
             Args:
                 pois (list): List of Points of Interest.
                 beamset_names (list): List of beamset names.
-                template (str): Template name.
-                sup_order (str): Order of supine isocenters.
-                mid_order (str): Order of midline isocenters.
-                inf_order (str): Order of prone isocenters.
                 site (str): Site name, either 'HFS_' or 'FFS_'.
                 order_target_name (str): Name of the target for order.
                 target (str): Target name.
-                offset (int, optional): Offset value. Defaults to 0.
+                name_offset (int, optional): Offset value. Defaults to 0.
 
             Returns:
                 list: List of dictionaries, each representing a plan.
@@ -2004,43 +2612,128 @@ def multiplan_data(rso, hfs_pois, ffs_pois, nfx, rx):
         dictionary = []
         prior_beamset_name = ""
         for i, n in enumerate(beamset_names):
+            # Check if this is the last beamset and set optimize to True
+            # if i == len(beamset_names) - 1:
+            #    # TODO: Confirm with Dose they do not want optimization
+            #   optimize = False
+            # Provide a range of potential number of beamsets. Max is 10
             j_range = range(1, 10, 1)
+            # Based on its position in the POI list set the TPO for goals/objectives, and assign a beamset
+            # template
+            # USing the XML templates defined aboue determine the correct template based on the
+            # number of pois and the length of the keys
+            n_pts = len(pois)
             if site == "HFS_":
                 target_poi = pois[len(pois) - 1 - i]
-                order_name = inf_order if i == 0 else sup_order if i == len(pois) - 1 else mid_order
+                xml_config = HFS_XML_CONFIG[n_pts]
+                order_name = xml_config[i][0]
+                template = xml_config[i][1]
+                logging.debug(f'Order name is {order_name} and template is {template}')
+
+                # order_name = inf_order if i == 0 else sup_order if i == len(pois) - 1 else mid_order
+                # template = inf_template if i == 0 else sup_template if i == len(pois) - 1 else mid_template
                 translation_map = create_translation_map(
-                    len(pois) - 1 - i, len(pois), j_range, site, rx, offset)
+                    len(pois) - 1 - i, len(pois), j_range, site, rx, name_offset)
+                exam_name = "HFS"
             else:
                 target_poi = pois[i]
-                order_name = inf_order if i == len(pois) - 1 else sup_order if i == 0 else mid_order
-                translation_map = create_translation_map(i, len(pois), j_range, site, rx, offset)
+                xml_config = FFS_XML_CONFIG[n_pts]
+                order_name = xml_config[i][0]
+                template = xml_config[i][1]
+                logging.debug(f'Order name is {order_name} and template is {template}')
+                # order_name = inf_order if i == len(pois) - 1 else sup_order if i == 0 else mid_order
+                # template = inf_template if i == len(pois) - 1 else sup_template if i == 0 else mid_template
+                translation_map = create_translation_map(i, len(pois), j_range, site, rx, name_offset)
+                exam_name = "FFS"
             optimization_instructions = create_optimization_instructions(i, pois, site,
                                                                          prior_beamset_name)
             dictionary.append({
-                    'protocol_name': PROTOCOL_NAME_VMAT,
-                    'translation_map': {order_target_name: (target, rx, r'cGy'), **translation_map},
-                    'order_name': order_name,
-                    'planning_strategy': 'Sequential',
-                    'optimization_instructions': optimization_instructions,
-                    'num_fx': nfx,
-                    'site': site,
-                    'beamset_name': n,
-                    'machine': VMAT_MACHINE,
-                    'beamset_template': template,
-                    'beamset_exists_skip': beamset_complete(rso,n),
-                    'iso': {'type': 'POI', 'target': target_poi},
-                    'optimize': True,
-                    'user_prompts': False,
-                })
+                'protocol_name': PROTOCOL_NAME_VMAT,
+                'translation_map': {order_target_name: (target, rx, r'cGy'), **translation_map},
+                'order_name': order_name,
+                'exam': exam_name,
+                'planning_strategy': 'Sequential',
+                'optimization_instructions': optimization_instructions,
+                'num_fx': nfx,
+                'site': site,
+                'plan_name': HFS_VMAT_PLAN_NAME if site == 'HFS_' else FFS_VMAT_PLAN_NAME,
+                'beamset_name': HFS_VMAT_BEAMSET_NAME if site == 'HFS_' else FFS_VMAT_BEAMSET_NAME,
+                'machine': VMAT_MACHINE,
+                'beamset_template': template,
+                'beamset_exists_skip': all(beamset_complete(rso, n)),
+                'multi_isocenter': True,
+                'iso': {'type': 'POI', 'target': target_poi},
+                'optimize': optimize,
+                'user_prompts': False,
+            })
             prior_beamset_name = n
         return dictionary
 
-    hfs_dict = create_dict(hfs_pois, hfs_beamset_names, BEAMSET_HFS_VMAT, SUP_HFS_ORDER,
-                           MID_HFS_ORDER, INF_HFS_ORDER, 'HFS_', ORDER_TARGET_NAME_HFS,
-                           TARGET_HFS)
-    ffs_dict = create_dict(ffs_pois, ffs_beamset_names, BEAMSET_FFS_VMAT, SUP_FFS_ORDER,
-                           MID_FFS_ORDER, INF_FFS_ORDER, 'FFS_', ORDER_TARGET_NAME_FFS,
-                           TARGET_FFS, offset=len(hfs_pois))
+    # def old_create_dict(pois, beamset_names, template, sup_order, mid_order, inf_order, site,
+    #                     order_target_name, target, offset=0):
+    #     """
+    #         Creates a dictionary of plan parameters.
+    #
+    #         Args:
+    #             pois (list): List of Points of Interest.
+    #             beamset_names (list): List of beamset names.
+    #             template (str): Template name.
+    #             sup_order (str): Order of supine isocenters.
+    #             mid_order (str): Order of midline isocenters.
+    #             inf_order (str): Order of prone isocenters.
+    #             site (str): Site name, either 'HFS_' or 'FFS_'.
+    #             order_target_name (str): Name of the target for order.
+    #             target (str): Target name.
+    #             offset (int, optional): Offset value. Defaults to 0.
+    #
+    #         Returns:
+    #             list: List of dictionaries, each representing a plan.
+    #     """
+    #     dictionary = []
+    #     prior_beamset_name = ""
+    #     for i, n in enumerate(beamset_names):
+    #         j_range = range(1, 10, 1)
+    #         if site == "HFS_":
+    #             target_poi = pois[len(pois) - 1 - i]
+    #             order_name = inf_order if i == 0 else sup_order if i == len(pois) - 1 else mid_order
+    #             translation_map = create_translation_map(
+    #                 len(pois) - 1 - i, len(pois), j_range, site, rx, offset)
+    #         else:
+    #             target_poi = pois[i]
+    #             order_name = inf_order if i == len(pois) - 1 else sup_order if i == 0 else mid_order
+    #             translation_map = create_translation_map(i, len(pois), j_range, site, rx, offset)
+    #         optimization_instructions = create_optimization_instructions(i, pois, site,
+    #                                                                      prior_beamset_name)
+    #         dictionary.append({
+    #             'protocol_name': PROTOCOL_NAME_VMAT,
+    #             'translation_map': {order_target_name: (target, rx, r'cGy'), **translation_map},
+    #             'order_name': order_name,
+    #             'planning_strategy': 'Sequential',
+    #             'optimization_instructions': optimization_instructions,
+    #             'num_fx': nfx,
+    #             'site': site,
+    #             'beamset_name': 'HFS_Auto' if site == 'HFS_' else 'FFS_Auto',
+    #             'machine': VMAT_MACHINE,
+    #             'beamset_template': template,
+    #             'beamset_exists_skip': beamset_complete(rso, n),
+    #             'iso': {'type': 'POI', 'target': target_poi},
+    #             'optimize': optimize,
+    #             'user_prompts': False,
+    #         })
+    #         prior_beamset_name = n
+    #     return dictionary
+
+    hfs_dict = create_dict(pois=hfs_pois,
+                           beamset_names=hfs_beamset_names,
+                           site='HFS_',
+                           order_target_name=ORDER_TARGET_NAME_HFS,
+                           target=TARGET_HFS)
+    ffs_dict = create_dict(pois=ffs_pois,
+                           beamset_names=ffs_beamset_names,
+                           site='FFS_',
+                           order_target_name=ORDER_TARGET_NAME_FFS,
+                           target=TARGET_FFS,
+                           name_offset=len(hfs_pois))
 
     return hfs_dict, ffs_dict
 
@@ -2116,6 +2809,62 @@ def transform_object(source: namedtuple, destination: namedtuple,
                 Transformations=[trans])
 
 
+def copy_roi(pdata, roi_name):
+    copy_roi_name = pdata.case.PatientModel.GetUniqueRoiName(DesiredName=f'{roi_name}_copy')
+    _ = create_roi(
+        case=pdata.case,
+        examination=pdata.exam,
+        roi_name=copy_roi_name,
+    )
+    roi_defs = get_boolean_defs(
+        roi_name=copy_roi_name,
+        a_sources=[roi_name],
+        a_operation="Intersection",
+    )
+    make_boolean_structure(
+        patient=pdata.patient, case=pdata.case, examination=pdata.exam, **roi_defs)
+    # Update derived status and delete derivation
+    update_all_remove_expression(pdata, roi_name=copy_roi_name)
+
+    return copy_roi_name
+
+
+def subtract_b_from_a(pdata, a_list, b_list, result_name):
+    # Check for circular references
+    if result_name in a_list:
+        copy_result_name = copy_roi(pdata, result_name)
+        # Modify the a_list to use the copied roi
+        a_list[a_list.index(result_name)] = copy_result_name
+    else:
+        copy_result_name = None
+
+    roi_defs = get_boolean_defs(
+        roi_name=result_name,
+        a_sources=a_list,
+        a_operation="Intersection",
+        b_sources=b_list,
+        b_operation="Union",
+        r_exp=[0.00] * 6,
+        r_margin_type="Expand",
+        result="Subtraction",
+    )
+    make_boolean_structure(
+        patient=pdata.patient, case=pdata.case,
+        examination=pdata.exam, **roi_defs)
+    try:
+        pdata.case.PatientModel.RegionsOfInterest[result_name].UpdateDerivedGeometry(
+            Examination=pdata.case.Examinations[pdata.exam.OnExamination.Name],
+            Algorithm="Auto"
+        )
+    except Exception as err:
+        logging.debug(f'Error in updating geometry for {result_name}: {err}')
+
+    if copy_result_name:
+        pdata.case.PatientModel.RegionsOfInterest[copy_result_name].DeleteRoi()
+
+    return result_name
+
+
 def cut_rois_to_image(source: namedtuple, destination: namedtuple,
                       rois: list) -> None:
     """
@@ -2136,34 +2885,42 @@ def cut_rois_to_image(source: namedtuple, destination: namedtuple,
     """
 
     # Maximum possible height for bounding box (in cm)
-    wadlow = 200  # 272 cm is the maximum height of a human but in RS 2024a is the maximum
+    wadlow = 272  # 272 cm is the maximum height of a human but in RS 2024a is the maximum
 
     # Placeholder for ROIs to be deleted
     delete_list = []
 
     # Create a bounding box larger than possible body size
     big_box = make_box(destination, box_name='big_box', length=wadlow)
-    # TODO: uncomment
-    # delete_list.append(big_box)
+    delete_list.append(big_box)
 
     # Create a bounding box as large as the external examination
     box_name = make_box(destination, box_name=f'fov_box')
-    # TODO: uncomment
-    # delete_list.append(box_name)
+    delete_list.append(box_name)
 
     # Subtract smaller box from the large one
-    destination.case.PatientModel.RoiSubtractionPostProcessing(
-        Examination=destination.exam,
-        SubtractionConfiguration={big_box: [box_name]})
+    # Switch to boolean subtraction
+    subtraction_box_name = destination.case.PatientModel.GetUniqueRoiName(DesiredName='SubtractionBox')
+
+    subtraction_box_name = subtract_b_from_a(
+        pdata=destination,
+        a_list=[big_box],
+        b_list=[box_name],
+        result_name=subtraction_box_name,
+    )
+    delete_list.append(subtraction_box_name)
 
     # Transform ROIs according to the determined direction
     transform_object(source, destination, rois=rois)
 
     # Subtract any regions outside of the destination set from the ROIs
     for roi in rois:
-        destination.case.PatientModel.RoiSubtractionPostProcessing(
-            Examination=destination.exam,
-            SubtractionConfiguration={roi: [big_box]})
+        subtraction_box_name = subtract_b_from_a(
+            pdata=destination,
+            a_list=[roi],
+            b_list=[subtraction_box_name],
+            result_name=roi,
+        )
 
     # Delete temporary ROIs
     for roi_to_delete in delete_list:
@@ -2392,6 +3149,71 @@ def get_new_grid(case, beamset_a, beamset_b):
     return new_grid
 
 
+# Dose Transfer Functions
+def get_available_evaluation_doses(case):
+    evaluation_doses = []
+    fraction_evaluations = [f for f in case.TreatmentDelivery.FractionEvaluations]
+    for f in fraction_evaluations:
+        for dose_exam in f.DoseOnExaminations:
+            if len(dose_exam.DoseEvaluations) > 1:
+                raise RuntimeError(f'More than one dose evaluation found for {dose_exam.OnExamination.Name}')
+            dose_eval = dose_exam.DoseEvaluations[0]
+            eval_dose = {'Origin Beamset': dose_eval.ForBeamSet.DicomPlanLabel,
+                         'Destination Exam': dose_exam.OnExamination.Name,
+                         'Destination Patient Position': dose_exam.OnExamination.PatientPosition,
+                         'DICOM UID': dose_eval.ModificationInfo.DicomUID,
+                         'Versioning Status': dose_eval.VersioningStatus.IsVersionSameAsCurrent,
+                         'Dose Evaluation': dose_eval}
+            evaluation_doses.append(eval_dose)
+    return evaluation_doses
+
+
+def get_evaluation_dose_values(origin_beamset, destination_exam, destination_patient_position, evaluation_doses):
+    for de in evaluation_doses:
+        if de['Origin Beamset'] == origin_beamset and \
+                de['Destination Exam'] == destination_exam and \
+                de['Destination Patient Position'] == destination_patient_position:
+            return de['Dose Evaluation'].DoseValues.DoseData
+    return None
+
+
+def get_evaluation_uid(origin_beamset, destination_exam, destination_patient_position, evaluation_doses):
+    for de in evaluation_doses:
+        if de['Origin Beamset'] == origin_beamset and \
+                de['Destination Exam'] == destination_exam and \
+                de['Destination Patient Position'] == destination_patient_position and \
+                de['Versioning Status']:
+            return de['DICOM UID']
+    return None
+
+
+def check_dose_grid(origin_beamset, destination_beamset):
+    origin_dose_grid = origin_beamset.FractionDose.InDoseGrid
+    destination_dose_grid = destination_beamset.FractionDose.InDoseGrid
+    return all([
+        destination_dose_grid.Corner == origin_dose_grid.Corner,
+        destination_dose_grid.NrVoxels == origin_dose_grid.NrVoxels,
+        destination_dose_grid.VoxelSize == origin_dose_grid.VoxelSize
+    ])
+
+
+# Make a new plan and FFS transfer
+def rename_hfs_preplan(case, input_plan_name, input_beamset_name, output_plan_name, output_beamset_name):
+    # Check if the plan already exists
+    for p in case.TreatmentPlans:
+        if p.Name == input_plan_name:
+            p.Name = output_plan_name
+            break
+    if not p:
+        return None
+    # Check if the beamset already exists
+    for bs in p.BeamSets:
+        if bs.DicomPlanLabel == input_beamset_name:
+            bs.DicomPlanLabel = output_beamset_name
+    # Verify the
+    return case.TreatmentPlans[output_plan_name]
+
+
 def find_transform(case, from_name, to_name):
     registrations = get_rigid_registrations(case)
     for r in registrations:
@@ -2487,20 +3309,13 @@ def find_eval_dose(case, beamset_name: str, exam_name: str):
         f'Try deleting some of the plan evaluations and rerunning the script.')
 
 
-def find_beamset(case, beamset_name):
-    for p in case.TreatmentPlans:
-        for bs in p.BeamSets:
-            if bs.DicomPlanLabel == beamset_name:
-                return p, bs
-    return None
-
-
 def dose_summation_gui(case, plans, beamsets):
     Sg.ChangeLookAndFeel('DarkPurple4')
     layout = [[Sg.Text("FFS Plan")],
               [Sg.Combo(plans, key="-FFS PLAN-",
                         default_value=plans[0],
-                        size=(40, 1), )],
+                        size=(40, 1),
+                        enable_events=True)],
               [Sg.Text("FFS Beamset")],
               [Sg.Combo(beamsets, key="-FFS BEAMSET-",
                         default_value=beamsets[0],
@@ -2508,7 +3323,8 @@ def dose_summation_gui(case, plans, beamsets):
               [Sg.Text("HFS Plan")],
               [Sg.Combo(plans, key="-HFS PLAN-",
                         default_value=plans[0],
-                        size=(40, 1))],
+                        size=(40, 1),
+                        enable_events=True)],
               [Sg.Text("HFS Beamset")],
               [Sg.Combo(beamsets, key="-HFS BEAMSET-",
                         default_value=beamsets[0],
@@ -2521,6 +3337,24 @@ def dose_summation_gui(case, plans, beamsets):
         if event == Sg.WIN_CLOSED or event == "Cancel":
             selections = None
             break
+        elif event == "-FFS PLAN-":
+            # Update beamset combo based on selected FFS plan
+            selected_plan_name = values['-FFS PLAN-']
+            selected_plan = next((tp for tp in case.TreatmentPlans if tp.Name == selected_plan_name), None)
+            if selected_plan:
+                beamsets = [bs.DicomPlanLabel for bs in selected_plan.BeamSets]
+                window['-FFS BEAMSET-'].update(values=beamsets, value=beamsets[0] if beamsets else '')
+            else:
+                window['-FFS BEAMSET-'].update(values=[], value='')
+        elif event == "-HFS PLAN-":
+            # Update beamset combo based on selected HFS plan
+            selected_plan_name = values['-HFS PLAN-']
+            selected_plan = next((tp for tp in case.TreatmentPlans if tp.Name == selected_plan_name), None)
+            if selected_plan:
+                beamsets = [bs.DicomPlanLabel for bs in selected_plan.BeamSets]
+                window['-HFS BEAMSET-'].update(values=beamsets, value=beamsets[0] if beamsets else '')
+            else:
+                window['-HFS BEAMSET-'].update(values=[], value='')
         elif event == "OK":
             selections = values
             break
@@ -2549,6 +3383,58 @@ def dose_summation_gui(case, plans, beamsets):
         sys.exit('No HFS FFS Beamsets defined')
     else:
         return ffs_plan, ffs_beamset, hfs_plan, hfs_beamset
+
+
+def dose_calc_gui(case, plans, beamsets):
+    Sg.ChangeLookAndFeel('DarkPurple4')
+    layout = [[Sg.Text("FFS Plan")],
+              [Sg.Combo(plans, key="-FFS PLAN-",
+                        default_value=plans[0],
+                        size=(40, 1),
+                        enable_events=True)],
+              [Sg.Text("FFS Beamset")],
+              [Sg.Combo(beamsets, key="-FFS BEAMSET-",
+                        default_value=beamsets[0],
+                        size=(40, 1),
+                        enable_events=True)],
+              [Sg.B('OK'), Sg.B('Cancel')]]
+    window = Sg.Window("BEAMSET ASSIGNMENT",
+                       layout)
+    while True:
+        event, values = window.read()
+        if event == Sg.WIN_CLOSED or event == "Cancel":
+            selections = None
+            break
+        elif event == "-FFS PLAN-":
+            # Update beamset combo based on selected plan
+            selected_plan_name = values['-FFS PLAN-']
+            selected_plan = next((tp for tp in case.TreatmentPlans if tp.Name == selected_plan_name), None)
+            logging.debug(f'Selected Plan: {selected_plan.Name}')
+            if selected_plan:
+                beamsets = [bs.DicomPlanLabel for bs in selected_plan.BeamSets]
+                window['-FFS BEAMSET-'].update(values=beamsets, value=beamsets[0] if beamsets else '')
+            else:
+                window['-FFS BEAMSET-'].update(values=[], value='')
+        elif event == "OK":
+            selections = values
+            break
+    window.close()
+    if selections == {}:
+        sys.exit('Selection Script was cancelled')
+    ffs_plan = None
+    ffs_beamset = None
+
+    for tp in case.TreatmentPlans:
+        if tp.Name == selections['-FFS PLAN-']:
+            ffs_plan = tp
+            for bs in tp.BeamSets:
+                if bs.DicomPlanLabel == selections['-FFS BEAMSET-']:
+                    ffs_beamset = bs
+                    break
+    if not all([ffs_beamset, ffs_plan]):
+        sys.exit('No FFS Beamsets defined')
+    else:
+        return ffs_plan, ffs_beamset
 
 
 def make_structures(pd_hfs, pd_ffs,
@@ -2587,7 +3473,7 @@ def make_structures(pd_hfs, pd_ffs,
         pd_hfs, pd_ffs)
 
 
-def make_vmat_planning_structures(pd_hfs, pd_ffs, nfx, rx):
+def make_vmat_planning_structures(pd_hfs, pd_ffs, nfx, rx, make_otvs=True, make_junctions=True):
     #
     # HFS
     # Add points for isocenters in VMAT
@@ -2595,11 +3481,13 @@ def make_vmat_planning_structures(pd_hfs, pd_ffs, nfx, rx):
         .StructureSets[pd_hfs.exam.Name].PoiGeometries[JUNCTION_POINT]
     hfs_junction_width = place_hfs_vmat_pois(pd_hfs, hfs_poi_junction)
     hfs_pois = find_pois(pd_hfs)
-    # Add the midfield junctions
-    make_midfield_junctions(pd_hfs, hfs_pois, junction_width=hfs_junction_width)
-    # Iterate over POIs and create OTVs
-    for index, point in enumerate(hfs_pois):
-        make_otv(pd_hfs, point, index, hfs_junction_width, hfs_pois)
+    if make_junctions:
+        # Add the midfield junctions
+        make_midfield_junctions(pd_hfs, hfs_pois, junction_width=hfs_junction_width)
+    if make_otvs:
+        # Iterate over POIs and create OTVs
+        for index, point in enumerate(hfs_pois):
+            make_otv(pd_hfs, point, index, hfs_junction_width, hfs_pois)
 
     # Do the same for FFS
     ffs_poi_junction = pd_ffs.case.PatientModel.StructureSets[pd_ffs.exam.Name] \
@@ -2607,71 +3495,124 @@ def make_vmat_planning_structures(pd_hfs, pd_ffs, nfx, rx):
     ffs_junction_width = place_ffs_vmat_pois(
         pd_ffs, ffs_poi_junction, len(hfs_pois))
     ffs_pois = find_pois(pd_ffs)
-    make_midfield_junctions(pd_ffs, ffs_pois, junction_width=ffs_junction_width)
-    for index, point in enumerate(ffs_pois):
-        make_otv(pd_ffs, point, index, ffs_junction_width, ffs_pois)
+    if make_junctions:
+        make_midfield_junctions(pd_ffs, ffs_pois, junction_width=ffs_junction_width)
+    if make_otvs:
+        for index, point in enumerate(ffs_pois):
+            make_otv(pd_ffs, point, index, ffs_junction_width, ffs_pois)
 
-    hfs_multiplan, ffs_multiplan = multiplan_data(
-        pd_hfs, hfs_pois, ffs_pois, nfx=nfx, rx=rx)
+    hfs_multiplan, ffs_multiplan = get_vmat_plan_defs(
+        pd_hfs, hfs_pois, ffs_pois, nfx=nfx, rx=rx, )
     return hfs_multiplan, ffs_multiplan
 
 
-def tbi_gui(bypass=False):
+def tbi_gui():
     """
     Displays a GUI for TBI planning parameter selection. The user can choose
     between a Tomo or VMAT plan and specify relevant parameters.
 
-    Args:
-        bypass (bool): Whether to bypass the GUI and return test parameters.
-
     Returns:
         dict: A dictionary containing the user's selections.
-
-    Raises:
-        RuntimeError: If the GUI is cancelled without making selections.
     """
-    gui_width = 40
-    if bypass:
-        connect.await_user_input('System is in testing mode. No clinical use')
-        logging.warning("System in testing mode. No clinical use")
-        return {
-            '-NFX-': 4,
-            '-TOTAL DOSE-': 800,
-            '-MACHINE-': "HDA0488",
-            # '-MACHINE-': "TrueBeam_NoTrack",
-            '-THI-': True,
-            '-VMAT-': False,
-            '-FFS PLAN-': True,
-            '-HFS PLAN-': True,
-            '-FFS ISODOSE-': True,
-            '-FFS STRUCTURES-': True,
-            '-SUM DOSE-': True
-        }
+    try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 
-    # User Prompt for Dose/Fractions
+    def make_toggle_button(text, key, disabled=False):
+        return Sg.Button(text, key=key, button_color=('black', 'lightgray'), enable_events=True, disabled=disabled)
+
+    def show_completion_popup(popup_task_name):
+        """Display a popup with a specific style that does not affect the rest of the application.
+
+        Args:
+            popup_task_name (str): The name of the completed task.
+        """
+        # Define the specific colors for this popup
+        popup_bg_color = "#F0F8FF"  # AliceBlue
+        popup_text_color = "green"
+        popup_button_color = ("white", "green")
+
+        # Define the layout with element-specific styling
+        popup_layout = [
+            [Sg.Text(f"{popup_task_name} is complete! 😊",
+                     font=("Helvetica", 20),
+                     justification="center",
+                     background_color=popup_bg_color,
+                     text_color=popup_text_color)],
+            [Sg.Button("OK",
+                       font=("Helvetica", 16),
+                       button_color=popup_button_color)]
+        ]
+
+        # Create the window with the desired background color
+        popup_window = Sg.Window("Success", popup_layout, element_justification="center",
+                                 background_color=popup_bg_color, finalize=True)
+        while True:
+            popup_event, _ = popup_window.read()
+            if popup_event in (Sg.WIN_CLOSED, "OK"):
+                break
+        popup_window.close()
+
+    def fetch_current_dose_and_fractions():
+        """Fetches the current number of fractions and total dose.
+
+        Returns:
+            tuple: A tuple containing (fractions, dose) or (None, None) if unavailable.
+        """
+        try:
+            # Logic to retrieve dose and fractions from the system (mocked here)
+            beamset = GeneralOperations.find_scope(level='BeamSet')
+            n_fractions = beamset.FractionationPattern.NumberOfFractions
+            rx_dose = beamset.Prescription.PrimaryPrescriptionDoseReference.DoseValue
+            return int(n_fractions), int(rx_dose)
+        except Exception as error_message:
+            logging.error(f"Error fetching current dose and fractions: {error_message}")
+            return None, None
+
+    # Fetch pre-populated values for fractions and dose
+    fractions, dose = fetch_current_dose_and_fractions()
+
+    # Define the GUI layout
     gui_layout = [
-        [Sg.Text('Enter Number of Fractions'), Sg.Input(key='-NFX-')],
-        [Sg.Text('Enter TOTAL Dose in cGy'), Sg.Input(key='-TOTAL DOSE-')],
+        [Sg.Text('Enter Number of Fractions'), Sg.Input(default_text=fractions or '', key='-NFX-')],
+        [Sg.Text('Enter TOTAL Dose in cGy'), Sg.Input(default_text=dose or '', key='-TOTAL DOSE-')],
         [Sg.Radio(
-            'Generate Tomo Plan', "RADIO1", default=True, key='-TOMO-',
+            'Generate Tomo Plan', "RADIO1", default=False, key='-TOMO-',
             tooltip='Choose only one, but choose wisely', enable_events=True),
             Sg.Radio(
                 'Generate VMAT Plan', "RADIO1", default=False, key='-VMAT-',
                 tooltip='There can be only one.', enable_events=True)],
-        [Sg.Checkbox(
-            'Generate Planning Structures', default=True,
-            key='-FFS STRUCTURES-',
-            tooltip='Lungs, central junction, kidneys, etc...')],
-        [Sg.Checkbox('Make FFS Plan', default=True, key='-FFS PLAN-')],
-        [Sg.Checkbox('Make FFS Junction Isodose Structures',
-                     default=True, key='-FFS ISODOSE-')],
-        [Sg.Checkbox('Make HFS Plan', default=True, key='-HFS PLAN-')],
-        [Sg.Checkbox('Make Dose Summation', default=True, key='-SUM DOSE-')],
+        [make_toggle_button('Pause Script', '-PAUSE-')],
+        [Sg.Column([
+            [Sg.Frame("FFS Planning", [
+                [make_toggle_button('Generate Structures', '-FFS STRUCTURES-')],
+                [make_toggle_button('Make FFS Plan', '-FFS PLAN-')],
+                [make_toggle_button('Optimize FFS Plan', '-OPT FFS-')]
+            ])]
+        ]),
+            Sg.Column([
+                [Sg.Frame("HFS Planning", [
+                    [make_toggle_button('Calculate FFS Plan on HFS Image', '-CALC FFS ON HFS-')],
+                    [make_toggle_button('Export Background Dose', '-EXPORT FFS-')],
+                    [make_toggle_button('Make HFS Plan', '-HFS PLAN-')],
+                    [make_toggle_button('Optimize HFS Plan', '-OPT HFS-')]
+                ])]
+            ]),
+            Sg.Column([
+                [Sg.Frame("Post-Planning", [
+                    [make_toggle_button('Copy Plans (Placeholder)', '-COPY PLANS-', disabled=True)],
+                    [make_toggle_button('Separate Beamsets (Placeholder)', '-SEPARATE BEAMSETS-', disabled=True)],
+                    [make_toggle_button('Placeholder', '-PLACEHOLDER-', disabled=True)]
+                ])]
+            ])
+        ],
         [Sg.Button('OK'), Sg.Button('Cancel')]
     ]
 
-    window = Sg.Window('AUTO TBI SELECTIONS', gui_layout,
-                       default_element_size=(gui_width, 1), grab_anywhere=False)
+    # Initialize the window
+    window = Sg.Window('AUTO TBI SELECTIONS', gui_layout, grab_anywhere=False, location=(100, 100))
+    selections = {}
 
     while True:
         event, values = window.read()
@@ -2679,306 +3620,733 @@ def tbi_gui(bypass=False):
             selections = {}
             break
         elif event == "OK":
-            selections = values
+            selections.update(values)
             break
+        elif event == '-PAUSE-':
+            connect.await_user_input('Script paused. Resume script to continue.')
+            window[event].update(button_color=('black', 'lightgray'))
+        elif event in ['-FFS STRUCTURES-', '-FFS PLAN-', '-OPT FFS-', '-HFS PLAN-', '-CALC FFS ON HFS-',
+                       '-EXPORT FFS-', '-OPT HFS-']:
+            # Check if total fractions, total dose, and plan type are selected
+            if not values['-NFX-'] or not values['-TOTAL DOSE-'] or not (
+                    values.get('-TOMO-') or values.get('-VMAT-')):
+                Sg.popup_error(
+                    'Please enter Number of Fractions, Total Dose, '
+                    'and select Plan Type (Tomo or VMAT) before proceeding.')
+            else:
+                task_name = ''
+                # Set the button color to indicate it is running
+                window[event].update(button_color=('white', 'blue'))
+                window.refresh()
+                # Call the associated function with actual logic
+                try:
+                    if event == '-FFS STRUCTURES-':
+                        generate_planning_structures(values)
+                        task_name = 'Planning Structure Generation'
+                    elif event == '-FFS PLAN-':
+                        make_ffs_plan(values)
+                        task_name = 'FFS Plan Creation'
+                    elif event == '-OPT FFS-':
+                        optimize_plan(values, plan_orientation='FFS')
+                        task_name = 'FFS Plan Optimization'
+                    elif event == '-CALC FFS ON HFS-':
+                        calculate_ffs_on_hfs_image(values)
+                        task_name = 'FFS Plan Calculation on HFS Image'
+                    elif event == '-EXPORT FFS-':
+                        export_background_dose(values)
+                        task_name = 'Background Dose Export'
+                    elif event == '-HFS PLAN-':
+                        make_hfs_plan(values)
+                        task_name = 'HFS Plan Creation'
+                    elif event == '-OPT HFS-':
+                        optimize_plan(values, plan_orientation='HFS')
+                        task_name = 'HFS Plan Optimization'
+                except Exception as e:
+                    if DEBUG:
+                        traceback.print_exc()
+                        logging.error("An error occurred: %s\nTraceback:\n%s", e, traceback.format_exc())
+                        Sg.popup_error(f"An error occurred: {e}\n\n {traceback.format_exc()}.")
+                    else:
+                        Sg.popup_error(f"An error occurred: {e}")
+                # Reset the button color
+                finally:
+                    if task_name:
+                        show_completion_popup(task_name)
+                    window[event].update(button_color=('black', 'lightgray'))
+        else:
+            # Other events
+            pass
 
     window.close()
 
     if not selections:
         raise RuntimeError('TBI Script was cancelled')
-    if selections['-TOMO-']:
+    if selections.get('-TOMO-', False):
         selections['-MACHINE-'] = "HDA0488"
         selections['-THI-'] = True
-    elif selections['-VMAT-']:
+    elif selections.get('-VMAT-', False):
         selections['-MACHINE-'] = "TrueBeam_NoTrack"
         selections['-THI-'] = False
 
     return selections
 
 
-def main():
-    """
-    Runs a series of functions to perform TBI planning and dose summation.
+def generate_planning_structures(values):
+    # Extract necessary variables from values
+    nfx = int(values['-NFX-'])
+    rx = int(values['-TOTAL DOSE-'])
+    make_vmat_plan = values['-VMAT-']
+    make_tomo_plan = values['-TOMO-']
+    make_junctions = False
 
-    Pseudocode:
-    1. Call tbi_gui() function to obtain user input.
-    2. Retrieve the necessary variables from user input.
-    3. Find HFS and FFS scans, assign them to variables.
-    4. Initialize a named tuple for the patient, case, exam, plan, and beamset.
-    5. If requested by the user, load couch supports and build lung contours and avoidance on the
-    HFS scan.
-    6. If requested by the user, plan FFS and HFS.
-    7. If requested by the user, make isodoses for FFS.
-    8. If requested by the user, perform dose summation.
-
-    Returns: None
-    """
-    # Prerequisites for operations:
-    # generate_thi_ffs_plan: External, AvoidSkin, External+1
-    # Launch gui
-    testing = False
-    tbi_selections = tbi_gui(bypass=testing)
-
-    nfx = tbi_selections['-NFX-']
-    rx = tbi_selections['-TOTAL DOSE-']
-    do_structure_definitions = tbi_selections['-FFS STRUCTURES-']
-    ffs_autoplan = tbi_selections['-FFS PLAN-']
-    make_ffs_isodose_structs = tbi_selections['-FFS ISODOSE-']
-    hfs_autoplan = tbi_selections['-HFS PLAN-']
-    dose_summation = tbi_selections['-SUM DOSE-']
-    make_tomo_plan = tbi_selections['-THI-']
-    make_vmat_plan = tbi_selections['-VMAT-']
-
-    # Rename the HFS/FFS Exams
+    # Get patient and case
     temp_case = GeneralOperations.find_scope(level='Case')
+    # Rename the HFS/FFS Exams
     hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam = rename_exams(temp_case)
 
-    # Initialize return variable
+    # Initialize patient data
+    pd_hfs, pd_ffs = initialize_patient_data(hfs_exam, ffs_exam)
+
+    # Check prerequisites
+    check_prerequisites(pd_ffs, pd_hfs, '-FFS STRUCTURES-', make_vmat_plan, otv_junctions=False)
+
+    # Build the central junctions and lung contours
+    make_structures(pd_hfs, pd_ffs, make_vmat_plan, make_tomo_plan, testing=False)
+    if make_vmat_plan:
+        hfs_multiplan, ffs_multiplan = make_vmat_planning_structures(
+            pd_hfs, pd_ffs, nfx, rx, make_otvs=False, make_junctions=make_junctions)
+
+
+def make_ffs_plan(values):
+    # Implement the logic to make FFS plan
+    nfx = int(values['-NFX-'])
+    rx = int(values['-TOTAL DOSE-'])
+    make_vmat_plan = values['-VMAT-']
+    make_tomo_plan = values['-TOMO-']
+
+    # Get patient and case
+    temp_case = GeneralOperations.find_scope(level='Case')
+    # Rename the HFS/FFS Exams
+    hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam = rename_exams(temp_case)
+
+    # Initialize patient data
+    pd_hfs, pd_ffs = initialize_patient_data(hfs_exam, ffs_exam,
+                                             vmat=make_vmat_plan, tomo=make_tomo_plan)
+
+    # Check prerequisites
+    check_prerequisites(pd_ffs, pd_hfs, '-FFS PLAN-', make_vmat_plan,
+                        n_fx=nfx, rx=rx, otv_junctions=False)
+
+    toggle_ptv_type(pd_ffs,
+                    rois=FFS_TARGET_NAMES,
+                    roi_type='Ptv')
+    toggle_ptv_type(pd_ffs,
+                    rois=HFS_TARGET_NAMES,
+                    roi_type='Undefined')
+    reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+
+    if make_vmat_plan:
+        # Compute the locations of the isocenters in the VMAT FFS Location
+        hfs_pois = find_pois(pd_hfs)
+        ffs_pois = find_pois(pd_ffs)
+        # Load each treating beamset and the objectives of the VMAT autoplan
+        hfs_multiplan, ffs_multiplan = get_vmat_plan_defs(
+            pd_ffs, hfs_pois, ffs_pois, nfx=nfx, rx=rx)
+        pd_ffs_out = multi_autoplan(ffs_multiplan)
+    if make_tomo_plan:
+        reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+        tbi_ffs_protocol = get_tomo_plan_defs(pd_ffs, JUNCTION_PREFIX_FFS + "10%Rx", nfx, rx, optimize=False)
+        # iso_target = tomo_calc_iso(
+        #     pd_ffs,
+        #     target=JUNCTION_PREFIX_FFS + "10%Rx")
+        # tbi_ffs_protocol = {
+        #     'protocol_name': PROTOCOL_NAME_TOMO,
+        #     'translation_map': {
+        #         ORDER_TARGET_NAME_FFS: (TARGET_FFS, rx, r'cGy')},
+        #     'order_name': ORDER_NAME_FFS_TOMO,
+        #     'planning_strategy': 'Sequential',
+        #     'optimization_instructions': {},
+        #     'num_fx': nfx,
+        #     'site': 'TBI_',
+        #     'beamset_name': FFS_TOMO_BEAMSET_NAME,
+        #     'machine': TOMO_MACHINE,
+        #     'beamset_template': BEAMSET_TEMPLATE_FFS_TOMO,
+        #     'iso': {'type': 'ROI', 'target': iso_target},
+        #     'optimize': True,
+        #     'user_prompts': True,
+        # }
+        pd_ffs_out = multi_autoplan([tbi_ffs_protocol])
+    toggle_ptv_type(pd_ffs,
+                    rois=HFS_TARGET_NAMES,
+                    roi_type='Ptv')
+
+
+def optimize_plan(values, plan_orientation):
+    nfx = int(values['-NFX-'])
+    rx = int(values['-TOTAL DOSE-'])
+    make_vmat_plan = values['-VMAT-']
+    make_tomo_plan = values['-TOMO-']
+
+    # Get patient and case
+    temp_case = GeneralOperations.find_scope(level='Case')
+    # Rename the HFS/FFS Exams
+    hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam = rename_exams(temp_case)
+
+    # Initialize patient data
+    pd_hfs, pd_ffs = initialize_patient_data(hfs_exam, ffs_exam,
+                                             vmat=make_vmat_plan, tomo=make_tomo_plan)
+
+    if plan_orientation == 'FFS':
+        check_prerequisites(pd_ffs, pd_hfs, '-FFS PLAN-', make_vmat_plan,
+                            n_fx=nfx, rx=rx, otv_junctions=False)
+        optimization_rso = pd_ffs
+        unused_rso = pd_hfs
+        unused_target_names = HFS_TARGET_NAMES
+    else:
+        check_prerequisites(pd_ffs, pd_hfs, '-HFS PLAN-', make_vmat_plan,
+                            n_fx=nfx, rx=rx, otv_junctions=False)
+        optimization_rso = pd_hfs
+        unused_target_names = FFS_TARGET_NAMES
+        unused_rso = pd_ffs
+
+    toggle_ptv_type(optimization_rso,
+                    rois=unused_target_names,
+                    roi_type='Undefined')
+    reset_primary_secondary(optimization_rso.exam, unused_rso.exam)
+
+    if make_vmat_plan:
+        technique = 'VMAT'
+        protocol_file = PROTOCOL_FILE_VMAT
+        if plan_orientation == 'FFS':
+            plan_name = FFS_VMAT_PLAN_NAME
+            beamset_name = FFS_VMAT_BEAMSET_NAME
+        else:
+            plan_name = HFS_VMAT_PLAN_NAME
+            beamset_name = HFS_VMAT_BEAMSET_NAME
+    elif make_tomo_plan:
+        technique = "TomoHelical"
+        protocol_file = PROTOCOL_FILE_TOMO
+        if plan_orientation == 'FFS':
+            beamset_name = FFS_TOMO_BEAMSET_NAME
+            plan_name = FFS_TOMO_PLAN_NAME
+        else:
+            beamset_name = HFS_TOMO_BEAMSET_NAME
+            plan_name = HFS_TOMO_PLAN_NAME
+    else:
+        raise RuntimeError('Unsupported Plan Type during optimization aborted')
+    optimization_rso = update_plan_and_beamset(optimization_rso,
+                                               beamset_name=beamset_name,
+                                               plan_name=plan_name)
+    opt_status = AutoPlanOperations.load_configuration_optimize_beamset(
+        filename=protocol_file,
+        path=PATH_PROTOCOLS,
+        rso=optimization_rso,
+        technique=technique,
+        output_data_dir=PATH_TO_OUTPUT,
+        bypass_user_prompts=True,
+        optimize=True)
+    toggle_ptv_type(optimization_rso,
+                    rois=unused_target_names,
+                    roi_type='Ptv')
+
+
+def make_ffs_isodose_structures(values):
+    # Implement the logic to make FFS isodose structures
+    rx = int(values['-TOTAL DOSE-'])
+    make_vmat_plan = values['-VMAT-']
+    make_tomo_plan = values['-TOMO-']
+
+    # Get patient and case
+    temp_case = GeneralOperations.find_scope(level='Case')
+    hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam = rename_exams(temp_case)
+    pd_hfs, pd_ffs = initialize_patient_data(hfs_exam, ffs_exam,
+                                             vmat=make_vmat_plan, tomo=make_tomo_plan)
+
+    if make_tomo_plan:
+        # Get isodoses for Tomo plan
+        pd_ffs = update_plan_and_beamset(pd_ffs, FFS_TOMO_BEAMSET_NAME)
+        reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+        set_current_plan_beamset(pd_ffs)
+        make_ffs_isodoses(pd_hfs, pd_ffs, rx, JUNCTION_PREFIX_FFS)
+
+    if make_vmat_plan:
+        # Get isodoses for VMAT plan
+        pd_ffs = update_plan_and_beamset(pd_ffs, FFS_VMAT_BEAMSET_NAME)
+        reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+        set_current_plan_beamset(pd_ffs)
+        prefix = JUNCTION_PREFIX_FFS
+        make_ffs_isodoses(pd_hfs, pd_ffs, rx, prefix)
+
+
+def make_hfs_plan(values):
+    """
+    Function to make the HFS plan based on the user's selections
+    Args:
+        values (dict): Dictionary containing the user's selections
+
+    Returns:
+
+    """
+    # Implement the logic to make HFS plan
+    nfx = int(values['-NFX-'])
+    rx = int(values['-TOTAL DOSE-'])
+    logging.debug(f'NFX: {nfx}, RX: {rx}')
+    make_vmat_plan = values['-VMAT-']
+    make_tomo_plan = values['-TOMO-']
+
+    # Get patient and case
+    temp_case = GeneralOperations.find_scope(level='Case')
+    hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam = rename_exams(temp_case)
+    pd_hfs, pd_ffs = initialize_patient_data(hfs_exam, ffs_exam,
+                                             vmat=make_vmat_plan, tomo=make_tomo_plan)
+    # Check prerequisites
+    check_prerequisites(pd_ffs, pd_hfs, '-HFS PLAN-', make_vmat_plan,
+                        n_fx=nfx, rx=rx, otv_junctions=False)
+
+    toggle_ptv_type(pd_hfs,
+                    rois=HFS_TARGET_NAMES,
+                    roi_type='Ptv')
+    # Temporarily set the type of the FFS targets to undefined
+    toggle_ptv_type(pd_hfs,
+                    rois=FFS_TARGET_NAMES,
+                    roi_type='Undefined')
+    reset_primary_secondary(pd_hfs.exam, pd_ffs.exam)
+    error_message = ''
+    output_plan_name = HFS_TOMO_PLAN_NAME if make_tomo_plan else HFS_VMAT_PLAN_NAME
+    output_beamset_name = TOMO_FFS_TRANSFER_NAME if make_tomo_plan else VMAT_FFS_TRANSFER_NAME
+    hfs_plan = rename_hfs_preplan(pd_hfs.case,
+                                  input_plan_name=FFS_PLACEHOLDER_NAME,
+                                  input_beamset_name=FFS_PLACEHOLDER_NAME,
+                                  output_plan_name=output_plan_name,
+                                  output_beamset_name=output_beamset_name)
+    if hfs_plan is None:
+        raise RuntimeError(f'Could not find HFS Plan: {FFS_PLACEHOLDER_NAME}, rerun export')
+    pd_hfs = update_plan_and_beamset(pd_hfs, output_beamset_name, plan_name=output_plan_name)
+    set_current_plan_beamset(pd_hfs)
+    # Do some polishing
+    # Change the Rx in the FFS transfer plan
+    # Change the comment
+    pd_hfs.plan.Comments = "HFS Plan using FFS Dose as background"
+    pd_hfs.plan.PlannedBy = "H.A.L."
+    #
+    beamset_fractions = pd_hfs.beamset.FractionationPattern.NumberOfFractions
+    while beamset_fractions != nfx:
+        connect.await_user_input(f'Set the number of fractions in {output_beamset_name}')
+        beamset_fractions = pd_hfs.beamset.FractionationPattern.NumberOfFractions
+    is_clinical_dose = pd_hfs.beamset.IsApprovedToUseAsBackgroundDose()
+    while not is_clinical_dose:
+        connect.await_user_input(f'Edit the plan {output_beamset_name}: '
+                                 f'select "Consider imported dose clinical"')
+        is_clinical_dose = pd_hfs.beamset.IsApprovedToUseAsBackgroundDose()
+
+    if make_tomo_plan:
+        tbi_hfs_protocol = get_tomo_plan_defs(pd_hfs, TARGET_HFS, nfx, rx, optimize=False)
+        # hfs_plan = rename_hfs_preplan(pd_hfs.case,
+        #                               input_plan_name=FFS_PLACEHOLDER_NAME,
+        #                               input_beamset_name=FFS_PLACEHOLDER_NAME,
+        #                               output_plan_name=HFS_TOMO_PLAN_NAME,
+        #                               output_beamset_name=TOMO_FFS_TRANSFER_NAME)
+        # if hfs_plan is None:
+        #     raise RuntimeError(f'Could not find HFS Plan: {FFS_PLACEHOLDER_NAME}, rerun export')
+        hfs_multiplan = [tbi_hfs_protocol]
+        # try:
+        #     tbi_hfs_protocol = multi_autoplan([tbi_hfs_protocol])
+        # except Exception as e:
+        #     error_message = f'Error in multi_autoplan: {e}'
+
+    else:
+        # and that an FFS plan is present.
+        hfs_pois = find_pois(pd_hfs)
+        ffs_pois = find_pois(pd_ffs)
+        hfs_multiplan, ffs_multiplan = get_vmat_plan_defs(pd_hfs, hfs_pois, ffs_pois, nfx=nfx, rx=rx)
+        # logging.debug(f'Creating HFS Plan with {hfs_multiplan}')
+        # Create the plan stub for the HFS plan with the FFS dose
+        # hfs_plan = rename_hfs_preplan(pd_hfs.case,
+        #                               input_plan_name=FFS_PLACEHOLDER_NAME,
+        #                               input_beamset_name=FFS_PLACEHOLDER_NAME,
+        #                               output_plan_name=HFS_VMAT_PLAN_NAME,
+        #                               output_beamset_name=VMAT_FFS_TRANSFER_NAME)
+        # if hfs_plan is None:
+        #     raise RuntimeError(f'Could not find HFS Plan: {FFS_PLACEHOLDER_NAME}, rerun export')
+        # pd_hfs = update_plan_and_beamset(pd_hfs, VMAT_FFS_TRANSFER_NAME, plan_name=f'{HFS_VMAT_PLAN_NAME}')
+        # set_current_plan_beamset(pd_hfs)
+        # Do some polishing
+        # Change the Rx in the FFS transfer plan
+        # Change the comment
+        # pd_hfs.plan.Comments = "HFS Plan using FFS Dose as background"
+        # pd_hfs.plan.PlannedBy = "H.A.L."
+        #
+        # beamset_fractions = pd_hfs.beamset.FractionationPattern.NumberOfFractions
+        # while beamset_fractions != nfx:
+        #     connect.await_user_input(f'Set the number of fractions in {HFS_VMAT_BEAMSET_NAME}')
+        #     beamset_fractions = pd_hfs.beamset.FractionationPattern.NumberOfFractions
+        # is_clinical_dose = pd_hfs.beamset.IsApprovedToUseAsBackgroundDose()
+        # while not is_clinical_dose:
+        #     connect.await_user_input(f'Edit the plan {HFS_VMAT_BEAMSET_NAME}: select "Consider imported dose clinical"')
+        #     is_clinical_dose = pd_hfs.beamset.IsApprovedToUseAsBackgroundDose()
+        # try:
+        #     tbi_hfs_protocol = multi_autoplan(hfs_multiplan)
+        # except Exception as e:
+        #     toggle_ptv_type(pd_hfs,
+        #                     rois=FFS_TARGET_NAMES,
+        #                     roi_type='Ptv')
+        #     error_message = f'Error in multi_autoplan: {e}'
+    try:
+        tbi_hfs_protocol = multi_autoplan(hfs_multiplan)
+    except Exception as e:
+        error_message = f'Error in multi_autoplan: {e}'
+
+    toggle_ptv_type(pd_hfs,
+                    rois=FFS_TARGET_NAMES,
+                    roi_type='Ptv')
+    if error_message:
+        raise RuntimeError(error_message)
+
+
+def make_dose_summation(values):
+    make_vmat_plan = values['-VMAT-']
+    make_tomo_plan = values['-TOMO-']
+    # Get patient and case
+    temp_case = GeneralOperations.find_scope(level='Case')
+    hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam = rename_exams(temp_case)
+    pd_hfs, pd_ffs = initialize_patient_data(hfs_exam, ffs_exam,
+                                             vmat=make_vmat_plan, tomo=make_tomo_plan)
+
+    # Update the current variables if needed.
+    if not pd_hfs.beamset or not pd_ffs.beamset:
+        pd_ffs, pd_hfs = select_plans_and_beamsets(pd_ffs, pd_hfs)
+
+    new_hfs_grid = get_new_grid(pd_hfs.case, pd_hfs.beamset, pd_ffs.beamset)
+    pd_hfs.beamset.UpdateDoseGrid(Corner=new_hfs_grid['Corner'],
+                                  VoxelSize=new_hfs_grid['VoxelSize'],
+                                  NumberOfVoxels=new_hfs_grid['NrVoxels'])
+    new_ffs_grid = get_new_grid(pd_ffs.case, pd_ffs.beamset, pd_hfs.beamset)
+    pd_ffs.beamset.UpdateDoseGrid(Corner=new_ffs_grid['Corner'],
+                                  VoxelSize=new_ffs_grid['VoxelSize'],
+                                  NumberOfVoxels=new_ffs_grid['NrVoxels'])
+    # Recompute selected doses on adjusted dose grid
+    for b in [pd_ffs.beamset, pd_hfs.beamset]:
+        try:
+            b.ComputeDose(ComputeBeamDoses=False, DoseAlgorithm='CCDose',
+                          ForceRecompute=False)
+        except Exception as e:
+            logging.debug(f'During dose summation, '
+                          f'dose computation failed for {b.DicomPlanLabel}: {e}')
+            pass
+
+    pd_ffs.beamset.ComputeDoseOnAdditionalSets(
+        OnlyOneDosePerImageSet=False,
+        AllowGridExpansion=True,
+        ExaminationNames=[pd_hfs.exam.Name],
+        FractionNumbers=[0],
+        ComputeBeamDoses=True)
+    ffs_dose, ffs_dose_found = find_eval_dose(pd_hfs.case,
+                                              pd_ffs.beamset.DicomPlanLabel,
+                                              pd_hfs.exam.Name)
+    if not ffs_dose_found:
+        raise RuntimeError('Unable to compute FFS dose on HFS examination')
+
+    try:
+        # Create summation
+        _ = pd_hfs.case.CreateSummedDose(
+            DoseName="TBI",
+            FractionNumber=0,
+            DoseDistributions=[pd_hfs.beamset.FractionDose, ffs_dose],
+            Weights=[1, 1])  # Adjust weights as needed
+    except Exception as e:
+        logging.warning(
+            f'Could not sum doses in {pd_hfs.beamset.DicomPlanLabel}: '
+            f'and FFS: {pd_ffs.beamset.DicomPlanLabel}: Error: {e}')
+        raise RuntimeError('Could not sum doses, report error to script developer')
+
+
+def calculate_ffs_on_hfs_image(values):
+    # Extract necessary variables from values
+    nfx = int(values['-NFX-'])
+    rx = int(values['-TOTAL DOSE-'])
+    make_vmat_plan = values['-VMAT-']
+    make_tomo_plan = values['-TOMO-']
+
+    # Get patient and case
+    temp_case = GeneralOperations.find_scope(level='Case')
+    hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam = rename_exams(temp_case)
+    pd_hfs, pd_ffs = initialize_patient_data(hfs_exam, ffs_exam,
+                                             vmat=make_vmat_plan, tomo=make_tomo_plan)
+    check_prerequisites(pd_ffs, pd_hfs, '-CALC FFS PLAN ON HFS-', make_vmat_plan,
+                        n_fx=nfx, rx=rx, otv_junctions=False)
+
+    # Update the current variables if needed.
+    if not pd_ffs.beamset:
+        # Function to allow user to select plans and beamsets for dose summation
+        case = pd_ffs.case
+        plans = [p.Name for p in case.TreatmentPlans]
+        beamsets = [bs.DicomPlanLabel for p in case.TreatmentPlans for bs in p.BeamSets]
+
+        # Assume GUI function dose_summation_gui returns selected plans and beamsets
+        ffs_plan, ffs_beamset = dose_calc_gui(case, plans, beamsets)
+
+        pd_ffs = pd_ffs._replace(plan=ffs_plan, beamset=ffs_beamset)
+
+    grid_updated = rescale_dose_grid_to_all_scans(pd_ffs)
+    # Recompute selected doses on adjusted dose grid
+    try:
+        if grid_updated:
+            pd_ffs.beamset.ComputeDose(ComputeBeamDoses=False, DoseAlgorithm='CCDose',
+                                       ForceRecompute=False)
+            pd_ffs.patient.Save()
+    except Exception as e:
+        logging.debug(f'During dose summation, '
+                      f'dose computation failed for {pd_ffs.beamset.DicomPlanLabel}: {e}')
+        pass
+    # Compute the dose on the HFS image
+    pd_ffs.beamset.ComputeDoseOnAdditionalSets(
+        OnlyOneDosePerImageSet=True,
+        AllowGridExpansion=True,
+        ExaminationNames=[hfs_scan_name],
+        FractionNumbers=[0],
+        ComputeBeamDoses=True)
+    # Perform a patient save, required for modification info in
+    # TreatmentDelivery.FractionEvaluations.DoseOnExaminations.DoseEvaluations.ModificationInfo to be populated
+    pd_ffs.patient.Save()
+
+
+def export_background_dose(values):
+    def find_patient_directory(path, patient_id):
+        """
+        Search a given path for a directory name containing a specific patient_id.
+
+        Args:
+            path (str): The base path to search in.
+            patient_id (str): The patient ID to look for.
+
+        Returns:
+            str: The full path to the directory if found, or None if not found.
+        """
+        # Walk through the directory tree
+        for root, dirs, _ in os.walk(path):
+            for directory in dirs:
+                if patient_id in directory:
+                    return os.path.join(root, directory)
+        return None
+
+    def get_series_to_import(pd, ffs_dose, path):
+        # Get parameters prior to export
+        dicom_elements_dict = {
+            'study_instance_uid': (0x0020, 0x00d),
+            # 'series_instance_uid': (0x0020, 0x00e), 'sop_instance_uid': (0x0008, 0x0018),
+            'patient_id': (0x0010, 0x0020), }
+        # Build arguments to import function
+        series_or_instances = get_dicom_entries(dicom_elements_dict, ffs_dose.OnExamination)
+        # Query patients from path by patient ID to obtain full series data
+        matching_patients = pd.db.QueryPatientsFromPath(Path=path,
+                                                        SearchCriterias={'PatientID': pd.patient.PatientID})
+        if not matching_patients:
+            raise RuntimeError(f'Patient not found in {path}, export not performed')
+        elif len(matching_patients) > 1:
+            raise RuntimeError(f'Multiple patients found in {path}, export not performed')
+        else:
+            matching_patient = matching_patients[0]
+        # Query all the studies of the matching patient
+        studies = pd.db.QueryStudiesFromPath(Path=path, SearchCriterias=matching_patient)
+        # Query all the series from all the matching studies
+        series = []
+        for study in studies:
+            series += pd.db.QuerySeriesFromPath(Path=path, SearchCriterias=study)
+        # Filter queried series to only contain the series of the current patient
+        matching_series = [s for s in series if s['StudyInstanceUID'] == series_or_instances['StudyInstanceUID']
+                           and "Beam" not in s['SeriesDescription']
+                           and "Evaluation Fx Dose" in s['SeriesDescription']
+                           and s['Modality'] == 'RTDOSE']
+        # Parse the RT DOSE
+        return matching_series
+
+    # Implement the logic to make HFS plan
+    nfx = int(values['-NFX-'])
+    rx = int(values['-TOTAL DOSE-'])
+    make_vmat_plan = values['-VMAT-']
+    make_tomo_plan = values['-TOMO-']
+    # Has to be done manually currently
+    # Get patient and case
+    temp_case = GeneralOperations.find_scope(level='Case')
+    hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam = rename_exams(temp_case)
+    pd_hfs, pd_ffs = initialize_patient_data(hfs_exam, ffs_exam,
+                                             vmat=make_vmat_plan, tomo=make_tomo_plan)
+    # Check prerequisites
+    check_prerequisites(pd_ffs, pd_hfs, '-FFS EXPORT-', make_vmat_plan,
+                        n_fx=nfx, rx=rx, otv_junctions=False)
+    # Set current to avoid the bug in export
+    set_current_plan_beamset(pd_ffs)
+    ffs_dose_on_examination, ffs_dose_evaluation = find_dose_evaluation(pd_ffs, pd_hfs)
+    # Grab the uid for later use
+    uid = ffs_dose_evaluation.ModificationInfo.DicomUID
+    dicom_name = ffs_dose_evaluation.ForBeamSet.DicomPlanLabel
+    pt_position = ffs_dose_evaluation.ForBeamSet.PatientPosition
+    mod_time = ffs_dose_evaluation.ModificationInfo.ModificationTime
+    if not ffs_dose_on_examination:
+        raise RuntimeError(f'No FFS Dose found for {pd_ffs.beamset.DicomPlanLabel} on {pd_hfs.exam.Name}')
+    # Path to the DICOM repository
+    repo_path = find_patient_directory(DICOM_PATH, pd_ffs.patient.PatientID)
+    # Ask the user to export
+    connect.await_user_input(f'Export to Target: PACS-RayStation\n '
+                             f'Evaluation Fx Dose {FFS_VMAT_PLAN_NAME} (HFS)\n'
+                             f'Make sure to deselect beam doses')
+    # Check the repo directory for the presence of a patient directory
+    if not repo_path:
+        raise RuntimeError(f'Patient directory not found in {repo_path}, export not performed')
+    series_to_import = get_series_to_import(pd_ffs, ffs_dose_on_examination, repo_path)
+    if len(series_to_import) > 1:
+        raise RuntimeError(f'Multiple series found in {repo_path}, export not performed: '
+                           f'{series_to_import}')
+    logging.debug(f'Series to import: {series_to_import}')
+    warnings = pd_hfs.patient.ImportDataFromPath(
+        Path=repo_path,
+        CaseName=pd_hfs.case.CaseName,
+        SeriesOrInstances=series_to_import,
+    )
+    if "A dummy plan has been created for an image set" not in warnings:
+        raise RuntimeError(f'Warnings during import: {warnings}')
+    # Add the UID to the comments of the dummy plan
+    check_empty_plans(pd_ffs, pd_hfs, exists=True, unique=True)
+    # Assuming no error was thrown, get the UID of the transferred beamset
+    empty_plan = pd_hfs.case.TreatmentPlans[FFS_PLACEHOLDER_NAME]
+    empty_beamset = empty_plan.BeamSets[FFS_PLACEHOLDER_NAME]
+    empty_beamset.Comment = f'{dicom_name}\n' \
+                            f'{pt_position}\n' \
+                            f'{mod_time}\n' \
+                            f'<FFS_UID:{uid}>'
+    if plan_transfer_successful(pd_hfs, pd_ffs, nfx):
+        connect.await_user_input('Plan transfer successful, resume the script')
+
+
+def get_dicom_entries(dicom_elements, api_dicom_object):
+    """
+    Fetches DICOM tag values for the given elements.
+    """
+    series_or_instances = {}
+    for key, (group, element) in dicom_elements.items():
+        dicom_entry = api_dicom_object.GetStoredDicomTagValueForVerification(
+            Group=group, Element=element
+        )
+        if dicom_entry:  # Ensure dicom_entry is not None or empty
+            series_or_instances.update(
+                {"".join(name.split()): identifier for name, identifier in dicom_entry.items()}
+            )
+    return series_or_instances
+
+
+def initialize_patient_data(hfs_exam, ffs_exam, vmat=False, tomo=False):
+    # Initialize patient data structures
     Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
-    # Get current patient, case, exam
+    case = GeneralOperations.find_scope(level='Case')
+    hfs_plan = None
+    hfs_beamset = None
+    ffs_plan = None
+    ffs_beamset = None
+    if vmat:
+        hfs_plan_name = HFS_VMAT_PLAN_NAME
+        hfs_beamset_name = HFS_VMAT_BEAMSET_NAME
+        ffs_plan_name = FFS_VMAT_PLAN_NAME
+        ffs_beamset_name = FFS_VMAT_BEAMSET_NAME
+    if tomo:
+        hfs_plan_name = HFS_TOMO_PLAN_NAME
+        hfs_beamset_name = HFS_TOMO_BEAMSET_NAME
+        ffs_plan_name = FFS_TOMO_PLAN_NAME
+        ffs_beamset_name = FFS_TOMO_BEAMSET_NAME
+    if tomo or vmat:
+        try:
+            ffs_plan = case.TreatmentPlans[ffs_plan_name]
+            ffs_beamset = ffs_plan.BeamSets[ffs_beamset_name]
+        except Exception as e:
+            logging.info(f'Could not find FFS plan {ffs_plan_name} in {case.CaseName}: {e}')
+        try:
+            hfs_plan = case.TreatmentPlans[hfs_plan_name]
+            hfs_beamset = hfs_plan.BeamSets[hfs_beamset_name]
+        except Exception as e:
+            logging.info(f'Could not find HFS plan {hfs_plan_name} in {case.CaseName}: {e}')
+
     pd_hfs = Pd(error=[],
                 patient=GeneralOperations.find_scope(level='Patient'),
                 case=GeneralOperations.find_scope(level='Case'),
                 exam=hfs_exam,
                 db=GeneralOperations.find_scope(level='PatientDB'),
-                plan=None,
-                beamset=None)
+                plan=hfs_plan,
+                beamset=hfs_beamset)
 
     pd_ffs = Pd(error=[],
                 patient=GeneralOperations.find_scope(level='Patient'),
                 case=GeneralOperations.find_scope(level='Case'),
                 exam=ffs_exam,
                 db=GeneralOperations.find_scope(level='PatientDB'),
-                plan=None,
-                beamset=None)
-    check_prerequisites(pd_ffs, pd_hfs, do_structure_definitions, make_vmat_plan)
+                plan=ffs_plan,
+                beamset=ffs_beamset)
 
-    if do_structure_definitions:
-        make_structures(pd_hfs, pd_ffs, make_vmat_plan, make_tomo_plan, testing)
-        if make_vmat_plan:
-            hfs_multiplan, ffs_multiplan = make_vmat_planning_structures(pd_hfs, pd_ffs, nfx, rx)
+    return pd_hfs, pd_ffs
 
-    if ffs_autoplan:
-        toggle_ptv_type(pd_ffs,
-                        rois=[TARGET_HFS, TARGET_HFS + EVAL_SUFFIX],
-                        roi_type='Undefined')
-        reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
-        #
-        # FFS Planning
-        # FFS protocol declarations
-        if make_vmat_plan:
-            # Compute the locations of the isocenters in the VMAT FFS Location
-            hfs_pois = find_pois(pd_hfs)
-            ffs_pois = find_pois(pd_ffs)
-            #
-            # Load each treating beamset and the objectives of the VMAT autoplan
-            hfs_multiplan, ffs_multiplan = multiplan_data(
-                pd_ffs, hfs_pois, ffs_pois, nfx=nfx, rx=rx)
-            pd_ffs_out = multi_autoplan(ffs_multiplan)
-        if make_tomo_plan:
-            reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
-            iso_target = tomo_calc_iso(
-                pd_ffs,
-                target=JUNCTION_PREFIX_FFS + "10%Rx")
-            tbi_ffs_protocol = {
-                'protocol_name': PROTOCOL_NAME_TOMO,
-                'translation_map': {
-                    ORDER_TARGET_NAME_FFS: (TARGET_FFS, rx, r'cGy')},
-                'order_name': ORDER_NAME_FFS_TOMO,
-                'exam': pd_ffs.exam.Name,
-                'planning_strategy': 'Sequential',
-                'optimization_instructions': {},
-                'num_fx': nfx,
-                'site': 'TBI_',
-                'beamset_name': BEAMSET_NAME_FFS_TOMO,
-                'machine': TOMO_MACHINE,
-                'beamset_template': BEAMSET_TEMPLATE_FFS_TOMO,
-                'iso': {'type': 'ROI', 'target': iso_target},
-                'optimize': True,
-                'user_prompts': True,
-            }
-            pd_ffs_out = multi_autoplan([tbi_ffs_protocol])
-        toggle_ptv_type(pd_ffs,
-                    rois=[TARGET_HFS, TARGET_HFS + EVAL_SUFFIX],
-                    roi_type='Ptv')
-    #
-    # Make Dose contours for FFS plan and transfer them to HFS scan
-    if make_ffs_isodose_structs and make_tomo_plan:
-        # TODO: Redefine acquisition of these to be determined based on
-        #  expected TOMO Plan and Beamset Name
-        # Get isodoses
-        pd_ffs = Pd(error=[],
-                    patient=GeneralOperations.find_scope(level='Patient'),
-                    case=GeneralOperations.find_scope(level='Case'),
-                    exam=ffs_exam,
-                    db=GeneralOperations.find_scope(level='PatientDB'),
-                    plan=GeneralOperations.find_scope(level='Plan'),
-                    beamset=GeneralOperations.find_scope(level='BeamSet'))
-        #
-        # Make sure the current FFS scan is primary
-        reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
 
-        pd_ffs.patient.Save()
-        pd_ffs.plan.SetCurrent()
-        pd_ffs.beamset.SetCurrent()
-        make_ffs_isodoses(pd_hfs, pd_ffs, rx, JUNCTION_PREFIX_FFS)
+def update_plan_and_beamset(pd, beamset_name, plan_name=None):
+    # Update the plan and beamset for the given patient data
+    case = pd.case
+    if not plan_name:
+        plan = [p for p in case.TreatmentPlans if any(bs.DicomPlanLabel == beamset_name for bs in p.BeamSets)]
+        plan = plan[0]
+        beamset = [bs for bs in plan.BeamSets if bs.DicomPlanLabel == beamset_name][0]
+    else:
+        plan = [p for p in case.TreatmentPlans if p.Name == plan_name]
+        plan = plan[0]
+        beamset = [bs for bs in plan.BeamSets if bs.DicomPlanLabel == beamset_name][0]
+    if not plan or not beamset:
+        raise RuntimeError(f'Plan with beamset {beamset_name} not found')
+    pd = pd._replace(plan=plan, beamset=beamset)
+    return pd
 
-    if make_ffs_isodose_structs and make_vmat_plan:
-        # Get isodoses
-        case = GeneralOperations.find_scope(level='Case')
-        # Find the ffs vmat plan
-        hfs_pois = find_pois(pd_hfs)
-        ffs_pois = find_pois(pd_ffs)
-        hfs_multiplan, ffs_multiplan = multiplan_data(
-            pd_hfs, hfs_pois, ffs_pois, nfx=nfx, rx=rx)
-        vmat_ffs_p, vmat_ffs_bs = find_beamset(
-            case, beamset_name=ffs_multiplan[0]['beamset_name'])
-        pd_ffs = Pd(error=[],
-                    patient=GeneralOperations.find_scope(level='Patient'),
-                    case=case,
-                    exam=ffs_exam,
-                    db=GeneralOperations.find_scope(level='PatientDB'),
-                    plan=vmat_ffs_p,
-                    beamset=vmat_ffs_bs)
-        #
-        # Make sure the current FFS scan is primary
-        reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
 
-        pd_ffs.patient.Save()
-        pd_ffs.plan.SetCurrent()
-        pd_ffs.beamset.SetCurrent()
-        prefix = JUNCTION_PREFIX_FFS
-        make_ffs_isodoses(pd_hfs, pd_ffs, rx, prefix)
-    #
-    # HFS Planning
-    if hfs_autoplan:
-        toggle_ptv_type(pd_hfs,
-                        rois=[TARGET_FFS, TARGET_FFS + EVAL_SUFFIX],
-                        roi_type='Undefined')
-        reset_primary_secondary(pd_hfs.exam, pd_ffs.exam)
+def set_current_plan_beamset(pd):
+    """ Set the current plan and beamset for the given patient data """
+    if pd.plan and pd.beamset:
+        pd.patient.Save()
+        pd.plan.SetCurrent()
+        pd.beamset.SetCurrent()
 
-        if make_tomo_plan:
-            # HFS protocol declarations
-            iso_target = tomo_calc_iso(pd_hfs, target=TARGET_HFS)
-            tbi_hfs_protocol = {
-                'protocol_name': PROTOCOL_NAME_TOMO,
-                'translation_map': {
-                    ORDER_TARGET_NAME_HFS: (TARGET_HFS, rx, r'cGy')},
-                'order_name': ORDER_NAME_HFS_TOMO,
-                'planning_strategy': 'Sequential',
-                'optimization_instructions': {},
-                'num_fx': nfx,
-                'site': 'TBI_',
-                'beamset_name': BEAMSET_NAME_HFS_TOMO,
-                'machine': TOMO_MACHINE,
-                'beamset_template': BEAMSET_TEMPLATE_HFS_TOMO,
-                'iso': {'type': 'ROI', 'target': iso_target},
-                'optimize': True,
-                'user_prompts': True,
-            }
-            tbi_hfs_protocol = multi_autoplan([tbi_hfs_protocol])
-        #
-        elif make_vmat_plan:
-            #
-            # HFS Junction
-            hfs_poi_junction = pd_hfs.case.PatientModel.StructureSets[pd_hfs.exam.Name] \
-                .PoiGeometries[JUNCTION_POINT]
-            hfs_pois = [p.Name for p in pd_hfs.case.PatientModel.PointsOfInterest
-                        if HFS_POI in p.Name]
-            ffs_pois = [p.Name for p in pd_ffs.case.PatientModel.PointsOfInterest
-                        if FFS_POI in p.Name]
-            # HFS protocol declarations
-            hfs_multiplan, ffs_multiplan = multiplan_data(
-                pd_hfs, hfs_pois, ffs_pois, nfx=nfx, rx=rx)
-            try:
-                tbi_hfs_protocol = multi_autoplan(hfs_multiplan)
-            except Exception as e:
-                toggle_ptv_type(tbi_hfs_protocol['rso'],
-                                rois=[TARGET_FFS, TARGET_FFS + EVAL_SUFFIX],
-                                roi_type='Ptv')
-                raise RuntimeError(f'Error in multi_autoplan: {e}')
-        else:
-            raise RuntimeError(
-                'Plan selected that is not VMAT or TOMO. Exiting')
-        toggle_ptv_type(tbi_hfs_protocol['rso'],
-                        rois=[TARGET_FFS, TARGET_FFS + EVAL_SUFFIX],
-                        roi_type='Ptv')
 
-    if dose_summation:
-        # Update the current variables if needed.
-        # User Prompt for Dose/Fractions
-        if not pd_hfs.beamset or not pd_ffs.beamset:
-            pd_ffs = Pd(error=[],
-                        patient=GeneralOperations.find_scope(level='Patient'),
-                        case=GeneralOperations.find_scope(level='Case'),
-                        exam=ffs_exam,
-                        db=GeneralOperations.find_scope(level='PatientDB'),
-                        plan=None,
-                        beamset=None)
-            plans = [p.Name for p in pd_ffs.case.TreatmentPlans]
+def select_plans_and_beamsets(pd_ffs, pd_hfs):
+    # Function to allow user to select plans and beamsets for dose summation
+    case = pd_ffs.case
+    plans = [p.Name for p in case.TreatmentPlans]
+    beamsets = [bs.DicomPlanLabel for p in case.TreatmentPlans for bs in p.BeamSets]
 
-            beamsets = [bs.DicomPlanLabel for p in pd_ffs.case.TreatmentPlans for bs in p.BeamSets]
+    # Assume GUI function dose_summation_gui returns selected plans and beamsets
+    ffs_plan, ffs_beamset, hfs_plan, hfs_beamset = dose_summation_gui(case, plans, beamsets)
 
-            ffs_plan, ffs_beamset, hfs_plan, hfs_beamset = dose_summation_gui(pd_ffs.case, plans, beamsets)
+    pd_ffs = pd_ffs._replace(plan=ffs_plan, beamset=ffs_beamset)
+    pd_hfs = pd_hfs._replace(plan=hfs_plan, beamset=hfs_beamset)
+    return pd_ffs, pd_hfs
 
-            pd_ffs = Pd(error=[],
-                        patient=GeneralOperations.find_scope(level='Patient'),
-                        case=GeneralOperations.find_scope(level='Case'),
-                        exam=ffs_exam,
-                        db=GeneralOperations.find_scope(level='PatientDB'),
-                        plan=ffs_plan,
-                        beamset=ffs_beamset)
-            pd_hfs = Pd(error=[],
-                        patient=GeneralOperations.find_scope(level='Patient'),
-                        case=GeneralOperations.find_scope(level='Case'),
-                        exam=hfs_exam,
-                        db=GeneralOperations.find_scope(level='PatientDB'),
-                        plan=hfs_plan,
-                        beamset=hfs_beamset)
-        new_hfs_grid = get_new_grid(pd_hfs.case, pd_hfs.beamset, pd_ffs.beamset)
-        pd_hfs.beamset.UpdateDoseGrid(Corner=new_hfs_grid['Corner'],
-                                      VoxelSize=new_hfs_grid['VoxelSize'],
-                                      NumberOfVoxels=new_hfs_grid['NrVoxels'])
-        new_ffs_grid = get_new_grid(pd_ffs.case, pd_ffs.beamset, pd_hfs.beamset)
-        pd_ffs.beamset.UpdateDoseGrid(Corner=new_ffs_grid['Corner'],
-                                      VoxelSize=new_ffs_grid['VoxelSize'],
-                                      NumberOfVoxels=new_ffs_grid['NrVoxels'])
-        # Recompute selected doses on adjusted dose grid
-        for b in [pd_ffs.beamset, pd_hfs.beamset]:
-            try:
-                b.ComputeDose(ComputeBeamDoses=False, DoseAlgorithm='CCDose',
-                              ForceRecompute=False)
-            except Exception as e:
-                logging.debug(f'During dose summation, '
-                              f'dose computation failed for {b.DicomPlanLabel}: {e}')
-                pass
 
-        pd_ffs.beamset.ComputeDoseOnAdditionalSets(
-            OnlyOneDosePerImageSet=False,
-            AllowGridExpansion=True,
-            ExaminationNames=[pd_hfs.exam.Name],
-            FractionNumbers=[0],
-            ComputeBeamDoses=True)
-        ffs_dose, ffs_dose_found = find_eval_dose(pd_hfs.case,
-                                                  pd_ffs.beamset.DicomPlanLabel,
-                                                  pd_hfs.exam.Name)
-        if not ffs_dose_found:
-            raise RuntimeError('Unable to compute FFS dose on HFS examination'
-                               f'Report error to script {__author__}')
+def main():
+    """
+       Runs a series of functions to perform TBI planning and dose summation.
 
-        try:
-            # Create summation
-            _ = pd_hfs.case.CreateSummedDose(
-                DoseName="TBI",
-                FractionNumber=0,
-                DoseDistributions=[pd_hfs.beamset.FractionDose, ffs_dose],
-                Weights=[nfx] * 2)  # 2 for two dose grids
-        except Exception as e:
-            logging.warning(
-                f'Could not sum doses in {pd_hfs.beamset.DicomPlanLabel}: '
-                f'and FFS: {pd_ffs.beamset.DicomPlanLabel}: Error: {e}')
-            raise RuntimeError('Could not sum doses, report error to '
-                               'script developer')
+       Pseudocode:
+       1. Call tbi_gui() function to obtain user input.
+       2. Retrieve the necessary variables from user input.
+       3. Find HFS and FFS scans, assign them to variables.
+       4. Initialize a named tuple for the patient, case, exam, plan, and beamset.
+       5. If requested by the user, load couch supports and build lung contours and avoidance on the
+       HFS scan.
+       6. If requested by the user, plan FFS and HFS.
+       7. If requested by the user, make isodoses for FFS.
+       8. If requested by the user, perform dose summation.
+
+       Returns: None
+       """
+    # Prerequisites for operations:
+    # generate_thi_ffs_plan: External, AvoidSkin, External+1
+    # Launch gui
+    testing = False
+    # Disable intermediate VMAT junctions and OTVs
+    make_junctions = True
+    make_otvs = False
+    tbi_selections = tbi_gui()
 
 
 if __name__ == '__main__':

@@ -1,6 +1,9 @@
 # Import necessary modules and functions
 import logging
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 from PlanReview.review_definitions import PROTOCOL_DIR
 from PlanReview.utils import (get_user_name, get_roi_names_from_type,
                               get_user_display_parameters)

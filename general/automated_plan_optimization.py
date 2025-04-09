@@ -85,7 +85,10 @@ __credits__ = ['']
 #
 import logging
 import sys
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 
 # import connect
 # import UserInterface

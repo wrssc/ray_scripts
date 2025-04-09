@@ -3391,7 +3391,10 @@ def find_order(protocol, order_name):
         return None
 
 
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 import os
 
 

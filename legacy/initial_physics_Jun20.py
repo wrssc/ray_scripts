@@ -118,7 +118,10 @@ import numpy as np
 from math import isclose
 from collections import namedtuple, OrderedDict
 from System import Environment
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 import re
 from dateutil import parser
 import connect

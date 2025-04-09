@@ -104,6 +104,7 @@ class Beam(object):
         self.rotation_dir = None
         self.collimator_angle = None
         self.iso = {}
+        self.iso_number = None
         self.couch_angle = None
         self.jaw_limits = {}
         self.field_width = None
@@ -349,9 +350,9 @@ def find_multi_iso_parameters(case, exam, beamset, iso_pois,
         try:
             isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
                 PoiGeometries[p].Point
-        except Exception:
-            logging.warning('Aborting, could not locate center of {}'.format(p))
-            sys.exit('Failed to place isocenter at Point {}'.format(p))
+        except Exception as e:
+            logging.warning(f'Aborting, could not locate center of {p}: {e}')
+            sys.exit(f'Failed to place isocenter at Point {p}: {e}')
         if lateral_zero:
             center = {'x': 0.,
                       'y': isocenter_position.y,
@@ -375,8 +376,8 @@ def find_center(case, exam, target, use_poi):
     """Finds the center of target using either ROI or POI geometries.
 
     Args:
-        case (object): A patient case.
-        exam (object): An exam instance.
+        case (RS object): A patient case.
+        exam (RS object): An exam instance.
         target: Target to locate the center of.
         use_poi: Flag to determine if POI geometries should be used.
 
@@ -386,20 +387,13 @@ def find_center(case, exam, target, use_poi):
     Raises:
         SystemExit: If the center of target cannot be located.
     """
-    try:
-        if use_poi:
-            center_position = case.PatientModel.StructureSets[exam.Name]. \
-                PoiGeometries[target].Point
-        else:
-            center_position = case.PatientModel.StructureSets[exam.Name]. \
-                RoiGeometries[target].GetCenterOfRoi()
-        return center_position
-    except Exception:
-        warning = f'Aborting, could not locate center of {target} on exam {exam.Name}' if not \
-            use_poi else \
-            f'Aborting, could not locate center of {target}'
-        logging.warning(warning)
-        sys.exit(warning)
+    if use_poi:
+        center_position = case.PatientModel.StructureSets[exam.Name]. \
+            PoiGeometries[target].Point
+    else:
+        center_position = case.PatientModel.StructureSets[exam.Name]. \
+            RoiGeometries[target].GetCenterOfRoi()
+    return center_position
 
 
 def find_existing_isocenter(case, isocenter_name):
@@ -455,9 +449,12 @@ def find_isocenter_parameters(case: object,
     """
     # Locate isocenter position based on provided arguments
     if iso_target:
-        isocenter_position = find_center(case, exam, iso_target, False)
+        isocenter_position = find_center(case, exam, iso_target, use_poi=False)
     elif iso_poi:
-        isocenter_position = find_center(case, exam, iso_poi, True)
+        isocenter_position = find_center(case, exam, iso_poi, use_poi=True)
+        logging.info(f'Isocenter chosen based on {iso_poi}, with location:'
+                     f' x={isocenter_position.x}, y={isocenter_position.y},'
+                     f' z={isocenter_position.z}')
     elif existing_iso:
         isocenter_position = find_existing_isocenter(case, existing_iso)
 
@@ -500,7 +497,8 @@ def create_beamset(patient, case, exam, plan,
                    path=None,
                    order_name=None,
                    create_setup_beams=True,
-                   rename_existing=False):
+                   rename_existing=False,
+                   ):
     """
     This function creates a beamset for radiation treatment planning. It either opens a dialog with
     the user to gather information or uses the provided parameters. It follows certain coding
@@ -531,7 +529,14 @@ def create_beamset(patient, case, exam, plan,
         logging.warning('Cannot load beamset due to incorrect argument list')
 
     # Evaluate for an existing beamset. If rename_existing, add a suffix, otherwise fail
-    info = plan.QueryBeamSetInfo(Filter={'Name': '^{0}'.format(b.DicomName)})
+    logging.debug('Checking for existing beamset {}'.format(b.DicomName))
+    try:
+        info = [bs.DicomPlanLabel for bs in plan.BeamSets if b.DicomName in bs.DicomPlanLabel]
+        # info = plan.QueryBeamSetInfo(Filter={'Name': f'^{b.DicomName}'})
+    except Exception as e:
+        logging.warning(f'Failed to query beamset info: {e}')
+        info = None
+    logging.debug('Beamset info: {}'.format(info))
     if not info:
         beamset_exists = False
     else:
@@ -545,8 +550,10 @@ def create_beamset(patient, case, exam, plan,
             new_bs_name = b.DicomName
             while beamset_exists:
                 try:
-                    info = plan.QueryBeamSetInfo(Filter={'Name': '^{0}'.format(new_bs_name)})
-                    if info[0]['Name'] == new_bs_name:
+                    info = [bs.DicomPlanLabel for bs in plan.BeamSets if b.DicomName in bs.DicomPlanLabel]
+                    # info = plan.QueryBeamSetInfo(Filter={'Name': '^{0}'.format(new_bs_name)})
+                    logging.debug('Beamset info: {}'.format(info))
+                    if info and info[0] == new_bs_name:
                         # Ensure the maximum DicomPlanLabel length of 16 chars is not exceeded
                         if len(new_bs_name) > 14:
                             new_bs_name = b.DicomName[:14] + str(i).zfill(2)
@@ -561,23 +568,29 @@ def create_beamset(patient, case, exam, plan,
                     'Beamset {} exists! Replacing with {}'.format(b.DicomName, new_bs_name))
                 b.DicomName = new_bs_name
 
-    plan.AddNewBeamSet(
-        Name=b.DicomName,
-        ExaminationName=exam.Name,
-        MachineName=b.machine,
-        Modality=b.modality,
-        TreatmentTechnique=b.technique,
-        PatientPosition=patient_position_map(exam.PatientPosition),
-        NumberOfFractions=b.number_of_fractions,
-        CreateSetupBeams=create_setup_beams,
-        UseLocalizationPointAsSetupIsocenter=False,
-        Comment="",
-        RbeModelName=None,
-        EnableDynamicTrackingForVero=False,
-        NewDoseSpecificationPointNames=[],
-        NewDoseSpecificationPoints=[],
-        MotionSynchronizationTechniqueSettings=None,
-        ToleranceTableLabel=None)
+    # Create the beamset
+    logging.info('Creating beamset {}'.format(b.DicomName))
+    try:
+        plan.AddNewBeamSet(
+            Name=b.DicomName,
+            ExaminationName=exam.Name,
+            MachineName=b.machine,
+            Modality=b.modality,
+            TreatmentTechnique=b.technique,
+            PatientPosition=patient_position_map(exam.PatientPosition),
+            NumberOfFractions=b.number_of_fractions,
+            CreateSetupBeams=create_setup_beams,
+            UseLocalizationPointAsSetupIsocenter=False,
+            Comment="",
+            RbeModelName=None,
+            EnableDynamicTrackingForVero=False,
+            NewDoseSpecificationPointNames=[],
+            NewDoseSpecificationPoints=[],
+            MotionSynchronizationTechniqueSettings=None,
+            ToleranceTableLabel=None)
+    except Exception as e:
+        logging.error(f'Failed to create beamset: {e}')
+        return None
 
     beamset = plan.BeamSets[b.DicomName]
     patient.Save()
@@ -588,8 +601,8 @@ def create_beamset(patient, case, exam, plan,
                                                 DoseValue=b.total_dose,
                                                 RelativePrescriptionLevel=1)
         # beamset.ScaleToPrimaryPrescriptionDoseReference
-    except:
-        logging.warning('Unable to set prescription')
+    except Exception as e:
+        logging.warning(f'Unable to set prescription dose reference: {e}')
     return beamset
 
 
@@ -1236,9 +1249,9 @@ def rename_beams(site_name=None, input_technique=None, beamset_name=None):
                 if couch_angle not in table_angles:
                     table_angles.append(couch_angle)
             set_up = {
-                    0: ['CBCT', 'Set-up CBCT', 0.0, '5', 0],
-                    1: ['AP', 'Set-up Anterior', 0.0, '5', 0],
-                    2: ['RLAT', 'Set-up Right Lateral', 270.0, '5', 0],}
+                0: ['CBCT', 'Set-up CBCT', 0.0, '5', 0],
+                1: ['AP', 'Set-up Anterior', 0.0, '5', 0],
+                2: ['RLAT', 'Set-up Right Lateral', 270.0, '5', 0], }
             setup_index = 3
             for ta in table_angles:
                 if 359.9 >= ta >= 270.:
@@ -1253,7 +1266,7 @@ def rename_beams(site_name=None, input_technique=None, beamset_name=None):
             set_up = {0: ['SetUp AP', 'SetUp AP', 0.0, '5'],
                       1: ['SetUp RtLat', 'SetUp RtLat', 270.0, '5'],
                       2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
-                     3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
+                      3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                       }
             update_set_up(beamset=beamset, set_up=set_up)
 
@@ -2984,6 +2997,11 @@ def load_beams_xml(filename, beamset_name, path):
                 beam.collimator_angle = None
             else:
                 beam.collimator_angle = float(b.find('CollimatorAngle').text)
+
+            if b.find('IsocenterNumber') is None:
+                beam.iso_number = None
+            else:
+                beam.iso_number = int(b.find('IsocenterNumber').text)
 
             if b.find('CouchAngle') is None:
                 beam.couch_angle = None

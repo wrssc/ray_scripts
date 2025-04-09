@@ -2,7 +2,10 @@
 Create the information entry prompt for the dose and physics review
 """
 
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 import sys
 import logging
 from library.PlanReview.utils.protocol_loading import get_order_instructions, \
@@ -1173,9 +1176,10 @@ def load_preplan(window, values, sites, protocols, instructions,
                 # The key is a tuple, so see if there is a match on the first element in keys
                 # then match to whatever second element is in the tuple
                 for k in window.key_dict:
-                    if k[0] == key[0]:
-                        window[k].update(value=value)
-                        break
+                    if type(k) is tuple:
+                        if k[0] == key[0]:
+                            window[k].update(value=value)
+                            break
         except KeyError:
             logging.warning(f'Key {key} not found in window')
             continue

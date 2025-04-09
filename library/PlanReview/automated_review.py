@@ -46,7 +46,10 @@ __copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
 import logging
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 import connect
 from api.api_utils import find_scope
 from collections import namedtuple

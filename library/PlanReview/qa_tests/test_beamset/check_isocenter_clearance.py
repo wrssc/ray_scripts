@@ -24,7 +24,7 @@ def get_couch_angle(rso, beam_name):
     return rso.beamset.Beams[beam_name].CouchRotationAngle
 
 
-def gantry_angular_traversal(rso):
+def find_gantry_angular_traversal(rso):
     """
     Return a list of gantry angles traversed for each beam in a dynamic arc.
 
@@ -32,7 +32,17 @@ def gantry_angular_traversal(rso):
         rso: NamedTuple of ScriptObjects in Raystation [case, exam, plan, beamset, db]
 
     Returns:
-        dict: Dictionary of beam names and list of gantry angles to check
+        dict:
+            A dictionary of the form:
+            {
+                "<beam_name>": (np.array of gantry angles, bool indicating clockwise)
+            }
+
+            Where:
+            - The key is the beam name (str).
+            - The value is a tuple consisting of:
+                - A numpy array representing the sequence of gantry angles swept by the beam.
+                - A boolean indicating the direction of rotation (True for clockwise, False for counterclockwise).
     """
     gantry_angles = {}
     if rso.beamset.DeliveryTechnique == "DynamicArc":
@@ -231,6 +241,93 @@ def filter_in_bore_clearing_points_tomo(points, diameter):
 
 
 # ================= Cylindrical Angle Calculations =================
+# Retrieve orientation transformation matrix
+def get_orientation_transform(orientation):
+    """
+    Returns the transformation matrix based on the patient orientation.
+
+    Parameters:
+    - orientation (str): Patient orientation (e.g., 'HFS', 'HFP', 'FFS', 'FFP', 'HFDR', 'HFDL', 'FFDR', 'FFDL')
+
+    Returns:
+    - numpy.ndarray: 3x3 transformation matrix
+    """
+    if orientation == 'HFS':
+        # Head First Supine: No rotation
+        return np.identity(3)
+
+    elif orientation == 'HFP':
+        # Head First Prone: Rotate 180 degrees around the X-axis
+        return np.array([
+            [1, 0, 0],
+            [0, -1, 0],
+            [0, 0, -1]
+        ])
+
+    elif orientation == 'FFS':
+        # Feet First Supine: Rotate 180 degrees around the Z-axis
+        return np.array([
+            [-1, 0, 0],
+            [0, 1, 0],
+            [0, 0, -1]
+        ])
+
+    elif orientation == 'FFP':
+        # Feet First Prone: Rotate 180 degrees around both X and Z axes
+        return np.array([
+            [-1, 0, 0],
+            [0, -1, 0],
+            [0, 0, 1]
+        ])
+
+    elif orientation == 'HFDR':
+        # Head First Decubitus Right: Rotate -90 degrees around the Z-axis
+        return np.array([
+            [0, 1, 0],
+            [-1, 0, 0],
+            [0, 0, 1]
+        ])
+
+    elif orientation == 'HFDL':
+        # Head First Decubitus Left: Rotate +90 degrees around the Z-axis
+        return np.array([
+            [0, -1, 0],
+            [1, 0, 0],
+            [0, 0, 1]
+        ])
+
+    elif orientation == 'FFDR':
+        # Feet First Decubitus Right: Rotate -90 degrees around Z-axis, then 180 degrees around X-axis
+        Rz_neg_90 = np.array([
+            [0, 1, 0],
+            [-1, 0, 0],
+            [0, 0, 1]
+        ])
+        Rx_180 = np.array([
+            [1, 0, 0],
+            [0, -1, 0],
+            [0, 0, -1]
+        ])
+        return Rx_180 @ Rz_neg_90  # Matrix multiplication
+
+    elif orientation == 'FFDL':
+        # Feet First Decubitus Left: Rotate +90 degrees around Z-axis, then 180 degrees around X-axis
+        Rz_pos_90 = np.array([
+            [0, -1, 0],
+            [1, 0, 0],
+            [0, 0, 1]
+        ])
+        Rx_180 = np.array([
+            [1, 0, 0],
+            [0, -1, 0],
+            [0, 0, -1]
+        ])
+        return Rx_180 @ Rz_pos_90  # Matrix multiplication
+
+    else:
+        raise ValueError(f"Unsupported orientation: {orientation}")
+
+
 def shift_to_isocenter_and_couch_rotate_points(rso, contours, beam_name, representation='Contours',
                                                couch_angle=None):
     """
@@ -259,6 +356,15 @@ def shift_to_isocenter_and_couch_rotate_points(rso, contours, beam_name, represe
                                  rso.beamset.Beams[beam_name].Isocenter.Position.z)])
     # Subtract the isocenter point from all points
     isocentered_contours = all_points - isocenter_point
+    # At this point, we need to transform all to the DICOM reference frame
+    # +X is toward the A wall, +Y is toward the roof, +Z is toward the gantry
+    # Get the patient orientation
+    orientation = rso.exam.PatientPosition
+    # Get the orientation transformation matrix
+    orientation_matrix = get_orientation_transform(orientation)
+    # Rotate all points by the orientation matrix
+    # In this coordinate system:
+    room_frame_of_reference_points = np.dot(isocentered_contours, orientation_matrix.T)
     # Get the couch angle
     if not couch_angle:
         couch_angle = get_couch_angle(rso, beam_name)
@@ -272,7 +378,7 @@ def shift_to_isocenter_and_couch_rotate_points(rso, contours, beam_name, represe
         [math.sin(couch_angle_rad), 0, math.cos(couch_angle_rad)]
     ])
     # Rotate all points by the rotation matrix
-    rotated_points = np.dot(isocentered_contours, rotation_matrix_dicom.T)
+    rotated_points = np.dot(room_frame_of_reference_points, rotation_matrix_dicom.T)
     return rotated_points
 
 
@@ -304,7 +410,7 @@ def get_sorted_cylindrical_angles_dicom(rotated_points):
     return sorted(set(rounded_angles))
 
 
-def contour_angle_ranges(rso, contours, beam_name, representation='Contours', shift=True):
+def find_contour_angle_ranges(rso, contours, beam_name, representation='Contours', shift=True):
     """
     Calculates the cylindrical angle ranges for all contours within the frame of reference of the rotated
     clearance zone. Once computed, the ranges are made contiguous.
@@ -415,40 +521,104 @@ def determine_contour_type(rso, roi_name):
         return None
 
 
-def detect_collisions(rso, roi_dict, clearance_diameter):
+def find_overlapping_angles_for_beam(gantry_ranges, beam_name, contour_ranges):
+    """
+    Given a dictionary of gantry ranges and a target beam name, find any overlapping angles
+    between the beam's gantry range and the provided contour ranges.
+
+    Args:
+        gantry_ranges (dict): A dictionary of the form {beam_name: (np.array of gantry angles, bool clockwise)}
+        beam_name (str): The name of the beam for which to find overlapping angles.
+        contour_ranges (list): List of angle ranges (tuples) representing contour intersection angles.
+
+    Returns:
+        tuple or (None, None):
+            If overlap is found:
+                (list of overlapping angle ranges, bool clockwise_direction)
+            Otherwise:
+                (None, None)
+    """
+    if beam_name not in gantry_ranges:
+        return None, None
+
+    gantry_range, clockwise = gantry_ranges[beam_name]
+    overlapping_angles = check_overlap(gantry_range, contour_ranges)
+
+    if overlapping_angles:
+        return overlapping_angles, clockwise
+    return None, None
+
+
+def detect_collisions(rso, roi_dict, clearance_diameter_fail, clearance_diameter_alert):
+    """
+    Detect collisions at two levels:
+    - Fail level: using clearance_diameter_fail
+    - Alert level: using clearance_diameter_alert
+
+    :param rso: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
+    :param roi_dict: dict, {roi_name: np.array of points in the roi}
+    :param clearance_diameter_fail: float, stricter diameter threshold for failure
+    :param clearance_diameter_alert: float, looser diameter threshold for alerts
+    :return: (bad_gantry_fail, bad_gantry_alert): Two dicts with similar structure.
+        bad_gantry_fail: {roi: {beam_name: ([angle_ranges], clockwise_bool)}}
+        bad_gantry_alert: {roi: {beam_name: ([angle_ranges], clockwise_bool)}}
+    """
     couch_angles_checked = []
-    bad_gantry = {}
+    bad_gantry_fail = {}
+    bad_gantry_alert = {}
+
     for beam in rso.beamset.Beams:
         beam_name = beam.Name
         couch_angle = get_couch_angle(rso, beam_name)
         if couch_angle in couch_angles_checked:
             continue
-        else:
-            for roi, contour_points in roi_dict.items():
-                # Retrieve the geometry of the ROI
-                rotated_points = shift_to_isocenter_and_couch_rotate_points(rso, contour_points, beam_name,
-                                                                            representation='Points')
-                # Determine if the rotated points are outside the clearance volume diameter
-                # Limit x and y to the diameter of the bore and z to the length of interest
-                violation_points, _ = filter_points_outside_diameter_and_length(rotated_points, clearance_diameter)
-                # If the numpy array is empty then there are no points outside the clearance volume
-                if violation_points.size > 0:
-                    # Evaluate the gantry angles which will be affected by the collision
-                    contour_ranges = contour_angle_ranges(rso, violation_points,
-                                                          beam_name, representation='Points', shift=False)
-                    if not contour_ranges:
-                        continue
-                    gantry_ranges = gantry_angular_traversal(rso)
-                    for bn, (gantry_range, clockwise) in gantry_ranges.items():
-                        if bn != beam_name:
-                            continue
-                        overlapping_angles = check_overlap(gantry_range, contour_ranges)
+
+        for roi, roi_point_array in roi_dict.items():
+            rotated_points = shift_to_isocenter_and_couch_rotate_points(
+                rso, roi_point_array, beam_name, representation='Points'
+            )
+
+            # First check fail-level clearance
+            violation_points_fail, _ = filter_points_outside_diameter_and_length(
+                rotated_points, clearance_diameter_fail
+            )
+
+            # Determine gantry ranges
+            gantry_angle_ranges = find_gantry_angular_traversal(rso)
+
+            if violation_points_fail.size > 0:
+                # Determine gantry angles that fail
+                contour_angle_ranges = find_contour_angle_ranges(rso, violation_points_fail, beam_name,
+                                                                 representation='Points', shift=False)
+                if contour_angle_ranges:
+                    overlapping_angles, clockwise = find_overlapping_angles_for_beam(
+                        gantry_angle_ranges, beam_name, contour_angle_ranges
+                    )
+                    if overlapping_angles:
+                        if roi not in bad_gantry_fail:
+                            bad_gantry_fail[roi] = {}
+                        bad_gantry_fail[roi][beam_name] = overlapping_angles, clockwise
+            else:
+                # Check alert-level clearance
+                violation_points_alert, _ = filter_points_outside_diameter_and_length(
+                    rotated_points, clearance_diameter_alert
+                )
+                if violation_points_alert.size > 0:
+                    # Determine gantry angles that cause alert
+                    contour_angle_ranges = find_contour_angle_ranges(rso, violation_points_alert, beam_name,
+                                                                     representation='Points', shift=False)
+                    if contour_angle_ranges:
+                        overlapping_angles, clockwise = find_overlapping_angles_for_beam(
+                            gantry_angle_ranges, beam_name, contour_angle_ranges
+                        )
                         if overlapping_angles:
-                            if roi not in bad_gantry:
-                                bad_gantry[roi] = {}
-                            bad_gantry[roi][bn] = overlapping_angles, clockwise
-            couch_angles_checked.append(couch_angle)
-    return bad_gantry
+                            if roi not in bad_gantry_alert:
+                                bad_gantry_alert[roi] = {}
+                            bad_gantry_alert[roi][beam_name] = overlapping_angles, clockwise
+
+        couch_angles_checked.append(couch_angle)
+
+    return bad_gantry_fail, bad_gantry_alert
 
 
 def detect_collisions_tomo(rso, roi_dict, external_roi, support_rois, clearance_diameter, clearance_roi,
@@ -461,8 +631,8 @@ def detect_collisions_tomo(rso, roi_dict, external_roi, support_rois, clearance_
                                                                     beam_name,
                                                                     representation='Points',
                                                                     couch_angle=0)
-        bore_clearance_points,_ = filter_in_bore_clearing_points_tomo(shifted_points,
-                                                                    clearance_diameter)
+        bore_clearance_points, _ = filter_in_bore_clearing_points_tomo(shifted_points,
+                                                                       clearance_diameter)
         if bore_clearance_points.size > 0:
             bore_clearance_issues.append(roi)
 
@@ -602,7 +772,12 @@ def check_isocenter_clearance(rso):
         PASS: Case 2 Collision_Check_2, ZZUWQA_ScTest_01Oct2024 Brai_PRD_R0A1
             (passes without the RPO beam - clinical solution).
     """
+    # Get the name of the machine-limiting ROI and the tolerance diameter
     clearance_diameter_roi_name, diameter = get_clearance_roi_name_and_diameter(rso, tolerance=SUPPORT_TOLERANCE)
+    # Set an ALERT level for any clearance that is within 3 cm of the SUPPORT_TOLERANCE
+    # Additional buffer for the clearance diameter
+    alert_distance = 3
+    clearance_diameter_alert = diameter - 2 * alert_distance
 
     # Find external and support ROIs
     external, supports = find_externals_and_supports(rso)
@@ -616,16 +791,23 @@ def check_isocenter_clearance(rso):
             tolerance=SUPPORT_TOLERANCE)
     else:
         # Check the beams for VMAT or Static Field
-        bad_gantry_angles = detect_collisions(rso, rois_checked, diameter)
-        if type(bad_gantry_angles) == str:
-            return ALERT, bad_gantry_angles
-        elif bad_gantry_angles:
-            message_str = format_beam_collisions(bad_gantry_angles)
+        bad_gantry_fail, bad_gantry_alert = detect_collisions(rso, rois_checked, diameter, clearance_diameter_alert)
+        if type(bad_gantry_fail) == str:
+            # An internal error occurred. Print the error message and return an ALERT level.
+            return ALERT, bad_gantry_fail
+        elif bad_gantry_fail:
+            # There are collisions that fail the clearance test
+            message_str = format_beam_collisions(bad_gantry_fail)
             pass_result = FAIL
+        elif bad_gantry_alert:
+            # No fail level but there are collisions that are close to failure
+            message_str = format_beam_collisions(bad_gantry_alert)
+            pass_result = ALERT
         else:
             pass_result = PASS
             message_str = f'{[external] + supports} are ≥' \
-                          + f' {SUPPORT_TOLERANCE} cm from {clearance_diameter_roi_name}'
-        # Delete script contours
+                          + f' {int(SUPPORT_TOLERANCE + alert_distance)} ' \
+                          + f'cm from {clearance_diameter_roi_name}'
+    # Delete script contours
     delete_rois(rso, rois_to_delete)
     return pass_result, message_str

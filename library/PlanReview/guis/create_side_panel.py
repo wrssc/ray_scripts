@@ -1,4 +1,8 @@
-import PySimpleGUI as Sg
+from typing import List, Dict, Union, Any, Optional, Tuple
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 import logging
 from dataclasses import dataclass, field
 from typing import List, Dict, Union, Any, Optional, Tuple
