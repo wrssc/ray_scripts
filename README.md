@@ -3,7 +3,9 @@ DHO_RayScripts
 
 Python tools for the RayStation treatment planning system
 
-Authors:Mark Geurts – mark.w.geurts@gmail.com Adam Bayliss – bayliss@humonc.wisc.eduCopyright © 2018–2025, University of Wisconsin Board of Regents
+Authors:Mark Geurts – mark.w.geurts@gmail.com  
+Adam Bayliss – bayliss@humonc.wisc.edu  
+Copyright © 2018–2025, University of Wisconsin Board of Regents  
 
 ## 🧭 Overview
 
@@ -19,58 +21,35 @@ Includes internal tools used in production at the University of Wisconsin Cancer
 The application of these scripts varies from efficient creation of QA plans to automated planning and plan checks. This repository is actively being developed, so please see our [Projects](../../projects) page for more information on what is coming soon!
 
 ## 🚀 Highlighted Capabilities
+The following features are available in this repository. Some of these features are still in development, while others are actively used in clinical practice. The list below is not exhaustive, but it highlights the most important features.
 
-Feature
+| Feature | Description |
+|---------|-------------|
+| AutoPlan | Protocol-driven end-to-end plan creation using XML-based templates |
+| Goal/Objective | Relative goal scaling (e.g., V95% Rx > 95%) not supported natively in RayStation |
+| BeaVIS | Automated beamset-level QA system with physics and dosimetry review integration |
+| DITTO | Cross-platform DICOM integrity checking (e.g., RayStation ↔ Aria) with UID, grid, and structural validation |
+| Electron QA Planning | Monte Carlo vs Mobius QA phantom plan generator for e- QA |
+| Structure Generation | Helper tool for building derived planning rings, standoffs, uniform dose zones |
+| Export Tools | GUI menu for sending DICOM data to preconfigured systems (iDMS, Mobius, MIM) |
+| Plan Review PDFs | Auto-generates structured checklists and physics review documents |
 
-Description
-
-AutoPlan
-
-Protocol-driven end-to-end plan creation using XML-based templates
-
-Goal/Objective Automation
-
-Relative goal scaling (e.g., V95% Rx > 95%) not supported natively in RayStation
-
-BeaVIS
-
-Automated beamset-level QA system with physics and dosimetry review integration
-
-DITTO
-
-Cross-platform DICOM integrity checking (e.g., RayStation ↔ Aria) with UID, grid, and structural validation
-
-Electron QA Planning
-
-Monte Carlo vs Mobius QA phantom plan generator for e- QA
-
-Structure Generation
-
-Helper tool for building derived planning rings, standoffs, uniform dose zones
-
-Export Tools
-
-GUI menu for sending DICOM data to preconfigured systems (iDMS, Mobius, MIM)
-
-Plan Review PDFs
-
-Auto-generates structured checklists and physics review documents
 
 ## 📁 Repository Structure
 
-DHO_RayScripts/
-├── general/                # Core user-facing scripts callable from any RayStation window
-├── helper_scripts/        # GUI tools and support scripts for clinicians and physicists
-├── structure_definition/  # Scripts for Structure Definition module context
-├── development/           # Scripts undergoing clinical testing
-├── library/               # Shared utility modules (optimization, goals, export, etc.)
-├── protocols/             # XML templates for automated planning workflows
-├── PlanReview/            # Automated QA engine and PDF/report tools (BeaVIS)
-├── DITTO/                 # Placeholder – full toolset for DICOM integrity checking
-├── legacy/                # Deprecated or historical scripts
-├── testing/               # Unstable or prototype code
-├── ScriptSelector.py      # Entry-point script used to load and execute modules
-└── README.md              # You're here
+DHO_RayScripts/  
+├── general/               # Core user-facing scripts callable from any RayStation window  
+├── helper_scripts/        # GUI tools and support scripts for clinicians and physicists  
+├── structure_definition/  # Scripts for Structure Definition module context  
+├── development/           # Scripts undergoing clinical testing  
+├── library/               # Shared utility modules (optimization, goals, export, etc.)  
+├── protocols/             # XML templates for automated planning workflows  
+├── PlanReview/            # Automated QA engine and PDF/report tools (BeaVIS)  
+├── DITTO/                 # Placeholder – full toolset for DICOM integrity checking  
+├── legacy/                # Deprecated or historical scripts  
+├── testing/               # Unstable or prototype code  
+├── ScriptSelector.py      # Entry-point script used to load and execute modules  
+└── README.md              # You're here  
 
 ## 🧑‍💻 Usage
 
