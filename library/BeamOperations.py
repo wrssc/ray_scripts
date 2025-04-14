@@ -76,7 +76,10 @@ import Beams
 import datetime
 import os
 import xml
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 
 from library.api.api_beamsets import get_source_to_surface_distance
 from library.api.api_utils import get_machine

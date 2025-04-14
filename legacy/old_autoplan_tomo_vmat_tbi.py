@@ -3515,9 +3515,9 @@ def tbi_gui():
         dict: A dictionary containing the user's selections.
     """
     try:
-    import FreeSimpleGUI as Sg
-except ImportError:
-    import PySimpleGUI as Sg
+        import FreeSimpleGUI as Sg
+    except ImportError:
+        import PySimpleGUI as Sg
 
     def make_toggle_button(text, key, disabled=False):
         return Sg.Button(text, key=key, button_color=('black', 'lightgray'), enable_events=True, disabled=disabled)
