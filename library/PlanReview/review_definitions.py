@@ -2159,7 +2159,7 @@ TOMO_DATA = {'MACHINES': ['HDA0488'],
 TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                  'SUPPORTS': ['TrueBeamCouch', 'CivcoBaseShell_Cork', 'CivcoInclineShell_Wax',
                               'ProneBreastBoard', 'QFix_Brain_TBCouch_H1andH2', 'QFix_H&N_TBCouch_F2andF3',
-                              'QFix_Board_Only', 'Baseplate_Override_PMMA'],
+                              'Baseplate_Override_PMMA'],
                  'EDW_LIMITS': {'MU_LIMIT': 20.,
                                 'Y2-OUT': 10.,  # Y2=OUT: -10 cm ≤ Y1 ≤ 10 cm
                                 'Y1-IN': 10.,  # Y1=IN : -10 cm ≤ Y2 ≤ 10 cm
