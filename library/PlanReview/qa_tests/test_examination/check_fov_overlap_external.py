@@ -240,7 +240,7 @@ def combine_slices(slices: np.ndarray, threshold: float = 0.5) -> str:
         if start == end:
             combined_ranges.append(f"{slices[start]:.2f}")
         else:
-            combined_ranges.append(f"[{slices[start]:.2f} - {slices[end]:.2f]}")
+            combined_ranges.append(f"[{slices[start]:.2f} to {slices[end]:.2f}]")
 
     return ", ".join(combined_ranges)
 
