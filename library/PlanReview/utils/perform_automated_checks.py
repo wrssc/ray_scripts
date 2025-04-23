@@ -1,4 +1,5 @@
 import logging
+import traceback
 import datetime
 from collections import OrderedDict
 from PlanReview.review_definitions import DOMAIN_TYPE, FAIL
@@ -48,6 +49,10 @@ def execute_test(rso, test_name, test_function, kwargs, time_log):
         pass_result, message = test_function(rso=rso, **kwargs)
     except Exception as e:
         message = f"Error: {str(e)}"
+        # Capture full traceback as a string
+        tb_str = traceback.format_exc()
+        # Include traceback details in the message
+        full_message = f"Error: {str(e)}\n\nTraceback:\n{tb_str}"
         # Send an error report email and return a failure
         # Save and email the report
         user_name = get_user_name()
@@ -56,10 +61,11 @@ def execute_test(rso, test_name, test_function, kwargs, time_log):
             patient_id=rso.patient.PatientID,
             beamset_name=rso.beamset.DicomPlanLabel,
             user_name=user_name,
-            report_text=f"Automated report: error occurred while executing the test: {test_name}\n\n{str(e)}"
+            report_text=f"Automated report: error occurred while executing the test: {test_name}\n\n{str(full_message)}"
         )
         email_report(file_path, 'error_report', source='script')
         pass_result = FAIL
+        logging.error(f"Error in test {test_name}: {full_message}")
     time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), test_function.__name__)
     return pass_result, message, time_log
 
