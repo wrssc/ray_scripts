@@ -208,6 +208,43 @@ def intersect_sources(rso, name, sources):
     rso.case.PatientModel.RegionsOfInterest[name].DeleteExpression()
 
 
+def combine_slices(slices: np.ndarray, threshold: float = 0.5) -> str:
+    """
+    Combine slices into contiguous ranges if their difference is below the given threshold.
+
+    Args:
+        slices (np.ndarray): A 1D numpy array of slice positions (float or int) in increasing order.
+        threshold (float): The maximum allowed difference between consecutive slices
+                           to combine them into a range.
+
+    Returns:
+        str: A string representation of the combined slices, with contiguous ranges
+             formatted as "start to end" and individual slices displayed as-is.
+    """
+    if slices.size == 0:
+        return "No slices found"
+
+    # Compute differences between consecutive slices
+    diffs = np.diff(slices)
+
+    # Identify where the difference exceeds the threshold
+    breaks = np.where(diffs > threshold)[0]
+
+    # Determine start and end indices of each range
+    start_indices = np.insert(breaks + 1, 0, 0)  # Start at index 0, then after each break
+    end_indices = np.append(breaks, slices.size - 1)  # End before each break, and at the final element
+
+    # Build combined ranges
+    combined_ranges = []
+    for start, end in zip(start_indices, end_indices):
+        if start == end:
+            combined_ranges.append(f"{slices[start]:.2f}")
+        else:
+            combined_ranges.append(f"[{slices[start]:.2f} - {slices[end]:.2f]}")
+
+    return ", ".join(combined_ranges)
+
+
 def get_external(rso):
     for r in rso.case.PatientModel.RegionsOfInterest:
         if r.Type == 'External':
@@ -300,7 +337,9 @@ def check_fov_overlap_external(rso, **kwargs):
             pm.RegionsOfInterest[s].DeleteRoi()
         if suspect_slices.size > 0:
             pass_result = FAIL
-            message_str = 'Potential FOV issues found on slices {}'.format(suspect_slices)
+            # Combine slices into ranges
+            combined_slices = combine_slices(suspect_slices, threshold=0.5)
+            message_str = 'Potential FOV issues found on slices {}'.format(combined_slices)
         else:
             pass_result = PASS
             message_str = 'No Potential Overlap with FOV Found'
