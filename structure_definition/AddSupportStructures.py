@@ -107,7 +107,7 @@ COUCH_SHIFT = {
         "TrueBeamCouch": [0, 6.8, 0],
         "TomoCouch": [0, 6.8, 0],
         "QFix_Brain_TBCouch_H1andH2": [0.12, -9.75, -42.63],
-        "QFix_H&N_TBCouch_F2andF3": [0.15, -9.80, -42.61],
+        "QFix_H&N_TBCouch_F2andF3": [0.15, -9.80, -37.09],
         "Black Board External Final": [0.13, -9.72, -42.60],
         "QFix_Board_Only": [0.13, -9.72, -42.60],
     },
