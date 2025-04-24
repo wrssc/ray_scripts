@@ -395,7 +395,7 @@ def autoplan(autoplan_parameters, **kwargs):
         iso_poi = None
         exam_name = None
         machine = None
-        multi_isocenter = False
+        multi_isocenter = None
         iso_dict = {'type': None, 'target': None}
         translation_map = {}
         optimize = True

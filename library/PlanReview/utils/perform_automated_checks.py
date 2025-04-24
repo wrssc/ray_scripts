@@ -9,7 +9,7 @@ from PlanReview.qa_tests.test_sandbox import get_sandbox_level_tests
 from PlanReview.qa_tests.test_plan import parse_order_selection
 from PlanReview.qa_tests.analyze_logs import retrieve_logs
 from PlanReview.utils import get_user_name
-from PlanReview.utils.email_results import save_report, email_report_script_error
+from PlanReview.utils.email_results import save_report, email_report
 
 
 def parse_time_log(time_log, time0, time1, test_name):
@@ -58,7 +58,7 @@ def execute_test(rso, test_name, test_function, kwargs, time_log):
             user_name=user_name,
             report_text=f"Automated report: error occurred while executing the test: {test_name}\n\n{str(e)}"
         )
-        email_report_script_error(file_path, source='script')
+        email_report(file_path, 'error_report', source='script')
         pass_result = FAIL
     time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), test_function.__name__)
     return pass_result, message, time_log

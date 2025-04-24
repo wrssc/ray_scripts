@@ -158,7 +158,7 @@
         <to><machine>TrueBeam6696</machine><energy type="photons">15</energy></to>
         <to><machine>TrueBeam6697</machine><energy type="photons">15</energy></to>
     </filter>
-        <filter type="machine/energy">
+    <filter type="machine/energy">
         <from><machine>TrueBeam_NoTrack</machine><energy type="photons">6</energy></from>
         <to><machine>TrueBeam2871</machine><energy type="photons">6</energy></to>
         <to><machine>TrueBeam3744</machine><energy type="photons">6</energy></to>
@@ -187,5 +187,35 @@
         <to><machine>TrueBeam2871</machine><energy type="photons">15</energy></to>
         <to><machine>TrueBeam3744</machine><energy type="photons">15</energy></to>
         <to><machine>TrueBeam6198</machine><energy type="photons">15</energy></to>
+    </filter>
+    <filter type="machine/table_coordinates">
+        <from><machine>TrueBeamSTx</machine>
+            <immobilization>
+                <device>QFix_Brain_TBCouch_F2andF3</device>
+                <immobilization_type>Frameless</immobilization_type>
+            </immobilization>
+        </from>
+        <to><machine>TrueBeam1358</machine>
+            <immobilization>
+                <device>QFix_Brain_TBCouch_F2andF3</device>
+                <immobilization_type>Frameless</immobilization_type>
+            </immobilization>
+            <offsets>
+                <alpha units="cm">7.83</alpha>
+                <beta units="cm">36.43</beta>
+                <gamma units="cm">-0.20</gamma>
+            </offsets>
+        </to>
+        <to><machine>Edge6593</machine>
+            <immobilization>
+                <device>QFix_Brain_TBCouch_F2andF3</device>
+                <immobilization_type>Frameless</immobilization_type>
+            </immobilization>
+            <offsets>
+                <alpha units="cm">8.29</alpha>
+                <beta units="cm">36.35</beta>
+                <gamma units="cm">-0.11</gamma>
+            </offsets>
+        </to>
     </filter>
 </filters>

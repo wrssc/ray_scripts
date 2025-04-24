@@ -2757,7 +2757,8 @@ def make_externalclean(
             suffix=suffix,
         )
     if not roi_geom.HasContours():
-        supports = find_types(case=case, roi_type="Support")
+        supports = find_types(case=case, roi_type="Fixation")
+        supports += find_types(case=case, roi_type="Support")
         if supports:
             ext_defs = {
                 "StructureName": structure_name,
@@ -2874,6 +2875,7 @@ def trim_supports(patient, case, exam):
     # Inputs: RS Objects: patient, case, exam
     # returns: error: None if successful
     supports = find_types(case=case, roi_type='Support')
+    supports += find_types(case=case, roi_type='Fixation')
     allowed = ['TrueBeamCouch', 'TomoCouch']
     support_name = [s for s in supports if s in allowed]
     #
@@ -4473,7 +4475,7 @@ def planning_structures(
                     "ExcludeFromExport": True,
                     "VisualizeStructure": False,
                     "VisualizationType": "Filled",
-                    "StructColor": TargetColors[i],
+                    "StructColor": TargetColors[i % len(TargetColors)],
                     "OperationA": "Intersection",
                     "SourcesA": [t, "ExternalClean"],
                     "MarginTypeA": "Expand",
@@ -4493,7 +4495,7 @@ def planning_structures(
                     "ExcludeFromExport": True,
                     "VisualizeStructure": False,
                     "VisualizationType": "Filled",
-                    "StructColor": TargetColors[i],
+                    "StructColor": TargetColors[i % len(TargetColors)],
                     "OperationA": "Intersection",
                     "SourcesA": [t, "ExternalClean"],
                     "MarginTypeA": "Expand",
@@ -4571,7 +4573,7 @@ def planning_structures(
                 "StructureName": target_dict['PTVEZList'][index],
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
-                "StructColor": derived_target_colors[index],
+                "StructColor": derived_target_colors[index % len(derived_target_colors)],
                 "OperationA": "Union",
                 "SourcesA": [target],
                 "MarginTypeA": "Expand",
@@ -4632,7 +4634,7 @@ def planning_structures(
                 "StructureName": t + '_Eval',
                 "ExcludeFromExport": False,
                 "VisualizeStructure": False,
-                "StructColor": TargetColors[i],
+                "StructColor": TargetColors[i % len(TargetColors)],
                 "OperationA": "Intersection",
                 "SourcesA": [t, "ExternalClean"],
                 "MarginTypeA": "Expand",
@@ -4662,7 +4664,7 @@ def planning_structures(
                 "StructureName": target_dict['PTVEvalList'][index],
                 "ExcludeFromExport": False,
                 "VisualizeStructure": False,
-                "StructColor": TargetColors[index],
+                "StructColor": TargetColors[i % len(TargetColors)],
                 "OperationA": "Intersection",
                 "SourcesA": [target, "ExternalClean"],
                 "MarginTypeA": "Expand",
@@ -4725,7 +4727,7 @@ def planning_structures(
                 "StructureName": target_dict['OTVList'][index],
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
-                "StructColor": derived_target_colors[index],
+                "StructColor": derived_target_colors[index % len(derived_target_colors)],
                 "OperationA": "Intersection",
                 "SourcesA": [target] + otv_intersect,
                 "MarginTypeA": "Expand",
@@ -4764,7 +4766,7 @@ def planning_structures(
                     "StructureName": target_dict['sOTVuList'][index],
                     "ExcludeFromExport": True,
                     "VisualizeStructure": False,
-                    "StructColor": derived_target_colors[index],
+                    "StructColor": derived_target_colors[index % len(derived_target_colors)],
                     "OperationA": "Intersection",
                     "SourcesA": [target] + otv_intersect,
                     "MarginTypeA": "Expand",
@@ -4894,7 +4896,7 @@ def planning_structures(
                 "StructureName": ring_name,
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
-                "StructColor": derived_ring_colors[index],
+                "StructColor": derived_ring_colors[index % len(derived_ring_colors)],
                 "OperationA": "Union",
                 "SourcesA": [target],
                 "MarginTypeA": "Expand",

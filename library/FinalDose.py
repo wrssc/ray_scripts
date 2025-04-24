@@ -202,6 +202,7 @@ def process_rois_for_export(plan, case):
     # Add support, external, and bolus structures
     rois_for_export.extend(StructureOperations.find_types(case, 'Bolus'))
     rois_for_export.extend(StructureOperations.find_types(case, 'Support'))
+    rois_for_export.extend(StructureOperations.find_types(case, 'Fixation'))
     rois_for_export.extend(StructureOperations.find_types(case, 'External'))
 
     # Remove duplicates and prepare lists for successful inclusion/exclusion

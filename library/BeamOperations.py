@@ -76,6 +76,7 @@ import Beams
 import datetime
 import os
 import xml
+import PySimpleGUI as Sg
 
 from library.api.api_beamsets import get_source_to_surface_distance
 from library.api.api_utils import get_machine
@@ -552,7 +553,7 @@ def create_beamset(patient, case, exam, plan,
                     info = [bs.DicomPlanLabel for bs in plan.BeamSets if b.DicomName in bs.DicomPlanLabel]
                     # info = plan.QueryBeamSetInfo(Filter={'Name': '^{0}'.format(new_bs_name)})
                     logging.debug('Beamset info: {}'.format(info))
-                    if info[0] == new_bs_name:
+                    if info and info[0] == new_bs_name:
                         # Ensure the maximum DicomPlanLabel length of 16 chars is not exceeded
                         if len(new_bs_name) > 14:
                             new_bs_name = b.DicomName[:14] + str(i).zfill(2)
@@ -1062,7 +1063,10 @@ def update_set_up(beamset, set_up, couch_angles=False):
             else:
                 angles.append(set_up[k][2])
         # Update the setup beams with the valid angles
-        beamset.UpdateSetupBeams(ResetSetupBeams=True, SetupBeamsGantryAngles=angles)
+        if len(angles) > 0:
+            beamset.UpdateSetupBeams(ResetSetupBeams=True, SetupBeamsGantryAngles=angles)
+        else:
+            Sg.PopupError('No valid set-up fields found')
     # Set the set-up parameter specifics
     i = 0
     for k in set_up:

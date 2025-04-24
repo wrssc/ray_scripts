@@ -222,7 +222,7 @@ TOMO_DATA = {'MACHINES': ['HDA0488'],
 
 TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                  'SUPPORTS': ['TrueBeamCouch', 'CivcoBaseShell_Cork', 'CivcoInclineShell_Wax',
-                              'Sframe_F1_TBCouch_HN'],
+                              'QFix_H&N_TBCouch_F2andF3'],
                  'EDW_LIMITS': {'MU_LIMIT': 20.,
                                 'Y2-OUT': 10.,  # Y2=OUT: -10 cm ≤ Y1 ≤ 10 cm
                                 'Y1-IN': 10.,  # Y1=IN : -10 cm ≤ Y2 ≤ 10 cm
@@ -236,9 +236,9 @@ MATERIALS = {'TrueBeamCouch': 'Lung',
              'CivcoBaseShell_Cork': 'Cork',
              'CivcoInclineShell_Wax': 'Wax',
              'CivcoWingBoard_PMMA': 'PMMA',
-             'Sframe_H2_TBCouch_Brain': 'Lung',
-             'Sframe_F1_TBCouch_HN': 'Lung',
-             'Sframe': 'Lung',
+             'QFix_Brain_TBCouch_H1andH2': 'Lung',
+             'QFix_H&N_TBCouch_F2andF3': 'Lung',
+             'Black Board External Final': 'Lung',
              'TomoCouch': 'Lung',
              'Baseplate_Override_PMMA': 'PMMA',
              'ProneBreastBoard': 'Cartilage'}

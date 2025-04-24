@@ -43,10 +43,12 @@ DOSIMETRY_OUTPUT_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "DosimetrySafetyS
 ERROR_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Error_Reports", "ReviewScript")
 
 # Quality Improvement Reports
-QI_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Quality_Improvement_Reports")
+DOSE_QI_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Quality_Improvement_Reports", "Dose")
+PHYSICS_QI_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Quality_Improvement_Reports", "Physics")
 DATAFILE_EVENT_LIST = os.path.join(DATA_GATHERING_DIR, "Incident_Reports.csv")
 # Revision Reports
-REVISION_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Revision_Reports")
+DOSE_REVISION_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Revision_Reports", "Dose")
+PHYSICS_REVISION_REPORTS_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "Revision_Reports", "Physics")
 #
 DATAFILE_TARGET_MATCH_STATISTICS = os.path.join(DATA_GATHERING_DIR, "TargetMatchStatistics.csv")
 
@@ -288,6 +290,15 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_CHECK_GROUP: {'TEXT': 'Contours influencing dose calculation are correct:',
                                   'KEY': 'dose_contours_consistent'},
+            KEY_OUT_OPTIONS: 'Yes,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'ptv_expansions',
+            KEY_OUT_DESC: 'PTV expansions are appropriate for site/immobilization',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Margins reasonable given site and immobilization',
+                                  'KEY': 'ptv_expansions'},
             KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
@@ -611,6 +622,35 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_OPTIONS: 'Yes,No',
             KEY_AUTOMATION: {},
         },
+        # Added to the Mobius review in October of 2024
+        {
+            KEY_OUT_TEST: 'care_path',
+            KEY_OUT_DESC: 'Plan is non-urgent or care path is broken to enable DQA',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Care path broken to enable DQA in rushed case:',
+                                  'KEY': 'mobius_ok'},
+            KEY_OUT_OPTIONS: 'Yes,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'delta4_measurement',
+            KEY_OUT_DESC: 'Delta4 measurement unnecessary?',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Mobius result is satisfactory and further verification is unneeded.',
+                                  'KEY': 'mobius_ok'},
+            KEY_OUT_OPTIONS: 'Yes,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'single_beamset',
+            KEY_OUT_DESC: 'Only a single beamset is present in Mobius for this plan?',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Only a single beamset is present in Mobius for future QA?',
+                                  'KEY': 'mobius_ok'},
+            KEY_OUT_OPTIONS: 'Yes,No',
+            KEY_AUTOMATION: {},
+        },
+        #
         #
         # Removed September 2023 per Physics group
         # {
@@ -1976,7 +2016,7 @@ PACEMAKER_PRV_NAME = "Pacemaker_PRV50"
 PACEMAKER_SEARCH_DISTANCE = 10.  # cm distance over which to look for the 2 Gy dose level
 PACEMAKER_DISTANCE_TOLERANCE = 2.  # cm distance from which we want the 2 Gy line to be away from
 # the pacer
-SUPPORT_TOLERANCE = 2.0  # cm, the minimum distance between external and any support at isocenter
+SUPPORT_TOLERANCE = 3.0  # cm, the minimum clearance distance between external and any support at isocenter
 TRUEBEAM_MAX_DIAMETER = 80.0  # cm, the "pin" diameter of the TrueBeam
 HDA_MAX_DIAMETER = 85.0  # cm, the cover diameter of the Tomo HDA
 #
@@ -2113,14 +2153,13 @@ MCS_TOLERANCES = {'MCS': {'MEAN': 0.369,
 TOMO_DATA = {'MACHINES': ['HDA0488'],
              'PLAN_TR_SUFFIX': r'_Tr',
              'LATERAL_ISO_MARGIN': 2.,  # cm
-             'SUPPORTS': ['TomoCouch', 'S-frame']
+             'SUPPORTS': ['TomoCouch', 'QFix_Board_Only']
              }
 
 TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                  'SUPPORTS': ['TrueBeamCouch', 'CivcoBaseShell_Cork', 'CivcoInclineShell_Wax',
-                              'Sframe_F1_TBCouch_HN', 'Sframe_H2_TBCouch_Brain',
-                              'ProneBreastBoard', 'QFix_Brain_TBCouch_H1andH2','QFix_H&N_TBCouch_F2andF3',
-                              'Black Board External Final', 'Baseplate_Override_PMMA'],
+                              'ProneBreastBoard', 'QFix_Brain_TBCouch_H1andH2', 'QFix_H&N_TBCouch_F2andF3',
+                              'QFix_Board_Only', 'Baseplate_Override_PMMA'],
                  'EDW_LIMITS': {'MU_LIMIT': 20.,
                                 'Y2-OUT': 10.,  # Y2=OUT: -10 cm ≤ Y1 ≤ 10 cm
                                 'Y1-IN': 10.,  # Y1=IN : -10 cm ≤ Y2 ≤ 10 cm
@@ -2129,19 +2168,18 @@ TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                                 'X-MAX': 40.,  # X2 - X1 ≤ 40 cm
                                 'X-MIN': 4.,  # X2 - X1 ≥ 4 cm
                                 }}
+COUCH_ROIS = ['TrueBeamCouch', 'TomoCouch', 'ProneBreastBoard', 'QFix_Brain_TBCouch_H1andH2',
+                'QFix_H&N_TBCouch_F2andF3', 'QFix_Board_Only']
 # MATERIALS:
 MATERIALS = {'TrueBeamCouch': 'Lung',
              'CivcoBaseShell_Cork': 'Cork',
              'CivcoInclineShell_Wax': 'Wax',
              'CivcoWingBoard_PMMA': 'PMMA',
-             'Sframe_H2_TBCouch_Brain': 'Lung',
-             'Sframe_F1_TBCouch_HN': 'Lung',
-             'Sframe': 'Lung',
              'TomoCouch': 'Lung',
              'Baseplate_Override_PMMA': 'PMMA',
              'QFix_Brain_TBCouch_H1andH2': 'Lung',
              'QFix_H&N_TBCouch_F2andF3': 'Lung',
-             'Black Board External Final': 'Lung',
+             'QFix_Board_Only': 'Lung',
              'ProneBreastBoard': 'Cartilage',
              'MT-T-45-S-CE221': 'PLA',
              'MT-T-45-M-CE221': 'PLA',

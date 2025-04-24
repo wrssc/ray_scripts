@@ -676,7 +676,7 @@ def get_isoplane_projection_of_points_verbose(
     return (u, v, r, e_u, e_v, e_s)
 
 
-def distance_from_jaws(x, y, list_of_rectangles):
+def distance_from_mlcs_verbose(x, y, list_of_jaw_positions, list_of_mlc_positions):
     """Takes a list of N points x and y and returns the distance from M rectangles
 
     PARAMETERS
@@ -687,7 +687,10 @@ def distance_from_jaws(x, y, list_of_rectangles):
         A numpy array of NxM values.
     list_of_rectangles : np.array
         A numpy array of Mx4 values. Each of the M rows is a list of
-        boundaries [xmin, xmax, ymin, ymax] for each rectangle
+        boundaries [xmin, xmax, ymin, ymax] for each control point
+    list_of_mlc_positions : np.array
+        A numpy array of Mx60x4 values. Each of the Mx60 rows is a list of
+        boundaries [xmin, xmax, ymin, ymax] for each control point x leaf pair
 
     RETURNS
     -------
@@ -698,23 +701,39 @@ def distance_from_jaws(x, y, list_of_rectangles):
     assert isinstance(x, np.ndarray), "x must be an np.array"
     assert isinstance(y, np.ndarray), "y must be an np.array"
     assert isinstance(
-        list_of_rectangles, np.ndarray
+        list_of_mlc_positions, np.ndarray
     ), "list_of_rectangles must be an np.array"
     assert x.shape == y.shape, "x and y must have same shape"
     assert (
-        x.shape[1] == list_of_rectangles.shape[0]
+        x.shape[1] == list_of_mlc_positions.shape[0]
     ), "axis=1 of x,y must match axis=0 of list_of_rectangles"
 
-    xmin = list_of_rectangles[:, 0]
-    xmax = list_of_rectangles[:, 1]
-    ymin = list_of_rectangles[:, 2]
-    ymax = list_of_rectangles[:, 3]
+    x = x[:, :, np.newaxis]
+    y = y[:, :, np.newaxis]
 
-    zeros = np.zeros(x.shape)
-    dx = np.maximum.reduce([xmin[None, :] - x, zeros, x - xmax[None, :]])
-    dy = np.maximum.reduce([ymin[None, :] - y, zeros, y - ymax[None, :]])
+    xmin = np.maximum(
+        list_of_mlc_positions[:, :, 0][np.newaxis, :, :],
+        list_of_jaw_positions[:, 0][np.newaxis, :, np.newaxis],
+    )
+    xmax = np.minimum(
+        list_of_mlc_positions[:, :, 1][np.newaxis, :, :],
+        list_of_jaw_positions[:, 1][np.newaxis, :, np.newaxis],
+    )
+    ymin = np.maximum(
+        list_of_mlc_positions[:, :, 2][np.newaxis, :, :],
+        list_of_jaw_positions[:, 2][np.newaxis, :, np.newaxis],
+    )
+    ymax = np.minimum(
+        list_of_mlc_positions[:, :, 3][np.newaxis, :, :],
+        list_of_jaw_positions[:, 3][np.newaxis, :, np.newaxis],
+    )
 
-    return np.sqrt(dx * dx + dy * dy)
+    zeros = np.zeros((xmin - x).shape)
+
+    dx = np.maximum(np.maximum(xmin - x, zeros), x - xmax)
+    dy = np.maximum(np.maximum(ymin - y, zeros), y - ymax)
+
+    return dx * dx + dy * dy, dx, dy
 
 
 def distance_from_jaws_verbose(x, y, list_of_rectangles):
@@ -857,18 +876,34 @@ def get_device_dist_to_field_edge(
     report_runtime(start_time, "Starting calculation of distances from collimator.")
 
     if verbose_output:
-        rect_dist, du, dv = distance_from_jaws_verbose(u, v, list_of_jaw_positions)
+        dist_squared, du, dv = distance_from_mlcs_verbose(
+            u, v, list_of_jaw_positions, list_of_MLC_positions
+        )
     else:
-        rect_dist = distance_from_jaws(u, v, list_of_jaw_positions)
+        dist_squared = distance_from_mlcs(u, v, list_of_jaw_positions, list_of_MLC_positions)
 
     report_runtime(start_time, "Completed calculation of distances from collimator.")
     report_runtime(start_time, "Starting determination of min value")
 
     # Construct string
-    min_dist = np.min(rect_dist, axis=None)
-    roi_point, control_point = np.unravel_index(
-        np.argmin(rect_dist, axis=None), rect_dist.shape
+    dist_shape = dist_squared.shape
+    MLCs_open_beyond_threshold = (
+        list_of_MLC_positions[:, :, 1] - list_of_MLC_positions[:, :, 0] > 0.06
     )
+
+    dist_squared[
+        np.logical_or(
+            np.zeros(dist_squared.shape), np.invert(MLCs_open_beyond_threshold)
+        )
+    ] = 1000
+    roi_point, control_point, leaf_pair = np.unravel_index(
+        np.argmin(dist_squared, axis=None), dist_shape
+    )
+
+    min_dist = np.sqrt(np.min(dist_squared, axis=None))
+
+    report_runtime(start_time, "Completed determination of min value.")
+
     if verbose_output:
 
         # Delete any current POIs pertaining to CIEDs
@@ -895,15 +930,40 @@ def get_device_dist_to_field_edge(
         # Create POI at the ray of closest approach
         mag_factor = r[roi_point, control_point] / 100
 
-        if u[roi_point, control_point] > list_of_jaw_positions[control_point, 1]:
-            u_shift = -mag_factor * du[roi_point, control_point] * e_u[control_point]
-        else:
-            u_shift = mag_factor * du[roi_point, control_point] * e_u[control_point]
+        xmax = np.minimum(
+            list_of_MLC_positions[control_point, leaf_pair, 1],
+            list_of_jaw_positions[control_point, 1]
+        )
+        ymax = np.minimum(
+            list_of_MLC_positions[control_point, leaf_pair, 3],
+            list_of_jaw_positions[control_point, 3]
+        )
 
-        if v[roi_point, control_point] > list_of_jaw_positions[control_point, 3]:
-            v_shift = -mag_factor * dv[roi_point, control_point] * e_v[control_point]
+        if u[roi_point, control_point] > xmax:
+            u_shift = (
+                -mag_factor
+                * du[roi_point, control_point, leaf_pair]
+                * e_u[control_point]
+            )
         else:
-            v_shift = mag_factor * dv[roi_point, control_point] * e_v[control_point]
+            u_shift = (
+                mag_factor
+                * du[roi_point, control_point, leaf_pair]
+                * e_u[control_point]
+            )
+
+        if v[roi_point, control_point] > ymax:
+            v_shift = (
+                -mag_factor
+                * dv[roi_point, control_point, leaf_pair]
+                * e_v[control_point]
+            )
+        else:
+            v_shift = (
+                mag_factor
+                * dv[roi_point, control_point, leaf_pair]
+                * e_v[control_point]
+            )
 
         xyz_closest_ray = xyz_closest_approach + u_shift + v_shift
         case.PatientModel.CreatePoi(
@@ -919,11 +979,9 @@ def get_device_dist_to_field_edge(
             Type="DoseRegion",
         )
 
-    report_runtime(start_time, "Completed determination of min value.")
+    min_dist_description = f"The minimum distance of {min_dist} cm occurred for {list_of_cp_descriptions[control_point]}, leaf-pair {leaf_pair+1}.\nThe DICOM location of nearest approach is {organ_coords[roi_point]+iso_np}"
 
-    min_dist_description = f"The minimum distance of {min_dist} cm occurred for {list_of_cp_descriptions[control_point]}.\nThe DICOM location of nearest approach is {organ_coords[roi_point]+iso_np}"
-
-    return np.min(rect_dist), min_dist_description
+    return min_dist, min_dist_description
 
 
 def get_device_D0_03cc(case, beam_set, examination, roi_name):

@@ -4,16 +4,17 @@ try:
 except ImportError:
     import PySimpleGUI as Sg
 import logging
+from dataclasses import dataclass, field
+from typing import List, Dict, Union, Any, Optional, Tuple
 from PlanReview.review_definitions import ICON_CHECKER
 from PlanReview.utils.constants import (
     KEY_USER_COMMENT, KEY_PROCEED_REVISE, KEY_RADIO, KEY_QI_INFO,
     KEY_REVISION_INFO, KEY_SIDE_PANEL, KEY_DOSE_QI, KEY_REVISION_NUMBER,
     KEY_DOSE_REVISION_INFO, KEY_DOSE_QI_INFO, KEY_DOSE_REVISION, KEY_OUT_DOSE_COMMENT)
 from PlanReview.guis.gui_qa_form import get_qa_form_input_components
-from PlanReview.utils.email_results import (email_report_qi_issue, email_report_revision, save_report)
+from PlanReview.utils.email_results import (email_report, save_report)
 from PlanReview.utils.io_file_utils import append_to_csv
 from PlanReview.utils import get_user_name
-from dataclasses import dataclass, field
 
 #
 # Configuration elements for the side panel
@@ -347,7 +348,7 @@ def load_side_panel(window: Sg.Window, values: Dict[str, Any], review_type) -> N
                     on_side_panel_radio_button_click(window, load_radio, review_type)
                 else:
                     window[field_key].update(saved_value)
-        elif field_key == KEY_USER_COMMENT and KEY_OUT_DOSE_COMMENT in window.key_dict:
+        elif field_key == KEY_OUT_DOSE_COMMENT and KEY_USER_COMMENT in window.key_dict:
             # A special case for when a dosimetry review is loaded into a physics review window
             window[KEY_USER_COMMENT].update(saved_value)
         else:
@@ -485,7 +486,7 @@ def side_panel_proceed_qi_true(values):
     """ Test to determine if the side panel has QI or Revise selected,
     check both physics and dosimetry configurations."""
     return any(values.get(key) for key in [
-        f"{KEY_DOSE_QI}", f"{KEY_DOSE_REVISION}",
+        f"{KEY_DOSE_QI_INFO}", f"{KEY_DOSE_REVISION_INFO}",
         f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)"])
 
 
@@ -538,125 +539,99 @@ def is_valid_side_panel(window: Sg.Window, values: Dict[str, Union[bool, str]],
     return is_valid
 
 
-def update_qi_revision_tracking(rso, values):
+# Define a dataclass for form elements
+@dataclass
+class FormElements:
+    user_name: str
+    is_physics_revision: bool = False
+    is_dose_revision: bool = False
+    is_dose_qi: bool = False
+    is_physics_qi: bool = False
+    user_comments: Optional[str] = None
+    dose_comments: Optional[str] = None
+    revision_comments: Optional[str] = None
+    dose_revision_comments: Optional[str] = None
+    revision_number: Optional[int] = None
+    dose_qi_text: Optional[str] = None
+    qi_text: Optional[str] = None
+
+
+def retrieve_form_elements(values: Dict[str, Any]) -> FormElements:
+    """
+    Retrieve the form elements from the PySimpleGUI window values.
+    Args:
+        values: (dict) PySimpleGUI window values
+    Returns:
+        FormElements: An instance containing all form elements
+    """
+    return FormElements(
+        user_name=get_user_name(),
+        is_physics_revision=values.get(f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise", False),
+        is_dose_revision=values.get(f"{KEY_DOSE_REVISION}{KEY_RADIO}{label_revisions_yes}", False),
+        is_dose_qi=values.get(f"{KEY_DOSE_QI}{KEY_RADIO}{label_qi_yes}", False),
+        is_physics_qi=values.get(f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)", False),
+        user_comments=values.get(KEY_USER_COMMENT),
+        dose_comments=values.get(KEY_OUT_DOSE_COMMENT),
+        revision_comments=values.get(KEY_REVISION_INFO),
+        dose_revision_comments=values.get(KEY_DOSE_REVISION_INFO),
+        revision_number=values.get(KEY_REVISION_NUMBER),
+        dose_qi_text=values.get(KEY_DOSE_QI_INFO),
+        qi_text=values.get(KEY_QI_INFO),
+    )
+
+
+def update_qi_revision_tracking(rso, form_elements):
     """
     Generate and distribute a revision report based on the values entered in the
     side panel of the PySimpleGUI window.
     Args:
         rso: (NamedTuple): The RSO object containing the patient and beamset information.
-        values: (dict) pySimpleGUI window values
-
-    Returns: None
-    """
-    is_physics_revision = values.get(f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise", False)
-    is_dose_revision = values.get(f"{KEY_DOSE_REVISION}", False)
-    is_dose_qi = values.get(f"{KEY_DOSE_QI}", False)
-    is_physics_qi = values.get(f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed (QI Issue)", False)
-
-    user_name = get_user_name()
-    # Extract values from the window
-    user_comments = values.get(KEY_USER_COMMENT, None)
-    dose_comments = values.get(KEY_OUT_DOSE_COMMENT, None)
-    revision_comments = values.get(KEY_REVISION_INFO, None)
-    dose_revision_comments = values.get(KEY_DOSE_REVISION_INFO, None)
-    revision_number = values.get(KEY_REVISION_NUMBER, None)
-    dose_qi_text = values.get(KEY_DOSE_QI_INFO, None)
-    qi_text = values.get(KEY_QI_INFO, None)
-
-    # Append the report to the CSV file
-    append_to_csv(
-        patient_id=rso.patient.PatientID,
-        beamset_name=rso.beamset.DicomPlanLabel,
-        user_name=user_name,
-        user_comments=user_comments,
-        dose_comments=dose_comments,
-        is_physics_revision=is_physics_revision,
-        is_dose_revision=is_dose_revision,
-        is_dose_qi=is_dose_qi,
-        is_physics_qi=is_physics_qi,
-        dose_qi_comments=dose_qi_text,
-        qi_comments=qi_text,
-        revision_comments=revision_comments,
-        revision_number=revision_number,
-        dose_revision_comments=dose_revision_comments,
-    )
-
-
-def generate_and_distribute_qi_issue_report(rso, values):
-    """
-    Generate and distribute a QI issue report based on the values entered in the
-    side panel of the PySimpleGUI window, and append the report to a CSV file.
-
-    Args:
-        rso: (NamedTuple): The RSO object containing the patient and beamset information.
-        values: (dict): PySimpleGUI window values.
-
+        form_elements: (FormElements): The form elements containing the user input values.
     Returns:
         None
     """
-    user_name = get_user_name()
 
-    # Extract values from the window
-    user_comments = values.get(KEY_USER_COMMENT, None)
-    dose_comments = values.get(KEY_OUT_DOSE_COMMENT, None)
-    dose_qi_text = values.get(KEY_DOSE_QI_INFO, None)
-    qi_text = values.get(KEY_QI_INFO, None)
-
-    # Build the report description
-    description = (
-        f"User Comments:\n\t{user_comments}\n\n"
-        f"Dosimetry Comments:\n\t{dose_comments}\n\n"
-        f"QI Comments:\n\t{qi_text}\n\n"
-        f"Dosimetry QI Comments:\n\t{dose_qi_text}\n\n"
-    )
-
-    # Save and email the report
-    file_path = save_report(
-        report_type='qi_report',
+    # Append the report to the CSV file using the attributes of form_elements
+    append_to_csv(
         patient_id=rso.patient.PatientID,
         beamset_name=rso.beamset.DicomPlanLabel,
-        user_name=user_name,
-        report_text=description
+        user_name=form_elements.user_name,
+        is_physics_revision=form_elements.is_physics_revision,
+        is_dose_revision=form_elements.is_dose_revision,
+        is_dose_qi=form_elements.is_dose_qi,
+        is_physics_qi=form_elements.is_physics_qi,
+        revision_number=form_elements.revision_number,
+        user_comments=form_elements.user_comments,
+        dose_comments=form_elements.dose_comments,
+        qi_comments=form_elements.qi_text,
+        dose_qi_comments=form_elements.dose_qi_text,
+        revision_comments=form_elements.revision_comments,
+        dose_revision_comments=form_elements.dose_revision_comments,
     )
-    email_report_qi_issue(file_path)
-    # Update the CSV file
-    update_qi_revision_tracking(rso, values)
 
 
-def generate_and_distribute_revision_report(rso, values):
-    """
-    Generate and distribute a revision report based on the values entered in the
-    side panel of the PySimpleGUI window.
-    Args:
-        rso: (NamedTuple): The RSO object containing the patient and beamset information.
-        values: (dict) pySimpleGUI window values
-
-    Returns: None
-    """
-    user_name = get_user_name()
-    # Extract values from the window
-    user_comments = values.get(KEY_USER_COMMENT, None)
-    dose_comments = values.get(KEY_OUT_DOSE_COMMENT, None)
-    revision_comments = values.get(KEY_REVISION_INFO, None)
-
-    # Build the report description
+def generate_and_distribute_report(rso, values,report_type):
+    form_elements = retrieve_form_elements(values)
     description = (
-        f"User Comments:\n\t{user_comments}\n\n"
-        f"Dosimetry Comments:\n\t{dose_comments}\n\n"
-        f"Revision Comments:\n\t{revision_comments}"
+        f"Physics Comments:\n\t{form_elements.user_comments}\n\n"
+        f"Physics QI Suggestions:\n\t{form_elements.qi_text}\n\n"
+        f"Revision Comments:\n\t{form_elements.revision_comments}\n\n"
+        f"Dosimetry QI Suggestions:\n\t{form_elements.dose_qi_text}\n\n"
+        f"Revision Number:\n\t{form_elements.revision_number}\n\n"
+        f"Dosimetry Revision Comments:\n\t{form_elements.dose_revision_comments}\n\n"
+        f"Dosimetry Comments:\n\t{form_elements.dose_comments}\n\n"
     )
-
     # Save and email the report
     file_path = save_report(
-        report_type='revision_report',
+        report_type=report_type,
         patient_id=rso.patient.PatientID,
         beamset_name=rso.beamset.DicomPlanLabel,
-        user_name=user_name,
+        user_name=form_elements.user_name,
         report_text=description
     )
-    email_report_revision(file_path)
+    email_report(file_path, report_type)
     # Update the CSV file
-    update_qi_revision_tracking(rso, values)
+    update_qi_revision_tracking(rso, form_elements)
 
 
 def is_valid_physics_panel(window: Sg.Window, values: Dict[str, Union[bool, str]]) -> bool:

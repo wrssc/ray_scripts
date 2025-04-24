@@ -103,13 +103,13 @@ def make_too_cold_structure(
         "Operation": "Union",
         "SourceRoiNames": [PTV_name],
         "MarginSettings": {
-            'Type': "Expand",
-            'Superior': 0,
-            'Inferior': 0,
-            'Anterior': 0,
-            'Posterior': 0,
-            'Right': 0,
-            'Left': 0,
+            'Type': "Contract",
+            'Superior': expansion,
+            'Inferior': expansion,
+            'Anterior': expansion,
+            'Posterior': expansion,
+            'Right': expansion,
+            'Left': expansion,
         }
     }
 
@@ -118,12 +118,12 @@ def make_too_cold_structure(
         "SourceRoiNames": [dose_name],
         "MarginSettings": {
             'Type': "Expand",
-            'Superior': expansion,
-            'Inferior': expansion,
-            'Anterior': expansion,
-            'Posterior': expansion,
-            'Right': expansion,
-            'Left': expansion,
+            'Superior': 0,
+            'Inferior': 0,
+            'Anterior': 0,
+            'Posterior': 0,
+            'Right': 0,
+            'Left': 0,
         }
     }
 
@@ -272,6 +272,8 @@ def create_otv(ptv_name, dose_name):
         otv_name = "OTV_AUTO"
 
     expansions = (np.arange(40)+1)/100
+    # expansions = (np.arange(15)+1)/100
+
 
     for expansion in expansions:
         try:
