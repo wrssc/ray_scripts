@@ -36,9 +36,11 @@ __date__ = "2021-01-14"
 __version__ = "1.1.0"
 __status__ = "Production"
 __deprecated__ = False
-__reviewer__ = "Adam Bayliss"
-__reviewed__ = "2022-06-27"
-__raystation__ = "11B"
+
+__reviewer__ = "Dustin Jacqmin"
+__reviewed__ = "2025-04-24"
+__raystation__ = "11B, 2024A SP3"
+
 __maintainer__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
 __license__ = "GPLv3"
