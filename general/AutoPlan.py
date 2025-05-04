@@ -399,6 +399,7 @@ def autoplan(autoplan_parameters, **kwargs):
         iso_dict = {'type': None, 'target': None}
         translation_map = {}
         optimize = True
+        lock_dose_grid = False
         ignore_status = False
         multi_plan_parameters = []
     logging.debug(f'Optimization Parameters: user_prompts:'
