@@ -356,7 +356,7 @@ def helper_image():
 
 def main():
     # Specify valid version of raystation
-    valid_rs_version = ['12.0.0.932', '15.1.0.852', '15.1.3.15']
+    valid_rs_version = ['12.0.0.932', '15.1.0.852', '15.1.3.10']
 
     # rendering structure name
     render_name = 'z_rendering'
