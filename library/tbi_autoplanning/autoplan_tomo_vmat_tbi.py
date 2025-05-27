@@ -831,7 +831,6 @@ def export_ffs_dose_to_hfs_plan(values):
         connect.await_user_input('Plan transfer successful, resume the script')
 
 
-
 def tbi_gui():
     """
     Displays a GUI for TBI planning parameter selection. The user can choose
@@ -1041,7 +1040,7 @@ def main():
     # Prerequisites for operations:
     # generate_thi_ffs_plan: External, AvoidSkin, External+1
     # Launch gui
-    testing = False
+    testing = True
     # Disable intermediate VMAT junctions and OTVs
     make_junctions = True
     make_otvs = False
