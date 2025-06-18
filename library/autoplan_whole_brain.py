@@ -68,8 +68,8 @@ import UserInterface
 import random
 import sys
 import BeamOperations
-import PlanOperations
 import StructureOperations
+from GeneralOperations import logcrit
 from library.api.api_beamsets import add_dose_prescription_to_roi
 
 
@@ -792,23 +792,6 @@ def main(bypass_dialogs=False):
                                          relative_dose_prescription_value=1,
                                          auto_scale_dose=True)
 
-            # TODO Eliminate try after RS 11
-            # try:
-            #     # RS 10
-            #     beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
-            #                                      DoseVolume=80,
-            #                                      PrescriptionType='DoseAtVolume',
-            #                                      DoseValue=total_dose,
-            #                                      RelativePrescriptionLevel=1,
-            #                                      AutoScaleDose=True)
-            # except AttributeError:
-            #     beamset.AddRoiPrescriptionDoseReference(RoiName='PTV_WB_xxxx',
-            #                                             DoseVolume=80,
-            #                                             PrescriptionType='DoseAtVolume',
-            #                                             DoseValue=total_dose,
-            #                                             RelativePrescriptionLevel=1)
-
-
             try:
                 isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
                     RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
@@ -834,6 +817,10 @@ def main(bypass_dialogs=False):
             beam_gant = [270, 90]
             beam_col = [0, 0]
             beam_couch = [0, 0]
+            logcrit('Dialog: {},\t'.format('Whole Brain Autoplan')
+                    + 'TemplateName: {},\t'.format('WBRT Auto Opposed Laterals')
+                    + 'Iso: {},\t'.format('PTV_WB_xxxx')
+                    + 'Energy: {},\t'.format(beam_ener[0]))
 
             for i, b in enumerate(beam_names):
                 beamset.CreatePhotonBeam(BeamQualityId=beam_ener[i],
