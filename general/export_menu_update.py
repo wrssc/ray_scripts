@@ -1,4 +1,4 @@
-"""Pyside Export
+""" Dicom Export Functions
 
    This script is a PySide6-based GUI for exporting DICOM data from a radiation therapy treatment planning system.
 
@@ -17,9 +17,9 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__version__ = '0.0.0'
+__version__ = '0.1.0'
 __license__ = 'GPLv3'
-__help__ = 'https://github.com/wrssc/ray_scripts/wiki/DICOM-Export'
+__help__ = ''
 __copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
 
 import sys
@@ -38,7 +38,6 @@ import connect
 import UserInterface
 import DicomExport
 import TomoExport
-from StructureOperations import include_in_export
 
 # Available filter options
 RADIO_ON = True
@@ -770,14 +769,6 @@ def main():
                 # Set Couch
                 initial_table_position = [0, 1000, 0]  # Default
                 frameless_beamnames = ['_FSR_', '_SRS_']
-                # if response['delivery_system_selection'] == 'TrueBeamSTx':
-                #     alpha = 7.83  # cm
-                #     beta = 36.43  # cm
-                #     gamma = -0.20  # cm
-                # elif response['delivery_system_selection'] == 'Edge6593':
-                #     alpha = 8.29  # cm
-                #     beta = 36.35  # cm
-                #     gamma = -0.11  # cm
 
                 if use_srs_coords or any(a in beamset.DicomPlanLabel for a in frameless_beamnames) and \
                         'HeadFirstSupine' in beamset.PatientSetup.OfTreatmentSetup.PatientPosition:
