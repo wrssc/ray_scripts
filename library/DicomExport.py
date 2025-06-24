@@ -40,6 +40,10 @@
     1.0.2 Added support for sending a TomoTherapy-based QA Plan with a filter for gantry period
     1.1.0 Changed to pynetdicom from pynetdicom3
 
+    TODO:
+        * Make sure logical tests are applied to filters to ensure suitability of each filter now
+          that multiple beamsets are being exported.
+
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later version.
@@ -60,7 +64,6 @@ __help__ = 'https://github.com/wrssc/ray_scripts/wiki/DICOM-Export'
 __copyright__ = 'Copyright (C) 2020, University of Wisconsin Board of Regents'
 
 import os
-import sys
 import xml.etree.ElementTree
 import time
 import tempfile
@@ -71,12 +74,12 @@ import pydicom
 from pynetdicom import AE
 from pynetdicom.sop_class import RTPlanStorage, RTStructureSetStorage, CTImageStorage, RTDoseStorage, Verification
 from pydicom.uid import ImplicitVRLittleEndian
+from pydicom.dataset import Dataset
 import shutil
 import re
 import math
 import random
 import string
-from copy import deepcopy
 
 # Parse destination and filters XML files
 dest_xml = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__), 'DicomDestinations.xml'))
@@ -94,6 +97,45 @@ class InvalidOperationException(Exception):
     pass
 
 
+def get_referenced_beam_name(rtplan: Dataset, ref_beam: Dataset) -> str:
+    """Return the human‐readable BeamName for a ReferencedBeamSequence item,
+    falling back to “Beam<Number>” if the name isn’t present.
+
+    Args:
+        rtplan (pydicom.dataset.Dataset): The RT Plan Dataset containing BeamSequence.
+        ref_beam (pydicom.dataset.Dataset): One entry from
+            ds.FractionGroupSequence[0].ReferencedBeamSequence.
+
+    Returns:
+        str: The matching BeamName from BeamSequence, or “Beam<Number>”.
+
+    Raises:
+        AttributeError: If ref_beam has no ReferencedBeamNumber.
+    """
+    # 1) get the beam number from the reference sequence
+    if not hasattr(ref_beam, "ReferencedBeamNumber"):
+        raise AttributeError("ReferencedBeamNumber missing on referenced beam entry")
+    try:
+        beam_num = int(ref_beam.ReferencedBeamNumber)
+    except (ValueError, TypeError):
+        return f"Beam{ref_beam.ReferencedBeamNumber}"
+
+    # 2) build a lookup of full beams by number
+    lookup = {
+        beam.BeamNumber: beam
+        for beam in getattr(rtplan, "BeamSequence", [])
+        if hasattr(beam, "BeamNumber")
+    }
+
+    # 3) return the BeamName if available
+    full_beam = lookup.get(beam_num)
+    if full_beam and hasattr(full_beam, "BeamName"):
+        return full_beam.BeamName
+
+    # 4) fallback
+    return f"Beam{beam_num}"
+
+
 def send(case,
          destination,
          exam=None,
@@ -108,7 +150,6 @@ def send(case,
          ignore_errors=False,
          bypass_export_check=False,
          rename=None,
-         filters=None,
          machine=None,
          table=None,
          pa_threshold=None,
@@ -116,12 +157,15 @@ def send(case,
          couch_speed=None,
          round_jaws=False,
          prescription=False,
-         ref_point_location=False,
+         no_ref_point_location=False,
          block_accessory=False,
          block_tray_id=False,
          parent_plan=None,
          prdr_dr=False,
          rpm_gating=False,
+         setup_beam_filter=True,
+         electron_dose_rate_filter=True,
+         fff_energy_filter=False,
          bar=True):
     """DicomExport.send(case=get_current('Case'), destination='MIM', exam=get_current('Examination'),
                         beamset=get_current('BeamSet'))"""
@@ -149,24 +193,8 @@ def send(case,
 
         else:
             logging.debug('Provided destination {} was found'.format(d))
-
-    # If multiple machine filter options exist, prompt the user to select one
-    if machine is None and filters is not None and 'machine' in filters and beamset is not None:
-        machine_list = machines(beamset)
-        if len(machine_list) == 1:
-            machine = machine_list[0]
-
-        elif len(machine_list) > 1:
-            dialog = UserInterface.ButtonList(inputs=machine_list, title='Select a machine to export as')
-            machine = dialog.show()
-            if machine is not None:
-                logging.debug('User selected machine {} for RT plan export'.format(machine))
-
-            else:
-                raise IndexError('No machine was selected for RT plan export')
-
     # Load energy filters for selected machine
-    if filters is not None and 'energy' in filters and beamset is not None:
+    if fff_energy_filter:
         energy_list = energies(beamset, machine)
     else:
         energy_list = None
@@ -194,7 +222,6 @@ def send(case,
                 logging.debug('RayGateway to be used in {} to export patient plan, association unsupported.'
                               .format(info['host']))
                 raygateway_args = info['aet']
-
         elif len({'host', 'aet', 'port'}.difference(info.keys())) == 0:
             raygateway_args = None
             # Open a DICOM AE requestor for RayStation at RayStation_SSCP
@@ -240,18 +267,23 @@ def send(case,
 
     # Append BeamSets to export RT plan
     if plan and beamset is not None:
-        logging.debug('RT Plan {} selected for export'.format(beamset.BeamSetIdentifier()))
-        args['BeamSets'] = [beamset.BeamSetIdentifier()]
-        # if prdr_dr and '_PRD_' in beamset.DicomPlanLabel:
-        #     prdr_plan = True
-        # else:
-        #     prdr_plan = False
+        if type(beamset) == list:
+            # If multiple beamsets are selected, append all of them
+            args['BeamSets'] = [b.BeamSetIdentifier() for b in beamset]
+            logging.debug('RT Plan {} selected for export'.format([beamset.BeamSetIdentifier() for beamset in beamset]))
+        else:
+            args['BeamSets'] = [beamset.BeamSetIdentifier()]
+            logging.debug('RT Plan {} selected for export'.format(beamset.BeamSetIdentifier()))
 
     # Append beamset to export RTSS (if beamset is not present, export RTSS from exam)
     if structures:
         if beamset is not None:
-            logging.debug('Plan structure set selected for export')
-            args['RtStructureSetsReferencedFromBeamSets'] = [beamset.BeamSetIdentifier()]
+            if type(beamset) == list:
+                # If multiple beamsets are selected, append all of them
+                args['RtStructureSetsReferencedFromBeamSets'] = [b.BeamSetIdentifier() for b in beamset]
+            else:
+                logging.debug('Plan structure set selected for export')
+                args['RtStructureSetsReferencedFromBeamSets'] = [beamset.BeamSetIdentifier()]
 
         elif exam is not None:
             logging.debug('Exam structure set selected for export')
@@ -259,12 +291,23 @@ def send(case,
 
     # Append PhysicalBeamDosesForBeamSets and/or PhysicalBeamSetDoseForBeamSets to export RT Dose
     if plan_dose and beamset is not None:
-        logging.debug('Plan {} dose selected for export'.format(beamset.BeamSetIdentifier()))
-        args['PhysicalBeamSetDoseForBeamSets'] = [beamset.BeamSetIdentifier()]
+        if type(beamset) == list:
+            # If multiple beamsets are selected, append all of them
+            args['PhysicalBeamSetDoseForBeamSets'] = [b.BeamSetIdentifier() for b in beamset]
+            logging.debug('Plan {} dose selected for export'.format([b.BeamSetIdentifier() for b in beamset]))
+        else:
+            logging.debug('Plan {} dose selected for export'.format(beamset.BeamSetIdentifier()))
+            args['PhysicalBeamSetDoseForBeamSets'] = [beamset.BeamSetIdentifier()]
 
     if beam_dose and beamset is not None:
-        logging.debug('Beam dose for plan {} selected for export'.format(beamset.BeamSetIdentifier()))
-        args['PhysicalBeamDosesForBeamSets'] = [beamset.BeamSetIdentifier()]
+        if type(beamset) == list:
+            # If multiple beamsets are selected, append all of them
+            args['PhysicalBeamDosesForBeamSets'] = [b.BeamSetIdentifier() for b in beamset]
+            logging.debug('Beam dose for plan {} selected for export'.format(
+                [beamset.BeamSetIdentifier() for beamset in beamset]))
+        else:
+            logging.debug('Beam dose for plan {} selected for export'.format(beamset.BeamSetIdentifier()))
+            args['PhysicalBeamDosesForBeamSets'] = [beamset.BeamSetIdentifier()]
 
     # Append anonymization parameters to re-identify patient
     if rename is not None and 'name' in rename and 'id' in rename:
@@ -335,6 +378,7 @@ def send(case,
                     if hasattr(error, 'Message'):
                         # This is the error thrown when a plan is already in the iDMS
                         existing_plan_exception = "_{} already exist".format(beamset.DicomPlanLabel)
+                        element_too_long = 'Element 3006,0050 is too long to be written in Explicit'
                         if existing_plan_exception in error.Message:
                             logging.debug('Parent plan likely in iDMS already. Error is {}'.format(error.Message))
                             logging.info('Parent Plan is already in IDMS {}'.format(beamset.DicomPlanLabel))
@@ -408,363 +452,94 @@ def send(case,
             # If this is a DICOM RT plan
             expected = _Edits()
             if ds.file_meta.MediaStorageSOPClassUID == '1.2.840.10008.5.1.4.1.1.481.5':
-                for b in ds.BeamSequence:
 
-                    # If applying a machine filter
-                    if machine is not None and 'TreatmentMachineName' in b and b.TreatmentMachineName != machine:
-                        b.TreatmentMachineName = machine
-                        expected.add(b[0x300a00b2], beam=b)
+                # 1) Setup fields
+                # Apply setup Dose rate and nominal beam energy for setup fields
+                if setup_beam_filter:
+                    message = adjust_setup_field(ds=ds, expected=expected)
+                    if message:
+                        logging.debug(message)
 
-                    if 'TreatmentDeliveryType' in b and b.TreatmentDeliveryType == 'SETUP':
-                        # Change Dose rate for set-up fields to 100 MU/min
-                        c = b.ControlPointSequence[0]
-                        for c in b.ControlPointSequence:
-                            if 'DoseRateSet' in c and c.DoseRateSet != 100:
-                                c.DoseRateSet = 100
-                                expected.add(c[0x300a0115], beam=b, cp=c)  # Dose Rate modified
-                            elif 'DoseRateSet' not in c:
-                                c.add_new(0x300a0115, 'DS', 100)
-                                expected.add(c[0x300a0115], beam=b, cp=c)
-                            # Change the nominal beam energy
-                            if 'NominalBeamEnergy' in c and c.NominalBeamEnergy != 6:
-                                c.NominalBeamEnergy = 6
-                                expected.add(c[0x300a0114], beam=b, cp=c)
+                # 2) Machine filter
+                if machine is not None:
+                    message = apply_machine_filter(ds=ds, machine=machine, expected=expected)
+                    logging.debug(message)
 
-                    # If plan is prdr then set the nominal dose rate to 100 MU/min
-                    if prdr_dr and '_PRD_' in beamset.DicomPlanLabel and \
-                            'RadiationType' in b and b.RadiationType == 'PHOTON' and \
-                            'ControlPointSequence' in b:
-                        for c in b.ControlPointSequence:
-                            if 'DoseRateSet' in c and c.DoseRateSet != 100:
-                                c.DoseRateSet = 100
-                                expected.add(c[0x300a0115], beam=b, cp=c)
-                            elif 'DoseRateSet' not in c:
-                                c.add_new(0x300a0115, 'DS', 100)
-                                expected.add(c[0x300a0115], beam=b, cp=c)
+                # 3) PRDR filter
+                if prdr_dr:
+                    message = apply_prdr_filter(ds=ds, beamset=beamset, expected=expected)
+                    if message:
+                        logging.debug(message)
 
-                    # Change Dose rate for electron fields to 1000 MU/min
-                    if 'RadiationType' in b and b.RadiationType == 'ELECTRON' and 'ControlPointSequence' in b:
-                        logging.debug('Electron beam found, setting dose rate to 1000 MU/min')
-                        for c in b.ControlPointSequence:
-                            if 'DoseRateSet' in c and c.DoseRateSet != 1000:
-                                logging.debug(f'Dose rate for beam {b.BeamName} changed from {c.DoseRateSet} to 1000')
-                                c.DoseRateSet = 1000
-                                expected.add(c[0x300a0115], beam=b, cp=c)
-                            elif 'DoseRateSet' not in c:
-                                logging.debug(f'Dose rate for beam {b.BeamName} added as 1000')
-                                c.add_new(0x300a0115, 'DS', 1000)
-                                expected.add(c[0x300a0115], beam=b, cp=c)
+                # 4) Electron dose rate
+                if electron_dose_rate_filter:
+                    message = adjust_electron_dose_rate(ds=ds, expected=expected)
+                    logging.debug(message)
 
-                        # The following lines add a new accessory for the electron block which is unnecessary in ARIA
-                        # If converting electron block into accessory (note, accessory ID tags are currently hard coded
-                        # if block_accessory and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
-                        #         'BlockSequence' in b and 'BlockName' in b.BlockSequence[0] and \
-                        #         'GeneralAccessorySequence' not in b:
+                # 5) Block accessory filter
+                if block_accessory:
+                    message = apply_block_accessory_filter(ds=ds, expected=expected)
+                    logging.debug(message)
 
-                        #     acc = pydicom.Dataset()
-                        #     acc.add_new(0x300a00f9, 'LO', b.BlockSequence[0].BlockName)
-                        #     if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
-                        #             b.ApplicatorSequence.ApplicatorID == 'A6':
-                        #         # acc.add_new(0x300a0421, 'SH', 'CustomFFDA6')
-                        #         acc.add_new(0x300a0421, 'SH', 'CustomFFDA')
-                        #
-                        #     else:
-                        #         acc.add_new(0x300a0421, 'SH', 'CustomFFDA')
+                # 6) Block tray ID filter
+                if block_tray_id:
+                    message = apply_block_tray_id_filter(ds=ds, expected=expected)
+                    logging.debug(message)
 
-                        #     acc.add_new(0x300a0423, 'CS', 'TRAY')
-                        #     acc.add_new(0x300a0424, 'IS', b.BlockSequence[0].BlockName)
-                        #     # acc.add_new(0x300a0424, 'IS', 1)
-                        #     b.add_new(0x300a0420, 'SQ', pydicom.Sequence([acc]))
-                        #     expected.add(b[0x300a0420])
+                # 7) Table position filter
+                if table is not None:
+                    message = apply_table_position_filter(ds=ds, expected=expected, table_position=table)
+                    logging.debug(message)
 
-                        # If overriding the block tray ID
-                        if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
-                                'BlockSequence' in b:
+                # 8) Round jaws filter
+                if round_jaws:
+                    message = apply_round_jaws_filter(ds=ds, expected=expected)
+                    logging.debug(message)
 
-                            acc_code = b.BlockSequence[0].BlockName
-                            if 'AccessoryCode' not in b.BlockSequence[0] or \
-                                    b.BlockSequence[0].AccessoryCode != acc_code:
-                                b.BlockSequence[0].AccessoryCode = acc_code
-                                expected.add(b.BlockSequence[0][0x300a00f9], beam=b)
+                # 9) PA beam angle filter
+                if pa_threshold:
+                    message = apply_pa_beam_angle_filter(ds=ds, expected=expected, pa_threshold=pa_threshold)
+                    logging.debug(message)
 
-                            if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
-                                    b.ApplicatorSequence.ApplicatorID == 'A6':
-                                tray = 'CustomFFDA'
+                # 10) Energy filter
+                if energy_list:
+                    message = apply_energy_filter(ds=ds, expected=expected, energy_list=energy_list)
+                    logging.debug(message)
 
-                            else:
-                                tray = 'CustomFFDA'
+                # 11) Couch speed filter
+                if couch_speed:
+                    message = apply_couch_speed_filter(ds=ds, expected=expected, couch_speed=couch_speed)
+                    logging.debug(message)
 
-                            if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != tray:
-                                b.BlockSequence[0].BlockTrayID = tray
-                                expected.add(b.BlockSequence[0][0x300a00f5], beam=b)
+                # 12) Gantry period filter
+                if gantry_period:
+                    message = apply_gantry_period_filter(ds=ds, expected=expected, gantry_period=gantry_period)
+                    logging.debug(message)
 
-                    # If updating table position
-                    if table is not None and 'ControlPointSequence' in b:
-                        for c in b.ControlPointSequence:
-                            if 'TableTopLateralPosition' in c and c.TableTopLateralPosition != table[0]:
-                                c.TableTopLateralPosition = table[0]
-                                expected.add(c[0x300a012a], beam=b, cp=c)
+                # 13) Prescription and RPM gating (unchanged)
+                if prescription:
+                    message = old_apply_prescription_filter(ds=ds, beamset=beamset, expected=expected,
+                                                            ref_point_location=no_ref_point_location)
+                    if 'ERROR' in message:
+                        raise InvalidOperationException(
+                            'Prescription filter failed for {}: {}'.format(get_rt_plan_label(ds), message))
+                    elif message:
+                        logging.debug(f"Applied prescription filter to {get_rt_plan_label(ds)}: {message}")
 
-                            if 'TableTopLongitudinalPosition' in c and \
-                                    c.TableTopLongitudinalPosition != table[1]:
-                                c.TableTopLongitudinalPosition = table[1]
-                                expected.add(c[0x300a0129], beam=b, cp=c)
-
-                            if 'TableTopVerticalPosition' in c and c.TableTopVerticalPosition != table[2]:
-                                c.TableTopVerticalPosition = table[2]
-                                expected.add(c[0x300a0128], beam=b, cp=c)
-
-                    # If rounding jaws
-                    if round_jaws and 'ControlPointSequence' in b:
-                        for c in b.ControlPointSequence:
-                            if hasattr(c, 'BeamLimitingDevicePositionSequence'):
-                                for p in c.BeamLimitingDevicePositionSequence:
-                                    if 'LeafJawPositions' in p and len(p.LeafJawPositions) == 2 and \
-                                            (p.LeafJawPositions[0] != math.floor(10 * p.LeafJawPositions[0]) / 10 or
-                                             p.LeafJawPositions[1] != math.ceil(10 * p.LeafJawPositions[1]) / 10):
-                                        p.LeafJawPositions[0] = math.floor(10 * p.LeafJawPositions[0]) / 10
-                                        p.LeafJawPositions[1] = math.ceil(10 * p.LeafJawPositions[1]) / 10
-                                        expected.add(p[0x300a011c], beam=b, cp=c)
-
-                    # If adjusting PA beam angle for right sided targets
-                    if pa_threshold is not None:
-                        right_pa = True
-                        for c in b.ControlPointSequence:
-                            if 'GantryAngle' not in c or c.GantryAngle != 180 or \
-                                    'GantryRotationDirection' not in c or c.GantryRotationDirection != 'NONE' or \
-                                    ('IsocenterPosition' in c and c.IsocenterPosition < pa_threshold):
-                                right_pa = False
-                                break
-
-                        if right_pa:
-                            for c in b.ControlPointSequence:
-                                if 'GantryAngle' in c:
-                                    c.GantryAngle = 180.010
-                                    expected.add(c[0x300a011e], beam=b, cp=c)
-
-                    # If applying an energy filter (note only photon are supported)
-                    if energy_list is not None and 'ControlPointSequence' in b:
-                        for c in b.ControlPointSequence:
-                            if 'NominalBeamEnergy' in c and c.NominalBeamEnergy in energy_list.keys() and \
-                                    'RadiationType' in b and b.RadiationType == 'PHOTON':
-                                e = float(re.sub('\D+', '', energy_list[c.NominalBeamEnergy]))
-                                m = re.sub('\d+', '', energy_list[c.NominalBeamEnergy])
-                                if c.NominalBeamEnergy != e:
-                                    c.NominalBeamEnergy = e
-                                    expected.add(c[0x300a0114], beam=b, cp=c)
-
-                                # If a non-standard fluence, add mode ID and NON_STANDARD flag
-                                if 'FluenceMode' not in b or (b.FluenceMode != 'NON_STANDARD' and m != '') or \
-                                        (b.FluenceMode != 'STANDARD' and m == ''):
-
-                                    if m != '':
-                                        b.FluenceMode = 'NON_STANDARD'
-
-                                    else:
-                                        b.FluenceMode = 'STANDARD'
-
-                                    expected.add(b[0x30020051], beam=b, cp=c)
-
-                                if m != '' and ('FluenceModeID' not in b or b.FluenceModeID != m):
-                                    b.FluenceModeID = m
-                                    expected.add(b[0x30020052], beam=b, cp=c)
-
-                    # If adding gantry period to TomoTherapy QA Plans
-                    if couch_speed is not None:
-                        # format and set tag to change
-                        t1 = pydicom.tag.Tag('300d1080')
-                        # find a tag match
-                        for n in couch_speed.keys():
-                            if n == b.BeamName:
-                                speed = couch_speed[n]
-                                break
-                        if speed:
-                            str_couch_speed = '{:.6f}'.format(round(speed,6))
-                        else:
-                            logging.warning('Unable to add couch speed for beam {}'.format(b.BeamName))
-
-                        # Add some white-space to the end of gantry period
-                        str_couch_speed = str_couch_speed + ' '
-
-                        # add attribute to beam sequence
-                        b.add_new(t1, 'DS', str_couch_speed)
-                        expected.add(b[t1], beam=b)
-
-                    # If adding gantry period to TomoTherapy QA Plans
-                    if gantry_period is not None:
-                        # format and set tag to change
-                        t1 = pydicom.tag.Tag('300d1040')
-
-                        # Add some white-space to the end of gantry period
-                        str_gantry_period = gantry_period + ' '
-
-                        # add attribute to beam sequence
-                        b.add_new(t1, 'DS', gantry_period)
-                        expected.add(b[t1], beam=b)
-
-                # If adding reference points
-                if prescription and beamset.Prescription.PrimaryPrescriptionDoseReference is not None and \
-                        'FractionGroupSequence' in ds and len(ds.FractionGroupSequence[0].ReferencedBeamSequence) > 0:
-
-                    # Create reference point for primary dose prescription
-                    ref = pydicom.Dataset()
-                    ref.add_new(0x300a0012, 'IS', 1)
-                    # This is the "Dose Reference Description in ARIA"
-                    # if hasattr(beamset.Prescription.PrimaryPrescriptionDoseReference, 'OnStructure') and \
-                    #         hasattr(beamset.Prescription.PrimaryPrescriptionDoseReference.OnStructure, 'Name'):
-                    #    ref.add_new(0x300a0016, 'LO', beamset.Prescription.PrimaryPrescriptionDoseReference.OnStructure.Name)
-                    # elif hasattr(beamset.Prescription.PrimaryPrescriptionDoseReference, 'OnDoseSpecificationPoint') and \
-                    #         hasattr(beamset.Prescription.PrimaryPrescriptionDoseReference.OnDoseSpecificationPoint, 'Name'):
-                    #    ref.add_new(0x300a0016, 'LO',
-                    #                beamset.Prescription.PrimaryPrescriptionDoseReference.OnDoseSpecificationPoint.Name)
-                    # else:
-                    #     ref.add_new(0x300a0014, 'LO', 'Target')
-                    dose_ref_desc = str(beamset.DicomPlanLabel) + '.0'
-                    ref.add_new(0x300a0016, 'LO', dose_ref_desc)
-
-                    # Add coordinates to the primary reference point
-                    if ref_point_location:
-                        ref.add_new(0x300a0014, 'CS', 'COORDINATES')
-                        if 'BeamDoseSpecificationPoint' in ds.FractionGroupSequence[0].ReferencedBeamSequence[0]:
-                            ref.add_new(0x300a0018, 'DS',
-                                        ds.FractionGroupSequence[0].ReferencedBeamSequence[0].BeamDoseSpecificationPoint)
-                        else:
-                            ref.add_new(0x300a0018, 'DS', [0, 0, 0])
-                    else:
-                        # If no reference_point location should be used, set the Rx type to site
-                        ref.add_new(0x300a0014, 'CS', 'SITE')
-                        # Set the Varian internal tag designating the Target Volume in ARIA
-                        if hasattr(beamset.Prescription.PrimaryPrescriptionDoseReference, 'OnStructure'):
-                            ref.add_new(0x32671000, 'UT',
-                                        beamset.Prescription.PrimaryPrescriptionDoseReference.OnStructure.Name)
-                        # Address "Site"-based prescriptions
-                        elif hasattr(beamset.Prescription.PrimaryPrescriptionDoseReference, 'Description'):
-                            ref.add_new(0x32671000, 'UT',
-                                        beamset.Prescription.PrimaryPrescriptionDoseReference.Description)
-                        else:
-                            sys.exit(
-                                'Unsupported prescription type for locationless reference point. Report to developer')
-
-                        expected.add(ref[0x32671000])
-                        # Add the private tag indicator
-                        ref.add_new(0x32670010, 'LO', 'UW Madison RayScripts 3267')
-                        expected.add(ref[0x32670010])
-
-                    # Build Dose Reference UID
-                    series_uid = str(ds.SeriesInstanceUID).split('.', 4)
-                    prefix_uid = ""
-                    for i in range(4):
-                        prefix_uid += series_uid[i] + '.'
-                    dose_reference_uid = pydicom.uid.generate_uid(prefix=prefix_uid)
-                    ref.add_new(0x300a0013, 'UI', dose_reference_uid)
-
-                    ref.add_new(0x300a0020, 'CS', 'TARGET')
-                    ref.add_new(0x300a0023, 'DS', beamset.Prescription.PrimaryPrescriptionDoseReference.DoseValue / 100)
-                    ref.add_new(0x300a002c, 'DS', beamset.Prescription.PrimaryPrescriptionDoseReference.DoseValue / 100)
-
-                    if 'DoseReferenceSequence' not in ds:
-                        ds.add_new(0x300a0010, 'SQ', pydicom.Sequence([ref]))
-                        expected.add(ds[0x300a0010])
-
-                    else:
-                        # Generate a DICOM UID for tracking the prescription to the same volume
-                        if 'DoseReferenceUID' not in ds.DoseReferenceSequence[0] or \
-                                ds.DoseReferenceSequence[0].DoseReferenceUID != \
-                                ref.DoseReferenceUID:
-                            expected.add(ref[0x300a0013])
-
-                        if 'DoseReferenceStructureType' not in ds.DoseReferenceSequence[0] or \
-                                ds.DoseReferenceSequence[0].DoseReferenceStructureType != \
-                                ref.DoseReferenceStructureType:
-                            expected.add(ref[0x300a0014])
-
-                        if 'DoseReferenceDescription' not in ds.DoseReferenceSequence[0] or \
-                                ds.DoseReferenceSequence[0].DoseReferenceDescription != ref.DoseReferenceDescription:
-                            expected.add(ref[0x300a0016])
-
-                        if ref_point_location:
-                            if 'DoseReferencePointCoordinates' not in ds.DoseReferenceSequence[0] or \
-                                    ds.DoseReferenceSequence[0].DoseReferencePointCoordinates != \
-                                    ref.DoseReferencePointCoordinates:
-                                expected.add(ref[0x300a0018])
-
-                        if 'DoseReferenceType' not in ds.DoseReferenceSequence[0] or \
-                                ds.DoseReferenceSequence[0].DoseReferenceType != ref.DoseReferenceType:
-                            expected.add(ref[0x300a0020])
-
-                        if 'DeliveryMaximumDose' not in ds.DoseReferenceSequence[0] or \
-                                ds.DoseReferenceSequence[0].DeliveryMaximumDose != ref.DeliveryMaximumDose:
-                            expected.add(ref[0x300a0023])
-
-                        if 'OrganAtRiskMaximumDose' not in ds.DoseReferenceSequence[0] or \
-                                ds.DoseReferenceSequence[0].OrganAtRiskMaximumDose != ref.OrganAtRiskMaximumDose:
-                            expected.add(ref[0x300a002c])
-
-                        ds.DoseReferenceSequence = pydicom.Sequence([ref])
-
-                    # Adjust beam doses to sum to primary dose point (if dose was not specified, evenly distribute it)
-                    total_dose = 0
-                    total_count = 0
-                    for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
-                        total_count += 1
-                        if hasattr(b, 'BeamDose'):
-                            total_dose += b.BeamDose
-
-                        if 'BeamDoseSpecificationPoint' not in b and ref_point_location:
-                            logging.debug('Adding reference point location to b {}'.format(b.ReferencedBeamNumber))
-                            b.add_new(0x300a0082, 'DS', ref.DoseReferencePointCoordinates)
-                            expected.add(b[0x300a0082], beam=b)
-                        elif 'BeamDoseSpecificationPoint' in b and not ref_point_location:
-                            # Following the varian private tag method of making beam points track to a
-                            # "<DoseReferenceUID>\00"
-                            # reference_beam_sequence_uid = str(dose_reference_uid) + r"\00"
-                            # Add in private tags indicating primary reference point UID
-                            # b.add_new(0x32491010,'UT',reference_beam_sequence_uid)
-                            # expected.add(b[0x32491010], beam=b)
-                            # Add the private tag indicator
-                            # b.add_new(0x32490010, 'LO', 'UW Madison RayScripts 3249')
-                            # expected.add(b[0x32490010])
-                            logging.debug('Deleting ref point location from b {}'.format(b.ReferencedBeamNumber))
-                            if hasattr(b,'BeamDoseSpecificationPoint'):
-                                del b[0x300a0082] # Beam Dose Point Specification Coordinates
-                            if hasattr(b,'BeamDosePointDepth'):
-                                del b[0x300a0088] # Beam Dose Point Depth
-                            if hasattr(b,'RadiologicalDepth'):
-                                del b[0x300a0089] # Beam Dose Point Equivalent Depth
-                            if hasattr(b,'BeamDoseType'):
-                                del b[0x300a0090] # Beam Dose Type
-                    if total_dose == 0:
-                        for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
-                            b.add_new(0x300a0084, 'DS', ref.DeliveryMaximumDose /
-                                      (total_count * ds.FractionGroupSequence[0].NumberOfFractionsPlanned))
-                            expected.add(b[0x300a0084], beam=b)
-
-                    else:
-                        for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
-                            if hasattr(b, 'BeamDose') and b.BeamDose != b.BeamDose * ref.DeliveryMaximumDose / \
-                                    (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned):
-                                b.BeamDose = b.BeamDose * ref.DeliveryMaximumDose / \
-                                             (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned)
-                                expected.add(b[0x300a0084], beam=b)
-
+                # 14) RPM gating filter
                 if rpm_gating:
-                   for p in ds.PatientSetupSequence:
-                       if 'MotionSynchronizationSequence' not in p:
-                           motn = pydicom.Dataset()
-                           motn.add_new(0x00189170,'CS','GATING')
-                           motn.add_new(0x00189171,'CS','EXTERNAL_MARKER')
-                           p.add_new(0x300a0410, 'SQ', pydicom.Sequence([motn]))
-                           expected.add(p[0x300a0410])
-                           logging.debug('Added gating params')
+                    message = apply_rpm_gating_filter(ds=ds, expected=expected)
+                    if message:
+                        logging.debug(f"Applied RPM gating filter to {get_rt_plan_label(ds)}: {message}")
 
             # If no edits are needed, copy the file to the modified directory
             if expected.length() == 0:
-                logging.debug('File {} does not require modification, and will be copied directly'.format(o))
+                logging.debug(f'File {o} does not require modification, and will be copied directly')
                 shutil.copy(os.path.join(original, o), modified)
 
             else:
                 edited[o] = expected
-                logging.debug('File {} re-saved with {} edits'.format(o, expected.length()))
+                logging.debug(f'File {o} re-saved with {expected.length()} edits')
                 ds.save_as(os.path.join(modified, o))
 
         # If pydicom fails, stop export unless ignore_errors flag is set
@@ -865,14 +640,14 @@ def send(case,
                                 raise KeyError('DICOM Export modification inconsistency detected')
 
                     except KeyError:
-                         if ignore_errors:
-                             logging.warning('DICOM validation encountered too many nested sequences')
-                             status = False
+                        if ignore_errors:
+                            logging.warning('DICOM validation encountered too many nested sequences')
+                            status = False
 
-                         else:
-                             if isinstance(bar, UserInterface.ProgressBar):
-                                 bar.close()
-                             raise
+                        else:
+                            if isinstance(bar, UserInterface.ProgressBar):
+                                bar.close()
+                            raise
 
                 # If destination has a anonymize tag, remove personal info
                 if 'anonymize' in info and info['anonymize']:
@@ -896,7 +671,7 @@ def send(case,
                                                       priority=0,
                                                       originator_aet=None,
                                                       originator_id=None)
-                        logging.info('{0} -> {1} C-STORE status: 0x{2:04x}'.format(m, d, response.Status))
+                        logging.info('{0} → {1} C-STORE status: 0x{2:04x}'.format(m, d, response.Status))
                         if response.Status != 0:
                             status = False
                             if not ignore_errors:
@@ -926,12 +701,12 @@ def send(case,
 
                     try:
                         shutil.copy(os.path.join(modified, m), os.path.join(info['path'], ds.PatientID))
-                        logging.info('{} -> {} copied'.format(m, os.path.join(info['path'], ds.PatientID)))
+                        logging.info('{} → {} copied'.format(m, os.path.join(info['path'], ds.PatientID)))
 
                     except IOError:
                         status = False
                         if ignore_errors:
-                            logging.warning('{} -> {} IOError'.format(m, os.path.join(info['path'], ds.PatientID)))
+                            logging.warning('{} → {} IOError'.format(m, os.path.join(info['path'], ds.PatientID)))
 
                         else:
                             if isinstance(bar, UserInterface.ProgressBar):
@@ -994,15 +769,6 @@ def machines(beamset=None):
                 if c.attrib['type'] != 'machine/energy':
                     continue
                 if c.find('from/machine').text == beamset.Beams[b].MachineReference.MachineName:
-                    # RayStation version 10A moves the MachineReference.Energy field to Null
-                    # This is now a beamset property
-                    # 8: Beam->MachineReference->Energy : float
-                    # 10A: Beam->Beam->BeamQualityId: string
-                    logging.debug('filter type {}'.format(c.attrib['type']))
-                    logging.debug('matching filter energy:{}, RS {}'.format(c.find('from/energy').text.lower(),
-                                                                            beamset.Beams[b].BeamQualityId).lower())
-                    logging.debug('matching filter modality:{}, RS {}'.format(c.find('from/energy').attrib['type'].lower(),
-                                                                        beamset.Modality.lower()))
                     for t in c.findall('to'):
                         if 'type' in c.attrib and c.attrib['type'] == 'machine/energy' and \
                                 beamset.Beams[b].BeamQualityId.lower() == c.find('from/energy').text.lower() \
@@ -1053,6 +819,71 @@ def energies(beamset=None, machine=None):
                 energy_list[c.find('from/energy').text] = t.find('energy').text
 
     return energy_list
+
+
+def adjust_setup_field(ds, expected):
+    """
+    Adjust the setup field dose rate and nominal beam energy for the given beam.
+    Args:
+        ds (pydicom.Dataset): the DICOM dataset containing the beam information
+        expected: a list of expected changes to be made
+
+    Returns:
+        message string: logging message of adjustments
+    """
+    msg_parts = []
+    message = ''
+    for beam in ds.BeamSequence:
+        dose_rate_updated = False
+        nominal_energy_updated = False
+        if hasattr(beam, 'TreatmentDeliveryType') and beam.TreatmentDeliveryType == 'SETUP':
+            # Change the Meter rate and nominal beam energy
+            # cps = beam.ControlPointSequence[0]
+            for cp in beam.ControlPointSequence:
+                if 'DoseRateSet' in cp and cp.DoseRateSet != 100:
+                    cp.DoseRateSet = 100
+                    expected.add(cp[0x300a0115], beam=beam, cp=cp)  # Dose Rate Set
+                    dose_rate_updated = True
+                elif 'DoseRateSet' not in cp:
+                    cp.add_new(0x300a0115, 'DS', 100)
+                    expected.add(cp[0x300a0115], beam=beam, cp=cp)  # Dose Rate Set
+                    dose_rate_updated = True
+                if 'NominalBeamEnergy' in cp and cp.NominalBeamEnergy != 6:
+                    cp.NominalBeamEnergy = 6
+                    expected.add(cp[0x300a0114], beam=beam, cp=cp)  # Nominal Beam Energy updated
+                    nominal_energy_updated = True
+            if dose_rate_updated or nominal_energy_updated:
+                msg = f'Beam {beam.BeamName}: '
+                if dose_rate_updated:
+                    msg += 'Dose rate updated to 100 MU/min. '
+                if nominal_energy_updated:
+                    msg += 'Nominal beam energy updated to 6 MV.'
+                msg_parts.append(msg)
+    # Set the beam name at the front of the message string
+    if msg_parts:
+        message = '; '.join(msg_parts) + '.'
+    return message
+
+
+def apply_machine_filter(ds, machine, expected):
+    """
+    Apply a machine filter to all beams in the dataset.
+    Args:
+        ds (pydicom.Dataset): the DICOM RTPlan dataset
+        machine (str): the desired TreatmentMachineName
+        expected (_Edits): tracker for edits
+    Returns:
+        str: concatenated log messages
+    """
+    messages = []
+    for beam in ds.BeamSequence:
+        if hasattr(beam, 'TreatmentMachineName') and beam.TreatmentMachineName != machine:
+            beam.TreatmentMachineName = machine
+            expected.add(beam[0x300a00b2], beam=beam)
+            messages.append(f'Beam {beam.BeamName}: Machine filter applied: {machine}')
+        else:
+            messages.append(f'Beam {beam.BeamName}: Machine filter not applied: {machine}')
+    return '; '.join(messages)
 
 
 def get_table_offsets(to_machine, from_machine, device_name, immobilization_type):
@@ -1171,6 +1002,505 @@ def get_table_offsets(to_machine, from_machine, device_name, immobilization_type
         f"device={device_name}, immobilization_type={immobilization_type}."
     )
     return 0.0, 0.0, 0.0
+
+
+def apply_prdr_filter(ds, beamset, expected):
+    """
+    Apply the PRDR filter across all photon beams in the dataset.
+    Args:
+        ds (pydicom.Dataset): the DICOM RTPlan dataset
+        beamset: RayStation beamset object (for DicomPlanLabel)
+        expected (_Edits): tracker for edits
+    Returns:
+        str: concatenated log messages
+    """
+    messages = []
+    if type(beamset) is not list:
+        beamset = [beamset]  # Ensure beamset is a list for iteration
+    ill_named = []
+    for b in beamset:
+        if '_PRD_' not in b.DicomPlanLabel:
+            ill_named.append(b.DicomPlanLabel)
+    if ill_named:
+        messages.append(f'Incorrect labeling of PRDR beamset, but applying PRDR filter to photon beams ' +
+                        f'in beamset(s): {", ".join([ill for ill in ill_named])}')
+    for beam in ds.BeamSequence:
+        if getattr(beam, 'RadiationType', '') == 'PHOTON' and hasattr(beam, 'ControlPointSequence'):
+            for cp in beam.ControlPointSequence:
+                if 'DoseRateSet' in cp and cp.DoseRateSet != 100:
+                    cp.DoseRateSet = 100
+                    expected.add(cp[0x300a0115], beam=beam, cp=cp)
+                elif 'DoseRateSet' not in cp:
+                    cp.add_new(0x300a0115, 'DS', 100)
+                    expected.add(cp[0x300a0115], beam=beam, cp=cp)
+            messages.append(f'Beam {beam.BeamName}: PRDR dose rate set to 100 MU/min')
+    return '; '.join(messages)
+
+
+def apply_block_accessory_filter(ds, expected):
+    """
+    Add block accessory sequence to all electron beams that have a block.
+    Args:
+        ds (pydicom.Dataset): the DICOM RTPlan dataset
+        expected (_Edits): tracker for edits
+    Returns:
+        str: concatenated log messages
+    """
+    messages = []
+    for beam in ds.BeamSequence:
+        if getattr(beam, 'RadiationType', '') == 'ELECTRON' and hasattr(beam, 'BlockSequence'):
+            block_name = beam.BlockSequence[0].BlockName
+            acc = pydicom.Dataset()
+            acc.add_new(0x300A00F9, 'LO', block_name)
+            acc.add_new(0x300A0423, 'CS', 'TRAY')
+            acc.add_new(0x300A0424, 'IS', block_name)
+            beam.add_new(0x300A0420, 'SQ', pydicom.Sequence([acc]))
+            expected.add(beam[0x300A0420], beam=beam)
+            messages.append(f'Beam {beam.BeamName}: added accessory for block "{block_name}"')
+    return '; '.join(messages)
+
+
+def apply_block_tray_id_filter(ds, expected):
+    """
+    Override BlockTrayID for all electron beams.
+    Args:
+        ds (pydicom.Dataset): the DICOM RTPlan dataset
+        expected (_Edits): tracker for edits
+    Returns:
+        str: concatenated log messages
+    """
+    messages = []
+    for beam in ds.BeamSequence:
+        if getattr(beam, 'RadiationType', '') == 'ELECTRON' and hasattr(beam, 'BlockSequence'):
+            bs0 = beam.BlockSequence[0]
+            block_name = getattr(bs0, 'BlockName', None)
+            tray = 'CustomFFDA'
+            if not hasattr(bs0, 'AccessoryCode') or bs0.AccessoryCode != block_name:
+                bs0.AccessoryCode = block_name
+                expected.add(bs0[0x300A00F9], beam=beam)
+            if not hasattr(bs0, 'BlockTrayID') or bs0.BlockTrayID != tray:
+                bs0.BlockTrayID = tray
+                expected.add(bs0[0x300A00F5], beam=beam)
+            messages.append(f'Beam {beam.BeamName}: BlockTrayID set to "{tray}"')
+    return '; '.join(messages)
+
+
+def adjust_electron_dose_rate(ds, expected):
+    """
+    Adjust the dose rate for all electron beams.
+    Args:
+        ds (pydicom.Dataset): the DICOM RTPlan dataset
+        expected (_Edits): tracker for edits
+    Returns:
+        str: concatenated log messages
+    """
+    messages = []
+    for beam in ds.BeamSequence:
+        if getattr(beam, 'RadiationType', '') == 'ELECTRON' and hasattr(beam, 'ControlPointSequence'):
+            for cp in beam.ControlPointSequence:
+                if 'DoseRateSet' in cp:
+                    if cp.DoseRateSet != 1000:
+                        cp.DoseRateSet = 1000
+                        expected.add(cp[0x300a0115], beam=beam, cp=cp)
+                        messages.append(f'Beam {beam.BeamName}: Dose rate updated to 1000 MU/min')
+                else:
+                    cp.add_new(0x300a0115, 'DS', 1000)
+                    expected.add(cp[0x300a0115], beam=beam, cp=cp)
+                    messages.append(f'Beam {beam.BeamName}: Dose rate added as 1000 MU/min')
+    return '; '.join(messages)
+
+
+def apply_table_position_filter(ds, expected, table_position):
+    """
+    Apply table positions to all beams.
+    Args:
+        ds (pydicom.Dataset): the DICOM RTPlan dataset
+        expected (_Edits): tracker for edits
+        table_position (list): [Vert, Long, Lat]
+    Returns:
+        str: concatenated log messages
+    """
+    messages = []
+    for beam in ds.BeamSequence:
+        for cp in getattr(beam, 'ControlPointSequence', []):
+            changes = []
+            if 'TableTopVerticalPosition' in cp and cp.TableTopVerticalPosition != table_position[0]:
+                cp.TableTopVerticalPosition = table_position[0]
+                expected.add(cp[0x300a012a], beam=beam, cp=cp)
+                changes.append(f'Vert->{table_position[0]}')
+            if 'TableTopLongitudinalPosition' in cp and cp.TableTopLongitudinalPosition != table_position[1]:
+                cp.TableTopLongitudinalPosition = table_position[1]
+                expected.add(cp[0x300a0129], beam=beam, cp=cp)
+                changes.append(f'Long->{table_position[1]}')
+            if 'TableTopLateralPosition' in cp and cp.TableTopLateralPosition != table_position[2]:
+                cp.TableTopLateralPosition = table_position[2]
+                expected.add(cp[0x300a0128], beam=beam, cp=cp)
+                changes.append(f'Lat->{table_position[2]}')
+            if changes:
+                messages.append(f'Beam {beam.BeamName}: ' + ', '.join(changes))
+    return '; '.join(messages)
+
+
+def apply_round_jaws_filter(ds, expected):
+    """
+    Round jaw positions on all beams to nearest 0.1 cm.
+    Args:
+        ds (pydicom.Dataset): the DICOM RTPlan dataset
+        expected (_Edits): tracker for edits
+    Returns:
+        str: concatenated log messages
+    """
+    messages = []
+    for beam in ds.BeamSequence:
+        for cp in getattr(beam, 'ControlPointSequence', []):
+            for p in getattr(cp, 'BeamLimitingDevicePositionSequence', []):
+                if 'LeafJawPositions' in p and len(p.LeafJawPositions) == 2:
+                    low, high = p.LeafJawPositions
+                    new_low = math.floor(10 * low) / 10
+                    new_high = math.ceil(10 * high) / 10
+                    if (low, high) != (new_low, new_high):
+                        p.LeafJawPositions = [new_low, new_high]
+                        expected.add(p[0x300a011c], beam=beam, cp=cp)
+                        messages.append(f'Beam {beam.BeamName}: jaws rounded to [{new_low},{new_high}]')
+    return '; '.join(messages)
+
+
+def apply_pa_beam_angle_filter(ds, expected, pa_threshold):
+    """
+    Bump gantry to 180.010° for right‐PA beams above threshold.
+    Args:
+        ds (pydicom.Dataset): the DICOM RTPlan dataset
+        expected (_Edits): tracker for edits
+        pa_threshold (float): isocenter distance threshold
+    Returns:
+        str: concatenated log messages
+    """
+    messages = []
+    for beam in ds.BeamSequence:
+        if hasattr(beam, 'ControlPointSequence'):
+            ok = True
+            for cp in beam.ControlPointSequence:
+                if (getattr(cp, 'GantryAngle', None) != 180 or
+                        getattr(cp, 'GantryRotationDirection', None) != 'NONE' or
+                        (hasattr(cp, 'IsocenterPosition') and cp.IsocenterPosition < pa_threshold)):
+                    ok = False
+                    break
+            if ok:
+                for cp in beam.ControlPointSequence:
+                    cp.GantryAngle = 180.010
+                    expected.add(cp[0x300a011e], beam=beam, cp=cp)
+                messages.append(f'Beam {beam.BeamName}: Gantry bumped to 180.010°')
+    return '; '.join(messages)
+
+
+def apply_energy_filter(ds, expected, energy_list):
+    """
+    Map and enforce energy and fluence for all photon beams.
+    Args:
+        ds (pydicom.Dataset): the DICOM RTPlan dataset
+        expected (_Edits): tracker for edits
+        energy_list (dict): original→mapped energy strings
+    Returns:
+        str: concatenated log messages
+    """
+    messages = []
+    for beam in ds.BeamSequence:
+        if getattr(beam, 'RadiationType', '') == 'PHOTON':
+            for cp in getattr(beam, 'ControlPointSequence', []):
+                if 'NominalBeamEnergy' in cp and cp.NominalBeamEnergy in energy_list:
+                    mapped = energy_list[cp.NominalBeamEnergy]
+                    e_val = float(re.sub(r'\D+', '', mapped))
+                    mode_id = re.sub(r'\d+', '', mapped)
+                    if cp.NominalBeamEnergy != e_val:
+                        cp.NominalBeamEnergy = e_val
+                        expected.add(cp[0x300a0114], beam=beam, cp=cp)
+                        messages.append(f'Beam {beam.BeamName}: Energy→{e_val}')
+                    want_nonstd = bool(mode_id)
+                    current_nonstd = getattr(beam, 'FluenceMode', '') == 'NON_STANDARD'
+                    if want_nonstd and not current_nonstd:
+                        beam.FluenceMode = 'NON_STANDARD'
+                        expected.add(beam[0x30020051], beam=beam, cp=cp)
+                        messages.append(f'Beam {beam.BeamName}: FluenceMode→NON_STANDARD')
+                    elif not want_nonstd and current_nonstd:
+                        beam.FluenceMode = 'STANDARD'
+                        expected.add(beam[0x30020051], beam=beam, cp=cp)
+                        messages.append(f'Beam {beam.BeamName}: FluenceMode→STANDARD')
+                    if mode_id and getattr(beam, 'FluenceModeID', None) != mode_id:
+                        beam.FluenceModeID = mode_id
+                        expected.add(beam[0x30020052], beam=beam, cp=cp)
+                        messages.append(f'Beam {beam.BeamName}: FluenceModeID→{mode_id}')
+    return '; '.join(messages)
+
+
+def apply_couch_speed_filter(ds, expected, couch_speed):
+    """
+    Add TomoTherapy QA couch speed to all beams.
+    Args:
+        ds (pydicom.Dataset): the DICOM RTPlan dataset
+        expected (_Edits): tracker for edits
+        couch_speed (dict): beamName→speed
+    Returns:
+        str: concatenated log messages
+    """
+    messages = []
+    for beam in ds.BeamSequence:
+        speed = couch_speed.get(beam.BeamName)
+        if speed is not None:
+            tag = pydicom.tag.Tag(0x300d, 0x1080)
+            val = f"{round(speed, 6):.6f} "
+            beam.add_new(tag, 'DS', val)
+            expected.add(beam[tag], beam=beam)
+            messages.append(f'Beam {beam.BeamName}: CouchSpeed→{val.strip()}')
+    return '; '.join(messages)
+
+
+def apply_gantry_period_filter(ds, expected, gantry_period):
+    """
+    Add TomoTherapy QA gantry period to all beams.
+    Args:
+        ds (pydicom.Dataset): the DICOM RTPlan dataset
+        expected (_Edits): tracker for edits
+        gantry_period (str|float): period value
+    Returns:
+        str: concatenated log messages
+    """
+    messages = []
+    tag = pydicom.tag.Tag(0x300d, 0x1040)
+    for beam in ds.BeamSequence:
+        val = f"{gantry_period} "
+        beam.add_new(tag, 'DS', val)
+        expected.add(beam[tag], beam=beam)
+        messages.append(f'Beam {beam.BeamName}: GantryPeriod→{val.strip()}')
+    return '; '.join(messages)
+
+
+def old_apply_prescription_filter(ds, beamset, expected, ref_point_location) -> str:
+    """
+    Build and insert the primary prescription reference point, and redistribute beam doses.
+    Args:
+        ds:                 full pydicom Dataset for the RTPlan
+        beamset:            beamset object (to grab DicomPlanLabel & Prescription data)
+        expected:           the _Edits tracker to record tag edits
+        ref_point_location: bool, whether to insert coordinates or SITE
+    Returns:
+        msg (str): Summary message, or ''.
+        TODO: Add Varian private tags for secondary prescription reference points.
+    """
+    msgs = []
+    # If the beamset type is list, then we need to match the DicomPlanLabel attribute with the plan name
+    # of the ds passed to this function
+    ds_rt_plan_label = get_rt_plan_label(ds)
+    if isinstance(beamset, list):
+        beamset = next((b for b in beamset if b.DicomPlanLabel == ds_rt_plan_label), None)
+    else:
+        beamset = beamset
+    if beamset is None:
+        logging.warning(f'No matching beamset found for DicomPlanLabel: {ds_rt_plan_label} in beamset_list')
+        return ''
+    else:
+        msgs.append(f'Rx Filter for {beamset.DicomPlanLabel}: ')
+    # only proceed if prescription data exists
+    presc = getattr(beamset.Prescription, 'PrimaryPrescriptionDoseReference', None)
+    if (not presc or 'FractionGroupSequence' not in ds
+            or len(ds.FractionGroupSequence[0].ReferencedBeamSequence) == 0):
+        return ''
+    # Create reference point for primary dose prescription in a se
+    # Declare a new dataset for the Dose Reference Sequence
+    ref = pydicom.Dataset()
+    ref.add_new(0x300a0012, 'IS', 1)
+    dose_ref_desc = str(beamset.DicomPlanLabel) + '.0'
+    ref.add_new(0x300a0016, 'LO', dose_ref_desc)
+    msgs.append(f"Set DoseReferenceDescription='{dose_ref_desc}'")
+
+    # Add coordinates to the primary reference point
+    if ref_point_location:
+        ref.add_new(0x300a0014, 'CS', 'COORDINATES')
+        msgs.append("Reference point has location, set DoseReferenceStructureType=COORDINATES")
+        ref_beam_seq = ds.FractionGroupSequence[0].ReferencedBeamSequence[0]
+        if 'BeamDoseSpecificationPoint' in ref_beam_seq:
+            ref.add_new(0x300a0018, 'DS', ref_beam_seq.BeamDoseSpecificationPoint)
+            msgs.append(
+                f"BeamDoseSpecification point declared,  DoseReferencePointCoordinates={ref_beam_seq.BeamDoseSpecificationPoint}")
+        else:
+            ref.add_new(0x300a0018, 'DS', [0, 0, 0])
+            msgs.append("No BeamDoseSpecificationPoint, set DoseReferencePointCoordinates=[0, 0, 0]")
+    else:
+        # If no reference_point location should be used, set the Rx type to site
+        ref.add_new(0x300a0014, 'CS', 'SITE')
+        msgs.append("Reference point has no location, set DoseReferenceStructureType=SITE")
+        # Set the Varian internal tag designating the Target Volume in ARIA
+        primary_dose_ref = beamset.Prescription.PrimaryPrescriptionDoseReference
+        if hasattr(primary_dose_ref, 'OnStructure'):
+            ref.add_new(0x32671000, 'UT', primary_dose_ref.OnStructure.Name)
+            msgs.append(f"Primary reference is OnStructure Name={primary_dose_ref.OnStructure.Name}")
+        # Address "Site"-based prescriptions
+        elif hasattr(primary_dose_ref, 'Description'):
+            ref.add_new(0x32671000, 'UT', primary_dose_ref.Description)
+            msgs.append(f"Primary reference is Site-based Description={primary_dose_ref.Description}")
+        else:
+            msgs.append('ERROR: Unsupported prescription type for locationless reference point. Report to developer')
+
+        expected.add(ref[0x32671000])
+        # Add the private tag indicator
+        ref.add_new(0x32670010, 'LO', 'UW Madison RayScripts 3267')
+        msgs.append("Added private tag indicator, UW Madison RayScripts 3267")
+        expected.add(ref[0x32670010])
+
+    # Build Dose Reference UID
+    series_uid = str(ds.SeriesInstanceUID).split('.', 4)
+    prefix_uid = ""
+    for i in range(4):
+        prefix_uid += series_uid[i] + '.'
+    dose_reference_uid = pydicom.uid.generate_uid(prefix=prefix_uid)
+    ref.add_new(0x300a0013, 'UI', dose_reference_uid)
+    msgs.append(f"Generated DoseReferenceUID={dose_reference_uid}")
+
+    ref.add_new(0x300a0020, 'CS', 'TARGET')
+    msgs.append("Set DoseReferenceType=TARGET")
+    primary_prescription = beamset.Prescription.PrimaryPrescriptionDoseReference
+    ref.add_new(0x300a0023, 'DS', primary_prescription.DoseValue / 100)
+    msgs.append(f"Set DeliveryMaximumDose={primary_prescription.DoseValue / 100} in Gy")
+    ref.add_new(0x300a002c, 'DS', primary_prescription.DoseValue / 100)
+    msgs.append(f"Set OrganAtRiskMaximumDose={primary_prescription.DoseValue / 100} in Gy")
+
+    if 'DoseReferenceSequence' not in ds:
+        ds.add_new(0x300a0010, 'SQ', pydicom.Sequence([ref]))
+        msgs.append("Added DoseReferenceSequence to RTPlan")
+        expected.add(ds[0x300a0010])
+    else:
+        # Generate a DICOM UID for tracking the prescription to the same volume
+        if 'DoseReferenceUID' not in ds.DoseReferenceSequence[0] or \
+                ds.DoseReferenceSequence[0].DoseReferenceUID != \
+                ref.DoseReferenceUID:
+            msgs.append("Updating DoseReferenceUID")
+            expected.add(ref[0x300a0013])
+
+        if 'DoseReferenceStructureType' not in ds.DoseReferenceSequence[0] or \
+                ds.DoseReferenceSequence[0].DoseReferenceStructureType != \
+                ref.DoseReferenceStructureType:
+            msgs.append("Updating DoseReferenceStructureType")
+            expected.add(ref[0x300a0014])
+
+        if 'DoseReferenceDescription' not in ds.DoseReferenceSequence[0] or \
+                ds.DoseReferenceSequence[0].DoseReferenceDescription != ref.DoseReferenceDescription:
+            msgs.append("Updating DoseReferenceDescription")
+            expected.add(ref[0x300a0016])
+
+        if ref_point_location:
+            if 'DoseReferencePointCoordinates' not in ds.DoseReferenceSequence[0] or \
+                    ds.DoseReferenceSequence[0].DoseReferencePointCoordinates != \
+                    ref.DoseReferencePointCoordinates:
+                msgs.append("Updating DoseReferencePointCoordinates")
+                expected.add(ref[0x300a0018])
+
+        if 'DoseReferenceType' not in ds.DoseReferenceSequence[0] or \
+                ds.DoseReferenceSequence[0].DoseReferenceType != ref.DoseReferenceType:
+            expected.add(ref[0x300a0020])
+
+        if 'DeliveryMaximumDose' not in ds.DoseReferenceSequence[0] or \
+                ds.DoseReferenceSequence[0].DeliveryMaximumDose != ref.DeliveryMaximumDose:
+            expected.add(ref[0x300a0023])
+            msgs.append("Updating DeliveryMaximumDose")
+
+        if 'OrganAtRiskMaximumDose' not in ds.DoseReferenceSequence[0] or \
+                ds.DoseReferenceSequence[0].OrganAtRiskMaximumDose != ref.OrganAtRiskMaximumDose:
+            expected.add(ref[0x300a002c])
+            msgs.append("Updating OrganAtRiskMaximumDose")
+
+        ds.DoseReferenceSequence = pydicom.Sequence([ref])
+        msgs.append("Updated existing DoseReferenceSequence in RTPlan")
+
+    # Adjust beam doses to sum to primary dose point (if dose was not specified, evenly distribute it)
+    total_dose = 0
+    total_count = 0
+    # Loop through the beams in the FractionGroupSequence
+    for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
+        beam_name = get_referenced_beam_name(ds, b)
+        total_count += 1
+        if hasattr(b, 'BeamDose'):
+            total_dose += b.BeamDose
+        if 'BeamDoseSpecificationPoint' not in b and ref_point_location:
+            b.add_new(0x300a0082, 'DS', ref.DoseReferencePointCoordinates)
+            expected.add(b[0x300a0082], beam=b)
+            msgs.append(f'Beam {beam_name}: Added BeamDoseSpecificationPoint={ref.DoseReferencePointCoordinates}')
+        elif 'BeamDoseSpecificationPoint' in b and not ref_point_location:
+            # Following the varian private tag method of making beam points track to a
+            # "<DoseReferenceUID>\00"
+            # reference_beam_sequence_uid = str(dose_reference_uid) + r"\00"
+            # Add in private tags indicating primary reference point UID
+            # b.add_new(0x32491010,'UT',reference_beam_sequence_uid)
+            # expected.add(b[0x32491010], beam=b)
+            # Add the private tag indicator
+            # b.add_new(0x32490010, 'LO', 'UW Madison RayScripts 3249')
+            # expected.add(b[0x32490010])
+            msgs.append(f'Beam {beam_name}: Deleting ref point location data.')
+            if hasattr(b, 'BeamDoseSpecificationPoint'):
+                del b[0x300a0082]  # Beam Dose Point Specification Coordinates
+            if hasattr(b, 'BeamDosePointDepth'):
+                del b[0x300a0088]  # Beam Dose Point Depth
+            if hasattr(b, 'RadiologicalDepth'):
+                del b[0x300a0089]  # Beam Dose Point Equivalent Depth
+            if hasattr(b, 'BeamDoseType'):
+                del b[0x300a0090]  # Beam Dose Type
+    if total_dose == 0:
+        for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
+            beam_dose = ref.DeliveryMaximumDose / \
+                        (total_count * ds.FractionGroupSequence[0].NumberOfFractionsPlanned)
+            b.add_new(0x300a0084, 'DS', beam_dose)
+            expected.add(b[0x300a0084], beam=b)
+            msgs.append = f"Beam {beam_name}: Set BeamDose={beam_dose}"
+    else:
+        for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
+            if hasattr(b, 'BeamDose'):
+                max_beam_dose = b.BeamDose * ref.DeliveryMaximumDose / \
+                                (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned)
+                if b.BeamDose != max_beam_dose:
+                    b.BeamDose = max_beam_dose
+                    expected.add(b[0x300a0084], beam=b)
+                    msgs.append(f"Beam {beam_name}: Scaled BeamDose={max_beam_dose}")
+    return '; '.join(msgs)
+
+
+def apply_rpm_gating_filter(ds, expected) -> str:
+    """
+    Apply the RPM gating filter to the given dataset.
+    Args:
+        ds (FileDataset): The DICOM dataset to modify.
+        expected (_Edits): The edits tracker to record tag edits.
+
+    Returns:
+        message (str): A summary message of the applied filter.
+    """
+    rpm_added = False
+    for pss in ds.PatientSetupSequence:
+        if not hasattr(pss, 'MotionSynchronizationSequence'):
+            motn = pydicom.Dataset()
+            motn.add_new(0x00189170, 'CS', 'GATING')
+            motn.add_new(0x00189171, 'CS', 'EXTERNAL_MARKER')
+            pss.add_new(0x300a0410, 'SQ', pydicom.Sequence([motn]))
+            expected.add(pss[0x300a0410])
+            rpm_added = True
+    if rpm_added:
+        return f'RPM gating filter applied to {len(ds.PatientSetupSequence)} PatientSetupSequence items.'
+    return ''
+
+
+def get_rt_plan_label(ds):
+    """Extract the RT Plan Label from a pydicom Dataset.
+
+    Args:
+        ds (pydicom.Dataset): A DICOM dataset, typically read via pydicom.dcmread().
+
+    Returns:
+        str or None: The RT Plan Label (DICOM tag (300A,0002)), or None if not present.
+
+    Raises:
+        AttributeError: If `ds` is not a pydicom.Dataset.
+    """
+    # The RT Plan Label tag is (300A,0002)
+    tag = (0x300A, 0x0002)
+    element = ds.get(tag)
+    return element.value if element is not None else None
 
 
 def destinations():
