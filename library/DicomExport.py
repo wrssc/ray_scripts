@@ -413,7 +413,7 @@ def send(case,
                     # If applying a machine filter
                     if machine is not None and 'TreatmentMachineName' in b and b.TreatmentMachineName != machine:
                         b.TreatmentMachineName = machine
-                        expected.add(b[0x300a00b2], beam=b)
+                        expected.add(b[0x300a00b3], beam=b)
 
                     if 'TreatmentDeliveryType' in b and b.TreatmentDeliveryType == 'SETUP':
                         # Change Dose rate for set-up fields to 100 MU/min
