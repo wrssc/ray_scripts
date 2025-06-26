@@ -37,6 +37,83 @@ def get_roi_geometries(case, exam_name, roi_names):
     return matching_geometries
 
 
+def get_data_collection_diameter_cm(rso):
+    """
+    Retrieve the scanner’s Data Collection Diameter from DICOM tag (0018,0090),
+    falling back to the image bounding box if the tag is absent.
+
+    Args:
+        rso: NamedTuple of RayStation script objects, including `.exam`.
+
+    Returns:
+        float: data collection diameter in centimeters.
+    """
+    try:
+        # Attempt to read the DICOM tag directly
+        tag = rso.exam.GetStoredDicomTagValueForVerification(
+            Group=0x0018, Element=0x0090)
+        raw_mm = tag['Data Collection Diameter']
+    except Exception:
+        # Fallback: derive from the image stack’s bounding box (mm)
+        bb = rso.exam.Series[0].ImageStack.GetBoundingBox()
+        raw_mm = bb[1].x - bb[0].x
+
+    # Convert from millimeters to centimeters
+    return float(raw_mm) / 10.0
+
+
+def make_cylinder_fov(rso, name, diameter_cm):
+    """
+    Create a cylindrical ROI of a specified diameter on the current exam.
+
+    Args:
+        rso: NamedTuple containing RayStation script objects,
+             including `.case.PatientModel` and `.exam`.
+        name (str): Desired name for the ROI.
+        diameter_cm (float): Cylinder diameter in centimeters.
+
+    Returns:
+        bool: True if the ROI was successfully created; False otherwise.
+    """
+    # Define cylinder axis (through slice stack)
+    axis = {"x": 0, "y": 0, "z": 1}
+
+    # Compute scan‐volume bounding box and Z-extent
+    bb = rso.exam.Series[0].ImageStack.GetBoundingBox()
+    z_extent = bb[1]['z'] - bb[0]['z']
+
+    # Compute geometric center
+    center = {
+        'x': (bb[0]['x'] + bb[1]['x']) / 2.0,  # x_min + (x_max - x_min)/2
+        'y': (bb[0]['y'] + bb[1]['y']) / 2.0,
+        'z': (bb[0]['z'] + bb[1]['z']) / 2.0
+    }
+
+    try:
+        roi = rso.case.PatientModel.CreateRoi(
+            Name=name,
+            Color="192, 192, 192",
+            Type='Undefined',
+            TissueName=None,
+            RbeCellTypeName=None,
+            RoiMaterial=None,
+        )
+        roi.CreateCylinderGeometry(
+            Radius=diameter_cm / 2.0,
+            Axis=axis,
+            Length=z_extent,
+            Examination=rso.exam,
+            Center=center,
+            Representation="Voxels",
+            VoxelSize=1
+        )
+        logging.debug(f"Created cylinder FOV ROI '{name}' with {diameter_cm:.1f} cm")
+        return True
+    except Exception as e:
+        logging.error(f"Failed to create cylinder FOV '{name}': {e}")
+        return False
+
+
 def make_fov(rso, fov_name, inner_fov_name):
     # FOV parameters
     # Get the reconstruction diameter which is the actual FOV
@@ -86,6 +163,19 @@ def make_fov(rso, fov_name, inner_fov_name):
 
 
 def make_wall(rso, name, outer_name, inner_name, exp):
+    """
+    Create a wall ROI by subtracting an inner ROI from an outer ROI with specified margins.
+    Args:
+        rso: NamedTuple of RayStation script objects, including `.case.PatientModel`.
+        name (str): Desired name for the wall ROI.
+        outer_name (str): Name of the outer ROI.
+        inner_name (str): Name of the inner ROI.
+        exp (list): List of margins to contract the inner ROI in the order
+                    [Superior, Inferior, Anterior, Posterior, Right, Left].
+
+    Returns:
+        None
+    """
     fov_wall = rso.case.PatientModel.CreateRoi(
         Name=name,
         Color="192, 192, 192",
@@ -129,6 +219,18 @@ def make_wall(rso, name, outer_name, inner_name, exp):
 
 
 def subtract_sources(rso, name, roi_A, roi_B):
+    """
+    Create a new ROI by subtracting one source ROI from another.
+    Args:
+        rso: NamedTuple of RayStation script objects, including `.case.PatientModel`.
+        name (str): Desired name for the new ROI.
+        roi_A (str): Name of the first source ROI.
+        roi_B (str): Name of the second source ROI to be subtracted.
+
+    Returns:
+        str: The name of the newly created ROI, or None if the operation fails.
+
+    """
     name = rso.case.PatientModel.GetUniqueRoiName(DesiredName=name)
     wall_intersection = rso.case.PatientModel.CreateRoi(
         Name=name,
