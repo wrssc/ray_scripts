@@ -87,6 +87,30 @@ def custom_color(roi_name, template):
     return None  # Return None if the conditions are not met or there is an error
 
 
+def simplify_large_contours(case, exam):
+    """ Simplifies large contours to reduce the number of points under limits that may affect
+        contour export
+    """
+    roi_data = {}
+    contour_limit = (2**16 - 2) / 3 / 4  # 2^16 - 2 points, divided by 3 for x,y,z, divided by 4 for bytes per float
+    for r in case.PatientModel.StructureSets[exam.Name].RoiGeometries:
+        if r.HasContours():
+            volume = r.GetRoiVolume()
+            if volume > 500:  # cc # Set threshold for large contours
+                roi_data[r.OfRoi.Name] = volume
+    if roi_data:
+        case.PatientModel.SimplifyContours(
+            RoiNames=list(roi_data.keys()),
+            RemoveHoles3D=False,
+            RemoveSmallContours=False,
+            AreaThreshold=None,
+            ReduceMaxNumberOfPointsInContours=True,
+            MaxNumberOfPoints= contour_limit,
+            CreateCopyOfRoi=False,
+            ResolveOverlappingContours=False
+        )
+    logging.info(f'On exam {exam.Name}: Simplified contours for large ROIs: {list(roi_data.keys())} with volumes {list(roi_data.values())}')
+
 def main():
     # Get current patient, case, exam, and plan
     patient = find_scope(level='Patient')
@@ -139,8 +163,7 @@ def main():
                                             examination=exam,
                                             case=case,
                                             plan_rois=filtered_plan_rois)
-    #
-    # Redefine all of the plan rois
+    # Redefine all the plan rois
     all_rois = StructureOperations.find_types(case=case)
     for roi in all_rois:
         df_e = df_rois[df_rois.name == roi]
@@ -193,6 +216,8 @@ def main():
                                                           roi_type=roi_type)
                 if msg is not None:
                     logging.debug(f'{roi}: could not change type. {msg}')
+
+
     msg = StructureOperations.create_derived(patient=patient,
                                              case=case,
                                              examination=exam,
