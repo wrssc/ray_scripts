@@ -2811,7 +2811,7 @@ def make_externalclean(
         RemoveSmallContours=True,
         AreaThreshold=0.1,
         ReduceMaxNumberOfPointsInContours=True,
-        MaxNumberOfPoints=3000,
+        MaxNumberOfPoints=2500,
         CreateCopyOfRoi=False,
         ResolveOverlappingContours=False,
     )

@@ -87,6 +87,33 @@ def custom_color(roi_name, template):
     return None  # Return None if the conditions are not met or there is an error
 
 
+def simplify_large_contours(case, exam):
+    """ Simplifies large contours to reduce the number of points under limits that may affect
+        contour export
+    """
+    roi_data = {}
+    point_limit = 2500  # Set the point limit for simplification
+    contour_limit = int((2**16 - 2) / 3 / 4)  # 2^16 - 2 points, divided by 3 for x,y,z, divided by 4 for bytes per float
+    for r in case.PatientModel.StructureSets[exam.Name].RoiGeometries:
+        if r.HasContours():
+            volume = r.GetRoiVolume()
+            if volume > 1000:  # cc # Set threshold for large contours
+                roi_data[r.OfRoi.Name] = volume
+    if roi_data:
+        case.PatientModel.StructureSets[exam.Name].SimplifyContours(
+            RoiNames=list(roi_data.keys()),
+            RemoveHoles3D=False,
+            RemoveSmallContours=False,
+            AreaThreshold=None,
+            ReduceMaxNumberOfPointsInContours=True,
+            MaxNumberOfPoints=point_limit,
+            CreateCopyOfRoi=False,
+            ResolveOverlappingContours=False
+        )
+        logging.info(f'On exam {exam.Name}: Simplified contours for large ROIs: {list(roi_data.keys())} '
+                     f'with volumes {list(roi_data.values())} to {point_limit} points each.')
+
+
 def main():
     # Get current patient, case, exam, and plan
     patient = find_scope(level='Patient')
@@ -118,6 +145,8 @@ def main():
                                                suffix=None,
                                                delete=False)
     plan_rois = StructureOperations.find_types(case=case)
+    # Reduce the number of points in large contours
+    simplify_large_contours(case=case, exam=exam)
     # filter the structure list
     filtered_plan_rois = []
     for r in plan_rois:
