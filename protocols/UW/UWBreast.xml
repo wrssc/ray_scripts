@@ -3647,6 +3647,26 @@
                 <volume units="%">10</volume>
                 <priority>1</priority>
             </roi>
+			<roi>
+                <name>Esophagus</name>
+                <type dir="le">Mean</type>
+                <dose units="Gy">11</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
         </goals>
     </order>
     <order>
@@ -3882,6 +3902,26 @@
                 <dose units="Gy">5</dose>
                 <volume units="%">10</volume>
                 <priority>1</priority>
+            </roi>
+			<roi>
+                <name>Esophagus</name>
+                <type dir="le">Mean</type>
+                <dose units="Gy">11</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
             </roi>
         </goals>
     </order>
