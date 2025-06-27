@@ -6,6 +6,9 @@ import logging
 #      - ensure all goals types are working. Currently average dose is getting set to max
 #      - need a generic set of goals for targets that may not have a clinical goal or a reasonabl
 #        guess for things like rings, sOTVu etc.
+#      - add regular plan optimization objectives
+#      - create a dialog  to select copy to mco or to run mco optimization or to copy goals to regular optimization
+#
 
 
 def evaluation_functions_to_dataframe(plan) -> pd.DataFrame:
@@ -70,7 +73,6 @@ def evaluation_functions_to_dataframe(plan) -> pd.DataFrame:
     return pd.DataFrame.from_records(records)
 
 
-
 # ──────────────────────────────────────────────────────────────────────────────
 # Low-level helpers
 # ──────────────────────────────────────────────────────────────────────────────
@@ -89,6 +91,7 @@ def _find_optimization_index(plan, beamset) -> int:
             f"PlanOptimization, found {len(matches)}"
         )
     return matches[0]
+
 
 def _ensure_mco(po) -> None:
     """Create the MCO object if it does not yet exist."""
@@ -134,9 +137,6 @@ def _goal_to_mco_function(row):
     return ftype, params
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Public API
-# ──────────────────────────────────────────────────────────────────────────────
 def push_goals_to_mco(
     df: pd.DataFrame,
     plan=None,
@@ -204,7 +204,7 @@ def push_goals_to_mco(
             f"({ftype}) on {row['roi']} – priority {row['priority']}"
         )
 
-# --- example (to run inside RayStation's Python environment) ---
+def initialize_mco(plan_optimization, )
 #
 # from connect import get_current
 # plan = get_current('Plan')
