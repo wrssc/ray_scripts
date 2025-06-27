@@ -35,5 +35,5 @@ docs/*
 _build/
 _static/
 _templates/!/Script_Selector_py3_11.py
-!/Pipfile.lock
-/Pipfile.lock
+Pipfile.lock
+ide.general.xml
