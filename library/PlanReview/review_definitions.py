@@ -2012,7 +2012,7 @@ BOLUS_NAMES = ["bolus"]
 # def - check the front edges of the couch and suspended headboard
 NO_FLY_NAME = "NoFlyZone_PRV"
 PACEMAKER_NAME = "Pacemaker"
-PACEMAKER_PRV_NAME = "Pacemaker_PRV50"
+PACEMAKER_PRV_NAME = "Block_Pacemaker_PRV50"
 PACEMAKER_SEARCH_DISTANCE = 10.  # cm distance over which to look for the 2 Gy dose level
 PACEMAKER_DISTANCE_TOLERANCE = 2.  # cm distance from which we want the 2 Gy line to be away from
 # the pacer
@@ -2159,7 +2159,7 @@ TOMO_DATA = {'MACHINES': ['HDA0488'],
 TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                  'SUPPORTS': ['TrueBeamCouch', 'CivcoBaseShell_Cork', 'CivcoInclineShell_Wax',
                               'ProneBreastBoard', 'QFix_Brain_TBCouch_H1andH2', 'QFix_H&N_TBCouch_F2andF3',
-                              'QFix_Board_Only', 'Baseplate_Override_PMMA'],
+                              'Baseplate_Override_PMMA'],
                  'EDW_LIMITS': {'MU_LIMIT': 20.,
                                 'Y2-OUT': 10.,  # Y2=OUT: -10 cm ≤ Y1 ≤ 10 cm
                                 'Y1-IN': 10.,  # Y1=IN : -10 cm ≤ Y2 ≤ 10 cm

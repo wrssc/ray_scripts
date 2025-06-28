@@ -9,6 +9,7 @@ Version History:
 1.0.0 Production
 1.0.1 RS 11B Update
 1.0.2 Added SRS option for color scheme choices
+1.0.3 RS 12A Update with simplify_large_contours function
 
 Script: Matches all plan rois with TG-263 based normal structures returning a sorted list of
 the most likely matches based on: exact match, previously matched names (aliases) or levenshtein match
@@ -33,19 +34,19 @@ You should have received a copy of the GNU General Public License along with
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '27-Jun-2022'
+__date__ = '26-Jun-2025'
 
-__version__ = '1.0.1'
+__version__ = '1.0.3'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
 
-__raystation__ = '11B'
+__raystation__ = '2024a'
 __maintainer__ = 'Adam Bayliss'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
 __help__ = ''
 
 import os
@@ -165,11 +166,10 @@ def main():
         filtered_plan_rois.append(r)
 
     results, color_scheme = StructureOperations.match_roi(patient=patient,
-                                            examination=exam,
-                                            case=case,
-                                            plan_rois=filtered_plan_rois)
-    #
-    # Redefine all of the plan rois
+                                                          examination=exam,
+                                                          case=case,
+                                                          plan_rois=filtered_plan_rois)
+    # Redefine all the plan rois
     all_rois = StructureOperations.find_types(case=case)
     for roi in all_rois:
         df_e = df_rois[df_rois.name == roi]
@@ -183,7 +183,7 @@ def main():
                 roi, e_name
             ))
             # Set color of matched structures
-            color = custom_color(roi,color_scheme)
+            color = custom_color(roi, color_scheme)
             if color:
                 msg = StructureOperations.change_roi_color(case=case, roi_name=e_name, rgb=color)
                 if msg is not None:
@@ -209,19 +209,15 @@ def main():
             if msg is not None:
                 logging.debug(msg)
         # Basic target handling
-        target_filters = {}
-        # PTV rules
-        target_filters['Ptv'] = re.compile(r'^PTV', re.IGNORECASE)
-        # GTV rules
-        target_filters['Gtv'] = re.compile(r'^GTV', re.IGNORECASE)
-        # CTV rules
-        target_filters['Ctv'] = re.compile(r'^CTV', re.IGNORECASE)
+        target_filters = {'Ptv': re.compile(r'^PTV', re.IGNORECASE), 'Gtv': re.compile(r'^GTV', re.IGNORECASE),
+                          'Ctv': re.compile(r'^CTV', re.IGNORECASE)}
         for roi_type, re_test in target_filters.items():
             if re.match(re_test, roi):
                 msg = StructureOperations.change_roi_type(case=case, roi_name=roi,
                                                           roi_type=roi_type)
                 if msg is not None:
                     logging.debug(f'{roi}: could not change type. {msg}')
+
     msg = StructureOperations.create_derived(patient=patient,
                                              case=case,
                                              examination=exam,
@@ -264,7 +260,6 @@ def main():
         for k, v in results.items():
             match_file.write(f'{v}:{k},')
         match_file.write('\n')
-
 
 
 if __name__ == '__main__':

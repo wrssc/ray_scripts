@@ -1,0 +1,36 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[requires]
+python_version = "3.11"
+
+[packages]
+colorama = "==0.4.6"
+connect = "==0.2"
+# cyminiball = "==2.1.1"
+DicomRTTool = "==2.2.0"
+matplotlib = "==3.10.1"
+notebook = "==7.3.3"
+numpy = "==1.26.0"
+pandas = "==2.2.3"
+Pillow = "==11.1.0"
+pydicom = "==2.4.4"
+pynetdicom = "==2.1.1"
+pyperclip = "==1.9.0"
+PySide6 = "==6.8.2.1"
+FreeSimpleGUI = "==5.2.0.post1"
+PySimpleGUIQt = "==5.0.0"
+pytest = "==8.3.5"
+python-dateutil = "==2.9.0.post0"
+python-docx = "==1.1.2"
+pythonnet = "==3.0.2"
+reportlab = "==4.3.1"
+requests = "==2.32.3"
+scikit-learn = "==1.6.1"
+scipy = "==1.15.2"
+seaborn = "==0.13.2"
+wheel = "==0.45.1"
+wpf = "==1.0.0"
+XlsxWriter = "==3.2.2"

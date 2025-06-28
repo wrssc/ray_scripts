@@ -492,34 +492,34 @@
         <roi>
             <name>SacralPlexus</name>
             <type>DX</type>
-            <dose units="Gy">30</dose>
-            <volume units="cc">5</volume>
-            <fractions>5</fractions>
-            <description>Grade 3 or higher neuropathy</description>
+            <dose units="Gy">31</dose>
+            <volume units="cc">6</volume>
+            <fractions>6</fractions>
+            <description>Grade 4 or higher neuropathy</description>
         </roi>
         <roi>
             <name>SacralPlexus</name>
             <type>Max</type>
-            <dose units="Gy">32</dose>
-            <volume units="cc">0.035</volume>
-            <fractions>5</fractions>
-            <description>Grade 3 or higher neuropathy</description>
+            <dose units="Gy">33</dose>
+            <volume units="cc">1.035</volume>
+            <fractions>6</fractions>
+            <description>Grade 4 or higher neuropathy</description>
         </roi>
         <roi>
             <name>Esophagus</name>
             <type>DX</type>
-            <dose units="Gy">11.9</dose>
-            <volume units="cc">5</volume>
-            <fractions>1</fractions>
-            <description>Grade 3 or higher stenosis/ﬁstula</description>
+            <dose units="Gy">12.9</dose>
+            <volume units="cc">6</volume>
+            <fractions>2</fractions>
+            <description>Grade 4 or higher stenosis/ﬁstula</description>
         </roi>
         <roi>
             <name>Esophagus</name>
             <type>Max</type>
-            <dose units="Gy">15.4</dose>
-            <volume units="cc">0.035</volume>
-            <fractions>1</fractions>
-            <description>Grade 3 or higher stenosis/ﬁstula</description>
+            <dose units="Gy">16.4</dose>
+            <volume units="cc">1.035</volume>
+            <fractions>2</fractions>
+            <description>Grade 4 or higher stenosis/ﬁstula</description>
         </roi>
         <roi>
             <name>Esophagus</name>
