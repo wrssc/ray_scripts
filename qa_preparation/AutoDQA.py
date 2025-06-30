@@ -43,17 +43,17 @@
 
 __author__ = 'Adam Bayliss and Patrick Hill'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '30-Nov-2022'
-__version__ = '1.0.1'
+__date__ = '30-June-2025'
+__version__ = '1.0.2'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Sean Frigo'
 __reviewed__ = ''
-__raystation__ = '11B'
+__raystation__ = '2024A SP3'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
 __help__ = ''
 __credits__ = ['DQA TEAM']
 
@@ -86,18 +86,18 @@ clinic_options = {'--MACHINES--': ['TrueBeam1358', 'TrueBeam2588', 'TrueBeam2871
                                  -9., -6., -3., 0., 3., 6., 9.,
                                  18., 27., 36., 48., 56., 63., 72.],
                   '--CENTROID SHIFT FACTOR--': 0.5,
+                  # Phantom properties for TOMO
                   '--TOMO ISO ROUND': 0.5,
-                  '--VMAT_QA_PHANTOM--': r"Delta4 (TrueBeam)",
-                  '--VMAT_PHANTOM_ID--': r"ZZIMRTQA",
                   '--TOMO_QA_PHANTOM--': r"Delta4_HFS_0X_0Y TomoHDA",
                   '--TOMO_PHANTOM_ID--': r"20191017PMH-QA",
                   '--ALT_TOMO_QA_PHANTOM--': r"TomoHDA Delta4_HFS_X0_Y0",
-                  '--ALT_TOMO_PHANTOM_ID--': r"20191004PMH-D4QA"}
+                  '--ALT_TOMO_PHANTOM_ID--': r"20191004PMH-D4QA",
+                  # Phantom properties for VMAT
+                  '--VMAT_QA_PHANTOM--': r"Delta4 (TrueBeam)",
+                  '--VMAT_PHANTOM_ID--': r"ZZIMRTQA",
+                  }
 #
-# Phantom properties for TOMO
 # Options in Validation
-#
-# Phantom properties for VMAT
 #
 # Declare the named tuple for storing computed TomoTherapy parameters
 TomoParams = namedtuple('TomoParams', ['gantry_period', 'time', 'couch_speed', 'total_travel'])
@@ -179,27 +179,6 @@ def find_qa_plan(plan, beamset, qa_plan_name):
                 and vp.BeamSet.DicomPlanLabel == qa_plan_name:
             return vp
     return None
-
-
-# def create_qa(beamset, phantom, qa_plan_name, phantom_id, iso, dosegrid, rot=None):
-#     try:
-#         beamset.CreateQAPlan(
-#             PhantomName=phantom,
-#             PhantomId=phantom_id,
-#             QAPlanName=qa_plan_name,
-#             IsoCenter=iso,
-#             DoseGrid=dosegrid,
-#             GantryAngle=None,
-#             CollimatorAngle=None,
-#             CouchRotationAngle=rot,
-#             ComputeDoseWhenPlanIsCreated=True,
-#             NumberOfMonteCarloHistories=None,
-#             MotionSynchronizationTechniqueSettings=None,
-#             RemoveCompensators=False,
-#             EnableDynamicTracking=False)
-#         return "success"
-#     except Exception as e:
-#         return str(e.Message)
 
 
 def make_vmat_qa_plan(plan, beamset, qa_plan_name):
@@ -516,7 +495,7 @@ def shift_iso(verification_plan, percent_dose_region=80.):
     return shift
 
 
-def send(case, beamset, destination, verification_plan, filters=[], gantry_period=None, couch_speed=None):
+def send(case, beamset, destination, verification_plan, gantry_period=None, couch_speed=None):
     success = DicomExport.send(case=case,
                                destination=destination,
                                qa_plan=verification_plan,
@@ -533,7 +512,6 @@ def send(case, beamset, destination, verification_plan, filters=[], gantry_perio
                                rename=None,
                                gantry_period=gantry_period,
                                couch_speed=couch_speed,
-                               filters=filters,
                                bar=False)
     return success
 
@@ -545,7 +523,6 @@ def main():
     program_success = []
     gantry_period = None
     couch_speed = None
-    filters = []
     destinations = ['Delta4']
     shifts = {}
     try:
@@ -590,7 +567,6 @@ def main():
         # Make a qa plan with the name of the beamset
         if 'Tomo' in beamset.DeliveryTechnique:
             # Update the filters and destinations
-            filters.append('tomo_dqa')
             destinations.append('RayGateway')
             qa_plan_name = b.replace('_THI_', '_DQA_')
             if qa_plan_name == b:
@@ -658,7 +634,7 @@ def main():
                                    verification_plan=verification_plan,
                                    gantry_period=gantry_period,
                                    couch_speed=couch_speed,
-                                   filters=filters)
+                                   )
         clipboard_gui(beamset, user_prompt, verification_plan)
 
     # Finish up
