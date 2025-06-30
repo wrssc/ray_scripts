@@ -193,6 +193,37 @@ def question_box(msg: str, title: str = "Confirm") -> bool:
     return reply == QMessageBox.StandardButton.Yes
 
 
+def cleanup_directory(path: Path, *, retries: int = 5, delay: float = 1.0) -> None:
+    """Ensure a directory is removed, retrying on Windows sharing-violations (WinError 5).
+
+    Args:
+        path: The directory to delete.
+        retries: Number of attempts before giving up.
+        delay: Base delay (seconds) that increases linearly with attempt number.
+    """
+    for attempt in range(1, retries + 1):
+        try:
+            if path.exists():
+                shutil.rmtree(path)
+                logging.info(f"Successfully removed {path}")
+            return
+        except PermissionError as e:
+            if attempt == retries:
+                logging.warning(f"Could not remove {path} after {retries} attempts: {e}")
+            else:
+                logging.warning(f"Attempt {attempt}/{retries} to remove {path} failed: {e}, retrying in {delay * attempt:.1f}s")
+                time.sleep(delay * attempt)
+
+
+def prepare_and_cleanup(local_path: Path, scratch_old: Path) -> None:
+    """Release locks and delete both the existing master and old_tmp directories."""
+    # 1) ensure cwd is not inside either directory
+    os.chdir(str(local_path.parent))
+
+    # 2) delete any half-copied or backup trees
+    cleanup_directory(local_path)
+    cleanup_directory(scratch_old)
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Main
 # ──────────────────────────────────────────────────────────────────────────────
@@ -236,8 +267,8 @@ def main() -> None:
         return
     local_path = Path(local)
 
-    # Put the temp folder two levels up from the target so it's on the same drive
-    temp_root = local_path.parent.parent
+    # Put the temp folder a level up from the target so it's on the same drive
+    temp_root = local_path.parent
     temp_root.mkdir(parents=True, exist_ok=True)
     temp_dir = Path(tempfile.mkdtemp(prefix="ray_scripts_update_", dir=str(temp_root)))
     logging.info(f"Using temporary directory: {temp_dir}")
@@ -316,17 +347,21 @@ def main() -> None:
     scratch_old = None
     try:
         scratch_old = local_path.with_suffix(".old_tmp")
-        tmp_dst = local_path.with_suffix(".old_tmp")
+        # tear down any leftovers from previous runs
+        prepare_and_cleanup(local_path, scratch_old)
 
         #  rename the live tree to a temporary suffix
-        logging.info(f"Renaming {local_path} -> {tmp_dst}")
+        logging.info(f"Renaming {local_path} -> {scratch_old}")
         if local_path.exists():
-            local_path.rename(tmp_dst)
+            local_path.rename(scratch_old)
+            logging.info(f"Renamed {local_path} to {scratch_old}")
 
         #  make sure nothing has recreated the folder
         if local_path.exists():
             logging.warning(f"{local_path} re-appeared - removing")
             shutil.rmtree(local_path, ignore_errors=True)
+        else:
+            logging.info(f"{local_path} does not exist, proceeding with update")
 
         #  bring in the freshly-downloaded tree
         logging.info(f"Moving {temp_dir} -> {local_path}")
@@ -360,13 +395,14 @@ def main() -> None:
         info_box("Scripts updated successfully.", "Success")
 
     except Exception as exc:
-        logging.exception(f"Update failed: {exc}")
-
-        # Try to roll back <- scratch_old
+        logging.exception("Update failed: %s", exc)
         if scratch_old.exists():
-            logging.info(f"Rolling back {scratch_old} -> {local_path}")
-            if local_path.exists():
-                shutil.rmtree(local_path, ignore_errors=True)
+            logging.info("Rolling back from %s -> %s", scratch_old, local_path)
+
+            # make sure nothing is in the way
+            prepare_and_cleanup(local_path, scratch_old)
+
+            # now rename back
             scratch_old.rename(local_path)
 
         warning_box("Update failed – the previous version was restored.", "Update Failed")
