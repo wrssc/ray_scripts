@@ -107,7 +107,7 @@ COUCH_SHIFT = {
         "TrueBeamCouch": [0, 6.8, 0],
         "TomoCouch": [0, 6.8, 0],
         "QFix_Brain_TBCouch_H1andH2": [0.12, -9.75, -42.63],
-        "QFix_H&N_TBCouch_F2andF3": [0.15, -9.80, -42.61],
+        "QFix_H&N_TBCouch_F2andF3": [0.15, -9.80, -37.09],
         "Black Board External Final": [0.13, -9.72, -42.60],
         "QFix_Board_Only": [0.13, -9.72, -42.60],
     },
@@ -749,7 +749,7 @@ def expand_geometry_to_superior_boundary(examination, geometry):
         while geometry.GetBoundingBox()[1]["z"] < extent_sup:
             MarginSettings = {
                 "Type": "Expand",
-                "Superior": 15,
+                "Superior": 14,
                 "Inferior": 0,
                 "Anterior": 0,
                 "Posterior": 0,
@@ -785,7 +785,7 @@ def expand_geometry_to_superior_boundary(examination, geometry):
         while geometry.GetBoundingBox()[1]["z"] > extent_sup:
             MarginSettings = {
                 "Type": "Contract",
-                "Superior": 15,
+                "Superior": 14,
                 "Inferior": 0,
                 "Anterior": 0,
                 "Posterior": 0,
@@ -848,6 +848,7 @@ def expand_geometry_to_inferior_boundary(examination, geometry):
 
     image_bb = examination.Series[0].ImageStack.GetBoundingBox()
     extent_inf = image_bb[0]["z"] - PADDING_MARGIN
+    logging.debug(f"{extent_inf=}")
 
     # If inferior edge of couch is inside image boundary
     if geometry.GetBoundingBox()[0]["z"] > extent_inf:
@@ -858,7 +859,7 @@ def expand_geometry_to_inferior_boundary(examination, geometry):
             MarginSettings = {
                 "Type": "Expand",
                 "Superior": 0,
-                "Inferior": 15,
+                "Inferior": 14,
                 "Anterior": 0,
                 "Posterior": 0,
                 "Right": 0,
@@ -872,6 +873,7 @@ def expand_geometry_to_inferior_boundary(examination, geometry):
 
         # Perform a single contraction to match image boundaries
         contract_inf = extent_inf - geometry.GetBoundingBox()[0]["z"]
+        logging.debug(f"{contract_inf=}")
 
         MarginSettings = {
             "Type": "Contract",
@@ -894,7 +896,7 @@ def expand_geometry_to_inferior_boundary(examination, geometry):
             MarginSettings = {
                 "Type": "Contract",
                 "Superior": 0,
-                "Inferior": 15,
+                "Inferior": 14,
                 "Anterior": 0,
                 "Posterior": 0,
                 "Right": 0,
@@ -908,6 +910,7 @@ def expand_geometry_to_inferior_boundary(examination, geometry):
 
         # Perform a single expansion to match image boundaries
         expand_inf = geometry.GetBoundingBox()[0]["z"] - extent_inf
+        logging.debug(f"{expand_inf=}")
 
         MarginSettings = {
             "Type": "Expand",

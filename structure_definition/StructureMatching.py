@@ -93,26 +93,26 @@ def simplify_large_contours(case, exam):
         contour export
     """
     roi_data = {}
-    contour_limit = (2 ** 16 - 2) / 3 / 4  # 2^16 - 2 points, divided by 3 for x,y,z, divided by 4 for bytes per float
+    point_limit = 2500  # Set the point limit for simplification
+    contour_limit = int((2**16 - 2) / 3 / 4)  # 2^16 - 2 points, divided by 3 for x,y,z, divided by 4 for bytes per float
     for r in case.PatientModel.StructureSets[exam.Name].RoiGeometries:
         if r.HasContours():
             volume = r.GetRoiVolume()
-            if volume > 500:  # cc # Set threshold for large contours
+            if volume > 1000:  # cc # Set threshold for large contours
                 roi_data[r.OfRoi.Name] = volume
     if roi_data:
-        case.PatientModel.SimplifyContours(
+        case.PatientModel.StructureSets[exam.Name].SimplifyContours(
             RoiNames=list(roi_data.keys()),
             RemoveHoles3D=False,
             RemoveSmallContours=False,
             AreaThreshold=None,
             ReduceMaxNumberOfPointsInContours=True,
-            MaxNumberOfPoints=contour_limit,
+            MaxNumberOfPoints=point_limit,
             CreateCopyOfRoi=False,
             ResolveOverlappingContours=False
         )
-    logging.info(
-        f'On exam {exam.Name}: Simplified contours for large ROIs: {list(roi_data.keys())} '
-        f'with volumes {list(roi_data.values())}')
+        logging.info(f'On exam {exam.Name}: Simplified contours for large ROIs: {list(roi_data.keys())} '
+                     f'with volumes {list(roi_data.values())} to {point_limit} points each.')
 
 
 def main():
@@ -146,6 +146,8 @@ def main():
                                                suffix=None,
                                                delete=False)
     plan_rois = StructureOperations.find_types(case=case)
+    # Reduce the number of points in large contours
+    simplify_large_contours(case=case, exam=exam)
     # filter the structure list
     filtered_plan_rois = []
     for r in plan_rois:

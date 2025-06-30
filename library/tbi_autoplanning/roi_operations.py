@@ -4,6 +4,7 @@ from collections import namedtuple
 import sys
 import logging
 import connect
+import math
 
 from library.StructureOperations import (
     create_roi, make_boolean_structure, change_roi_type,
@@ -282,14 +283,15 @@ def make_box(patient_data, box_name, length=None, z_center=None):
     z_center = c_external['z'] if z_center is None else z_center
     length = bb_external[1].z - bb_external[0].z if length is None else length
     if length > 200:
-        # Need to make multiple boxes
-        n_box = int(length / 200)
+        # Need to make multiple boxes if length is greater than 200
+        n_box = math.ceil(length / 200)
         box_length = length / n_box
     else:
         n_box = 1
         box_length = length
     logging.debug(f'Measured length of external contour: {bb_external[1].z - bb_external[0].z}')
     logging.debug(f'Building a box with length {length} centered at {z_center}')
+    logging.debug(f'Number of boxes: {n_box} with length {box_length}')
     delete_boxes = []
     for i in range(n_box):
         # Create the box
@@ -312,7 +314,7 @@ def make_box(patient_data, box_name, length=None, z_center=None):
         delete_boxes.append(box_name + f'_{i}')
     if n_box > 1:
         #
-        # Boolean Definitions for Kidneys
+        # Boolean Definitions for creating a union of the boxes
         box_defs = get_boolean_defs(
             roi_name=box_name,
             a_sources=delete_boxes,
@@ -331,6 +333,8 @@ def make_box(patient_data, box_name, length=None, z_center=None):
     else:
         raise RuntimeError(f"Unable to generate a box geometry for {box_name} "
                            f"on exam {exam.Name}")
+
+
 
 
 def make_central_junction_contour(pdata, z_inf_box,

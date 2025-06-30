@@ -36,10 +36,11 @@ __date__ = "2021-01-14"
 __version__ = "1.1.0"
 __status__ = "Production"
 __deprecated__ = False
-__reviewer__ = "Dustin Jacqmin"
 
-__reviewed__ = "2024-JUN-18"
-__raystation__ = "2024A"
+__reviewer__ = "Dustin Jacqmin"
+__reviewed__ = "2025-APR-24"
+__raystation__ = "2024A SP3"
+
 __maintainer__ = "Adam Bayliss"
 
 __email__ = "rabayliss@wisc.edu"
