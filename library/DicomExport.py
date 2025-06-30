@@ -39,6 +39,7 @@
     1.0.1 Update with TomoTherapy support for IDMS and RayGateway (without DICOM filtering)
     1.0.2 Added support for sending a TomoTherapy-based QA Plan with a filter for gantry period
     1.1.0 Changed to pynetdicom from pynetdicom3
+    1.2.0 Adding parse on RayGateway error handling, implemented new function-based handling of filters
 
     TODO:
         * Make sure logical tests are applied to filters to ensure suitability of each filter now
@@ -61,25 +62,26 @@ __contact__ = 'rabayliss@gmail.com'
 __version__ = '1.1.0'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrssc/ray_scripts/wiki/DICOM-Export'
-__copyright__ = 'Copyright (C) 2020, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
 
 import os
 import xml.etree.ElementTree
 import time
 import tempfile
 import logging
-import UserInterface
 import pydicom
-# import pynetdicom
+import shutil
+import math
+import random
+import string
+import re
+import UserInterface
 from pynetdicom import AE
 from pynetdicom.sop_class import RTPlanStorage, RTStructureSetStorage, CTImageStorage, RTDoseStorage, Verification
 from pydicom.uid import ImplicitVRLittleEndian
 from pydicom.dataset import Dataset
-import shutil
-import re
-import math
-import random
-import string
+from collections import OrderedDict
+from typing import List, Pattern
 
 # Parse destination and filters XML files
 dest_xml = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__), 'DicomDestinations.xml'))
@@ -91,6 +93,17 @@ local_port = 105
 
 # Define personal_tags (for anonymization)
 personal_tags = ['PatientName', 'PatientID', 'OtherPatientIDs', 'OtherPatientIDsSequence', 'PatientBirthDate']
+
+# ---------- regexes ----------
+STATUS = re.compile(r"Error status code.*?\((\d{3})\)\s*([^\n]+)", re.I)
+SERVER = re.compile(r"Server message:\s*(.+?)(?:$|\n)", re.I | re.S)
+MESSAGE = re.compile(r"Message:\s*(.+?)(?:$|\n)", re.I | re.S)
+EXCEPTION = re.compile(
+    r"\b([A-Z][A-Za-z0-9_.]*Exception):\s*(.+?)(?=$|\n| ---)"
+)
+
+# ----------- identical run-on chunks like “… ) ---> … ) ---> …” --------------
+BACKTRACK = re.compile(r"(?:\s+--->\s+)+")
 
 
 class InvalidOperationException(Exception):
@@ -134,6 +147,134 @@ def get_referenced_beam_name(rtplan: Dataset, ref_beam: Dataset) -> str:
 
     # 4) fallback
     return f"Beam{beam_num}"
+
+
+# -------- tighter canonicalisation ------------------------------------------
+def _canon(s: str) -> str:
+    """
+    Return a *finger-print* good enough for “same meaning” tests:
+
+        • lower-case
+        • '_' treated as space
+        • strip all remaining non-alnum
+        • collapse duplicate tokens while *preserving order*
+    """
+    s = s.casefold().replace("_", " ")
+    # keep only letters+digits+space
+    s = re.sub(r"[^a-z0-9 ]+", " ", s)
+    tokens: list[str] = []
+    seen: set[str] = set()
+    for tok in s.split():
+        if tok not in seen:
+            seen.add(tok)
+            tokens.append(tok)
+    return " ".join(tokens)
+
+
+def _squash_backtrack(text: str) -> str:
+    """
+    Remove *verbatim* duplicates created by AggregateException back-tracking.
+    Example input (line-breaks added):
+
+        Foo bar ---> Foo bar ---> Foo bar
+
+    becomes:
+
+        Foo bar
+    """
+    parts = BACKTRACK.split(text)
+    if len(parts) <= 1:
+        return text
+    # first part is always kept; keep only parts that change canon()
+    out: list[str] = [parts[0]]
+    last_fingerprint = _canon(parts[0])
+    for seg in parts[1:]:
+        fp = _canon(seg)
+        if fp != last_fingerprint:
+            out.append(seg)
+            last_fingerprint = fp
+    return " ---> ".join(out)
+
+
+# ---------- prefer-shortest & parenthetical-echo unchanged -------------------
+def _prefer_shortest(items: list[str]) -> list[str]:
+    chosen: list[str] = []
+    for text in items:
+        fp = _canon(text)
+        if any(fp == _canon(c) and len(text) > len(c) for c in chosen):
+            continue
+        chosen = [c for c in chosen if not (fp == _canon(c) and len(c) > len(text))]
+        chosen.append(text)
+    return chosen
+
+
+def _drop_parenthetical_echo(s: str) -> str:
+    m = re.search(r"\s*\((.*?)\)\s*$", s)
+    if m and _canon(m.group(1)) == _canon(s[: m.start()].strip()):
+        return s[: m.start()].rstrip()
+    return s
+
+
+# ---------------- revised _uniq: one fast pass -------------------------------
+def _uniq(rx: Pattern[str], text: str) -> list[str]:
+    out: OrderedDict[str, str] = OrderedDict()
+    for m in rx.finditer(text):
+        raw = m.group(1).strip()
+        fp = _canon(raw)
+        out.setdefault(fp, raw)          # first-seen wording wins
+    return list(out.values())
+
+
+# ---------------------------- main one-liner maker ---------------------------
+def summarize(log: str) -> str:
+    """Condense a raw RayGateway exception into one sentence."""
+    log = _squash_backtrack(log)
+
+    parts: list[str] = []
+
+    if m := STATUS.search(log):
+        parts.append(f"HTTP {m[1]} {m[2].strip()}")
+
+    if s := SERVER.search(log):
+        parts.append(s[1].strip())
+
+    if msgs := _uniq(MESSAGE, log):
+        msgs = _prefer_shortest(msgs)           # enable idea 2 if desired
+        msgs = [_drop_parenthetical_echo(x) for x in msgs]   # idea 3
+        parts.append(" | ".join(msgs))
+    # Fallback: still nothing? grab the first meaningful line
+    if not parts:
+        first = next((ln.strip() for ln in log.splitlines() if ln.strip()), "")
+        msgs = _drop_parenthetical_echo(first)
+        parts.append(msgs)
+
+    return " – ".join(parts)
+
+
+def handle_raygateway_error(error: Exception, beamset_name: str) -> dict:
+    """Handle errors from RayGateway export, parsing the error message and logging it.
+    """
+    if isinstance(error, Exception):
+        if hasattr(error, 'message'):
+            error = error.message
+        else:
+            error = str(error)
+
+    # TODO: eliminate debug
+    logging.debug(f'Handling RayGateway error: {error}')
+    parsed_error = summarize(error)
+    # This is the error thrown when a plan is already in the iDMS
+    existing_plan_exception = f"_{beamset_name} already exist"
+    element_too_long = 'Element 3006,0050 is too long to be written in Explicit'
+    if existing_plan_exception in error:
+        return {'continue': True, 'message': f'Parent Plan is already in IDMS {beamset_name}'
+                                             f': {parsed_error}'}
+    elif element_too_long in error:
+        return {'continue': False, 'message': f"An ROI in the {beamset_name} exceeds the maximum tolerable "
+                                              f"length for DICOM export. Simplify ROIs with _npts>2500"}
+    else:
+        logging.error(f'DicomExport failed {parsed_error}')
+        return {'continue': False, 'message': f'DICOM export failed {parsed_error}'}
 
 
 def send(case,
@@ -375,25 +516,33 @@ def send(case,
                 try:
                     case.ScriptableDicomExport(**args)
                 except Exception as error:
-                    if hasattr(error, 'Message'):
-                        # This is the error thrown when a plan is already in the iDMS
-                        existing_plan_exception = "_{} already exist".format(beamset.DicomPlanLabel)
-                        element_too_long = 'Element 3006,0050 is too long to be written in Explicit'
-                        if existing_plan_exception in error.Message:
-                            logging.debug('Parent plan likely in iDMS already. Error is {}'.format(error.Message))
-                            logging.info('Parent Plan is already in IDMS {}'.format(beamset.DicomPlanLabel))
-                            pass
-                        else:
-                            status = False
-                            logging.error('DicomExport failed {}'.format(error))
-                            UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
-                            raise
+                    raygateway_response = handle_raygateway_error(error, beamset.DicomPlanLabel)
+                    if raygateway_response['continue']:
+                        logging.debug(raygateway_response['message'])
+                        pass
                     else:
+                        logging.error(raygateway_response['message'])
+                        UserInterface.MessageBox(raygateway_response['message'], 'Export Fail')
                         status = False
-                        logging.error('DicomExport failed {}'.format(error))
-                        UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
                         raise
-
+                    # parsed_error = parse_raygateway_message(error)
+                    # This is the error thrown when a plan is already in the iDMS
+                    # existing_plan_exception = f"_{beamset.DicomPlanLabel} already exist"
+                    # element_too_long = 'Element 3006,0050 is too long to be written in Explicit'
+                    # if existing_plan_exception in error:
+                    #     logging.debug('Parent plan likely in iDMS already. Error is {}'.format(parsed_error))
+                    #     logging.info('Parent Plan is already in IDMS {}'.format(beamset.DicomPlanLabel))
+                    #     pass
+                    # elif element_too_long in error:
+                    #     logging.debug(f'Error encountered during export of {beamset.DicomPlanLabel}: {parsed_error}')
+                    #     logging.info(f"An ROI in the {beamset.DicomPlanLabel} exceeds the maximum tolerable "
+                    #                  f"length for DICOM export. Simplify ROIs with _npts>2500")
+                    #     status=False
+                    # else:
+                    #     logging.error('DicomExport failed {}'.format(parsed_error))
+                    #     UserInterface.MessageBox(f'DICOM export failed {parsed_error}', 'Export Fail')
+                    #     status = False
+                    #     raise
                 logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
             else:
                 try:
@@ -401,24 +550,33 @@ def send(case,
                                                             PreviousBeamSet=parent_plan,
                                                             OriginalBeamSet=parent_plan,
                                                             IgnorePreConditionWarnings=ignore_warnings)
-                except SystemError as e:
-                    logging.exception('Error in exporting Parent {}: Transfer plan {}:{}'
-                                      .format(parent_plan, beamset.DicomPlanLabel, e))
+                except Exception as e:
+                    raygateway_response = handle_raygateway_error(e, beamset.DicomPlanLabel)
+                    if raygateway_response['continue']:
+                        logging.debug(raygateway_response['message'])
+                        pass
+                    else:
+                        logging.error(raygateway_response['message'])
+                        UserInterface.MessageBox(raygateway_response['message'], 'Export Fail')
+                        status = False
+                        raise
             if isinstance(bar, UserInterface.ProgressBar):
                 bar.close()
 
             UserInterface.MessageBox('DICOM export was successful', 'Export Success')
         except Exception as error:
-            if hasattr(error, 'message'):
-                status = False
-                logging.error('DicomExport failed {}'.format(error.message))
-                UserInterface.MessageBox('DICOM export failed {}'.format(error.message), 'Export Fail')
-                raise
+            raygateway_response = handle_raygateway_error(error, beamset.DicomPlanLabel)
+            if raygateway_response['continue']:
+                logging.debug(raygateway_response['message'])
+                pass
             else:
+                logging.error(raygateway_response['message'])
+                if isinstance(bar, UserInterface.ProgressBar):
+                    bar.close()
+                UserInterface.MessageBox(raygateway_response['message'], 'Export Fail')
                 status = False
-                logging.error('DicomExport failed {}'.format(error))
-                UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
-                raise
+            if isinstance(bar, UserInterface.ProgressBar):
+                bar.close()
 
         return status
 
