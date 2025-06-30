@@ -154,25 +154,11 @@ def copy_roi(rso, source_roi_name, suffix='', representation='Contours'):
             Examination=rso.exam,
             MarginSettings=margins,
         )
-        # rso.case.PatientModel.RegionsOfInterest[copied_roi].SetAlgebraExpression(
-        #     ExpressionA={
-        #         "Operation": 'Union',
-        #         "SourceRoiNames": [source_roi_name],
-        #         "MarginSettings": margins,
-        #     },
-        #     ExpressionB={'Operation': 'Union',
-        #                  'SourceRoiNames': [],
-        #                  'MarginSettings': margins,
-        #                  },
-        #     ResultOperation='None',
-        #     ResultMarginSettings=margins,
-        # )
     except Exception as e:
         logging.warning(f"An error occurred while copying the geometry of {source_roi_name}: {e}")
         return None
 
     # Update derived geometry
-    # update_derived_geometry(rso, copied_roi)
     # Set representation
     try:
         rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[copied_roi] \

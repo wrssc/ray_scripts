@@ -9,6 +9,7 @@ Version History:
 1.0.0 Production
 1.0.1 RS 11B Update
 1.0.2 Added SRS option for color scheme choices
+1.0.3 RS 12A Update with simplify_large_contours function
 
 Script: Matches all plan rois with TG-263 based normal structures returning a sorted list of
 the most likely matches based on: exact match, previously matched names (aliases) or levenshtein match
@@ -33,19 +34,19 @@ You should have received a copy of the GNU General Public License along with
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '27-Jun-2022'
+__date__ = '26-Jun-2025'
 
-__version__ = '1.0.1'
+__version__ = '1.0.3'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
 
-__raystation__ = '11B'
+__raystation__ = '2024a'
 __maintainer__ = 'Adam Bayliss'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
 __help__ = ''
 
 import os
@@ -87,6 +88,33 @@ def custom_color(roi_name, template):
     return None  # Return None if the conditions are not met or there is an error
 
 
+def simplify_large_contours(case, exam):
+    """ Simplifies large contours to reduce the number of points under limits that may affect
+        contour export
+    """
+    roi_data = {}
+    point_limit = 2500  # Set the point limit for simplification
+    contour_limit = int((2**16 - 2) / 3 / 4)  # 2^16 - 2 points, divided by 3 for x,y,z, divided by 4 for bytes per float
+    for r in case.PatientModel.StructureSets[exam.Name].RoiGeometries:
+        if r.HasContours():
+            volume = r.GetRoiVolume()
+            if volume > 1000:  # cc # Set threshold for large contours
+                roi_data[r.OfRoi.Name] = volume
+    if roi_data:
+        case.PatientModel.StructureSets[exam.Name].SimplifyContours(
+            RoiNames=list(roi_data.keys()),
+            RemoveHoles3D=False,
+            RemoveSmallContours=False,
+            AreaThreshold=None,
+            ReduceMaxNumberOfPointsInContours=True,
+            MaxNumberOfPoints=point_limit,
+            CreateCopyOfRoi=False,
+            ResolveOverlappingContours=False
+        )
+        logging.info(f'On exam {exam.Name}: Simplified contours for large ROIs: {list(roi_data.keys())} '
+                     f'with volumes {list(roi_data.values())} to {point_limit} points each.')
+
+
 def main():
     # Get current patient, case, exam, and plan
     patient = find_scope(level='Patient')
@@ -118,6 +146,8 @@ def main():
                                                suffix=None,
                                                delete=False)
     plan_rois = StructureOperations.find_types(case=case)
+    # Reduce the number of points in large contours
+    simplify_large_contours(case=case, exam=exam)
     # filter the structure list
     filtered_plan_rois = []
     for r in plan_rois:
@@ -136,11 +166,10 @@ def main():
         filtered_plan_rois.append(r)
 
     results, color_scheme = StructureOperations.match_roi(patient=patient,
-                                            examination=exam,
-                                            case=case,
-                                            plan_rois=filtered_plan_rois)
-    #
-    # Redefine all of the plan rois
+                                                          examination=exam,
+                                                          case=case,
+                                                          plan_rois=filtered_plan_rois)
+    # Redefine all the plan rois
     all_rois = StructureOperations.find_types(case=case)
     for roi in all_rois:
         df_e = df_rois[df_rois.name == roi]
@@ -154,7 +183,7 @@ def main():
                 roi, e_name
             ))
             # Set color of matched structures
-            color = custom_color(roi,color_scheme)
+            color = custom_color(roi, color_scheme)
             if color:
                 msg = StructureOperations.change_roi_color(case=case, roi_name=e_name, rgb=color)
                 if msg is not None:
@@ -180,19 +209,15 @@ def main():
             if msg is not None:
                 logging.debug(msg)
         # Basic target handling
-        target_filters = {}
-        # PTV rules
-        target_filters['Ptv'] = re.compile(r'^PTV', re.IGNORECASE)
-        # GTV rules
-        target_filters['Gtv'] = re.compile(r'^GTV', re.IGNORECASE)
-        # CTV rules
-        target_filters['Ctv'] = re.compile(r'^CTV', re.IGNORECASE)
+        target_filters = {'Ptv': re.compile(r'^PTV', re.IGNORECASE), 'Gtv': re.compile(r'^GTV', re.IGNORECASE),
+                          'Ctv': re.compile(r'^CTV', re.IGNORECASE)}
         for roi_type, re_test in target_filters.items():
             if re.match(re_test, roi):
                 msg = StructureOperations.change_roi_type(case=case, roi_name=roi,
                                                           roi_type=roi_type)
                 if msg is not None:
                     logging.debug(f'{roi}: could not change type. {msg}')
+
     msg = StructureOperations.create_derived(patient=patient,
                                              case=case,
                                              examination=exam,
@@ -235,7 +260,6 @@ def main():
         for k, v in results.items():
             match_file.write(f'{v}:{k},')
         match_file.write('\n')
-
 
 
 if __name__ == '__main__':

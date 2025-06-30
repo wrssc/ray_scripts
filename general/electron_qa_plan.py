@@ -23,6 +23,7 @@
                    1.0.2 Added main function call, eliminated blanket connect import,
                          autoclick QA prep
                    1.1.0 Update to Rs 10A
+                   1.2.0 Update to RS 15 and make backwards compatible with RS 11B
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -40,16 +41,16 @@
 __author__ = 'Jessie Huang-Vredevoogd'
 __contact__ = 'jyhuang4@wisc.edu'
 __date__ = '2021-01-17'
-__version__ = '1.0.2'
+__version__ = '1.2.0'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
 __reviewed__ = '2018-01-26'
-__raystation__ = '10A SP1'
+__raystation__ = '2024A'
 __maintainer__ = 'Huang-Vredevoogd and Bayliss'
 __email__ = 'jyhuang4@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2021, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
 __credits__ = []
 
 
@@ -57,6 +58,8 @@ def main():
     import connect
     import UserInterface
     import sys
+    from api.api_ui import ui_click_qa_preparation
+    from api.api_beamsets import create_electron_qa_plan
 
     try:
         beam_set = connect.get_current("BeamSet")
@@ -65,22 +68,25 @@ def main():
         sys.exit('This script requires a Beam Set to be loaded')
 
     QA_Plan_Name = beam_set.DicomPlanLabel + "QA"
-    # Click magic
+    # Go to the QA preparation workspace
     ui = connect.get_current('ui')
-    ui.TitleBar.Navigation.MenuItem['QA preparation'].Button_QA_preparation.Click()
+    ui_click_qa_preparation(ui)
 
     try:
-        beam_set.CreateQAPlan(
-            PhantomName="50cmCube",
-            PhantomId="WaterPhantom",
-            QAPlanName=QA_Plan_Name,
-            IsoCenter={'x': 0, 'y': -30, 'z': 25},
-            DoseGrid={'x': 0.25, 'y': 0.25, 'z': 0.25},
-            GantryAngle=0,
-            CollimatorAngle=None,
-            CouchRotationAngle=0,
-            ComputeDoseWhenPlanIsCreated=True,
-            NumberOfMonteCarloHistories=500000)
+        create_electron_qa_plan(
+            beam_set,
+            phantom_name="50cmCube",
+            phantom_id="WaterPhantom",
+            qa_plan_name=QA_Plan_Name,
+            isocenter={'x': 0, 'y': -30, 'z': 25},
+            dose_grid={'x': 0.25, 'y': 0.25, 'z': 0.25},
+            gantry_angle=0,
+            collimator_angle=None,
+            couch_rotation_angle=0,
+            compute_dose=True,
+            number_histories=500000,  # Used in RS version 11
+            uncertainty=0.005  # Used in RS version 15
+        )
     except Exception as e:
         UserInterface.WarningBox('QA Plan failed to create: {}'.format(e))
         sys.exit('QA Plan failed to create {}'.format(e))

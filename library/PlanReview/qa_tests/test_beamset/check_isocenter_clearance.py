@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from typing import Dict, Tuple
 from PlanReview.utils.contour_utilities import (copy_roi, get_voxel_coordinates)
 import logging
 
@@ -24,12 +25,27 @@ def get_couch_angle(rso, beam_name):
     return rso.beamset.Beams[beam_name].CouchRotationAngle
 
 
-def find_gantry_angular_traversal(rso):
+def get_isocenter_position(rso, beam_name):
+    """
+    Get the isocenter position for a beam in the beamset.
+    Args:
+        rso: NamedTuple of ScriptObjects in Raystation [case, exam, plan, beamset, db]
+        beam_name (str): Name of the beam to get the isocenter position for.
+
+    Returns:
+        tuple: The isocenter position as a tuple (x, y, z).
+    """
+    isocenter = rso.beamset.Beams[beam_name].Isocenter.Position
+    return isocenter.x, isocenter.y, isocenter.z
+
+
+def find_gantry_angular_traversal(rso, testing=False):
     """
     Return a list of gantry angles traversed for each beam in a dynamic arc.
 
     Args:
         rso: NamedTuple of ScriptObjects in Raystation [case, exam, plan, beamset, db]
+        testing (bool): If True, use test values which span possible angles.
 
     Returns:
         dict:
@@ -43,17 +59,28 @@ def find_gantry_angular_traversal(rso):
             - The value is a tuple consisting of:
                 - A numpy array representing the sequence of gantry angles swept by the beam.
                 - A boolean indicating the direction of rotation (True for clockwise, False for counterclockwise).
+            Note in testing mode a single beam is used with the full range of angles, keyed by "TestBeam".
     """
     gantry_angles = {}
     if rso.beamset.DeliveryTechnique == "DynamicArc":
-        for beam in rso.beamset.Beams:
-            gantry_angles[beam.Name] = generate_arc_gantry_sweep(
-                beam.GantryAngle,
-                beam.ArcStopGantryAngle,
-                clockwise=True if beam.ArcRotationDirection == "Clockwise" else False)
+        if testing:
+            gantry_angles['TestBeam'] = generate_arc_gantry_sweep(180.1, 179.9, clockwise=True)
+            return gantry_angles
+        else:
+            for beam in rso.beamset.Beams:
+                gantry_angles[beam.Name] = generate_arc_gantry_sweep(
+                    beam.GantryAngle,
+                    beam.ArcStopGantryAngle,
+                    clockwise=True if beam.ArcRotationDirection == "Clockwise" else False)
     elif rso.beamset.DeliveryTechnique == "SMLC":
-        static_beam_angles = [beam.GantryAngle for beam in rso.beamset.Beams if beam.GantryAngle is not None]
-        gantry_angles[rso.beamset.Beams[0].Name] = gantry_angular_traversal_static_beams(static_beam_angles)
+        if testing:
+            # Generate all gantry angles from 180.1 to 360 then from 0 to 179.9 degrees
+            static_beam_angles = np.concatenate([np.arange(180.1, 360, 1), np.arange(0, 180, 1)]).tolist()
+            gantry_angles['TestBeam'] = gantry_angular_traversal_static_beams(static_beam_angles)
+            return gantry_angles
+        else:
+            static_beam_angles = [beam.GantryAngle for beam in rso.beamset.Beams if beam.GantryAngle is not None]
+            gantry_angles[rso.beamset.Beams[0].Name] = gantry_angular_traversal_static_beams(static_beam_angles)
     return gantry_angles
 
 
@@ -182,34 +209,6 @@ def gantry_angular_traversal_static_beams(beam_gantry_angles):
     return generate_arc_gantry_sweep(round(closest_to_180), round(last_angle), clockwise)
 
 
-def filter_points_outside_diameter_and_length(points, diameter):
-    """
-    Filter points that are outside the given diameter in the XY plane and outside the Z range specified by the length of interest.
-
-    Args:
-        points (np.array): Numpy array of points with shape (N, 3), where each row is [x, y, z].
-        diameter (float): The diameter in the XY plane.
-
-    Returns:
-        np.array: A numpy array containing only the points outside the diameter and length_of_interest.
-    """
-    # Calculate the radial distance in the XY plane for each point
-    radial_distances = np.sqrt(points[:, 0] ** 2 + points[:, 1] ** 2)
-
-    # Filter points where radial distance exceeds half the diameter
-    outside_diameter_mask = radial_distances > (diameter / 2)
-
-    # Filter points where Z exceeds the length_of_interest
-    outside_length_mask = points[:, 2] > truebeam_iso_to_laserguard
-    outside_length_mask |= points[:, 2] < -truebeam_clearance
-
-    # Combine both masks: either outside diameter or outside length
-    outside_mask = outside_diameter_mask | outside_length_mask
-
-    # Return points that are outside both conditions and inside both conditions
-    return points[outside_mask], points[~outside_mask]
-
-
 def filter_in_bore_clearing_points_tomo(points, diameter):
     """
     Filter points that are outside the given diameter in the XY plane and
@@ -250,41 +249,49 @@ def get_orientation_transform(orientation):
     - orientation (str): Patient orientation (e.g., 'HFS', 'HFP', 'FFS', 'FFP', 'HFDR', 'HFDL', 'FFDR', 'FFDL')
 
     Returns:
+    - The objective is to change the orientation of the points so that:
+       [-X, +X] -> [B wall, A Wall]
+       [-Y, +Y] -> [Down, Up]
+       [-Z, +Z] -> [Table, Gantry]
     - numpy.ndarray: 3x3 transformation matrix
     """
     if orientation == 'HFS':
         # Head First Supine: No rotation
-        return np.identity(3)
+        return np.array([
+            [1, 0, 0],
+            [0, -1, 0],
+            [0, 0, 1]
+        ])
 
     elif orientation == 'HFP':
         # Head First Prone: Rotate 180 degrees around the X-axis
         return np.array([
-            [1, 0, 0],
-            [0, -1, 0],
-            [0, 0, -1]
+            [-1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
         ])
 
     elif orientation == 'FFS':
         # Feet First Supine: Rotate 180 degrees around the Z-axis
         return np.array([
             [-1, 0, 0],
-            [0, 1, 0],
+            [0, -1, 0],
             [0, 0, -1]
         ])
 
     elif orientation == 'FFP':
         # Feet First Prone: Rotate 180 degrees around both X and Z axes
         return np.array([
-            [-1, 0, 0],
-            [0, -1, 0],
-            [0, 0, 1]
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, -1]
         ])
 
     elif orientation == 'HFDR':
         # Head First Decubitus Right: Rotate -90 degrees around the Z-axis
         return np.array([
             [0, 1, 0],
-            [-1, 0, 0],
+            [1, 0, 0],
             [0, 0, 1]
         ])
 
@@ -292,37 +299,25 @@ def get_orientation_transform(orientation):
         # Head First Decubitus Left: Rotate +90 degrees around the Z-axis
         return np.array([
             [0, -1, 0],
-            [1, 0, 0],
+            [-1, 0, 0],
             [0, 0, 1]
         ])
 
     elif orientation == 'FFDR':
         # Feet First Decubitus Right: Rotate -90 degrees around Z-axis, then 180 degrees around X-axis
-        Rz_neg_90 = np.array([
-            [0, 1, 0],
-            [-1, 0, 0],
-            [0, 0, 1]
-        ])
-        Rx_180 = np.array([
-            [1, 0, 0],
+        return np.array([
             [0, -1, 0],
+            [1, 0, 0],
             [0, 0, -1]
         ])
-        return Rx_180 @ Rz_neg_90  # Matrix multiplication
 
     elif orientation == 'FFDL':
         # Feet First Decubitus Left: Rotate +90 degrees around Z-axis, then 180 degrees around X-axis
-        Rz_pos_90 = np.array([
-            [0, -1, 0],
-            [1, 0, 0],
-            [0, 0, 1]
-        ])
-        Rx_180 = np.array([
-            [1, 0, 0],
-            [0, -1, 0],
+        return np.array([
+            [0, 1, 0],
+            [-1, 0, 0],
             [0, 0, -1]
         ])
-        return Rx_180 @ Rz_pos_90  # Matrix multiplication
 
     else:
         raise ValueError(f"Unsupported orientation: {orientation}")
@@ -382,85 +377,7 @@ def shift_to_isocenter_and_couch_rotate_points(rso, contours, beam_name, represe
     return rotated_points
 
 
-def truncate_collision_volumes_in_z(rotated_points):
-    return rotated_points[np.abs(rotated_points[:, 2]) < length_of_interest / 2]
-
-
-def get_sorted_cylindrical_angles_dicom(rotated_points):
-    """
-    Vectorized calculation, rounding, and sorting of gantry angles for all points in all contours in the
-    DICOM reference frame.
-    Args:
-        rotated_points (np.array): A numpy array of points in the rotated and shifted (isocentric) cartesian
-                                   coordinate system. [x, y, z] where x is left-right, y is anterior-posterior,
-                                   and z is superior-inferior.
-    Returns:
-        list: Sorted list of rounded gantry angles.
-    """
-    # rotated_points = shift_to_isocenter_and_couch_rotate_points(rso, contours, beam_name, representation)
-    # Limit the rotated points in z to be centered around the length of interest
-    # rotated_points = rotated_points[np.abs(rotated_points[:, 2]) < length_of_interest / 2]
-    # Convert to cylindrical coordinates
-    x = rotated_points[:, 0]
-    y = rotated_points[:, 1]
-    # Remap these to Varian gantry angles:
-    varian_angles = convert_angle_from_cartesian_to_varian_iec(x, y)
-    # Round and sort angles
-    rounded_angles = np.round(varian_angles)
-    return sorted(set(rounded_angles))
-
-
-def find_contour_angle_ranges(rso, contours, beam_name, representation='Contours', shift=True):
-    """
-    Calculates the cylindrical angle ranges for all contours within the frame of reference of the rotated
-    clearance zone. Once computed, the ranges are made contiguous.
-    A range is considered contiguous if it is within 2 degrees of another range.
-    Accounts for the mechanical limit at 270 degrees (Varian 180).
-
-    Args:
-        rso: RayStation object containing beamset information.
-        contours (list): A list of contours, each a list of dictionaries with 'x', 'y', 'z' coordinates.
-        beam_name (str): The name of the beam in the RayStation object.
-        representation (str): The representation of the contours, either 'Contours' (the RayStation contour object)
-                              or 'Points' (a numpy array of points).
-
-    Returns:
-        list: A list of tuples representing the merged min and max angles over all contours.
-    """
-    if shift:
-        # Shift the contours to the isocenter and rotate them by the couch angle
-        rotated_points = shift_to_isocenter_and_couch_rotate_points(rso, contours, beam_name, representation)
-        # Limit the rotated points in z to be centered around the length of interest
-        truncated_clearance_volumes = truncate_collision_volumes_in_z(rotated_points)
-    else:
-        truncated_clearance_volumes = contours
-    # Get sorted cylindrical angles in the DICOM reference frame rotated by couch plane
-    # sorted_angles = get_sorted_cylindrical_angles_dicom(rso, contours, beam_name, representation)
-    sorted_angles = get_sorted_cylindrical_angles_dicom(truncated_clearance_volumes)
-
-    if not sorted_angles:
-        return []
-
-    # Initialize the first range
-    merged_ranges = [(sorted_angles[0], sorted_angles[0])]
-
-    for angle in sorted_angles[1:]:
-        last_range_start, last_range_end = merged_ranges[-1]
-
-        # Check if current angle is contiguous with the last range
-        if last_range_end >= 179 and angle <= 181:  # Special handling for mechanical limit at 180 degrees
-            continue  # Skip adding angles around the mechanical limit
-        elif angle - last_range_end <= 2:
-            # Extend the current range
-            merged_ranges[-1] = (last_range_start, angle)
-        else:
-            # Start a new range
-            merged_ranges.append((angle, angle))
-
-    return merged_ranges
-
-
-def group_overlapping_angles(overlapping_angles):
+def old_group_overlapping_angles(overlapping_angles):
     """
     Groups overlapping angles into ranges.
 
@@ -478,7 +395,7 @@ def group_overlapping_angles(overlapping_angles):
     end = start
 
     for angle in overlapping_angles[1:]:
-        if angle - end <= 1:
+        if abs(angle - end) <= 2:
             end = angle
         else:
             grouped_ranges.append((start, end))
@@ -490,26 +407,6 @@ def group_overlapping_angles(overlapping_angles):
 
 
 # ================= Collision Detection =================
-def check_overlap(np_gantry_angles, contour_ranges):
-    """
-    Identifies and returns the overlapping angles between the gantry sweep and contour angle ranges.
-
-    Args:
-        np_gantry_angles (np.array): Array of gantry angles from the sweep.
-        contour_ranges (list): List of tuples representing min and max angles of contours.
-
-    Returns:
-        list: A list of angles where the gantry sweep overlaps with contour ranges.
-    """
-    overlapping_angles = []
-
-    for start, end in contour_ranges:
-        overlap = [angle for angle in np_gantry_angles if start <= angle <= end]
-        overlapping_angles.extend(overlap)
-    grouped_ranges = group_overlapping_angles(overlapping_angles)
-
-    return grouped_ranges
-
 
 def determine_contour_type(rso, roi_name):
     roi_geometry = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi_name]
@@ -521,102 +418,260 @@ def determine_contour_type(rso, roi_name):
         return None
 
 
-def find_overlapping_angles_for_beam(gantry_ranges, beam_name, contour_ranges):
+def downsample_points(points, voxel_size=None):
     """
-    Given a dictionary of gantry ranges and a target beam name, find any overlapping angles
-    between the beam's gantry range and the provided contour ranges.
-
+    Downsample points to a voxel grid defined by the given voxel size.
     Args:
-        gantry_ranges (dict): A dictionary of the form {beam_name: (np.array of gantry angles, bool clockwise)}
-        beam_name (str): The name of the beam for which to find overlapping angles.
-        contour_ranges (list): List of angle ranges (tuples) representing contour intersection angles.
+        points: (N×3) array of points in the rotated and shifted (isocentric) cartesian coordinate system.
+        voxel_size: (list) of voxel sizes in the x, y, z dimensions.
 
-    Returns:
-        tuple or (None, None):
-            If overlap is found:
-                (list of overlapping angle ranges, bool clockwise_direction)
-            Otherwise:
-                (None, None)
+    Returns: downsampled_points: (M×3) array of downsampled points.
     """
-    if beam_name not in gantry_ranges:
-        return None, None
+    if not voxel_size:
+        voxel_size = [0.5, 0.5, 0.5]  # Default voxel size if not provided
+    vx, vy, vz = voxel_size
+    # Calculate the voxel indices for each point
+    ix = np.floor(points[:, 0] / vx).astype(int)
+    iy = np.floor(points[:, 1] / vy).astype(int)
+    iz = np.floor(points[:, 2] / vz).astype(int)
+    # Unique keys for each voxel using large prime numbers to reduce collisions
+    keys = ix * 73856093 + iy * 19349663 + iz * 83492791
+    unique_keys, unique_indices = np.unique(keys, return_index=True)
+    # Return the downsampled points based on unique keys
+    return points[unique_indices]
 
-    gantry_range, clockwise = gantry_ranges[beam_name]
-    overlapping_angles = check_overlap(gantry_range, contour_ranges)
 
-    if overlapping_angles:
-        return overlapping_angles, clockwise
-    return None, None
-
-
-def detect_collisions(rso, roi_dict, clearance_diameter_fail, clearance_diameter_alert):
+def fast_head_collision_masks_dual(
+        points: np.ndarray,
+        diameter: float,
+        head_length: float,
+        offset_fail: float,
+        offset_alert: float,
+        gantry_angles: np.ndarray
+) -> Tuple[Dict[float, np.ndarray], Dict[float, np.ndarray]]:
     """
-    Detect collisions at two levels:
-    - Fail level: using clearance_diameter_fail
-    - Alert level: using clearance_diameter_alert
+    Vectorized collision masks using dot & cross math, for all angles at once,
+    including pre-filtering and reconstruction of full-length masks.
+    Args:
+        points: (N×3) array of isocenter‐shifted, couch‐rotated voxels
+        diameter: barrel diameter D (cm)
+        head_length: total length L of the gantry head (cm)
+        offset_fail: radial distance from the isocenter to the front face of the gantry head (cm) for fails
+        offset_alert: radial distance from the isocenter to the front face of the gantry head (cm) for alerts
+        gantry_angles: 1D array of IEC angles (degrees) to be converted to normal cylindrical coordinates.
 
-    :param rso: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
-    :param roi_dict: dict, {roi_name: np.array of points in the roi}
-    :param clearance_diameter_fail: float, stricter diameter threshold for failure
-    :param clearance_diameter_alert: float, looser diameter threshold for alerts
-    :return: (bad_gantry_fail, bad_gantry_alert): Two dicts with similar structure.
-        bad_gantry_fail: {roi: {beam_name: ([angle_ranges], clockwise_bool)}}
-        bad_gantry_alert: {roi: {beam_name: ([angle_ranges], clockwise_bool)}}
+    Returns: fail_masks, alert_masks where each is a dict mapping angle -> boolean mask of shape (N,)
+
     """
-    couch_angles_checked = []
+    # Radius and half‐length
+    R = diameter / 2.0
+    half_L = head_length / 2.0
+    # Center of the cylinder for fail and alert levels
+    center_fail = offset_fail + half_L
+    center_alert = offset_alert + half_L
+    # Total points
+    N = points.shape[0]
+
+    # prefilter radial distances based on the offsets
+    r2 = points[:, 0] ** 2 + points[:, 1] ** 2
+    keep_alert = r2 > offset_alert ** 2
+    keep_fail = r2 > offset_fail ** 2
+
+    # Declare filtered points based on the pre-filtering
+    pts_alert = points[keep_alert]
+    idx_alert = np.nonzero(keep_alert)[0]
+    pts_fail = points[keep_fail]
+    idx_fail = np.nonzero(keep_fail)[0]
+
+    # axes for all angles
+    # Convert iec angles to cylindrical coordinates
+    # e.g. [90 -> 0, 0 -> 90, 270 -> 180, 180 -> 270]
+    phi = np.deg2rad((360 - (gantry_angles - 90)) % 360)
+    # the unit vector along the central axis
+    d = np.stack((np.cos(phi), np.sin(phi), np.zeros_like(phi)), axis=1)
+
+    # centers of the cylinder for fail and alert levels
+    C_alert = center_alert * d
+    C_fail = center_fail * d
+
+    # relative vectors, i.e. shift points to the cylinder-centered coordinates
+    rel_alert = pts_alert[np.newaxis, :, :] - C_alert[:, None, :]
+    rel_fail = pts_fail[np.newaxis, :, :] - C_fail[:, None, :]
+
+    # Parallel components of the vectors to the cylinder axis
+    t_alert = np.einsum('mni,mi->mn', rel_alert, d)
+    # Perpendicular distances squared from the cylinder axis
+    r2_alert = np.einsum('mni,mni->mn', rel_alert, rel_alert)
+    perp2_alert = r2_alert - t_alert ** 2
+
+    t_fail = np.einsum('mni,mi->mn', rel_fail, d)
+    r2_fail = np.einsum('mni,mni->mn', rel_fail, rel_fail)
+    perp2_fail = r2_fail - t_fail ** 2
+
+    # Perform the inside cylinder test:
+    #   Perpendicular distance squared must be less than or equal to R^2
+    #   Parallel component must be within the half-length of the cylinder
+    in_alert = (perp2_alert <= R ** 2) & (t_alert >= -half_L) & (t_alert <= half_L)
+    in_fail = (perp2_fail <= R ** 2) & (t_fail >= -half_L) & (t_fail <= half_L)
+
+    # scatter back
+    fail_masks = {}
+    alert_masks = {}
+    for i, theta in enumerate(gantry_angles):
+        mf = np.zeros(N, dtype=bool)
+        ma = np.zeros(N, dtype=bool)
+        mf[idx_fail] = in_fail[i]
+        ma[idx_alert] = in_alert[i]
+        fail_masks[theta] = mf
+        alert_masks[theta] = ma
+
+    return fail_masks, alert_masks
+
+
+def detect_collisions(rso, roi_dict, testing=False):
+    """
+    Detect collisions at two levels using an analytic cylinder model:
+      - Fail level: cylinder center at 41 cm from isocenter
+      - Alert level: cylinder center at 38 cm from isocenter
+    Args:
+        rso: NamedTuple of ScriptObjects in Raystation [case, exam, plan, beamset, db]
+        roi_dict: Dictionary of ROIs to check for collisions.
+        testing: Boolean indicating whether to run in test mode.
+
+    In test mode:
+        * Gantry varies between 180.1 and 179.9 degrees
+        * Couch angle varies between 270 and 90 degrees
+        * Isocenter position varies relative to the supplied region of interest center
+    """
+    import time
+    # from PlanReview.review_definitions import ALERT, PASS, FAIL, SUPPORT_TOLERANCE
+    # import numpy as np
+
+    # --- head model parameters (cm) ---
+    diameter = 76.3  # use the TrueBeam cover diameter (≈76.3 cm)
+    length = 84.2  # length of the gantry head (cm)
+    h_fail = 36.0  # fail offset distance (cm)
+    h_alert = 34.0  # alert offset distance (cm)
+
     bad_gantry_fail = {}
     bad_gantry_alert = {}
+    couch_angles_checked = []
+    isocenters_checked = []
+
+    # Precompute the gantry‐sweep angles per beam
+    # TODO: create a test function option for find_gantry_angular_traversal that returns 180.1 to 179.9
+    gantry_sweeps = find_gantry_angular_traversal(rso, testing=testing)
+    # TODO: test function will sweep couch angles from 270 to 90 degrees
+    roi_downsampled = {}
+    for roi_name, roi_pts in roi_dict.items():
+        if len(roi_pts) > 1e5:
+            roi_downsampled[roi_name] = downsample_points(roi_pts, voxel_size=[0.5, 0.5, 0.5])
+        else:
+            roi_downsampled[roi_name] = roi_pts
 
     for beam in rso.beamset.Beams:
         beam_name = beam.Name
         couch_angle = get_couch_angle(rso, beam_name)
-        if couch_angle in couch_angles_checked:
+        isocenter = get_isocenter_position(rso, beam_name)
+        if couch_angle in couch_angles_checked and isocenter in isocenters_checked:
             continue
-
-        for roi, roi_point_array in roi_dict.items():
-            rotated_points = shift_to_isocenter_and_couch_rotate_points(
-                rso, roi_point_array, beam_name, representation='Points'
-            )
-
-            # First check fail-level clearance
-            violation_points_fail, _ = filter_points_outside_diameter_and_length(
-                rotated_points, clearance_diameter_fail
-            )
-
-            # Determine gantry ranges
-            gantry_angle_ranges = find_gantry_angular_traversal(rso)
-
-            if violation_points_fail.size > 0:
-                # Determine gantry angles that fail
-                contour_angle_ranges = find_contour_angle_ranges(rso, violation_points_fail, beam_name,
-                                                                 representation='Points', shift=False)
-                if contour_angle_ranges:
-                    overlapping_angles, clockwise = find_overlapping_angles_for_beam(
-                        gantry_angle_ranges, beam_name, contour_angle_ranges
-                    )
-                    if overlapping_angles:
-                        if roi not in bad_gantry_fail:
-                            bad_gantry_fail[roi] = {}
-                        bad_gantry_fail[roi][beam_name] = overlapping_angles, clockwise
-            else:
-                # Check alert-level clearance
-                violation_points_alert, _ = filter_points_outside_diameter_and_length(
-                    rotated_points, clearance_diameter_alert
-                )
-                if violation_points_alert.size > 0:
-                    # Determine gantry angles that cause alert
-                    contour_angle_ranges = find_contour_angle_ranges(rso, violation_points_alert, beam_name,
-                                                                     representation='Points', shift=False)
-                    if contour_angle_ranges:
-                        overlapping_angles, clockwise = find_overlapping_angles_for_beam(
-                            gantry_angle_ranges, beam_name, contour_angle_ranges
-                        )
-                        if overlapping_angles:
-                            if roi not in bad_gantry_alert:
-                                bad_gantry_alert[roi] = {}
-                            bad_gantry_alert[roi][beam_name] = overlapping_angles, clockwise
-
         couch_angles_checked.append(couch_angle)
+        isocenters_checked.append(isocenter)
+        # time_0 = time.perf_counter()
+        # Full VMAT/static sweep for this beam
+        angles, clockwise = gantry_sweeps[beam_name]
+        # time_1 = time.perf_counter()
+        # print(f"Time to get gantry angles for beam {beam_name}: {(time_1 - time_0) * 1000:7.2f} ms")
+
+        for roi_name, roi_pts in roi_downsampled.items():
+            # print(f"Checking ROI: {roi_name} for beam: {beam_name} which has {len(roi_pts)} points")
+            # time_0 = time.perf_counter()
+            # 1) shift & rotate the ROI into DICOM‐isocenter space
+            pts_dicom = shift_to_isocenter_and_couch_rotate_points(
+                rso, roi_pts, beam_name, representation='Points'
+            )
+            # time_1 = time.perf_counter()
+            # print(f"\t * Shift and rotate points: {(time_1 - time_0) * 1000:7.2f} ms")
+
+            # --- NEW CYLINDER‐MODEL METHOD ---------------------
+            # Fail‐level: more conservative (head assumed 41 cm away)
+            # masks_fail = head_collision_masks(pts_dicom, D, H, h_fail, angles)
+            # Fix the y-direction for HFS
+            # pts_dicom[:, 1] *= -1
+            # Check if the points are too sparse to warrant downsampling
+            # if len(pts_dicom) > 1e5:
+            #     pts_dicom = downsample_points(pts_dicom, voxel_size=[0.5, 0.5, 0.5])
+            #    print(f"\t * Downsampled points to {len(pts_dicom)} points")
+            masks_fail, masks_alert = fast_head_collision_masks_dual(
+                pts_dicom, diameter, length, h_fail, h_alert, angles
+            )
+            # masks_fail = fast_head_collision_masks(pts_dicom, D, H, h_fail, angles)
+            # time_2 = time.perf_counter()
+            # print(f"\t * Get collision masks: {(time_2 - time_1)*1000:7.2f} ms")
+            # Build ranges of angles that fail
+            # fail_ranges = [
+            #     (start, end)
+            #     for start, end in group_overlapping_angles(
+            #         [ang for ang, hit in masks_fail.items() if any(hit)]
+            #     )
+            #  ]
+            #  time_3 = time.perf_counter()
+            # print(f"\t * Group overlapping angles: {(time_3 - time_2)*1000:7.2f} ms")
+            # if fail_ranges:
+            #     bad_gantry_fail.setdefault(roi_name, {})[beam_name] = (fail_ranges, clockwise)
+            #     print(f"\t * Found {len(fail_ranges)} failing angle ranges: {fail_ranges}")
+            # Alternative
+            # 1) pull out only the angles with any collision
+            hit_angles = [ang for ang, hit in masks_fail.items() if any(hit)]
+            # print(f"\t * Found {len(hit_angles)} fail angles with collisions: {hit_angles}")
+
+            # 2) round to ints, dedupe, sort
+            hit_ints = sorted({int(round(ang)) for ang in hit_angles})
+            # print(f"\t * Found {len(hit_ints)} unique angles with collisions: {hit_ints}")
+
+            # 3) group into contiguous ranges
+            # time_3 = time.perf_counter()
+            fail_ranges = old_group_overlapping_angles(hit_ints)
+            # time_4 = time.perf_counter()
+            # print(f"\t * Alt-Grouping angles took: {(time_4 - time_3) * 1000:7.2f} ms")
+            if fail_ranges:
+                bad_gantry_fail.setdefault(roi_name, {})[beam_name] = (fail_ranges, clockwise)
+                # print(f"\t * Found {len(fail_ranges)} failing angle ranges: {fail_ranges}")
+
+            # Alert‐level: less conservative (head assumed 38 cm away)
+            hits_alert = [ang for ang, hit in masks_alert.items() if any(hit)]
+            # print(f"\t * Found {len(hits_alert)} angles with alerts: {hits_alert}")
+            # 2) round to ints, dedupe, sort
+            hit_ints_alert = sorted({int(round(ang)) for ang in hits_alert})
+            # print(f"\t * Found {len(hit_ints_alert)} unique angles with alerts: {hit_ints_alert}")
+            # 3) group into contiguous ranges
+            alert_ranges = old_group_overlapping_angles(hit_ints_alert)
+            # print(f"\t * Found {len(alert_ranges)} alert angle ranges: {alert_ranges}")
+            if alert_ranges:
+                bad_gantry_alert.setdefault(roi_name, {})[beam_name] = (alert_ranges, clockwise)
+                # print(f"\t * Found {len(alert_ranges)} alert angle ranges: {alert_ranges}")
+            # masks_alert = head_collision_masks(pts_dicom, D, H, h_alert, angles)
+            # masks_alert = fast_head_collision_masks(pts_dicom, D, H, h_alert, angles)
+            # alert_ranges = [
+            #     (start, end)
+            #     for start, end in group_overlapping_angles(
+            #         [ang for ang, hit in masks_alert.items() if any(hit)]
+            #     )
+            #  ]
+            # time_5 = time.perf_counter()
+            # print(f"\t * Group alert angles: {(time_5 - time_4)*1000:7.2f} seconds")
+            # if alert_ranges:
+            #     bad_gantry_alert.setdefault(roi_name, {})[beam_name] = (alert_ranges, clockwise)
+            #     print(f"\t * Found {len(fail_ranges)} alert angle ranges: {alert_ranges}")
+            # ----------------------------------------------------
+    for roi_name, fail_dict in bad_gantry_fail.items():
+        print(f"ROI {roi_name} has {len(fail_dict)} beams with collision issues:")
+        for beam_name, (ranges, clockwise) in fail_dict.items():
+            print(f"\t{beam_name}: {clockwise}, {ranges}")
+    for roi_name, alert_dict in bad_gantry_alert.items():
+        print(f"ROI {roi_name} has {len(alert_dict)} beams with alert issues:")
+        for beam_name, (ranges, clockwise) in alert_dict.items():
+            print(f"\t{beam_name}: {clockwise}, {ranges}")
 
     return bad_gantry_fail, bad_gantry_alert
 
@@ -724,7 +779,14 @@ def extract_voxel_representation(rso, rois):
         roi_type = determine_contour_type(rso, roi)
         if roi_type != 'Points':
             copied_roi = copy_roi(rso, roi, suffix="_voxels", representation="Voxels")
-            roi_geometry = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[copied_roi]
+            if copied_roi is None:
+                logging.warning(f"Failed to copy ROI {roi} to voxel representation.")
+                return None
+            try:
+                roi_geometry = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[copied_roi]
+            except Exception as e:
+                logging.warning(f"An error occurred while accessing the copied ROI {copied_roi}: {e}")
+                return None
             contour_points = get_voxel_coordinates(roi_geometry)
             rois_checked[copied_roi] = contour_points
             rois_to_delete.append(copied_roi)
@@ -772,12 +834,14 @@ def check_isocenter_clearance(rso):
         PASS: Case 2 Collision_Check_2, ZZUWQA_ScTest_01Oct2024 Brai_PRD_R0A1
             (passes without the RPO beam - clinical solution).
     """
+    # TODO:
+    #     Add support_tolerance instead of the hardcoded entry in detect_collisions
+    #     Filter the points before the rotation
     # Get the name of the machine-limiting ROI and the tolerance diameter
     clearance_diameter_roi_name, diameter = get_clearance_roi_name_and_diameter(rso, tolerance=SUPPORT_TOLERANCE)
     # Set an ALERT level for any clearance that is within 3 cm of the SUPPORT_TOLERANCE
     # Additional buffer for the clearance diameter
     alert_distance = 3
-    clearance_diameter_alert = diameter - 2 * alert_distance
 
     # Find external and support ROIs
     external, supports = find_externals_and_supports(rso)
@@ -785,13 +849,15 @@ def check_isocenter_clearance(rso):
         return ALERT, f'No Supports or External found, no clearance test performed.'
     # Get voxel representations of external and support ROIs
     rois_checked, rois_to_delete = extract_voxel_representation(rso, [external] + supports)
+    if not rois_checked:
+        return ALERT, f'No valid ROIs found for clearance check.'
     if 'Tomo' in clearance_diameter_roi_name:
         pass_result, message_str = detect_collisions_tomo(
             rso, rois_checked, external, supports, diameter, clearance_diameter_roi_name,
             tolerance=SUPPORT_TOLERANCE)
     else:
         # Check the beams for VMAT or Static Field
-        bad_gantry_fail, bad_gantry_alert = detect_collisions(rso, rois_checked, diameter, clearance_diameter_alert)
+        bad_gantry_fail, bad_gantry_alert = detect_collisions(rso, rois_checked)
         if type(bad_gantry_fail) == str:
             # An internal error occurred. Print the error message and return an ALERT level.
             return ALERT, bad_gantry_fail

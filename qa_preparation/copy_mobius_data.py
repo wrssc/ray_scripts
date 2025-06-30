@@ -1,161 +1,205 @@
-"""
-Copy approval data to clipboard,
+""" Copy approval data to clipboard
 
 Copies data needed in the Mobius QA report to the clipboard.
-
-
-Version:
-    0.0.0 Testing
-    0.0.1 Changed format of output message
-    0.0.2 Debugging small changes in the 11 B interface and improving user dialogs
-    1.0.0 Release post debug
-    1.0.1 Minor changes:
-            Delete 01 (UH) and 03 (EC) Add 06 (UH)
-            Added a copy to clipboard button for the last dialog
-
-    This program is free software: you can redistribute it and/or modify it under
-    the terms of the GNU General Public License as published by the Free Software
-    Foundation, either version 3 of the License, or (at your option) any later
-    version.
-
-    This program is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-    FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License along with
-    this program. If not, see <http://www.gnu.org/licenses/>.
+Falls back to PySimpleGUI if PySide6 is missing.
 """
 
-__author__ = 'Adam Bayliss and Patrick Hill'
+__author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '2025-04-03'
-__version__ = '0.0.0'
+__version__ = '0.0.2'
 __status__ = 'Production'
-__deprecated__ = False
-__reviewer__ = 'Sean Frigo'
-__reviewed__ = ''
-__raystation__ = '11B'
-__maintainer__ = 'One maintainer'
-__email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
-__help__ = ''
-__credits__ = []
 
 import connect
 import pyperclip
 import logging
 from datetime import datetime
 from collections import OrderedDict
-from PySide6.QtWidgets import (
-    QApplication, QWidget, QLabel, QVBoxLayout, QTextEdit
-)
-from PySide6.QtWidgets import QApplication, QMessageBox
-from PySide6.QtCore import Qt, QTimer
+from typing import Optional
 import sys
+
+# Try PySide6 first; if unavailable, use PySimpleGUI
+try:
+    from PySide6.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QTextEdit, QMessageBox
+    from PySide6.QtCore import Qt, QTimer
+
+    GUI_BACKEND = 'pyside'
+except ImportError:
+    GUI_BACKEND = 'pysimplegui'
+
+    try:
+        import PySimpleGUI as sg
+    except ImportError:
+        sg = None
 
 
 def get_timestamp(beamset):
-    # Get the approval time-stamp for the parent beamset
-    if beamset.Review is None:
-        logging.info('No approval status set.')
-        approval_time = 'Not set.'
-        return approval_time
-    else:
-        if str(beamset.Review.ApprovalStatus) == 'Approved':
-            time_stamp = str(beamset.Review.ReviewTime)
-            date_object = datetime.strptime(time_stamp, '%m/%d/%Y %I:%M:%S %p')
-            approval_time = str(date_object)
-            return approval_time
-        else:
-            logging.info('QA is generated from unapproved plan')
-            approval_time = 'Not set.'
-            return approval_time
+    """Return approval timestamp for a BeamSet or 'Not set.'."""
+    if beamset.Review is None or str(beamset.Review.ApprovalStatus) != 'Approved':
+        logging.info('QA is generated from unapproved plan or no review set.')
+        return 'Not set.'
+    time_stamp = str(beamset.Review.ReviewTime)
+    date_object = datetime.strptime(time_stamp, '%m/%d/%Y %I:%M:%S %p')
+    return str(date_object)
 
 
 def get_beamset_uid(beamset):
+    """Return the DICOM UID for the BeamSet."""
     return beamset.ModificationInfo.DicomUID
 
 
 def build_clipboard_string(beamset):
-    # Build a comment to insert in the plan dialog and copy it to the clipboard
-    dialog_dict = OrderedDict()
-    dialog_dict['RSA'] = get_timestamp(beamset)
-    dialog_dict['UID'] = get_beamset_uid(beamset)
+    """
+    Build a multi-line comment string from a BeamSet for the QA report.
 
-    comment = ""
-    for k, v in dialog_dict.items():
-        comment += "{}: {}\n".format(k, v)
-    return comment
+    Args:
+        beamset: RayStation BeamSet object
+
+    Returns:
+        str: Formatted comment with RSA timestamp and UID
+    """
+    dialog_dict = OrderedDict([
+        ('RSA', get_timestamp(beamset)),
+        ('UID', get_beamset_uid(beamset)),
+    ])
+    return '\n'.join(f"{k}: {v}" for k, v in dialog_dict.items()) + '\n'
+
 
 def comment_to_clipboard(comment):
     """
-    Copy the comment to the clipboard.
+    Copy the comment to the system clipboard.
+
+    Args:
+        comment (str): Text to copy
     """
     pyperclip.copy(comment)
-    print("Comment copied to clipboard.")
+    logging.debug("Comment copied to clipboard.")
 
 
-def clipboard_gui(beamset):
+def clipboard_gui_pyside(beamset):
     """
-    PySide6 GUI to copy QA message to clipboard and show a short confirmation.
+    Display a PySide6 GUI showing the comment and auto-closing after 4 seconds.
+
+    Args:
+        beamset: RayStation BeamSet object
     """
+
     class ClipboardWindow(QWidget):
         def __init__(self):
             super().__init__()
             self.setWindowTitle("Mobius data copied")
-            self.setFixedSize(400, 100)
+            self.setFixedSize(400, 120)
 
-            # Build message
+            # Build and copy comment
             try:
                 comment = build_clipboard_string(beamset)
                 comment_to_clipboard(comment)
             except Exception as e:
                 comment = f"Error: {e}"
 
-            # Setup label and preview box
-            self.label = QLabel("✅ BeamSet message copied to clipboard:")
-            self.label.setAlignment(Qt.AlignLeft)
+            # UI elements
+            label = QLabel("✅ BeamSet message copied to clipboard:")
+            label.setAlignment(Qt.AlignLeft)
+            text_preview = QTextEdit()
+            text_preview.setPlainText(comment)
+            text_preview.setReadOnly(True)
+            text_preview.setFocusPolicy(Qt.NoFocus)
 
-            self.text_preview = QTextEdit()
-            self.text_preview.setPlainText(comment)
-            self.text_preview.setReadOnly(True)
-            self.text_preview.setFocusPolicy(Qt.NoFocus)
+            layout = QVBoxLayout(self)
+            layout.addWidget(label)
+            layout.addWidget(text_preview)
 
-            layout = QVBoxLayout()
-            layout.addWidget(self.label)
-            layout.addWidget(self.text_preview)
-            self.setLayout(layout)
-
-            # Auto-close after 4 seconds
+            # Auto-close
             QTimer.singleShot(4000, self.close)
 
-    app = QApplication.instance()
-    if app is None:
-        app = QApplication(sys.argv)
-
+    app = QApplication.instance() or QApplication(sys.argv)
     window = ClipboardWindow()
     window.show()
     app.exec()
 
-def main():
+
+def clipboard_gui_pysimplegui(beamset):
+    """
+    Display a PySimpleGUI window showing the comment and auto-closing after 4 seconds.
+
+    Args:
+        beamset: RayStation BeamSet object
+    """
+    if sg is None:
+        logging.debug("PySimpleGUI is not installed; cannot show GUI.")
+        return
+
     try:
-        patient = connect.get_current('Patient')
-        case = connect.get_current('Case')
+        comment = build_clipboard_string(beamset)
+        comment_to_clipboard(comment)
     except Exception as e:
-        app = QApplication.instance() or QApplication([])
-        QMessageBox.warning(None, "Warning", "This script requires a patient to be loaded")
+        comment = f"Error: {e}"
 
+    layout = [
+        [sg.Text("✅ BeamSet message copied to clipboard:")],
+        [sg.Multiline(comment, size=(60, 10), disabled=True, autoscroll=True)]
+    ]
+    window = sg.Window("Mobius data copied", layout, finalize=True)
+    # Auto-close after 4000ms
+    window.read(timeout=4000)
+    window.close()
+
+
+def clipboard_gui(beamset):
+    """
+    Wrapper to select the appropriate GUI backend.
+
+    Args:
+        beamset: RayStation BeamSet object
+    """
+    if GUI_BACKEND == 'pyside':
+        clipboard_gui_pyside(beamset)
+    elif GUI_BACKEND == 'pysimplegui':
+        clipboard_gui_pysimplegui(beamset)
+    else:
+        # Fallback to console only
+        comment = build_clipboard_string(beamset)
+        comment_to_clipboard(comment)
+        print(comment)
+
+
+def main():
+    """
+    Main entry point: validates context and invokes clipboard GUI.
+    Uses globals for RayStation objects.
+    """
+    app = None
+    if GUI_BACKEND == 'pyside':
+        # Create a type for parent to help linting
+        parent: Optional[QWidget] = None
+    # Validate RayStation context for Patient, Case, Plan, and BeamSet
+    for obj_type in ('Patient', 'Case', 'Plan', 'BeamSet'):
+        try:
+            # Add the object to globals
+            globals()[obj_type.lower()] = connect.get_current(obj_type)
+        except Exception:
+            # If GUI backend is PySide6, show QMessageBox; else print warning
+            msg = f"This script requires a {obj_type} to be loaded"
+            if GUI_BACKEND == 'pyside':
+                app = QApplication.instance() or QApplication([])
+                QMessageBox.warning(parent, "Warning", msg)
+            else:
+                print("Warning:", msg)
+
+    # Finally, show the clipboard GUI
     try:
-        plan = connect.get_current('Plan')
-    except Exception:
-        app = QApplication.instance() or QApplication([])
-        QMessageBox.warning(None, "Warning", "This script requires a plan to be loaded")
-    try:
-        beamset = connect.get_current('BeamSet')
-    except Exception:
-        app = QApplication.instance() or QApplication([])
-        QMessageBox.warning(None, "Warning", "This script requires a beamset to be loaded")
+        clipboard_gui(globals()['beamset'])
+    except NameError:
+        # Handle case where BeamSet is not found
+        if app:
+            parent: Optional[QWidget] = None
+            QMessageBox.warning(parent, "Warning", "BeamSet object not found; cannot build clipboard string.")
 
-    
+        else:
+            print("Warning: BeamSet object not found; cannot build clipboard string.")
+        logging.debug("BeamSet object not found; cannot build clipboard string.")
 
+
+if __name__ == '__main__':
+    main()

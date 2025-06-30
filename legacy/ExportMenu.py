@@ -359,7 +359,7 @@ def main():
                                table=t,
                                # round_jaws=filters[2] in response['e'],
                                prescription=create_reference_point,
-                               ref_point_location=ref_point_location,
+                               no_ref_point_location=ref_point_location,
                                block_accessory=block_accessory,
                                block_tray_id=block_tray_id,
                                pa_threshold=pa_threshold,
