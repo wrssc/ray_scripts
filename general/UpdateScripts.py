@@ -8,18 +8,18 @@ Version History
 ---------------
 1.2.0  Clinical release
 1.3.0  Safety improvements
-       • Temporary directory approach
+       * Temporary directory approach
          Downloads all files to a temporary directory first
          Only replaces the existing directory after successful verification
          If anything fails, the original directory remains untouched
-       • Automatic Backup Creation
+       * Automatic Backup Creation
          Creates a timestamped backup of the existing directory before replacement
          Backup format: original_path_backup_YYYYMMDD_HHMMSS
-       • Robust Error Handling
+       * Robust Error Handling
          If the update fails, attempts to restore from backup
          Provides user feedback about what happened
          Ensures no data loss even if multiple failures occur
-       • Cleanup Management
+       * Cleanup Management
          Automatically removes temporary directories on success or failure
          Removes backup directories after successful updates
          Prevents accumulation of temporary files
@@ -35,9 +35,6 @@ FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-
-from __future__ import annotations  # noqa: E402 – kept at top purely for typing; no future import requested
-                                    # If strict, simply delete this line.
 
 __author__ = "Mark Geurts and Adam Bayliss"
 __contact__ = "rabayliss@wisc.edu"
@@ -69,20 +66,19 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Helper functions
 # ──────────────────────────────────────────────────────────────────────────────
-
-
 def _log_github_call(
-    url: str,
-    headers: Mapping[str, str],
-    resp: requests.Response,
-    *,
-    token: str | None,
-    step: str = "request",
+        url: str,
+        headers: Mapping[str, str],
+        resp: requests.Response,
+        *,
+        token: str | None,
+        step: str = "request",
 ) -> None:
-    """Detailed but safe GitHub-access audit."""
+    """GitHub-access audit."""
     auth_method = "token" if token else "none"
     token_fp = (
         f"{token[:6]}...{token[-4:]} sha1:{hashlib.sha1(token.encode()).hexdigest()[:8]}"
@@ -106,10 +102,26 @@ def _log_github_call(
         "user": os.getenv("USERNAME") or os.getenv("USER") or "",
         "proxy": os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY") or "",
     }
-    # NB keep logging style unchanged (no f-string here)
-    logging.error("GitHub DEBUG -> %s", json.dumps(context, indent=2))
+    logging.error(f"GitHub DEBUG -> {json.dumps(context, indent=2)}")
 
 
+def _download_file(url: str, token: str | None = None) -> bytes:
+    """Download a file, optionally using a GitHub token."""
+    headers = {"Authorization": f"token {token}"} if token else {}
+    resp = requests.get(url, headers=headers, timeout=30)
+    resp.raise_for_status()
+    return resp.content
+
+
+def _sha1_blob(content: bytes) -> str:
+    """Return Git-compatible SHA-1 of a blob."""
+    prefix = f"blob {len(content)}\0".encode()
+    return hashlib.sha1(prefix + content).hexdigest()
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Dialog Helpers
+# ──────────────────────────────────────────────────────────────────────────────
 def _ensure_qapp() -> QApplication:
     """Return the current QApplication instance, creating one if necessary."""
     app = QApplication.instance()
@@ -181,33 +193,17 @@ def question_box(msg: str, title: str = "Confirm") -> bool:
     return reply == QMessageBox.StandardButton.Yes
 
 
-def _download_file(url: str, token: str | None = None) -> bytes:
-    """Download a file, optionally using a GitHub token."""
-    headers = {"Authorization": f"token {token}"} if token else {}
-    resp = requests.get(url, headers=headers, timeout=30)
-    resp.raise_for_status()
-    return resp.content
-
-
-def _sha1_blob(content: bytes) -> str:
-    """Return Git-compatible SHA-1 of a blob."""
-    prefix = f"blob {len(content)}\0".encode()
-    return hashlib.sha1(prefix + content).hexdigest()
-
-
 # ──────────────────────────────────────────────────────────────────────────────
-# Main logic
+# Main
 # ──────────────────────────────────────────────────────────────────────────────
-
-
-def main() -> None:  # pragma: no cover – entry-point
+def main() -> None:
     # Dynamically resolve the calling ScriptSelector module
     selector = importlib.import_module(Path(sys.modules["__main__"].__file__).stem)  # type: ignore[attr-defined]
 
-    branch = "57-beavis-bugs"  # TODO: replace with "main"
-    logging.debug("user name %s", os.getenv("USERNAME"))
+    branch = "master"
+    logging.debug(f"user name {os.getenv('USERNAME')}")
     os.chdir(Path(__file__).parent)
-    logging.debug("current directory is %s", os.getcwd())
+    logging.debug(f"current directory is {os.getcwd()}")
 
     api_url = f"{selector.api}/contents?ref={branch}"
     headers = {"Authorization": f"token {selector.token}"} if selector.token else {}
@@ -222,19 +218,15 @@ def main() -> None:  # pragma: no cover – entry-point
 
     if root_resp.status_code != 200:
         logging.error(
-            "GitHub API %s (%s) while listing repository root\nURL: %s\nBody: %s",
-            root_resp.status_code,
-            root_resp.reason,
-            api_url,
-            root_resp.text.strip()[:200],
+            f"GitHub API {root_resp.status_code} ({root_resp.reason}) "
+            f"while listing repository root\tURL: {api_url}\tBody: {root_resp.text.strip()[:200]}"
         )
         raise RuntimeError("Aborting: failed to list repository root")
 
     if not isinstance(file_list, list):
         logging.error(
-            "Unexpected payload type for repository root: Expected list, got %s – payload: %r",
-            type(file_list).__name__,
-            file_list,
+            f"Unexpected payload type for repository root: Expected list, "
+            f"got {type(file_list).__name__} - payload: {file_list!r}"
         )
         raise RuntimeError("Aborting: root listing returned non-list JSON")
 
@@ -245,10 +237,10 @@ def main() -> None:  # pragma: no cover – entry-point
     local_path = Path(local)
 
     # Put the temp folder two levels up from the target so it's on the same drive
-    temp_root = local_path.parent.parent  # Q:\RadOnc\RayStation\RayScripts
-    temp_root.mkdir(parents=True, exist_ok=True)  # should exist, but be safe
+    temp_root = local_path.parent.parent
+    temp_root.mkdir(parents=True, exist_ok=True)
     temp_dir = Path(tempfile.mkdtemp(prefix="ray_scripts_update_", dir=str(temp_root)))
-    logging.info("Using temporary directory: %s", temp_dir)
+    logging.info(f"Using temporary directory: {temp_dir}")
 
     # ------------------------------------------------------------------ recurse
     to_process = list(file_list)
@@ -263,20 +255,15 @@ def main() -> None:  # pragma: no cover – entry-point
 
         if resp.status_code != 200:
             logging.error(
-                "GitHub API %s (%s) while listing %s\nBody: %s",
-                resp.status_code,
-                resp.reason,
-                sub_api,
-                resp.text.strip()[:200],
+                f"GitHub API {resp.status_code} ({resp.reason})"
+                f" while listing {sub_api}\nBody: {resp.text.strip()[:200]}"
             )
             raise RuntimeError("Aborting: directory listing failed")
 
         if not isinstance(payload, list):
             logging.error(
-                "Unexpected payload type for %s – expected list, got %s\nPayload: %r",
-                sub_api,
-                type(payload).__name__,
-                payload,
+                f"Unexpected payload type for {sub_api} - expected list,"
+                f" got {type(payload).__name__}\nPayload: {payload!r}"
             )
             raise RuntimeError("Aborting: bad payload type")
 
@@ -300,7 +287,7 @@ def main() -> None:  # pragma: no cover – entry-point
         if item["type"] == "file" and item.get("download_url"):
             content = (temp_dir / item["path"]).read_bytes()
             if _sha1_blob(content) != item["sha"]:
-                logging.warning("Hash mismatch for %s", item["path"])
+                logging.warning(f"Hash mismatch for {item['path']}")
                 passed = False
     bar.close()
 
@@ -317,58 +304,50 @@ def main() -> None:  # pragma: no cover – entry-point
     if local_path.exists():
         backup_dir = local_path.parent.parent / f"{local_path.name}_backup_{time.strftime('%Y%m%d_%H%M%S')}"
         try:
-            logging.info("Creating backup of %s -> %s ...", local_path, backup_dir)
+            logging.info(f"Creating backup of {local_path} -> {backup_dir} ...")
             shutil.copytree(local_path, backup_dir)
-            logging.info("Backup created successfully at %s", backup_dir)
-        except Exception as exc:  # pragma: no cover – OS-level failure
-            logging.exception("Backup failed: %s", exc)
+            logging.info(f"Backup created successfully at {backup_dir}")
+        except Exception as exc:  # pragma: no cover
+            logging.exception(f"Backup failed: {exc}")
             warning_box("Failed to create backup of existing scripts.", "Backup Warning")
             return
 
     # ── Replace directory atomically ────────────────────────────────────────────
+    scratch_old = None
     try:
         scratch_old = local_path.with_suffix(".old_tmp")
+        tmp_dst = local_path.with_suffix(".old_tmp")
 
-        # ─────────────────────────────────────────────────────────────
-        # Replace directory
-        # ─────────────────────────────────────────────────────────────
+        #  rename the live tree to a temporary suffix
+        logging.info(f"Renaming {local_path} -> {tmp_dst}")
+        if local_path.exists():
+            local_path.rename(tmp_dst)
+
+        #  make sure nothing has recreated the folder
+        if local_path.exists():
+            logging.warning(f"{local_path} re-appeared - removing")
+            shutil.rmtree(local_path, ignore_errors=True)
+
+        #  bring in the freshly-downloaded tree
+        logging.info(f"Moving {temp_dir} -> {local_path}")
         try:
-            #  rename the live tree to a temporary suffix  ─────────
-            tmp_dst = local_path.with_suffix(".old_tmp")
-            logging.info("Renaming %s -> %s", local_path, tmp_dst)
+            shutil.move(str(temp_dir), local_path)
+        except shutil.Error as exc:
+            logging.error(f"move() fallback failed: {exc}. Forcing copytree()")
             if local_path.exists():
-                local_path.rename(tmp_dst)
-
-            #  make sure nothing has recreated the folder  ─────────
-            if local_path.exists():  # race-protection
-                logging.warning("%s re-appeared – removing", local_path)
                 shutil.rmtree(local_path, ignore_errors=True)
+            shutil.copytree(temp_dir, local_path, dirs_exist_ok=True)
 
-            #  bring in the freshly-downloaded tree  ───────────────
-            logging.info("Moving %s -> %s", temp_dir, local_path)
-            try:
-                shutil.move(str(temp_dir), local_path)  # fast path (rename)
-            except shutil.Error as exc:
-                # move() fell back to copy and hit a duplicate – clean and retry
-                logging.error("move() fallback failed: %s. Forcing copytree()", exc)
-                if local_path.exists():
-                    shutil.rmtree(local_path, ignore_errors=True)
-                shutil.copytree(temp_dir, local_path, dirs_exist_ok=True)
+        #  cleanup backup on success
+        if backup_dir and backup_dir.exists():
+            logging.info(f"Removing backup at {backup_dir}")
+            shutil.rmtree(backup_dir, ignore_errors=True)
 
-            #  cleanup backup on success  ───────────────────────────
-            if backup_dir and backup_dir.exists():
-                logging.info("Removing backup at %s", backup_dir)
-                shutil.rmtree(backup_dir, ignore_errors=True)
-
-            info_box("Script download and checksum verification successful.", "Success")
-
-        # ───── error handler remains the same ─────────────────────────
-        except Exception as exc:
-            logging.exception("Update failed: %s", exc)
+        info_box("Script download and checksum verification successful.", "Success")
 
         # Step 2: move temp_dir -> local_path  (this is the only risky op)
-        logging.info("Moving %s -> %s", temp_dir, local_path)
-        shutil.move(str(temp_dir), local_path)  # can raise
+        logging.info(f"Moving {temp_dir} -> {local_path}")
+        shutil.move(str(temp_dir), local_path)
 
         # Step 3: delete original (now called scratch_old)
         if scratch_old.exists():
@@ -381,18 +360,16 @@ def main() -> None:  # pragma: no cover – entry-point
         info_box("Scripts updated successfully.", "Success")
 
     except Exception as exc:
-        logging.exception("Update failed: %s", exc)
+        logging.exception(f"Update failed: {exc}")
 
         # Try to roll back <- scratch_old
         if scratch_old.exists():
-            logging.info("Rolling back %s -> %s", scratch_old, local_path)
-            # Remove half-copied target, if any
+            logging.info(f"Rolling back {scratch_old} -> {local_path}")
             if local_path.exists():
                 shutil.rmtree(local_path, ignore_errors=True)
             scratch_old.rename(local_path)
 
-        warning_box("Update failed – the previous version was restored.",
-                    "Update Failed")
+        warning_box("Update failed – the previous version was restored.", "Update Failed")
 
 
 if __name__ == "__main__":
