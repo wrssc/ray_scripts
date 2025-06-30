@@ -204,7 +204,7 @@ def push_goals_to_mco(
             f"({ftype}) on {row['roi']} – priority {row['priority']}"
         )
 
-def initialize_mco(plan_optimization, )
+# def initialize_mco(plan_optimization, )
 #
 # from connect import get_current
 # plan = get_current('Plan')
