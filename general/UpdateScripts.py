@@ -4,6 +4,10 @@ This script refreshes the local list of scripts from the online repository.  It 
 only applicable if a local variable was set in the version of ScriptSelector imported
 into RayStation.
 
+To test this, I recomment creating a backup of the scripts directory used clinically, e.g. master->testing
+Create a copy of a ScriptSelector pointing to the testing directory, e.g. ScriptSelector_testing.py
+Copy the version of UpdateScripts.py to the testing directory, and run it there using a ScriptSelector_testing.pd
+
 Version History
 ---------------
 1.2.0  Clinical release
@@ -65,6 +69,8 @@ from PySide6.QtWidgets import (
     QProgressDialog,
     QWidget,
 )
+# GITHUB BRANCH TO RETRIEVE
+GITHUB_BRANCH = "master"
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -102,7 +108,7 @@ def _log_github_call(
         "user": os.getenv("USERNAME") or os.getenv("USER") or "",
         "proxy": os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY") or "",
     }
-    logging.error(f"GitHub DEBUG -> {json.dumps(context, indent=2)}")
+    logging.debug(f"GitHub DEBUG -> {json.dumps(context, indent=2)}")
 
 
 def _download_file(url: str, token: str | None = None) -> bytes:
@@ -215,6 +221,14 @@ def cleanup_directory(path: Path, *, retries: int = 5, delay: float = 1.0) -> No
                 time.sleep(delay * attempt)
 
 
+def clean_previous_run(local_path: Path, scratch_old: Path) -> None:
+    """Ensure the old_tmp directory is cleaned up before starting."""
+    # 1) ensure cwd is not inside either directory
+    os.chdir(str(local_path.parent))
+    # 2) delete any half-copied or backup trees
+    cleanup_directory(scratch_old)
+
+
 def prepare_and_cleanup(local_path: Path, scratch_old: Path) -> None:
     """Release locks and delete both the existing master and old_tmp directories."""
     # 1) ensure cwd is not inside either directory
@@ -222,7 +236,8 @@ def prepare_and_cleanup(local_path: Path, scratch_old: Path) -> None:
 
     # 2) delete any half-copied or backup trees
     cleanup_directory(local_path)
-    cleanup_directory(scratch_old)
+    # cleanup_directory(scratch_old)
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Main
@@ -231,17 +246,16 @@ def main() -> None:
     # Dynamically resolve the calling ScriptSelector module
     selector = importlib.import_module(Path(sys.modules["__main__"].__file__).stem)  # type: ignore[attr-defined]
 
-    branch = "master"
     logging.debug(f"user name {os.getenv('USERNAME')}")
     os.chdir(Path(__file__).parent)
     logging.debug(f"current directory is {os.getcwd()}")
 
-    api_url = f"{selector.api}/contents?ref={branch}"
+    api_url = f"{selector.api}/contents?ref={GITHUB_BRANCH}"
     headers = {"Authorization": f"token {selector.token}"} if selector.token else {}
-    branch_url = f"{selector.api}/branches/{branch}"
+    branch_url = f"{selector.api}/branches/{GITHUB_BRANCH}"
 
     if requests.get(branch_url, headers=headers, timeout=30).status_code != 200:
-        raise RuntimeError(f'Branch "{branch}" not found (status not 200)')
+        raise RuntimeError(f'Branch "{GITHUB_BRANCH}" not found (status not 200)')
 
     root_resp = requests.get(api_url, headers=headers, timeout=30)
     _log_github_call(api_url, headers, root_resp, token=selector.token, step="root-listing")
@@ -266,19 +280,20 @@ def main() -> None:
         warning_box("No target directory selected. Aborting.", "Aborted")
         return
     local_path = Path(local)
+    logging.debug(f"Post selection local path: {local_path}")
 
     # Put the temp folder a level up from the target so it's on the same drive
     temp_root = local_path.parent
     temp_root.mkdir(parents=True, exist_ok=True)
     temp_dir = Path(tempfile.mkdtemp(prefix="ray_scripts_update_", dir=str(temp_root)))
-    logging.info(f"Using temporary directory: {temp_dir}")
+    logging.info(f"Using temporary directory for a fresh copy of {GITHUB_BRANCH}: {temp_dir}")
 
-    # ------------------------------------------------------------------ recurse
+    # ----- Recurse through directories -----------------------------
     to_process = list(file_list)
     for item in to_process:
         if item.get("type") != "dir":
             continue
-        sub_api = f"{selector.api}/contents/{item['path']}?ref={branch}"
+        sub_api = f"{selector.api}/contents/{item['path']}?ref={GITHUB_BRANCH}"
         sub_headers = {"Authorization": f"token {selector.token}"} if selector.token else {}
         resp = requests.get(sub_api, headers=sub_headers, timeout=30)
         _log_github_call(sub_api, sub_headers, resp, token=selector.token, step="subdir")
@@ -301,7 +316,7 @@ def main() -> None:
         to_process.extend(payload)
         (temp_dir / item["path"]).mkdir(parents=True, exist_ok=True)
 
-    # ---------------------------------------------------------------- progress
+    # ----- Monitor progress --------------------------------
     bar = QtProgressBar("Update Progress", "Downloading...", len(to_process) * 2)
 
     for item in to_process:
@@ -330,7 +345,7 @@ def main() -> None:
         )
         return
 
-    # ----------------------------------------------------------------- backup
+    # ----- Backup the existing scripts -----------------------------
     backup_dir: Optional[Path] = None
     if local_path.exists():
         backup_dir = local_path.parent.parent / f"{local_path.name}_backup_{time.strftime('%Y%m%d_%H%M%S')}"
@@ -338,32 +353,42 @@ def main() -> None:
             logging.info(f"Creating backup of {local_path} -> {backup_dir} ...")
             shutil.copytree(local_path, backup_dir)
             logging.info(f"Backup created successfully at {backup_dir}")
-        except Exception as exc:  # pragma: no cover
+        except Exception as exc:
             logging.exception(f"Backup failed: {exc}")
             warning_box("Failed to create backup of existing scripts.", "Backup Warning")
             return
+    else:
+        logging.info(f"No existing scripts found at {local_path}, skipping backup.")
 
-    # ── Replace directory atomically ────────────────────────────────────────────
-    scratch_old = None
+    # ----- Replace directory atomically -----------------------------
+    scratch_old = Path()
     try:
         scratch_old = local_path.with_suffix(".old_tmp")
         # tear down any leftovers from previous runs
-        prepare_and_cleanup(local_path, scratch_old)
+        logging.info("Clean up any previous run artifacts")
+        clean_previous_run(local_path, scratch_old)
 
-        #  rename the live tree to a temporary suffix
-        logging.info(f"Renaming {local_path} -> {scratch_old}")
+        # create a blank instance of path
+        old_path = Path()
+        # rename the live tree to a temporary suffix
         if local_path.exists():
+            # Store the old path before renaming
+            old_path = local_path
             local_path.rename(scratch_old)
             logging.info(f"Renamed {local_path} to {scratch_old}")
-
-        #  make sure nothing has recreated the folder
-        if local_path.exists():
-            logging.warning(f"{local_path} re-appeared - removing")
-            shutil.rmtree(local_path, ignore_errors=True)
         else:
-            logging.info(f"{local_path} does not exist, proceeding with update")
+            logging.info(f"No existing scripts found at {local_path}, proceeding creating a "
+                         f"new directory at {local_path} from {temp_dir}")
 
-        #  bring in the freshly-downloaded tree
+        # make sure nothing has recreated the folder
+        if old_path.exists():
+            logging.warning(f"{local_path} re-appeared - removing")
+            shutil.rmtree(old_path, ignore_errors=True)
+        else:
+            logging.info(f"{old_path} does not exist, proceeding with update - no magic reappearing")
+
+        # move temp_dir -> local_path  (this is the only risky op)
+        # bring in the freshly-downloaded tree
         logging.info(f"Moving {temp_dir} -> {local_path}")
         try:
             shutil.move(str(temp_dir), local_path)
@@ -373,38 +398,35 @@ def main() -> None:
                 shutil.rmtree(local_path, ignore_errors=True)
             shutil.copytree(temp_dir, local_path, dirs_exist_ok=True)
 
-        #  cleanup backup on success
+        # cleanup backup on success
         if backup_dir and backup_dir.exists():
             logging.info(f"Removing backup at {backup_dir}")
             shutil.rmtree(backup_dir, ignore_errors=True)
 
         info_box("Script download and checksum verification successful.", "Success")
 
-        # Step 2: move temp_dir -> local_path  (this is the only risky op)
-        logging.info(f"Moving {temp_dir} -> {local_path}")
-        shutil.move(str(temp_dir), local_path)
-
-        # Step 3: delete original (now called scratch_old)
+        # delete original (now called scratch_old)
         if scratch_old.exists():
+            logging.info(f"Removing old scripts at {scratch_old}")
             shutil.rmtree(scratch_old, ignore_errors=False)
-
-        # Step 4: delete backup we made earlier (it is redundant now)
-        if backup_dir and backup_dir.exists():
-            shutil.rmtree(backup_dir, ignore_errors=False)
 
         info_box("Scripts updated successfully.", "Success")
 
     except Exception as exc:
         logging.exception("Update failed: %s", exc)
-        if scratch_old.exists():
-            logging.info("Rolling back from %s -> %s", scratch_old, local_path)
-
+        # try restore from backup directory first
+        if backup_dir and backup_dir.exists():
+            logging.info(f"Attempting a rename from {backup_dir} to {local_path}")
             # make sure nothing is in the way
-            prepare_and_cleanup(local_path, scratch_old)
-
+            cleanup_directory(local_path)
+            # Rename
+            backup_dir.rename(local_path)
+        elif scratch_old and scratch_old.exists():
+            logging.info("Rolling back from %s -> %s", scratch_old, local_path)
+            # Make sure nothing is in the way
+            cleanup_directory(local_path)
             # now rename back
             scratch_old.rename(local_path)
-
         warning_box("Update failed – the previous version was restored.", "Update Failed")
 
 
