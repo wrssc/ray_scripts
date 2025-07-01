@@ -6,7 +6,7 @@ into RayStation.
 
 To test this, I recomment creating a backup of the scripts directory used clinically, e.g. master→testing
 Create a copy of a ScriptSelector pointing to the testing directory, e.g. ScriptSelector_testing.py
-Copy the version of UpdateScripts.py to the testing directory, and run it there using a ScriptSelector_testing.pd
+Copy the version of update_scripts.py to the testing directory, and run it there using a ScriptSelector_testing.pd
 
 Version History
 ---------------
