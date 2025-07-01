@@ -198,7 +198,7 @@ def main():
                                    destination=response['00'],
                                    qa_plan=selected_qa_plan,
                                    exam=False,
-                                   beamset=False,
+                                   beamset=beamset,
                                    ct=False,
                                    structures=False,
                                    plan=False,
