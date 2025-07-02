@@ -46,14 +46,20 @@ __copyright__ = "Copyright (C) 2021, University of Wisconsin Board of Regents"
 
 from connect import CompositeAction, get_current, await_user_input
 from StructureOperations import exists_roi, find_types
-
-try:
-    import FreeSimpleGUI as sg
-except ImportError:
-    import PySimpleGUI as sg
 import numpy as np
 from sys import exit
 import logging
+
+try:
+    import FreeSimpleGUI as sg
+
+    logging.debug("Successfully imported FreeSimpleGUI.")
+except ImportError:
+    import PySimpleGUI as sg
+
+    logging.debug(
+        "Did not successfully import FreeSimpleGUI. Successfully imported PySimpleGUI."
+    )
 
 # GUI Settings
 NOTIFY = False
