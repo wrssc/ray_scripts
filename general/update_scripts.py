@@ -57,10 +57,12 @@ import socket
 import sys
 import tempfile
 import time
+import requests
+import zipfile
+
 from pathlib import Path
 from typing import Mapping, Optional, cast
-
-import requests
+from datetime import datetime
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QApplication,
@@ -69,6 +71,7 @@ from PySide6.QtWidgets import (
     QProgressDialog,
     QWidget,
 )
+
 # GITHUB BRANCH TO RETRIEVE
 GITHUB_BRANCH = "master"
 # DIRECTORY REMOVAL PARAMETERS
@@ -333,6 +336,48 @@ def safe_rmdir(local_path: Path, dir_to_clean: Path) -> None:
     cleanup_directory(dir_to_clean)
 
 
+def create_zip_snapshot(
+    source_dir: Path,
+    dest_dir: Path,
+    sha: str
+) -> Path:
+    """Create a ZIP archive of a directory, embedding date and commit SHA in its filename.
+
+    The archive will be named:
+        <source_dir.name>_<YYYYMMDD_HHMMSS>_<short_sha>.zip
+
+    Args:
+        source_dir: Path to the directory you want to archive (e.g. the 'master' folder).
+        dest_dir: Path to the directory where the ZIP should be written.
+        sha: Full commit SHA string to embed in the archive name.
+
+    Returns:
+        Path to the created .zip file.
+
+    Raises:
+        IOError: If writing to disk fails.
+    """
+    # Ensure destination exists
+    dest_dir.mkdir(parents=True, exist_ok=True)
+
+    # Build timestamp and short SHA
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    short_sha = sha[:7]
+
+    # Construct archive filename
+    archive_name = f"rayscripts_{source_dir.name}_{timestamp}_{short_sha}.zip"
+    archive_path = dest_dir / archive_name
+
+    # Create the ZIP archive
+    with zipfile.ZipFile(archive_path, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+        for file_path in source_dir.rglob('*'):
+            # Preserve relative structure inside the zip
+            relative_path = file_path.relative_to(source_dir.parent)
+            zf.write(file_path, arcname=relative_path)
+
+    return archive_path
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Main
 # ──────────────────────────────────────────────────────────────────────────────
@@ -345,6 +390,8 @@ def main() -> None:
     logging.debug(f"current directory is {os.getcwd()}")
     # ----- Get files list from GitHub -----------------------------
     file_list = fetch_file_list(selector.api, selector.token)
+    # Extract the SHA for the branch (SHA stands for "Secure Hash Algorithm")
+    sha = file_list[0].get("sha", "unknown")
     # ----- Initial Setup --------------------------------
     target = selector.local or select_folder_dialog("Select folder location for scripts:")
     if not target:
@@ -437,6 +484,17 @@ def main() -> None:
         if old_target_dir.exists():
             logging.info(f"Removing old scripts at {old_target_dir}")
             shutil.rmtree(old_target_dir, ignore_errors=False)
+
+        # create a compressed archive of the finalized target directory
+        zipfile_path = create_zip_snapshot(
+            source_dir=target_path,
+            dest_dir=target_path.parent,
+            sha=sha
+        )
+        if not zipfile_path.exists():
+            logging.error(f"Failed to create ZIP archive at {zipfile_path}")
+        else:
+            logging.info(f"Created ZIP archive at {zipfile_path}")
 
         logging.info(f"Update completed successfully. New scripts downloaded from {selector.api} branch {GITHUB_BRANCH}"
                      f"and located in {target_path}")
