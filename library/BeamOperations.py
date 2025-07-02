@@ -1867,8 +1867,33 @@ class mlc_properties:
 
     # MLC methods:
     def stationary_leaf_gaps(self):
-        threshold = 1e-6
         # Find the MLC gaps that are closed (set to the minimum moving leaf opening) and return them
+        # threshold is the minimum difference in position considered motion, RS likes to nervously reposition
+        # the leaves by a small amount, so we need to filter out these small movements
+        threshold = 1e-2  # cm
+        n_leaves, _, n_cp = self.banks.shape
+        leaf_gaps = np.zeros_like(self.banks, dtype=bool)
+
+        for cp in range(n_cp):
+            for l in range(n_leaves):
+                # first filter out anything that isn’t at the minimum gap
+                gap = abs(self.banks[l, 0, cp] - self.banks[l, 1, cp])
+                if gap > (1 + threshold) * self.min_gap_moving:
+                    continue
+
+                # now check motion: only immediate neighbors
+                prev_cp = max(cp - 1, 0)
+                next_cp = min(cp + 1, n_cp - 1)
+
+                x1_move = abs(self.banks[l, 0, next_cp] - self.banks[l, 0, prev_cp])
+                x2_move = abs(self.banks[l, 1, next_cp] - self.banks[l, 1, prev_cp])
+
+                if x1_move <= threshold and x2_move <= threshold:
+                    leaf_gaps[l, :, cp] = True
+
+        return leaf_gaps
+    def old_stationary_leaf_gaps(self):
+        threshold = 1e-6
         # If stationary_only is True, return only leaf gaps that are closed to minimum and do not
         # move in the next
         # control point
@@ -2133,7 +2158,72 @@ def repair_leaf_gap(beam):
     return None
 
 
-def filter_leaves(beam):
+def srs_filter_leaves(beam):
+    """
+    1) Find the most‐open jaw positions across all control points and
+       set every segment’s jaws to those extremes.
+    2) For any leaf‐pair whose gap == MinGap (static or dynamic), snap
+       it closed just behind the (now unified) jaws.
+    Returns:
+        None on success, or an error string if something prevented filtering.
+    """
+    # --- 1) collect extremes over all CPs --------------------------------
+    jaw_lists = [seg.JawPositions for seg in beam.Segments]
+    x1_vals = [j[0] for j in jaw_lists]
+    x2_vals = [j[1] for j in jaw_lists]
+    y1_vals = [j[2] for j in jaw_lists]
+    y2_vals = [j[3] for j in jaw_lists]
+    # most open = min(X1),  max(X2),  min(Y1),  max(Y2)
+    x1_extreme, x2_extreme = min(x1_vals), max(x2_vals)
+    y1_extreme, y2_extreme = min(y1_vals), max(y2_vals)
+    # now set every segment’s jaws to those extremes
+    for seg in beam.Segments:
+        seg.JawPositions = [x1_extreme, x2_extreme, y1_extreme, y2_extreme]
+
+    # --- 2) snap any “minimum-gap” leaf pairs behind those unified jaws ----
+    beam_mlc = mlc_properties(beam)
+    if not beam_mlc.has_segments or beam_mlc.mlc_retracted:
+        return "MLC filtering failed: no segments or MLC retracted"
+
+    # minimum machine leaf gap
+    min_gap = beam_mlc.min_gap_moving
+    # how far behind the jaw to park them
+    offset = beam_mlc.leaf_jaw_overlap  # mm
+
+    # static & dynamic closed gaps:
+    # Find the leaf gaps that are closed (set to the minimum moving leaf opening)
+    # and make sure that they will not be moving in and out of that gap within adjacent control points
+    closed = beam_mlc.stationary_leaf_gaps()      # shape = [n_leaf, 2(banks), n_cp]
+
+    # loop CP × leaf
+    for cp_idx, seg in enumerate(beam.Segments):
+        # grab the now-unified jaws
+        x1j, x2j = x1_extreme, x2_extreme
+
+        # leafPositions is a list [ array(bank0), array(bank1) ]
+        lp = seg.LeafPositions
+        for leaf in range(beam_mlc.num_leaves_per_bank):
+            # only need to check one bank (they move symmetrically)
+            if closed[leaf, 0, cp_idx]:
+                # decide which jaw it’s closer to (by bank0 midpoint)
+                mid = 0.5*(lp[0][leaf] + lp[1][leaf])
+                if abs(mid - x1j) < abs(mid - x2j):
+                    # park behind left (X1) jaw
+                    lp[0][leaf] = x1j - offset - min_gap
+                    lp[1][leaf] = x1j - offset
+                else:
+                    # park behind right (X2) jaw
+                    lp[0][leaf] = x2j + offset
+                    lp[1][leaf] = x2j + offset + min_gap
+
+        # write back
+        seg.LeafPositions = lp
+
+    # done
+    return None
+
+
+def filter_leaves(beam, check_field_size=True, set_back_jaws=True):
     """ Examine all leaves that are currently set to be at a minimum leaf gap. If those leaves
         are not moving from control point to control point, then place them such that they will
         be behind the jaw once the set-back is in place. Note that the actual calculation here is
@@ -2143,17 +2233,19 @@ def filter_leaves(beam):
     s0 = beam.Segments[0]
     a = s0.JawPositions[1] - s0.JawPositions[0]
     b = s0.JawPositions[3] - s0.JawPositions[2]
-    equivalent_square_field_size = 2 * a * b / (a + b)
-    if equivalent_square_field_size < 3.:
-        mlc_filter = True
-        mlc_filter = False
+    if check_field_size:
+        equivalent_square_field_size = 2 * a * b / (a + b)
+        if equivalent_square_field_size < 3.:
+            mlc_filter = False
+        else:
+            mlc_filter = True
     else:
-        mlc_filter = False
+        mlc_filter = True
 
     if not mlc_filter:
         error = "MLC filtering unnecessary, field size is larger than 3 cm^2"
         return error
-    # For some bizzare reason, the __init__ method of beam does not pull the data from
+    # For some bizarre reason, the __init__ method of beam does not pull the data from
     # the MLC MachineReference physics. So we are searching for the machine directly here.
     beam_mlc = mlc_properties(beam)
 

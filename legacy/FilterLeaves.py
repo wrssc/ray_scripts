@@ -52,5 +52,6 @@ def main():
         else:
             logging.debug('Beam {} filtered'.format(b.Name))
 
+
 if __name__ == '__main__':
     main()
