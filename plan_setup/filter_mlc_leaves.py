@@ -1,9 +1,7 @@
-""" Filter MLC leaves in all beams of the current RayStation beamset.
+""" Move Stationary MLC leaves and disable jaw-tracking
 Standalone script to apply MLC filtering to every beam in the current RayStation beamset
 and display the results.
 
-Usage:
-    Place this file in your RayStation scripts folder, then run via the ScriptSelector.
 """
 
 import logging
@@ -32,18 +30,18 @@ def apply_filter_beams_to_beamset(beamset):
             error_message = srs_filter_leaves(beam)
             results[beam.Name] = error_message
             if error_message:
-                logging.debug("Beam %s: filter_beams returned '%s'", beam.Name, error_message)
+                logging.debug(f"Beam {beam.Name}: filter_beams returned {error_message}")
             else:
-                logging.debug("Beam %s: filtered successfully or no filtering needed", beam.Name)
-        except Exception as exc:
-            logging.error("Exception while filtering beam %s: %s", beam.Name, exc)
-            results[beam.Name] = f"Exception: {exc}"
+                logging.debug(f"Beam {beam.Name}: filtered successfully or no filtering needed")
+        except Exception as e:
+            logging.error(f"Exception while filtering beam  {beam.Name}: {e}")
+            results[beam.Name] = f"Exception: {e}"
     return results
 
 
 def main():
     """
-    Main entry point: fetch the current BeamSet, apply filtering, and print results.
+    Fetch the current BeamSet, apply filtering, and print results.
     """
 
     try:
@@ -55,6 +53,7 @@ def main():
     logging.info(f"Applying filter_leaves to all beams in beamset '{beamset.DicomPlanLabel}'...")
     results = apply_filter_beams_to_beamset(beamset)
 
+    # Output put to Execution details
     print("\nFilter Results:")
     print("----------------")
     for name, msg in results.items():
