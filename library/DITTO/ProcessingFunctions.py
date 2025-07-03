@@ -202,9 +202,9 @@ def process_block_data(element_pair, comment=""):
     logging.debug("Starting process_block_data")
     value_pair = element_pair.value_pair
     ds1_array = np.array(value_pair[0]).reshape(-1, 2)
-    logging.debug(f'ds1_array has shape: {ds1_array.shape}')
+    logging.debug(f"ds1_array has shape: {ds1_array.shape}")
     ds2_array = np.array(value_pair[1]).reshape(-1, 2)
-    logging.debug(f'ds2_array has shape: {ds2_array.shape}')
+    logging.debug(f"ds2_array has shape: {ds2_array.shape}")
 
     if (ds1_array.shape[0]) != (ds2_array.shape[0] + 1):
         # The array do not have the number of points and cannot match
@@ -248,7 +248,14 @@ def assess_block_points(element_pair, comment=""):
 def process_treatment_machine_name(element_pair, comment=""):
     ray_machine, aria_machine = element_pair.value_pair
 
-    TRUEBEAM_M120 = ["TrueBeam2588", "TrueBeam2871", "TrueBeam3744", "TrueBeam6198", "TrueBeam6696", "TrueBeam6697"]
+    TRUEBEAM_M120 = [
+        "TrueBeam2588",
+        "TrueBeam2871",
+        "TrueBeam3744",
+        "TrueBeam6198",
+        "TrueBeam6696",
+        "TrueBeam6697",
+    ]
     TRUEBEAM_STX = ["TrueBeam1358", "Edge6593"]
 
     if (ray_machine == "TrueBeam") and (aria_machine in TRUEBEAM_M120):
@@ -266,7 +273,7 @@ def assess_tm_match(element_pair, comment=""):
     # RS is not using a valid TM format
     # TM Format: NEMA PS3.5 2013: HHMMSS.FFFFFF
     value_pair = element_pair.value_pair
-    logging.debug(f'valuepair: {value_pair}')
+    logging.debug(f"valuepair: {value_pair}")
     vp1_form = vp2_form = None
     if len(value_pair[0]) > 0:
         vp1_form = "{:.6f}".format(float(value_pair[0]))
@@ -309,10 +316,6 @@ UNIQUE_TO_RAYSTATION = {
 
 UNIQUE_TO_ARIA = {
     "SourceToBlockTrayDistance": (return_expected_unique_to_aria, {}),
-    "AccessoryCode": (
-        return_expected_unique_to_aria,
-        {"comment": "AccessoryCode is set in RayStation by DicomExport.py"},
-    ),
     "TableTopLateralPosition": (return_expected_unique_to_aria, {}),
     "TableTopLongitudinalPosition": (return_expected_unique_to_aria, {}),
     "TableTopVerticalPosition": (return_expected_unique_to_aria, {}),
@@ -378,7 +381,10 @@ PROCESS_FUNCTION_DICT = {
     "LeafJawPositions": (assess_near_match, {"tolerance_value": 0.01}),  # 0.01 mm
     "BeamDose": (assess_near_match, {"tolerance_value": 0.01}),  # 0.01 Gy
     "PatientSupportAngle": (assess_near_match, {"tolerance_value": 0.01}),  # 0.01 deg
-    "BeamLimitingDeviceAngle": (assess_near_match, {"tolerance_value": 0.01}),  # 0.01 deg
+    "BeamLimitingDeviceAngle": (
+        assess_near_match,
+        {"tolerance_value": 0.01},
+    ),  # 0.01 deg
     "TreatmentMachineName": (process_treatment_machine_name, {}),
     "StudyTime": (assess_tm_match, {}),
     "SpecificCharacterSet": (
@@ -389,10 +395,6 @@ PROCESS_FUNCTION_DICT = {
     ),
     "BlockData": (process_block_data, {}),
     "BlockNumberOfPoints": (assess_block_points, {}),
-    "BlockTrayID": (
-        return_expected_mismatch,
-        {"comment": "BlockTrayID is set in RayStation by DicomExport.py"},
-    ),
     "ReferenceImageNumber": (
         excuse_element_with_parent,
         {"excused_parent": "ReferencedReferenceImageSequence"},
