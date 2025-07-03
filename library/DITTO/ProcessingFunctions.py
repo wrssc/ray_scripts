@@ -315,7 +315,6 @@ UNIQUE_TO_RAYSTATION = {
 }
 
 UNIQUE_TO_ARIA = {
-    "SourceToBlockTrayDistance": (return_expected_unique_to_aria, {}),
     "TableTopLateralPosition": (return_expected_unique_to_aria, {}),
     "TableTopLongitudinalPosition": (return_expected_unique_to_aria, {}),
     "TableTopVerticalPosition": (return_expected_unique_to_aria, {}),
