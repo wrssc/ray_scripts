@@ -29,18 +29,18 @@ def evaluation_functions_to_dataframe(plan) -> pd.DataFrame:
     pandas.DataFrame
         A DataFrame with one row per EvaluationFunction and the columns
 
-        * roi                – Name of the ROI the goal applies to
-        * goal_type          – PlanningGoal.Type (e.g., VolumeAtDose)
-        * goal_criteria      – PlanningGoal.GoalCriteria
-        * parameter_value    – PlanningGoal.ParameterValue (float or None)
-        * acceptance_level   – PlanningGoal.AcceptanceLevel
-        * priority           – PlanningGoal.Priority
-        * tolerance          – PlanningGoal.Tolerance
-        * is_comparative     – PlanningGoal.IsComparativeGoal
-        * reject_on_fail     – PlanningGoal.RejectPlanOnFail
-        * tag                – EvaluationFunction.Tag
-        * use_beam_specific  – EvaluationFunction.UseBeamSpecificForAllBeams
-        * use_robustness     – EvaluationFunction.UseRobustness
+        * roi                - Name of the ROI the goal applies to
+        * goal_type          - PlanningGoal.Type (e.g., VolumeAtDose)
+        * goal_criteria      - PlanningGoal.GoalCriteria
+        * parameter_value    - PlanningGoal.ParameterValue (float or None)
+        * acceptance_level   - PlanningGoal.AcceptanceLevel
+        * priority           - PlanningGoal.Priority
+        * tolerance          - PlanningGoal.Tolerance
+        * is_comparative     - PlanningGoal.IsComparativeGoal
+        * reject_on_fail     - PlanningGoal.RejectPlanOnFail
+        * tag                - EvaluationFunction.Tag
+        * use_beam_specific  - EvaluationFunction.UseBeamSpecificForAllBeams
+        * use_robustness     - EvaluationFunction.UseRobustness
     """
     records: list[Dict[str, Any]] = []
 
@@ -73,9 +73,7 @@ def evaluation_functions_to_dataframe(plan) -> pd.DataFrame:
     return pd.DataFrame.from_records(records)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Low-level helpers
-# ──────────────────────────────────────────────────────────────────────────────
 def _find_optimization_index(plan, beamset) -> int:
     """
     Return the index of the PlanOptimization that owns *beamset*.
@@ -83,7 +81,7 @@ def _find_optimization_index(plan, beamset) -> int:
     matches = [
         idx
         for idx, po in enumerate(plan.PlanOptimizations)
-        if beamset in po.OptimizedBeamSets       # ← use the object, not the label
+        if beamset in po.OptimizedBeamSets       # <- use the object, not the label
     ]
     if len(matches) != 1:
         raise RuntimeError(
@@ -145,8 +143,8 @@ def push_goals_to_mco(
     """
     Convert clinical goals in *df* into MCO optimization functions.
 
-    Priority 1–2     → constraints (hard limits)
-    Priority ≥ 3     → objectives (soft limits)
+    Priority 1-2     -> constraints (hard limits)
+    Priority >= 3     -> objectives (soft limits)
 
     Parameters
     ----------
@@ -161,8 +159,8 @@ def push_goals_to_mco(
     Notes
     -----
     * Runs inside the RayStation scripting environment.
-    * Dose units are assumed to be cGy (RayStation’s internal unit).
-    * Unhandled goal types raise ``NotImplementedError`` – add mappings
+    * Dose units are assumed to be cGy (RayStation's internal unit).
+    * Unhandled goal types raise ``NotImplementedError`` - add mappings
       in ``_goal_to_mco_function`` as needed.
     """
     plan = plan or get_current("Plan")
@@ -201,7 +199,7 @@ def push_goals_to_mco(
 
         print(
             f"Added MCO {'constraint' if is_constraint else 'objective'} "
-            f"({ftype}) on {row['roi']} – priority {row['priority']}"
+            f"({ftype}) on {row['roi']} - priority {row['priority']}"
         )
 
 # def initialize_mco(plan_optimization, )
