@@ -8,7 +8,7 @@ import logging
 import sys
 
 import connect
-from BeamOperations import srs_filter_leaves
+from BeamOperations import srs_filter_leaves_per_segment
 
 
 def apply_filter_beams_to_beamset(beamset):
@@ -27,7 +27,7 @@ def apply_filter_beams_to_beamset(beamset):
     results = {}
     for beam in beamset.Beams:
         try:
-            error_message = srs_filter_leaves(beam)
+            error_message = srs_filter_leaves_per_segment(beam)
             results[beam.Name] = error_message
             if error_message:
                 logging.debug(f"Beam {beam.Name}: filter_beams returned {error_message}")
