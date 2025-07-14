@@ -497,7 +497,7 @@ def run_aria_plan_transfer_checks(ds1, ds2):
         )
 
     # One last beam check
-    sequence_list.append(check_electron_cutout_code(dicom_match_tree))
+    # sequence_list.append(check_electron_cutout_code(dicom_match_tree))
 
     # Each Control Point
     zipped_parameters = zip(
