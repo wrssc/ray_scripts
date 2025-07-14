@@ -15362,7 +15362,7 @@
         <Alias>pacemaker_prv</Alias>
     </roi>
     <roi>
-        <name>Pacemaker_PRV10</name>
+        <name>Block_Pacemaker_PRV10</name>
         <TG263PrimaryName>Pacemaker_PRV10</TG263PrimaryName>
         <Description>Pacemaker expanded 10 mm as a planning risk volume</Description>
         <NCIt></NCIt>
@@ -15379,7 +15379,7 @@
         <Alias>pacemaker_prv10</Alias>
     </roi>
     <roi>
-        <name>Pacemaker_PRV50</name>
+        <name>Block_Pacemaker_PRV50</name>
         <TG263PrimaryName>Pacemaker_PRV50</TG263PrimaryName>
         <Description>Pacemaker expanded 50 mm as a planning risk volume</Description>
         <NCIt></NCIt>
