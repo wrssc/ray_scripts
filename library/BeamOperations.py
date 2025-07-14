@@ -76,6 +76,7 @@ import Beams
 import datetime
 import os
 import xml
+
 try:
     import FreeSimpleGUI as Sg
 except ImportError:
@@ -1870,7 +1871,7 @@ class mlc_properties:
         # Find the MLC gaps that are closed (set to the minimum moving leaf opening) and return them
         # threshold is the minimum difference in position considered motion, RS likes to nervously reposition
         # the leaves by a small amount, so we need to filter out these small movements
-        threshold = 1e-2  # cm
+        threshold = 1e-1  # cm
         n_leaves, _, n_cp = self.banks.shape
         leaf_gaps = np.zeros_like(self.banks, dtype=bool)
 
@@ -1892,6 +1893,7 @@ class mlc_properties:
                     leaf_gaps[l, :, cp] = True
 
         return leaf_gaps
+
     def old_stationary_leaf_gaps(self):
         threshold = 1e-6
         # If stationary_only is True, return only leaf gaps that are closed to minimum and do not
@@ -2158,68 +2160,275 @@ def repair_leaf_gap(beam):
     return None
 
 
-def srs_filter_leaves(beam):
+import time
+
+
+def srs_filter_leaves_per_segment(beam):
     """
     1) Find the most‐open jaw positions across all control points and
        set every segment’s jaws to those extremes.
     2) For any leaf‐pair whose gap == MinGap (static or dynamic), snap
        it closed just behind the (now unified) jaws.
+
     Returns:
         None on success, or an error string if something prevented filtering.
     """
+    t0 = time.perf_counter()
+
     # --- 1) collect extremes over all CPs --------------------------------
     jaw_lists = [seg.JawPositions for seg in beam.Segments]
     x1_vals = [j[0] for j in jaw_lists]
     x2_vals = [j[1] for j in jaw_lists]
     y1_vals = [j[2] for j in jaw_lists]
     y2_vals = [j[3] for j in jaw_lists]
-    # most open = min(X1),  max(X2),  min(Y1),  max(Y2)
-    x1_extreme, x2_extreme = min(x1_vals), max(x2_vals)
-    y1_extreme, y2_extreme = min(y1_vals), max(y2_vals)
-    # now set every segment’s jaws to those extremes
-    for seg in beam.Segments:
-        seg.JawPositions = [x1_extreme, x2_extreme, y1_extreme, y2_extreme]
+    x1_extreme = min(x1_vals);
+    x2_extreme = max(x2_vals)
+    y1_extreme = min(y1_vals);
+    y2_extreme = max(y2_vals)
+    t1 = time.perf_counter()
 
-    # --- 2) snap any “minimum-gap” leaf pairs behind those unified jaws ----
+    # --- 2) build mlc props & find closed gaps --------------------------
     beam_mlc = mlc_properties(beam)
     if not beam_mlc.has_segments or beam_mlc.mlc_retracted:
         return "MLC filtering failed: no segments or MLC retracted"
 
-    # minimum machine leaf gap
     min_gap = beam_mlc.min_gap_moving
-    # how far behind the jaw to park them
-    offset = beam_mlc.leaf_jaw_overlap  # mm
+    offset = beam_mlc.leaf_jaw_overlap
+    closed = beam_mlc.stationary_leaf_gaps()  # [n_leaf,2,n_cp]
+    t2 = time.perf_counter()
 
-    # static & dynamic closed gaps:
-    # Find the leaf gaps that are closed (set to the minimum moving leaf opening)
-    # and make sure that they will not be moving in and out of that gap within adjacent control points
-    closed = beam_mlc.stationary_leaf_gaps()      # shape = [n_leaf, 2(banks), n_cp]
-
-    # loop CP × leaf
+    # --- 3) pick one jaw side for the whole beam -------------------------
+    total_left = 0.0
+    total_right = 0.0
     for cp_idx, seg in enumerate(beam.Segments):
-        # grab the now-unified jaws
-        x1j, x2j = x1_extreme, x2_extreme
+        lp0, lp1 = seg.LeafPositions
+        mids = 0.5 * (lp0 + lp1)
+        mask = closed[:, 0, cp_idx]
+        total_left += abs(mids[mask] - x1_extreme).sum()
+        total_right += abs(mids[mask] - x2_extreme).sum()
 
-        # leafPositions is a list [ array(bank0), array(bank1) ]
-        lp = seg.LeafPositions
-        for leaf in range(beam_mlc.num_leaves_per_bank):
-            # only need to check one bank (they move symmetrically)
-            if closed[leaf, 0, cp_idx]:
-                # decide which jaw it’s closer to (by bank0 midpoint)
-                mid = 0.5*(lp[0][leaf] + lp[1][leaf])
-                if abs(mid - x1j) < abs(mid - x2j):
-                    # park behind left (X1) jaw
-                    lp[0][leaf] = x1j - offset - min_gap
-                    lp[1][leaf] = x1j - offset
-                else:
-                    # park behind right (X2) jaw
-                    lp[0][leaf] = x2j + offset
-                    lp[1][leaf] = x2j + offset + min_gap
+    preferred = 'X1' if total_left <= total_right else 'X2'
+    t3 = time.perf_counter()
 
-        # write back
-        seg.LeafPositions = lp
+    # --- 4) apply leaf snaps & set jaws, timing split --------------------
+    python_time = 0.0
+    rs_time_mlc = 0.0
+    rs_time_jaw = 0.0
 
-    # done
+    # 4a) only process CPs that actually have a closed gap
+    to_update = [i for i in range(len(beam.Segments)) if closed[:, 0, i].any()]
+
+    for cp_idx in to_update:
+        seg = beam.Segments[cp_idx]
+        # Set jaw positions per segment
+        t_rs_jaw = time.perf_counter()
+        seg.JawPositions = [x1_extreme, x2_extreme, y1_extreme, y2_extreme]
+        rs_time_jaw += time.perf_counter() - t_rs_jaw
+
+        # --- Python-level leaf array updates ---
+        t_py = time.perf_counter()
+        lp0, lp1 = seg.LeafPositions
+        mask = closed[:, 0, cp_idx]
+        if preferred == 'X2':
+            lp0[mask] = x2_extreme + offset
+            lp1[mask] = x2_extreme + offset + min_gap
+        else:
+            lp0[mask] = x1_extreme - offset - min_gap
+            lp1[mask] = x1_extreme - offset
+        python_time += time.perf_counter() - t_py
+
+        # --- one RS write per changed segment ---
+        t_rs_mlc = time.perf_counter()
+        seg.LeafPositions = [lp0, lp1]
+        rs_time_mlc += time.perf_counter() - t_rs_mlc
+
+    t4 = time.perf_counter()
+
+    print(f"[srs_filter_leaves] Step 1 (jaw extremes) took {t1 - t0:.4f}s")
+    print(f"[srs_filter_leaves] Step 2 (compute closed gaps) took {t2 - t1:.4f}s")
+    print(f"[srs_filter_leaves] Step 3 (choose side = {preferred}) took {t3 - t2:.4f}s")
+    print(f"[srs_filter_leaves] Step 4 (python work) took {python_time:.4f}s")
+    print(f"[srs_filter_leaves] Step 4 (Jaw writes) took {rs_time_jaw:.4f}s")
+    print(f"[srs_filter_leaves] Step 4 (MLC writes)  took {rs_time_mlc:.4f}s")
+    print(f"[srs_filter_leaves] Total time: {(t4 - t0):.4f}s\n")
+
+    return None
+
+
+import numpy as np
+
+
+def _snapshot(beam):
+    """Grab a copy of every segment’s JawPositions and LeafPositions"""
+    jaws = [list(seg.JawPositions) for seg in beam.Segments]
+    leaves = [
+        [seg.LeafPositions[0].copy(), seg.LeafPositions[1].copy()]
+        for seg in beam.Segments
+    ]
+    return jaws, leaves
+
+
+import time
+import numpy as np
+
+def _snapshot(beam):
+    jaws   = [list(seg.JawPositions) for seg in beam.Segments]
+    leaves = [[seg.LeafPositions[0].copy(), seg.LeafPositions[1].copy()]
+              for seg in beam.Segments]
+    return jaws, leaves
+
+def _restore(beam, jaws, leaves):
+    for seg, j, lp in zip(beam.Segments, jaws, leaves):
+        seg.JawPositions  = list(j)
+        seg.LeafPositions = [lp[0].copy(), lp[1].copy()]
+
+import time
+import numpy as np
+
+def srs_filter_leaves_bulk(beam):
+    """
+    1) Find the most‐open jaw positions across all control points and
+       set every segment’s jaws to those extremes.
+    2) For any leaf‐pair whose gap == MinGap, snap it closed just behind
+       the (now unified) jaws.
+    3) Bundle each segment’s bank-A and bank-B into an interleaved 1-D array
+       [A0, B0, A1, B1, …] and push them in one bulk EditBeamLeafPositions call.
+    """
+    t0 = time.perf_counter()
+
+    # --- 1) collect jaw extremes ----------------------------------------
+    jaws      = [seg.JawPositions for seg in beam.Segments]
+    x1e, x2e  = min(j[0] for j in jaws), max(j[1] for j in jaws)
+    y1e, y2e  = min(j[2] for j in jaws), max(j[3] for j in jaws)
+    t1 = time.perf_counter()
+
+    # --- 2) build mlc props & closed‐gap mask --------------------------
+    mlc = mlc_properties(beam)
+    if not mlc.has_segments or mlc.mlc_retracted:
+        return "MLC filtering failed: no segments or MLC retracted"
+
+    off, mg  = mlc.leaf_jaw_overlap, mlc.min_gap_moving
+    closed   = mlc.stationary_leaf_gaps()   # shape = [n_leaf,2,n_cp]
+    t2 = time.perf_counter()
+
+    # --- 3) pick one jaw side for the whole beam ------------------------
+    left_sum = right_sum = 0.0
+    for i, seg in enumerate(beam.Segments):
+        lp0, lp1 = seg.LeafPositions
+        mids     = 0.5*(lp0 + lp1)
+        mask     = closed[:,0,i]
+        left_sum  += np.abs(mids[mask] - x1e).sum()
+        right_sum += np.abs(mids[mask] - x2e).sum()
+
+    preferred = 'X1' if left_sum <= right_sum else 'X2'
+    t3 = time.perf_counter()
+
+    # --- 4) build one interleaved array per segment ---------------------
+    leaf_positions_list = []
+    for i, seg in enumerate(beam.Segments):
+        lp0, lp1 = seg.LeafPositions
+        mask     = closed[:,0,i]
+
+        # snap closed pairs behind the chosen jaw
+        if preferred == 'X2':
+            lp0[mask] = x2e + off
+            lp1[mask] = x2e + off + mg
+        else:
+            lp0[mask] = x1e - off - mg
+            lp1[mask] = x1e - off
+
+        # interleave [A0,B0, A1,B1, …]
+        n_leaves = lp0.shape[0]
+        merged   = np.empty(2*n_leaves, dtype=lp0.dtype)
+        merged[0::2] = lp0
+        merged[1::2] = lp1
+
+        leaf_positions_list.append(merged)
+    t4 = time.perf_counter()
+
+    # inspect the first merged array
+    arr0 = leaf_positions_list[0]
+    print(f" debug merged[0]: ndim={arr0.ndim}, shape={arr0.shape}")
+
+    # --- 5) one bulk RS call to push *all* leaf positions -------------
+    t5 = time.perf_counter()
+    beam.EditBeamLeafPositions(LeafPositions=leaf_positions_list)
+    t6 = time.perf_counter()
+
+    # --- 6) finally, set jaws on every segment ------------------------
+    t7 = time.perf_counter()
+    jawpos = [x1e, x2e, y1e, y2e]
+    for seg in beam.Segments:
+        seg.JawPositions = jawpos
+    t8 = time.perf_counter()
+
+    # --- timing report -------------------------------------------------
+    print(f"Step 1 (jaw extremes)        : {t1-t0:.4f}s")
+    print(f"Step 2 (compute closed gaps) : {t2-t1:.4f}s")
+    print(f"Step 3 (choose side={preferred}): {t3-t2:.4f}s")
+    print(f"Step 4 (build interleaved)   : {t4-t3:.4f}s")
+    print(f"Step 5 (RS leaf bulk)        : {t6-t5:.4f}s")
+    print(f"Step 6 (RS jaw writes)       : {t8-t7:.4f}s")
+    print(f"Total                        : {t8-t0:.4f}s\n")
+
+    return None
+
+def srs_filter_leaves_compare(beam):
+    """Benchmark your old vs. new approach back‐to‐back."""
+    orig_jaws, orig_leaves = _snapshot(beam)
+
+    # per‐segment version (paste your existing code here)…
+    t0 = time.perf_counter()
+    err1 = srs_filter_leaves_per_segment(beam)
+    t1 = time.perf_counter()
+    per_seg_time = t1 - t0
+
+    _restore(beam, orig_jaws, orig_leaves)
+
+    # bulk version
+    t2 = time.perf_counter()
+    err2 = srs_filter_leaves_bulk(beam)
+    t3 = time.perf_counter()
+    bulk_time = t3 - t2
+
+    _restore(beam, orig_jaws, orig_leaves)
+
+    print(f"Per‐segment filter: {per_seg_time:.4f}s",
+          f"{'ERROR:'+err1 if err1 else 'OK'}")
+    print(f"Bulk filter:       {bulk_time:.4f}s",
+          f"{'ERROR:'+err2 if err2 else 'OK'}")
+
+    return None
+
+
+def srs_filter_leaves_compare(beam):
+    """Benchmark both methods back‐to‐back on the same beam."""
+    # 1) snapshot
+    orig_jaws, orig_leaves = _snapshot(beam)
+
+    # 2) per‐segment
+    # t0 = time.perf_counter()
+    # err1 = srs_filter_leaves_per_segment(beam)
+    # t1 = time.perf_counter()
+    # per_seg_time = t1 - t0
+
+    # 3) restore
+    # _restore(beam, orig_jaws, orig_leaves)
+
+    # 4) bulk
+    t2 = time.perf_counter()
+    err2 = srs_filter_leaves_bulk(beam)
+    t3 = time.perf_counter()
+    bulk_time = t3 - t2
+
+    # 5) restore again (if you want beam back to original)
+    # _restore(beam, orig_jaws, orig_leaves)
+
+    # print(f"Per-segment filter: {per_seg_time:.4f}s",
+    #       f"{'ERROR:' + err1 if err1 else 'OK'}")
+    print(f"Bulk filter:       {bulk_time:.4f}s",
+          f"{'ERROR:' + err2 if err2 else 'OK'}")
+
     return None
 
 
