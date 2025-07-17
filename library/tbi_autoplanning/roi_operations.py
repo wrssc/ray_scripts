@@ -8,17 +8,18 @@ import math
 
 from library.StructureOperations import (
     create_roi, make_boolean_structure, change_roi_type,
-    find_types, exclude_from_export, make_wall)
+    find_types, exclude_from_export,)
 import library.AutoPlanOperations as AutoPlanOperations
 from .tbi_definitions import (
     CENTRAL_JUNCTION_WIDTH, FFS_MAX_TREATMENT_LENGTH, LUNG_AVOID_MARGIN, LUNGS_EVAL_MARGIN, \
     KIDNEYS, KIDNEY_AVOID_MARGIN, COLORS, MBS_ROIS, EXTERNAL_NAME, EXTERNAL_SETUP, EXTERNAL_SETUP_EXP, \
-    SKIN_AVOIDANCE_CONTRACT, HFS_TARGET_NAMES, FFS_TARGET_NAMES,\
+    SKIN_AVOIDANCE_CONTRACT, HFS_TARGET_NAMES, FFS_TARGET_NAMES, \
     LUNG_AVOID_NAME, FFS_TARGET_EVAL_NAME, HFS_TARGET_EVAL_NAME, SKIN_AVOIDANCE, \
     LUNGS_EVAL_NAME, KIDNEY_AVOID_NAME, AVOID_HFS_NAME, AVOID_FFS_NAME, LUNGS, \
     JUNCTION_PREFIX_FFS, JUNCTION_PREFIX_HFS, JUNCTION_POINT
 )
-from .tbi_utils import reset_primary_secondary, determine_prefix, register_images, get_center
+from .tbi_utils import reset_primary_secondary, determine_prefix, no_registrations, register_images, get_center, \
+    check_registration
 
 from .poi_operations import (
     validate_poi_name, get_most_inferior, get_most_superior, find_hfff_junction_coords, find_pois, get_point_position,
@@ -68,6 +69,18 @@ def find_roi_prefix(case, roi_match):
     return found_roi
 
 
+def get_junction_rois(case):
+    """
+    Get all junction ROIs in the case.
+    Junction ROIs are identified by their names starting with 'ffs_junction_' or 'hfs_junction_'.
+    """
+    junction_rois = []
+    for roi in case.PatientModel.RegionsOfInterest:
+        if roi.Name.startswith(JUNCTION_PREFIX_FFS) or roi.Name.startswith(JUNCTION_PREFIX_HFS):
+            junction_rois.append(roi.Name)
+    return junction_rois
+
+
 # =================================================================
 # ROI Creation and Deletion
 # =================================================================
@@ -106,8 +119,15 @@ def copy_roi(pdata, roi_name):
 # =================================================================
 # Derived roi updates and copying
 # =================================================================
-def update_all_remove_expression(pdata, roi_name):
-    # Update the expression for a contour on all exams then remove expression
+def update_derived_expressions_on_all_exams(pdata, roi_name):
+    """
+    Update the derived geometry for a given ROI on all examinations of the patient.
+    This function will attempt to update the derived geometry for the specified ROI
+    across all examinations in the patient's case.
+
+    :param pdata: Patient data object containing case and examination information.
+    :param roi_name: Name of the ROI to update.
+    """
     for e in pdata.case.PatientModel.StructureSets:
         try:
             pdata.case.PatientModel.RegionsOfInterest[roi_name].UpdateDerivedGeometry(
@@ -117,6 +137,10 @@ def update_all_remove_expression(pdata, roi_name):
         except Exception as err:
             logging.debug(f'Error in updating geometry for {roi_name}: {err}')
 
+
+def update_all_remove_expression(pdata, roi_name):
+    # Update the expression for a contour on all exams then remove expression
+    update_derived_expressions_on_all_exams(pdata, roi_name)
     try:
         pdata.case.PatientModel.RegionsOfInterest[roi_name].DeleteExpression()
     except Exception as err:
@@ -142,7 +166,7 @@ def check_list(var, length, element_type, default):
 
 
 def get_boolean_defs(
-        roi_name, a_sources, a_operation, a_exp=None, a_margin_type="Expand",
+        roi_name, a_sources, a_operation="Union", a_exp=None, a_margin_type="Expand",
         b_sources=None, b_operation="Union", b_exp=None, b_margin_type="Expand",
         r_exp=None, r_margin_type="Expand", result="None",
         color=None, export=False, visualize=False, roi_type="Undefined"
@@ -270,7 +294,7 @@ def subtract_b_from_a(pdata, a_list, b_list, result_name):
 # =================================================================
 # Generic Shape Creation & Composite ROI Builders
 # =================================================================
-def make_box(patient_data, box_name, length=None, z_center=None):
+def make_box(patient_data, box_name, length=None, z_center=None, delete_existing=True):
     case = patient_data.case
     exam = patient_data.exam
     patient_model = case.PatientModel
@@ -299,7 +323,7 @@ def make_box(patient_data, box_name, length=None, z_center=None):
             case=case,
             examination=exam,
             roi_name=box_name + f'_{i}' if n_box > 1 else box_name,
-            delete_existing=True)
+            delete_existing=delete_existing)
         z_center = z_center + i * box_length
         box_geom.OfRoi.CreateBoxGeometry(
             Size={'x': abs(bb_external[1].x - bb_external[0].x) + 2,
@@ -333,8 +357,6 @@ def make_box(patient_data, box_name, length=None, z_center=None):
     else:
         raise RuntimeError(f"Unable to generate a box geometry for {box_name} "
                            f"on exam {exam.Name}")
-
-
 
 
 def make_central_junction_contour(pdata, z_inf_box,
@@ -389,7 +411,7 @@ def material_override_overlap(pd_ffs, pd_hfs):
         # Use the ComparisonOfRoiGeometries to check each contour to measure
         # if there is any overlap with every other contour
         if len(support) > 1:
-            for i in range(len(support)-1):
+            for i in range(len(support) - 1):
                 for j in range(i + 1, len(support)):
                     if ss.RoiGeometries[support[i]].HasContours() and \
                             ss.RoiGeometries[support[j]].HasContours():
@@ -402,7 +424,37 @@ def material_override_overlap(pd_ffs, pd_hfs):
     return False, None, None
 
 
-def make_avoid(pdata, z_start, avoid_name, color=None):
+def make_avoidance_hfs(hfs_pdata, ffs_pdata, z_start_hfs, z_start_ffs, hfs_avoid_name):
+    # Find the name of the external contour
+    external_name = find_types(hfs_pdata.case, roi_type='External')[0]
+    # Make a box ROI that starts at isocenter_position and ends at isocenter_position + dim_si
+    # box_name = f'{prefix.upper()}_AVOIDANCE'
+    feet_bottom = get_most_inferior(ffs_pdata, external_name)
+    # Get the z position on the FFS scan of the junction point
+    ffs_junction = ffs_pdata.case.PatientModel.StructureSets[ffs_pdata.exam.Name] \
+        .PoiGeometries[JUNCTION_POINT]
+    hfs_junction = hfs_pdata.case.PatientModel.StructureSets[hfs_pdata.exam.Name] \
+        .PoiGeometries[JUNCTION_POINT]
+    # Distance to feet from junction minus the width of the junction
+    # Generate the geometry of the HFS avoidance box on the HFS Scan
+    si_box_size = (ffs_junction.Point.z - feet_bottom) - (hfs_junction.Point.z - z_start_hfs)
+    logging.debug(f'Feet bottom position: {feet_bottom}, '
+                  f'Junction position: {ffs_junction.Point.z}, '
+                  f'HFS junction position: {hfs_junction.Point.z}, '
+                  f'z_start: {z_start_hfs}, '
+                  f'si_box_size: {si_box_size}')
+    z_center = z_start_hfs - si_box_size / 2.
+    box_name = make_box(hfs_pdata, hfs_avoid_name,
+                        length=si_box_size,
+                        z_center=z_center)
+    # Now make the box on the FFS
+    z_center_ffs = z_start_ffs - si_box_size / 2.
+    box_name = make_box(ffs_pdata, hfs_avoid_name,
+                        length=si_box_size,
+                        z_center=z_center_ffs)
+
+
+def make_avoidance_ffs(ffs_pdata, hfs_pdata, z_start_ffs, z_start_hfs, avoid_name):
     """ Build the avoidance structure used in making the PTV
         patient_data: kind of like PDiddy, but with data, see below
         isocenter_position (float): starting location of the junction
@@ -415,40 +467,27 @@ def make_avoid(pdata, z_start, avoid_name, color=None):
     """
     #
     # Find the name of the external contour
-    external_name = find_types(pdata.case, roi_type='External')[0]
+    external_name = find_types(ffs_pdata.case, roi_type='External')[0]
     # Get exam orientation
-    prefix = determine_prefix(pdata.exam)
-    if prefix == 'ffs':
-        si = -1.  # SI direction is negative for FFS
-        bb_index = 1  # Starting coordinate of bounding box
-        additional_avoidances = []  # No other avoidances in FFS orientation
-    else:
-        si = 1.  # SI direction is positive for HFS
-        bb_index = 0  # Starting coordinate of bounding box
-        additional_avoidances = [LUNG_AVOID_NAME]  # Subtract the lung volumes
     #
-    # Make a box ROI that starts at isocenter_position and ends at isocenter_position + dim_si
-    box_name = 'avoid_box_' + str(round(z_start, 1))
-    # Get the Bounding box of the External contour
-    bb_external = pdata.case.PatientModel.StructureSets[pdata.exam.Name] \
-        .RoiGeometries[external_name].GetBoundingBox()
-    si_box_size = abs(bb_external[bb_index].z + si * z_start)
-    box_name = make_box(pdata, box_name,
+    # For a FFS Avoid box, get the distance from the junction to the top of the head
+    head_top = get_most_superior(hfs_pdata, external_name)
+    # Get the z position on the HFS scan of the junction point
+    hfs_junction = hfs_pdata.case.PatientModel.StructureSets[hfs_pdata.exam.Name] \
+        .PoiGeometries[JUNCTION_POINT]
+    si_box_size = abs(head_top - hfs_junction.Point.z)
+    logging.debug(f'Head top position: {head_top}, '
+                  f'Junction position: {hfs_junction.Point.z}, '
+                  f'si_box_size: {si_box_size}')
+    z_center = z_start_ffs + si_box_size / 2.
+    box_name = make_box(ffs_pdata, avoid_name,
                         length=si_box_size,
-                        z_center=z_start - si * si_box_size / 2.)
-    # Boolean Definitions for Avoidance
-    temp_defs = get_boolean_defs(
-        roi_name=avoid_name,
-        a_sources=[external_name, box_name],
-        a_operation="Intersection",
-        b_sources=additional_avoidances,
-        r_exp=[0., 0., 0.7, 0.7, 0.7, 0.7, 0.7],
-        color=color
-    )
-    make_boolean_structure(patient=pdata.patient, case=pdata.case,
-                           examination=pdata.exam, **temp_defs)
-    update_all_remove_expression(pdata=pdata, roi_name=avoid_name)
-    pdata.case.PatientModel.RegionsOfInterest[box_name].DeleteRoi()
+                        z_center=z_center)
+    # Now make the box on the HFS
+    z_center_hfs = z_start_hfs + si_box_size / 2.
+    box_name = make_box(hfs_pdata, avoid_name,
+                        length=si_box_size,
+                        z_center=z_center_hfs)
 
 
 def make_ptv(pdata, junction_prefix, avoid_name, color=None, kidney_sparing=False):
@@ -465,17 +504,24 @@ def make_ptv(pdata, junction_prefix, avoid_name, color=None, kidney_sparing=Fals
     # PTV_name
     ptv_name = "PTV_p_" + prefix.upper()
     external_name = find_types(pdata.case, roi_type='External')[0]
-    roi_exclude = find_roi_prefix(pdata.case, roi_match=junction_prefix)
+    # Get all junctions, including empty junctions
+    roi_exclude = get_junction_rois(pdata.case)
+    # roi_exclude = find_roi_prefix(pdata.case, roi_match=junction_prefix)
     logging.debug(f'Rois added to exclude are {roi_exclude}')
     roi_exclude.append(avoid_name)
     #
     # Boolean Definitions
     temp_defs = get_boolean_defs(
-        roi_name=ptv_name, a_sources=[external_name],
-        a_operation="Intersection", b_sources=roi_exclude, b_operation="Union",
+        roi_name=ptv_name,
+        a_sources=[external_name],  # External contour as main source
+        b_sources=roi_exclude,
+        b_operation="Union",
+        b_exp=[0., 0.] + [0.3] * 4,  # cm exp in inf/sup + rt/lt/ant/post added to reduce small contours at junctions
+        b_margin_type="Expand",
         result="Subtraction", visualize=False, color=color, roi_type='Ptv')
     make_boolean_structure(patient=pdata.patient, case=pdata.case,
                            examination=pdata.exam, **temp_defs)
+    update_all_remove_expression(pdata=pdata, roi_name=ptv_name)
     # Make Eval structure
     # Boolean Definitions
     roi_exclude.append(SKIN_AVOIDANCE)
@@ -483,14 +529,13 @@ def make_ptv(pdata, junction_prefix, avoid_name, color=None, kidney_sparing=Fals
     if kidney_sparing:
         roi_exclude.append(KIDNEY_AVOID_NAME)
     temp_defs = get_boolean_defs(
-        roi_name=eval_name, a_sources=[external_name],
-        a_operation="Intersection", b_sources=roi_exclude, b_operation="Union",
+        roi_name=eval_name, a_sources=[ptv_name],
+        a_operation="Union", b_sources=roi_exclude, b_operation="Union",
         result="Subtraction", color=[255, 0, 0], visualize=True,
         roi_type="Ptv")
     make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_defs)
-    pdata.case.PatientModel.RegionsOfInterest[ptv_name].DeleteExpression()
-    pdata.case.PatientModel.RegionsOfInterest[eval_name].DeleteExpression()
+    update_all_remove_expression(pdata=pdata, roi_name=eval_name)
     return [ptv_name, eval_name]
 
 
@@ -508,6 +553,7 @@ def make_lung_contours(pdata, color=None):
     )
     make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **lungs_defs)
+    update_derived_expressions_on_all_exams(pdata, roi_name=LUNGS)
     lung_avoid_defs = get_boolean_defs(
         roi_name=LUNG_AVOID_NAME,
         a_sources=[LUNGS],
@@ -519,6 +565,7 @@ def make_lung_contours(pdata, color=None):
     )
     make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **lung_avoid_defs)
+    update_derived_expressions_on_all_exams(pdata, roi_name=LUNG_AVOID_NAME)
     #
     # Boolean Definitions for Lung Evaluation
     lung_eval_defs = get_boolean_defs(
@@ -532,6 +579,7 @@ def make_lung_contours(pdata, color=None):
     )
     make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **lung_eval_defs)
+    update_derived_expressions_on_all_exams(pdata, roi_name=LUNGS_EVAL_NAME)
 
 
 def make_kidney_contours(pdata, color=None):
@@ -548,6 +596,7 @@ def make_kidney_contours(pdata, color=None):
     )
     make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **kidneys_defs)
+    update_derived_expressions_on_all_exams(pdata, roi_name=KIDNEYS)
     kidneys_avoid_defs = get_boolean_defs(
         roi_name=KIDNEY_AVOID_NAME,
         a_sources=[KIDNEYS],
@@ -559,6 +608,7 @@ def make_kidney_contours(pdata, color=None):
     )
     make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **kidneys_avoid_defs)
+    update_derived_expressions_on_all_exams(pdata, roi_name=KIDNEY_AVOID_NAME)
 
 
 def make_otv(pdata: namedtuple, poi_name: str, point_index: int,
@@ -978,11 +1028,11 @@ def make_central_junction_structs(pd_hfs, pd_ffs, kidney_sparing):
             dim_si=dim_si,
             dose_level=str(int(j_i[i])) + "%Rx",
             color=dose_levels[j_i[i]])
-    make_avoid(pd_ffs, z_start=ffs_poi_junction.Point.z,
-               avoid_name=AVOID_FFS_NAME)
+    make_avoidance_ffs(pd_ffs, pd_hfs, z_start_ffs=ffs_poi_junction.Point.z, z_start_hfs=hfs_poi_junction.Point.z,
+                       avoid_name=AVOID_FFS_NAME)
     ffs_ptv_list = make_ptv(pdata=pd_ffs, junction_prefix=JUNCTION_PREFIX_FFS,
                             avoid_name=AVOID_FFS_NAME, kidney_sparing=False)
-    cut_rois_to_image(pd_ffs, pd_hfs, ffs_ptv_list)
+    # cut_rois_to_image(pd_ffs, pd_hfs, ffs_ptv_list)
 
     for i in range(len(j_i)):
         # Place the inferior edge of the HFS junction at:
@@ -997,10 +1047,11 @@ def make_central_junction_structs(pd_hfs, pd_ffs, kidney_sparing):
     #
     # HFS avoid starts at junction point - number of dose levels * dim_si
     hfs_avoid_start = hfs_poi_junction.Point.z - dim_si * float(len(j_i))
-    make_avoid(pd_hfs, z_start=hfs_avoid_start, avoid_name=AVOID_HFS_NAME)
+    ffs_avoid_start = ffs_poi_junction.Point.z - dim_si * float(len(j_i))
+    make_avoidance_hfs(pd_hfs, pd_ffs, z_start_hfs=hfs_avoid_start, z_start_ffs=ffs_avoid_start,
+                       hfs_avoid_name=AVOID_HFS_NAME)
     hfs_ptv_list = make_ptv(pdata=pd_hfs, junction_prefix=JUNCTION_PREFIX_HFS,
                             avoid_name=AVOID_HFS_NAME, kidney_sparing=kidney_sparing)
-    cut_rois_to_image(pd_hfs, pd_ffs, hfs_ptv_list)
 
     return ffs_poi_junction, hfs_poi_junction
 
@@ -1047,8 +1098,8 @@ def convert_array_to_transform(t):
 
 def set_all_ptvs_to_ptv_type(pd_ffs, pd_hfs):
     all_ptvs = HFS_TARGET_NAMES + FFS_TARGET_NAMES
-    toggle_ptv_type(pd_ffs,rois=all_ptvs, roi_type='Ptv')
-    toggle_ptv_type(pd_hfs,rois=all_ptvs, roi_type='Ptv')
+    toggle_ptv_type(pd_ffs, rois=all_ptvs, roi_type='Ptv')
+    toggle_ptv_type(pd_hfs, rois=all_ptvs, roi_type='Ptv')
 
 
 def toggle_ptv_type(rs_obj, rois, roi_type):
@@ -1093,7 +1144,6 @@ def make_vmat_planning_structures(pd_hfs, pd_ffs, nfx, rx, make_otvs=True, make_
 
 def load_normal_mbs(pd_hfs, pd_ffs, quiet=False):
     reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
-    # TODO: CHECK FOR PLANNING STRUCTURES AND THEN ADD ANY MISSING
     # Loop through MBS rois, if present, pop.
     rois = [r.OfRoi.Name for r in
             pd_hfs.case.PatientModel.StructureSets[pd_hfs.exam.Name].RoiGeometries
@@ -1148,18 +1198,24 @@ def make_derived_rois(pd_hfs, pd_ffs):
     :param pd_ffs:
     :return:
     """
-    rois = {'Lungs': LUNGS, 'Skin_Avoid': SKIN_AVOIDANCE,
-            'External_Setup': EXTERNAL_SETUP}
     reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
-    #
-    # Build lung contours and avoidance on the HFS scan
     make_lung_contours(pd_hfs, color=[192, 192, 192])
     make_kidney_contours(pd_hfs, color=[192, 192, 192])
-    #
+    make_external_setup(pd_hfs)
+    make_skin_avoidance(pd_hfs)
+
+
+def make_external_setup(pdata):
+    """
+    Make the External PRV10 structure for the plan.
+    :param pdata: RS named tuple
+    :return:
+    """
+
     # Make the External_PRV10 set up structure
     try:
-        pd_hfs.case.PatientModel.CreateRoi(
-            Name=rois['External_Setup'],
+        pdata.case.PatientModel.CreateRoi(
+            Name=EXTERNAL_SETUP,
             Color="255, 128, 0",
             Type="IrradiatedVolume",
             TissueName=None,
@@ -1170,7 +1226,7 @@ def make_derived_rois(pd_hfs, pd_ffs):
             pass
 
     # Create geometry for the External_PRV10
-    pd_hfs.case.PatientModel.RegionsOfInterest[rois['External_Setup']] \
+    pdata.case.PatientModel.RegionsOfInterest[EXTERNAL_SETUP] \
         .SetMarginExpression(
         SourceRoiName=EXTERNAL_NAME,
         MarginSettings={'Type': "Expand",
@@ -1180,23 +1236,34 @@ def make_derived_rois(pd_hfs, pd_ffs):
                         'Posterior': EXTERNAL_SETUP_EXP,
                         'Right': EXTERNAL_SETUP_EXP,
                         'Left': EXTERNAL_SETUP_EXP})
-    # Make skin subtraction
-    n_tuples = [pd_hfs, pd_ffs]
-    for n in n_tuples:
-        make_wall(
-            wall=rois['Skin_Avoid'],
-            sources=["ExternalClean"],
-            delta=SKIN_AVOIDANCE_CONTRACT,
-            patient=n.patient,
-            case=n.case,
-            examination=n.exam,
-            inner=True,
-            struct_type="Organ")
-        #
-        n.case.PatientModel.RegionsOfInterest[rois['External_Setup']] \
-            .UpdateDerivedGeometry(
-            Examination=n.exam,
-            Algorithm="Auto")
+    update_derived_expressions_on_all_exams(pdata, roi_name=EXTERNAL_SETUP)
+
+
+def make_skin_avoidance(pdata):
+    """
+    Make the skin avoidance structure for the plan.
+    It is a slight outward expansion of the ExternalClean structure.
+    :param pdata: RS named tuple
+    :return:
+    """
+    skin_defs = get_boolean_defs(
+        roi_name=SKIN_AVOIDANCE,
+        a_sources=["ExternalClean"],
+        a_exp=[0.1] * 6,
+        a_margin_type="Expand",
+        b_sources=["ExternalClean"],
+        b_operation="Union",
+        b_exp=[SKIN_AVOIDANCE_CONTRACT] * 6,
+        b_margin_type="Contract",
+        result="Subtraction",
+        visualize=False,
+        color=[255, 128, 0],
+        export=False,
+        roi_type='Organ',
+    )
+    make_boolean_structure(
+        patient=pdata.patient, case=pdata.case, examination=pdata.exam, **skin_defs)
+    update_derived_expressions_on_all_exams(pdata,roi_name=SKIN_AVOIDANCE)
 
 
 def make_structures(pd_hfs, pd_ffs,
@@ -1222,12 +1289,19 @@ def make_structures(pd_hfs, pd_ffs,
         reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
         AutoPlanOperations.load_supports(rso=pd_ffs, supports=["TomoCouch"],
                                          quiet=testing)
-
-    register_images(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, testing)
-    if not testing:
-        connect.await_user_input(
-            'Check the fusion alignment of the boney anatomy in the hips.\n '
-            'Approve the registration.\n Then continue script.')
+    # Check if the image is registered correctly, if not, register
+    if no_registrations(pd_hfs):
+        register_images(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, testing)
+        if not testing:
+            connect.await_user_input(
+                'Check the fusion alignment of the boney anatomy in the hips.\n '
+                'Approve the registration.\n Then continue script.')
+    else:
+        approved = check_registration(pdata_hfs=pd_hfs, pdata_ffs=pd_ffs)
+        if not approved:
+            raise RuntimeError(
+                'Registration is not approved. Please check the registration '
+                'and approve it before continuing, restart Generate Structures ')
 
     reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
     load_normal_mbs(pd_hfs, pd_ffs, quiet=testing)

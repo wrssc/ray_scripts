@@ -50,7 +50,7 @@ import UserInterface
 from OptimizationOperations import optimize_plan, iter_optimization_config_etree
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../structure_definition'))
-from AddSupportStructures import deploy_couch_model
+from structure_definition.AddSupportStructures import deploy_couch_model
 
 InstitutionInputsSupportStructuresExamination = "Supine Patient"
 InstitutionInputsSupportStructureTemplate = "UW Support"
@@ -1036,7 +1036,7 @@ def load_configuration_optimize_beamset(
         filename (str): Name of the protocol file being used.
         path (str): Path to the protocol.
         rso (NamedTuple): Tuple containing script objects for patient, case, etc.
-        name (Optional[str]): Name from the beamset element.
+        name (Optional[str]): name of the optimization_config
         technique (Optional[str]): Technique from the beamset element.
         output_data_dir (Optional[str]): Directory for output data.
         bypass_user_prompts (bool): Flag to bypass user prompts. Default is False.

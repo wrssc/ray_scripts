@@ -1214,6 +1214,8 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         dose_dim3 = optimization_inputs.get('dose_dim3', 0.3)
         dose_dim4 = optimization_inputs.get('dose_dim4', 0.2)
     lock_dose_grid = optimization_inputs.get('lock_dose_grid', False)
+    if lock_dose_grid:
+        dose_dim1 = optimization_inputs.get('dose_dim1', None)
 
     maximum_iteration = optimization_inputs.get('n_iterations', 12)
     fluence_only = optimization_inputs.get('fluence_only', False)
@@ -1276,8 +1278,11 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         raise ValueError('Cannot vary grid and lock grid at the same time')
     if lock_dose_grid:
         # Do nothing since the dose grid is locked
-        # Get the current dose grid size
-        dose_dim_initial = beamset.FractionDose.InDoseGrid.VoxelSize.x
+        if dose_dim1 is None:
+            # Get the current dose grid size
+            dose_dim_initial = beamset.FractionDose.InDoseGrid.VoxelSize.x
+        else:
+            dose_dim_initial = dose_dim1
         logging.debug('Dose grid is locked.')
     elif vary_grid:
         report_inputs['dose_dim1'] = dose_dim1

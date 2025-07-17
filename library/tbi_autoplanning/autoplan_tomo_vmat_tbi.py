@@ -64,6 +64,7 @@ TODO:
         - Improve isocenter placement for shorter patients (i.e., lower junction placement) and support a single orientation.
             - Use reliable estimates of patient height to calculate isocenter positions.
             - Consider manual placement of the junction—but be cautious about potential clearance issues.
+    - HFS PTV_p_Eval is type voxels and not getting chopped to FFS dataset
 
 License:
 --------
@@ -79,18 +80,19 @@ __status__ = 'Development'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
-__raystation__ = '11 SP1'
+__raystation__ = '2024SP3'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
-__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/AutoPlanTomoTBI'
+__help__ = ''
 __credits__ = []
 
 import logging
 import connect
 import os
 import traceback
+
 try:
     import FreeSimpleGUI as Sg
 except ImportError:
@@ -102,23 +104,25 @@ from general.AutoPlan import multi_autoplan
 from .tbi_plan_builders import beamset_complete, get_tomo_plan_defs, get_vmat_plan_defs
 from .dose_transfer import plan_transfer_successful, find_dose_evaluation, \
     get_available_evaluation_doses, get_evaluation_dose_values, rename_hfs_preplan, \
-    export_background_dose, potential_transfer_plan_names, potential_transfer_beamset_names, check_empty_plans,\
+    export_background_dose, potential_transfer_plan_names, potential_transfer_beamset_names, check_empty_plans, \
     calculate_ffs_on_hfs_logic
 from .poi_operations import find_pois, get_point_position
 from .roi_operations import (roi_has_contours, toggle_ptv_type, make_vmat_planning_structures,
                              material_override_overlap, set_all_ptvs_to_ptv_type)
 from .poi_operations import poi_in_list
 
-
 from .tbi_definitions import PATH_PROTOCOLS, PATH_TO_OUTPUT, PROTOCOL_FILE_TOMO, \
-    PROTOCOL_FILE_VMAT, HFS_TOMO_PLAN_NAME, HFS_TOMO_BEAMSET_NAME, FFS_TOMO_BEAMSET_NAME, FFS_TOMO_PLAN_NAME, TOMO_FFS_TRANSFER_NAME, \
+    PROTOCOL_FILE_VMAT, HFS_TOMO_PLAN_NAME, HFS_TOMO_BEAMSET_NAME, FFS_TOMO_BEAMSET_NAME, FFS_TOMO_PLAN_NAME, \
+    TOMO_FFS_TRANSFER_NAME, \
     FFS_PLACEHOLDER_NAME, HFS_VMAT_BEAMSET_NAME, HFS_VMAT_PLAN_NAME, FFS_VMAT_BEAMSET_NAME, FFS_VMAT_PLAN_NAME, \
     VMAT_FFS_TRANSFER_NAME, JUNCTION_POINT, EXTERNAL_SETUP, AVOID_HFS_NAME, \
     AVOID_FFS_NAME, SKIN_AVOIDANCE, LUNG_AVOID_NAME, LUNGS_EVAL_NAME, KIDNEY_AVOID_NAME, \
     TARGET_FFS, JUNCTION_PREFIX_FFS, JUNCTION_PREFIX_HFS, HFS_TARGET_EVAL_NAME, FFS_TARGET_EVAL_NAME, \
-    HFS_TARGET_NAMES, FFS_TARGET_NAMES, TARGET_HFS, DEFAULT_VOXEL_SIZE
+    HFS_TARGET_NAMES, FFS_TARGET_NAMES, TARGET_HFS, DEFAULT_VOXEL_SIZE, \
+    VMAT_HFS_OPTIMIZATION_CONFIG, VMAT_FFS_OPTIMIZATION_CONFIG, TOMO_HFS_OPTIMIZATION_CONFIG, \
+    TOMO_FFS_OPTIMIZATION_CONFIG
 from .tbi_utils import update_plan_and_beamset, set_current_plan_beamset, \
-    reset_primary_secondary, initialize_patient_data, rename_exams
+    reset_primary_secondary, initialize_patient_data, rename_exams, check_registration
 
 from .roi_operations import make_structures
 
@@ -126,7 +130,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 # general_dir = os.path.join(script_dir, '../../../', 'general')
 # sys.path.insert(1, general_dir)
 
-DEBUG = True
+DEBUG = False
 
 
 def hfs_ffs_exam_present(case):
@@ -318,7 +322,9 @@ def check_ffs_plan_prerequisites(pd_ffs, pd_hfs, vmat=False, otv_junctions=False
             pois_ffs = find_pois(pd_ffs)
             pois_hfs = find_pois(pd_hfs)
         except RuntimeError as e:
-            raise RuntimeError("Required POIs not found. " + str(e))
+            raise RuntimeError(f"Required POIs not found. {str(e)}\n"
+                            f'Please run the Generate Structures script first.')
+
         # Check that each poi has a valid position
         for poi in pois_ffs + pois_hfs:
             try:
@@ -342,27 +348,6 @@ def check_contours(patient_data, roi_list):
         if not roi_has_contours(patient_data, r):
             missing_contours.append(r)
     return missing_contours
-
-
-def check_registration(pdata_hfs, pdata_ffs):
-    registrations = [r for r in pdata_hfs.case.Registrations]
-    hfs_exam_name = pdata_hfs.exam.Name
-    ffs_exam_name = pdata_ffs.exam.Name
-    ffs_to_hfs_found = False
-    try:
-        for r in registrations:
-            # Backwards, potential API bug?
-            if r.RegistrationSource.FromExamination.Name == ffs_exam_name \
-                    and r.RegistrationSource.ToExamination.Name == hfs_exam_name:
-                ffs_to_hfs_found = True
-                break
-    except Exception as e:
-        if "Object has no member 'RegistrationSource'" in str(e):
-            raise RuntimeError('Approve the registration between HFS and FFS')
-        logging.error(f'Error checking registration: {e}')
-        raise RuntimeError(f'No registration from HFS to FFS found:  {e}')
-    if not ffs_to_hfs_found:
-        raise RuntimeError('No registration from HFS to FFS found')
 
 
 def check_plan_validity(patient_data, vmat, n_fx, rx):
@@ -402,7 +387,7 @@ def check_plan_validity(patient_data, vmat, n_fx, rx):
                            f' Input: {n_fx} != Plan: {beamset.FractionationPattern.NumberOfFractions}')
     # Check if dose grid resolution is correct
     dg = beamset.GetDoseGrid()
-    if dg.VoxelSize.x != DEFAULT_VOXEL_SIZE['x'] or dg.VoxelSize.y != DEFAULT_VOXEL_SIZE['y']\
+    if dg.VoxelSize.x != DEFAULT_VOXEL_SIZE['x'] or dg.VoxelSize.y != DEFAULT_VOXEL_SIZE['y'] \
             or dg.VoxelSize.z != DEFAULT_VOXEL_SIZE['z']:
         raise RuntimeError(f'Beamset {beamset.DicomPlanLabel} has incorrect dose grid resolution.'
                            f' Input: {DEFAULT_VOXEL_SIZE} != Plan: {dg.VoxelSize}')
@@ -597,18 +582,14 @@ def generate_planning_structures(values):
     check_prerequisites(pd_ffs, pd_hfs, '-FFS STRUCTURES-', make_vmat_plan, otv_junctions=False)
 
     # Build the central junctions and lung contours
+    logging.debug('Building central junctions and lung contours for '
+                  f'VMAT: {make_vmat_plan}, Tomo: {make_tomo_plan}')
     make_structures(pd_hfs, pd_ffs, make_vmat_plan, make_tomo_plan, testing=False,
                     kidney_sparing=kidney_sparing)
     if make_vmat_plan:
         hfs_multiplan, ffs_multiplan = make_vmat_planning_structures(
             pd_hfs, pd_ffs, nfx, rx, make_otvs=False, make_junctions=make_junctions)
     set_all_ptvs_to_ptv_type(pd_ffs, pd_hfs)
-    # toggle_ptv_type(pd_ffs,
-    #                 rois=HFS_TARGET_NAMES,
-    #                 roi_type='Ptv')
-    # toggle_ptv_type(pd_ffs,
-    #                 rois=FFS_TARGET_NAMES,
-    #                 roi_type='Ptv')
 
 
 def make_ffs_plan(values):
@@ -696,18 +677,22 @@ def optimize_plan(values, plan_orientation):
         if plan_orientation == 'FFS':
             plan_name = FFS_VMAT_PLAN_NAME
             beamset_name = FFS_VMAT_BEAMSET_NAME
+            optimization_config = VMAT_FFS_OPTIMIZATION_CONFIG
         else:
             plan_name = HFS_VMAT_PLAN_NAME
             beamset_name = HFS_VMAT_BEAMSET_NAME
+            optimization_config = VMAT_HFS_OPTIMIZATION_CONFIG
     elif make_tomo_plan:
         technique = "TomoHelical"
         protocol_file = PROTOCOL_FILE_TOMO
         if plan_orientation == 'FFS':
             beamset_name = FFS_TOMO_BEAMSET_NAME
             plan_name = FFS_TOMO_PLAN_NAME
+            optimization_config = TOMO_FFS_OPTIMIZATION_CONFIG
         else:
             beamset_name = HFS_TOMO_BEAMSET_NAME
             plan_name = HFS_TOMO_PLAN_NAME
+            optimization_config = TOMO_HFS_OPTIMIZATION_CONFIG
     else:
         raise RuntimeError('Unsupported Plan Type during optimization aborted')
     optimization_rso = update_plan_and_beamset(optimization_rso,
@@ -719,6 +704,7 @@ def optimize_plan(values, plan_orientation):
         rso=optimization_rso,
         technique=technique,
         output_data_dir=PATH_TO_OUTPUT,
+        name=optimization_config,
         bypass_user_prompts=True,
         optimize=True)
     toggle_ptv_type(optimization_rso,

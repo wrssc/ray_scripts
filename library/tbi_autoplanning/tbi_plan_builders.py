@@ -123,7 +123,7 @@ def get_tomo_plan_defs(rso, target, nfx, rx, optimize=False, kidney_sparing=Fals
         protocol['beamset_template'] = BEAMSET_TEMPLATE_FFS_TOMO
         protocol['optimization_instructions'] = {'optimize_with': None,
                                                  'optimize_with_background': None,
-                                                 'lock_dose_grid': False}
+                                                 'lock_dose_grid': True}
     return protocol
 
 

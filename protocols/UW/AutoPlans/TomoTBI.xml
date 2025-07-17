@@ -2707,12 +2707,30 @@
         </beam>
     </beamset>
     <optimization_config>
-        <name>8 warmstarts Tomo</name>
-        <description>8 warmstart optimization</description>
+        <name>TOMO HFS 8 Starts</name>
+        <description>7 warmstart optimization</description>
         <technique>TomoHelical</technique>
         <initial max_it="80" int_it="10">Iteration 0</initial>
         <warmstart max_it="20" int_it="3" n="8">Iteration_1to8</warmstart>
         <lock_dose_grid>True</lock_dose_grid>
+        <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_mod mod_target="4.0">False</reduce_mod>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+        <block_prompt>False</block_prompt>
+        <robust sup="0.7" inf="0.7" ant="0" post="0" right="0" left="0" position_uncertainty="IndependentIsocenters">
+            False
+        </robust>
+    </optimization_config>
+    <optimization_config>
+        <name>TOMO FFS 8 Starts</name>
+        <description>7 warmstart optimization</description>
+        <technique>TomoHelical</technique>
+        <initial max_it="80" int_it="10">Iteration 0</initial>
+        <warmstart max_it="20" int_it="3" n="8">Iteration_1to8</warmstart>
+        <lock_dose_grid>False</lock_dose_grid>
         <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>

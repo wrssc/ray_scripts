@@ -304,7 +304,6 @@ def multi_autoplan(multi_plan_parameters):
             'beamset_exists_skip': m.get('beamset_exists_skip', False),
             'multi_isocenter': m.get('multi_isocenter', False),
             'optimize': m.get('optimize', True),
-            'lock_dose_grid': m.get('lock_dose_grid', False),
             'optimization_instructions': m.get('optimization_instructions', None),
             'ignore_status': True,
         }
@@ -376,12 +375,12 @@ def autoplan(autoplan_parameters, **kwargs):
         machine = autoplan_parameters['machine']
         user_prompts = autoplan_parameters.get('user_prompts', None)
         optimize = autoplan_parameters.get('optimize', True)
-        lock_dose_grid = autoplan_parameters.get('lock_dose_grid', False)
         ignore_status = autoplan_parameters.get('ignore_status', False)
         multi_plan_parameters = kwargs.get('beamset_list', [])
         optimization_instructions = autoplan_parameters.get('optimization_instructions', {})
         if optimization_instructions:
             background = optimization_instructions.get('optimize_with_background', "")
+            lock_dose_grid = optimization_instructions.get('lock_dose_grid', False)
     else:
         input_protocol_name = None
         input_order_name = None
@@ -832,17 +831,18 @@ def autoplan(autoplan_parameters, **kwargs):
                                               beamset_name=beamset_template,
                                               path=path_protocols)
         # Place isocenter
-        logging.debug(f'Searching exam {rso.exam.Name} for Iso: Isocenter parameters: iso_target={iso_target}, iso_poi={iso_poi}, existing_iso={existing_iso}, '
-                      f'lateral_zero={lateral_zero}, iso_name={iso_name}')
+        logging.debug(
+            f'Searching exam {rso.exam.Name} for Iso: Isocenter parameters: iso_target={iso_target}, iso_poi={iso_poi}, existing_iso={existing_iso}, '
+            f'lateral_zero={lateral_zero}, iso_name={iso_name}')
         iso_parameters = BeamOperations.find_isocenter_parameters(
-                case=rso.case,
-                exam=rso.exam,
-                beamset=rs_beam_set,
-                iso_target=iso_target,
-                iso_poi=iso_poi,
-                existing_iso=existing_iso,
-                lateral_zero=lateral_zero,
-                iso_name=iso_name)
+            case=rso.case,
+            exam=rso.exam,
+            beamset=rs_beam_set,
+            iso_target=iso_target,
+            iso_poi=iso_poi,
+            existing_iso=existing_iso,
+            lateral_zero=lateral_zero,
+            iso_name=iso_name)
         beamset_defs.iso = iso_parameters
         # Parse Tomo versus VMAT
         if beamset_defs.technique == 'TomoHelical':
@@ -936,11 +936,11 @@ def autoplan(autoplan_parameters, **kwargs):
         AutoPlanOperations.load_supports(rso=rso,
                                          supports=beamset_defs.support_roi,
                                          quiet=user_prompts)
-        # TODO: Replace with DJJs call
-        # Trim supports
-        StructureOperations.trim_supports(patient=rso.patient,
-                                          case=rso.case,
-                                          exam=rso.exam)
+        for support in beamset_defs.support_roi:
+            logging.debug(f'Loaded support structure {support} and assigned to beamset'
+                          f' {rso.beamset.DicomPlanLabel}')
+            rso.beamset.IncludeRoiInRadiationSet(RoiName=support)
+
     else:
         logging.info(f'Loading support {beamset_defs.support_roi} '
                      f'skipped for testing')
@@ -987,17 +987,17 @@ def autoplan(autoplan_parameters, **kwargs):
     ap_report['time_goals'][0] = timer()
     translation_map = AutoPlanOperations.convert_translation_map(translation_map, unit=r'Gy')
     _ = Objectives.add_goals_and_objectives_from_protocol(
-            case=rso.case,
-            plan=rso.plan,
-            exam=rso.exam,
-            beamset=rs_beam_set,
-            filename=protocol_file,
-            path_protocols=path_protocols,
-            protocol_name=protocol_name,
-            target_map=translation_map,
-            order_name=order_name,
-            run_status=False,
-        )
+        case=rso.case,
+        plan=rso.plan,
+        exam=rso.exam,
+        beamset=rs_beam_set,
+        filename=protocol_file,
+        path_protocols=path_protocols,
+        protocol_name=protocol_name,
+        target_map=translation_map,
+        order_name=order_name,
+        run_status=False,
+    )
     ap_report['time_goals'][1] = timer()
     #
     # Optimize using the protocol optimization technique for this delivery type
