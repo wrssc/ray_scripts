@@ -1,75 +1,86 @@
-""" Automated Plan - Tomo VMAT TBI
-This module implements functions for Total Body Irradiation (TBI) treatment planning
-using Tomo and VMAT techniques. It supports a complete workflow from user input and
-scan identification to plan optimization and dose summation.
-
-Workflow Overview:
-------------------
-1. User Input:
-   - Launch a GUI to capture treatment parameters (e.g., number of fractions, total dose,
-     treatment machine).
-2. Scan Identification:
-   - Identify HFS (Head First Supine) and FFS (Feet First Supine) CT scans in the patient case.
-3. Data Initialization:
-   - Initialize patient, case, and examination data structures.
-4. Structure Generation (if enabled):
-   - Load couch supports, create junction ROIs, and verify fusion alignment.
-   - Generate normal MBS, lung contours, and TBI planning structures.
-5. FFS Planning (if enabled):
-   - Reset scans, compute FFS isocenter coordinates, define planning protocols, and perform
-     auto-planning.
-6. FFS Isodose Structures (if enabled):
-   - Reset scans, retrieve isodose names, map junction points between FFS and HFS, and update ROIs.
-7. HFS Planning (if enabled):
-   - Reset scans, define HFS protocols, and perform auto-planning with background dose evaluation.
-8. Dose Summation (if enabled):
-   - Prompt for beamset selection (if necessary), update dose grids, recompute doses, and combine
-     HFS and FFS dose distributions.
-9. Finalization:
-   - Complete the TBI planning process.
-
-Key Functions Summary:
------------------------
-- Validation and Setup:
-    check_external, check_structure_exists, get_most_inferior, get_center.
-- ROI and Transformation:
-    find_junction_coords, place_poi, convert_array_to_transform, determine_prefix,
-    find_roi_prefix, update_all_remove_expression.
-- Structure Creation:
-    make_junction_contour, make_kidneys_contours, make_lung_contours, get_roi_geometries,
-    make_avoid, make_ptv, make_dose_structures.
-- Scan and Dose Management:
-    reset_primary_secondary, rescale_dose_grid_to_all_scans, register_images,
-    load_normal_mbs, make_tbi_planning_structs, check_fiducials,
-    calc_ffs_iso, make_ffs_isodoses.
-- Plan Execution and GUI:
-    transform_poi, find_eval_dose, tbi_gui, main.
-
-Validation:
------------
-Test Patient: MR#
-
-Version History:
-----------------
-0.0.0 - Original version.
-0.0.1 - Updated to avoid robust planning.
-
-TODO:
-    - Handle patients that are too short to maintain a pelvis junction.
-    - Provide immediate warnings about VMAT height limits.
-    - Consider adding functionality for the script to create individual feet OTVs.
-    - Larger changes:
-            - Add a "separate beamset" button to facilitate splitting beamsets.
-            - Optionally, copy the plan pre-split as a backup.
-        - Improve isocenter placement for shorter patients (i.e., lower junction placement) and support a single orientation.
-            - Use reliable estimates of patient height to calculate isocenter positions.
-            - Consider manual placement of the junction—but be cautious about potential clearance issues.
-
-License:
---------
-This program is free software under the GNU General Public License (GPLv3 or later).
-See <http://www.gnu.org/licenses/> for details.
 """
+Automated TBI Planning Workflow Orchestrator (Tomo/VMAT)
+
+This module coordinates the end-to-end workflow for Total Body Irradiation (TBI) treatment planning
+using Tomo and VMAT techniques in RayStation. It provides a user-facing GUI, manages scan and data
+initialization, validates prerequisites, and delegates detailed structure creation, planning, and dose
+management to supporting modules.
+
+Module Role:
+------------
+- Acts as the main entry point for TBI planning automation.
+- Orchestrates the sequence of planning steps, user prompts, and error handling.
+- Delegates detailed operations (structure creation, ROI/POI management, plan building, dose transfer)
+  to specialized helper modules within `tbi_autoplanning` and `library`.
+
+Main Workflow Steps:
+--------------------
+1. **User Input**: Launch a GUI to collect planning parameters (fractions, dose, plan type, kidney sparing, etc.).
+2. **Scan Identification & Initialization**: Identify HFS/FFS CT scans and initialize patient/case/exam data structures.
+3. **Validation**: Check for required scans, contours, POIs, registrations, and other prerequisites for each planning phase.
+4. **Structure Generation**: If selected, delegate to helper modules to generate planning structures and supports.
+5. **FFS Planning**: If selected, delegate to helper modules to create and optimize FFS plans (Tomo/VMAT).
+6. **HFS Planning**: If selected, delegate to helper modules to create and optimize HFS plans, including background dose handling.
+7. **Dose Export & Summation**: If selected, export FFS dose to HFS, update dose grids, and combine dose distributions.
+8. **Error Handling & User Prompts**: At each step, validate state and prompt the user for corrections as needed.
+
+Key User-Facing Functions:
+--------------------------
+- `tbi_gui()`: Launches the main GUI for parameter selection and workflow control.
+- `main()`: Orchestrates the overall workflow, calling the appropriate step based on user input.
+- `generate_planning_structures(values)`: Delegates structure generation to helper modules.
+- `make_ffs_plan(values)`, `make_hfs_plan(values)`: Delegate plan creation to helper modules.
+- `optimize_plan(values, plan_orientation)`: Delegates plan optimization.
+- `calculate_ffs_on_hfs_image(values)`, `export_ffs_dose(values)`, `export_ffs_dose_to_hfs_plan(values)`: Handle dose transfer and export operations.
+- Validation helpers: `check_prerequisites`, `check_ffs_structure_prerequisites`, etc.
+
+High-Level Pseudocode:
+----------------------
+
+    def main():
+        # 1. Launch GUI and get user selections
+        selections = tbi_gui()
+        # 2. Identify HFS/FFS scans and initialize patient data
+        hfs_exam, ffs_exam = rename_exams(case)
+        pd_hfs, pd_ffs = initialize_patient_data(hfs_exam, ffs_exam, ...)
+        # 3. For each workflow step selected by the user:
+        if selections['Generate Structures']:
+            check_prerequisites(...)
+            generate_planning_structures(selections)
+        if selections['Make FFS Plan']:
+            check_prerequisites(...)
+            make_ffs_plan(selections)
+        if selections['Optimize FFS Plan']:
+            check_prerequisites(...)
+            optimize_plan(selections, plan_orientation='FFS')
+        if selections['Calculate FFS Plan on HFS Image']:
+            check_prerequisites(...)
+            calculate_ffs_on_hfs_image(selections)
+        if selections['Export Background Dose']:
+            check_prerequisites(...)
+            export_ffs_dose(selections)
+        if selections['Make HFS Plan']:
+            check_prerequisites(...)
+            make_hfs_plan(selections)
+        if selections['Optimize HFS Plan']:
+            check_prerequisites(...)
+            optimize_plan(selections, plan_orientation='HFS')
+        # 4. At each step, validate state and prompt user for corrections as needed
+        # 5. Finalize workflow
+
+Notes:
+------
+- Detailed structure/ROI/POI creation, plan building, and dose management are implemented in supporting modules.
+- This module focuses on workflow control, user interaction, and error handling.
+- For more details on helper functions, see the respective modules in `tbi_autoplanning/` and `library/`.
+"""
+
+from typing import Optional, Tuple, List, Dict, Any
+from .tbi_utils import Pd
+from collections import namedtuple
+
+# Define Pd namedtuple locally for type hints
+# Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
@@ -129,7 +140,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 DEBUG = True
 
 
-def hfs_ffs_exam_present(case):
+def hfs_ffs_exam_present(case) -> Tuple[bool, bool]:
     """
     Check if the case has both HFS and FFS exams
     :param case: patient case
@@ -145,7 +156,7 @@ def hfs_ffs_exam_present(case):
     return hfs_exam, ffs_exam
 
 
-def check_prerequisites(pd_ffs, pd_hfs, phase, vmat, n_fx=None, rx=None, otv_junctions=False):
+def check_prerequisites(pd_ffs: 'Pd', pd_hfs: 'Pd', phase: str, vmat: bool, n_fx: Optional[int] = None, rx: Optional[int] = None, otv_junctions: bool = False) -> None:  # type: ignore
     """
     Check if prerequisite points, contours, registrations are present based on work expected
     :param pd_ffs: patient data for feet-first supine
@@ -228,7 +239,7 @@ def check_prerequisites(pd_ffs, pd_hfs, phase, vmat, n_fx=None, rx=None, otv_jun
             check_exported_plan(pd_ffs, pd_hfs)
 
 
-def check_external(patient_data):
+def check_external(patient_data) -> bool:
     """
     Check if the patient data has valid external contours
     :param patient_data: data for a single patient
@@ -252,7 +263,7 @@ def check_external(patient_data):
     return True
 
 
-def check_ffs_structure_prerequisites(pd_ffs, pd_hfs):
+def check_ffs_structure_prerequisites(pd_ffs: 'Pd', pd_hfs: 'Pd') -> None:  # type: ignore
     PRECONTOURING_HFS_CONTOUR_NAMES = ["Lung_L", "Lung_R", "Kidney_R", "Kidney_L"]
     PRECONTOURING_FFS_CONTOUR_NAMES = ["Kidney_R", "Kidney_L", "Leg_Distal_R", "Leg_Distal_L"]
     patient_data = [pd_ffs, pd_hfs]
@@ -278,7 +289,7 @@ def check_ffs_structure_prerequisites(pd_ffs, pd_hfs):
         raise RuntimeError(f'Missing precontouring contours: HFS {hfs_missing}, FFS {ffs_missing}')
 
 
-def check_ffs_plan_prerequisites(pd_ffs, pd_hfs, vmat=False, otv_junctions=False):
+def check_ffs_plan_prerequisites(pd_ffs: 'Pd', pd_hfs: 'Pd', vmat: bool = False, otv_junctions: bool = False) -> None:  # type: ignore
     PREPLANNING_HFS_CONTOUR_NAMES = [
         "Lung_L", "Lung_R", "Kidney_R", "Kidney_L", LUNG_AVOID_NAME, KIDNEY_AVOID_NAME,
         LUNGS_EVAL_NAME, SKIN_AVOIDANCE, EXTERNAL_SETUP, AVOID_HFS_NAME, TARGET_HFS, HFS_TARGET_EVAL_NAME]
@@ -327,7 +338,7 @@ def check_ffs_plan_prerequisites(pd_ffs, pd_hfs, vmat=False, otv_junctions=False
                 raise RuntimeError("Missing position data for POI. " + str(e))
 
 
-def check_contours(patient_data, roi_list):
+def check_contours(patient_data: 'Pd', roi_list: List[str]) -> List[str]:  # type: ignore
     """
     Check if the patient data has all required contours
     :param patient_data: data for a single patient
@@ -344,7 +355,7 @@ def check_contours(patient_data, roi_list):
     return missing_contours
 
 
-def check_registration(pdata_hfs, pdata_ffs):
+def check_registration(pdata_hfs: 'Pd', pdata_ffs: 'Pd') -> None:  # type: ignore
     registrations = [r for r in pdata_hfs.case.Registrations]
     hfs_exam_name = pdata_hfs.exam.Name
     ffs_exam_name = pdata_ffs.exam.Name
@@ -365,7 +376,7 @@ def check_registration(pdata_hfs, pdata_ffs):
         raise RuntimeError('No registration from HFS to FFS found')
 
 
-def check_plan_validity(patient_data, vmat, n_fx, rx):
+def check_plan_validity(patient_data: 'Pd', vmat: bool, n_fx: Optional[int], rx: Optional[int]) -> None:  # type: ignore
     if vmat:
         try:
             plan = patient_data.case.TreatmentPlans[f'{FFS_VMAT_PLAN_NAME}']
@@ -408,7 +419,7 @@ def check_plan_validity(patient_data, vmat, n_fx, rx):
                            f' Input: {DEFAULT_VOXEL_SIZE} != Plan: {dg.VoxelSize}')
 
 
-def check_evaluation_dose_transfer(pd_ffs, pd_hfs):
+def check_evaluation_dose_transfer(pd_ffs: 'Pd', pd_hfs: 'Pd') -> None:  # type: ignore
     evaluation_doses = get_available_evaluation_doses(pd_ffs.case)
     if not evaluation_doses:
         raise RuntimeError('No evaluation doses found: Run the Calculate FFS Plan on HFS Image script first')
@@ -421,7 +432,7 @@ def check_evaluation_dose_transfer(pd_ffs, pd_hfs):
                            f'on {pd_hfs.exam.Name}')
 
 
-def check_exported_plan(pd_ffs, pd_hfs):
+def check_exported_plan(pd_ffs: 'Pd', pd_hfs: 'Pd') -> None:  # type: ignore
     _, ffs_dose_evaluation = find_dose_evaluation(pd_ffs, pd_hfs)
     uid = None
     if ffs_dose_evaluation:
@@ -457,7 +468,7 @@ def check_exported_plan(pd_ffs, pd_hfs):
                            f'Please re-export the FFS plan')
 
 
-def check_midfield_junctions(patient_data, poi_name_list):
+def check_midfield_junctions(patient_data: 'Pd', poi_name_list: List[str]) -> List[str]:  # type: ignore
     """
     Check if junctions created by make_midfield_junctions are present in patient data.
 
@@ -497,7 +508,7 @@ def check_midfield_junctions(patient_data, poi_name_list):
     return missing_junctions
 
 
-def check_dose_grid(origin_beamset, destination_beamset):
+def check_dose_grid(origin_beamset, destination_beamset) -> bool:
     origin_dose_grid = origin_beamset.FractionDose.InDoseGrid
     destination_dose_grid = destination_beamset.FractionDose.InDoseGrid
     return all([
@@ -507,15 +518,15 @@ def check_dose_grid(origin_beamset, destination_beamset):
     ])
 
 
-def calculate_ffs_on_hfs_image(values):
+def calculate_ffs_on_hfs_image(values) -> 'Pd':  # type: ignore
     """
     Minimal wrapper that orchestrates the logic, but delegates the heavy-lifting
     to 'calculate_ffs_on_hfs_logic' in 'dose_management.py'.
     """
-    nfx = int(values['-NFX-'])
-    rx = int(values['-TOTAL DOSE-'])
-    make_vmat_plan = values['-VMAT-']
-    make_tomo_plan = values['-TOMO-']
+    nfx: int = int(values['-NFX-'])
+    rx: int = int(values['-TOTAL DOSE-'])
+    make_vmat_plan: bool = values['-VMAT-']
+    make_tomo_plan: bool = values['-TOMO-']
 
     # Any "rename_exams" or "initialize_patient_data" can stay here:
     temp_case = GeneralOperations.find_scope(level='Case')
@@ -534,7 +545,7 @@ def calculate_ffs_on_hfs_image(values):
     return pd_ffs
 
 
-def export_ffs_dose(values):
+def export_ffs_dose(values) -> None:
     """
     Export the FFS dose to the HFS exam
         -Initialize patient data
@@ -543,10 +554,10 @@ def export_ffs_dose(values):
     :param values: values from the GUI
     :return: None
     """
-    nfx = int(values['-NFX-'])
-    rx = int(values['-TOTAL DOSE-'])
-    make_vmat_plan = values['-VMAT-']
-    make_tomo_plan = values['-TOMO-']
+    nfx: int = int(values['-NFX-'])
+    rx: int = int(values['-TOTAL DOSE-'])
+    make_vmat_plan: bool = values['-VMAT-']
+    make_tomo_plan: bool = values['-TOMO-']
 
     temp_case = GeneralOperations.find_scope(level='Case')
     hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam = rename_exams(temp_case)
@@ -565,7 +576,7 @@ def export_ffs_dose(values):
         pd_ffs.patient.Save()
 
 
-def generate_planning_structures(values):
+def generate_planning_structures(values) -> None:
     """
     Generate the planning structures for TBI
         -Initialize patient data
@@ -578,12 +589,12 @@ def generate_planning_structures(values):
         None
     """
     # Extract necessary variables from values
-    nfx = int(values['-NFX-'])
-    rx = int(values['-TOTAL DOSE-'])
-    make_vmat_plan = values['-VMAT-']
-    make_tomo_plan = values['-TOMO-']
-    kidney_sparing = values['-KIDNEY-']
-    make_junctions = False
+    nfx: int = int(values['-NFX-'])
+    rx: int = int(values['-TOTAL DOSE-'])
+    make_vmat_plan: bool = values['-VMAT-']
+    make_tomo_plan: bool = values['-TOMO-']
+    kidney_sparing: bool = values['-KIDNEY-']
+    make_junctions: bool = False
 
     # Get patient and case
     temp_case = GeneralOperations.find_scope(level='Case')
@@ -611,12 +622,12 @@ def generate_planning_structures(values):
     #                 roi_type='Ptv')
 
 
-def make_ffs_plan(values):
+def make_ffs_plan(values) -> None:
     # Implement the logic to make FFS plan
-    nfx = int(values['-NFX-'])
-    rx = int(values['-TOTAL DOSE-'])
-    make_vmat_plan = values['-VMAT-']
-    make_tomo_plan = values['-TOMO-']
+    nfx: int = int(values['-NFX-'])
+    rx: int = int(values['-TOTAL DOSE-'])
+    make_vmat_plan: bool = values['-VMAT-']
+    make_tomo_plan: bool = values['-TOMO-']
 
     # Get patient and case
     temp_case = GeneralOperations.find_scope(level='Case')
@@ -657,11 +668,11 @@ def make_ffs_plan(values):
                     roi_type='Ptv')
 
 
-def optimize_plan(values, plan_orientation):
-    nfx = int(values['-NFX-'])
-    rx = int(values['-TOTAL DOSE-'])
-    make_vmat_plan = values['-VMAT-']
-    make_tomo_plan = values['-TOMO-']
+def optimize_plan(values, plan_orientation: str) -> None:
+    nfx: int = int(values['-NFX-'])
+    rx: int = int(values['-TOTAL DOSE-'])
+    make_vmat_plan: bool = values['-VMAT-']
+    make_tomo_plan: bool = values['-TOMO-']
 
     # Get patient and case
     temp_case = GeneralOperations.find_scope(level='Case')
@@ -726,7 +737,7 @@ def optimize_plan(values, plan_orientation):
                     roi_type='Ptv')
 
 
-def make_hfs_plan(values):
+def make_hfs_plan(values) -> None:
     """
     Function to make the HFS plan based on the user's selections
     Args:
@@ -736,11 +747,11 @@ def make_hfs_plan(values):
 
     """
     # Implement the logic to make HFS plan
-    nfx = int(values['-NFX-'])
-    rx = int(values['-TOTAL DOSE-'])
-    make_vmat_plan = values['-VMAT-']
-    make_tomo_plan = values['-TOMO-']
-    kidney_sparing = values['-KIDNEY-']
+    nfx: int = int(values['-NFX-'])
+    rx: int = int(values['-TOTAL DOSE-'])
+    make_vmat_plan: bool = values['-VMAT-']
+    make_tomo_plan: bool = values['-TOMO-']
+    kidney_sparing: bool = values['-KIDNEY-']
 
     # Get patient and case
     temp_case = GeneralOperations.find_scope(level='Case')
@@ -810,11 +821,11 @@ def make_hfs_plan(values):
         raise RuntimeError(error_message)
 
 
-def export_ffs_dose_to_hfs_plan(values):
-    nfx = int(values['-NFX-'])
-    rx = int(values['-TOTAL DOSE-'])
-    make_vmat_plan = values['-VMAT-']
-    make_tomo_plan = values['-TOMO-']
+def export_ffs_dose_to_hfs_plan(values) -> None:
+    nfx: int = int(values['-NFX-'])
+    rx: int = int(values['-TOTAL DOSE-'])
+    make_vmat_plan: bool = values['-VMAT-']
+    make_tomo_plan: bool = values['-TOMO-']
     # Get patient and case
     temp_case = GeneralOperations.find_scope(level='Case')
     hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam = rename_exams(temp_case)
@@ -831,7 +842,7 @@ def export_ffs_dose_to_hfs_plan(values):
         connect.await_user_input('Plan transfer successful, resume the script')
 
 
-def tbi_gui():
+def tbi_gui() -> Dict:
     """
     Displays a GUI for TBI planning parameter selection. The user can choose
     between a Tomo or VMAT plan and specify relevant parameters.
@@ -840,10 +851,10 @@ def tbi_gui():
         dict: A dictionary containing the user's selections.
     """
 
-    def make_toggle_button(text, key, disabled=False):
+    def make_toggle_button(text: str, key: str, disabled: bool = False) -> Sg.Button:
         return Sg.Button(text, key=key, button_color=('black', 'lightgray'), enable_events=True, disabled=disabled)
 
-    def show_completion_popup(popup_task_name):
+    def show_completion_popup(popup_task_name: str) -> None:
         """Display a popup with a specific style that does not affect the rest of the application.
 
         Args:
@@ -875,7 +886,7 @@ def tbi_gui():
                 break
         popup_window.close()
 
-    def fetch_current_dose_and_fractions():
+    def fetch_current_dose_and_fractions() -> Tuple[Optional[int], Optional[int]]:
         """Fetches the current number of fractions and total dose.
 
         Returns:
@@ -1020,7 +1031,7 @@ def tbi_gui():
     return selections
 
 
-def main():
+def main() -> None:
     """
        Runs a series of functions to perform TBI planning and dose summation.
 
