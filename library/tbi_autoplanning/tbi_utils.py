@@ -1,19 +1,50 @@
 # Define a function to extract the number from the string using a regex
+from dataclasses import dataclass, replace
 import logging
-from collections import namedtuple
 import connect
+from typing import TYPE_CHECKING, Tuple, Optional
+
+if TYPE_CHECKING:
+    try:
+        from connect.connect_cpython import PyScriptObject
+    except ImportError:
+        PyScriptObject = object
+else:
+    PyScriptObject = object
 
 import library.GeneralOperations as GeneralOperations
 from library.StructureOperations import make_externalclean, check_roi
 from library.api.api_case import get_rigid_registrations
-# from .autoplan_tomo_vmat_tbi import verify_registration_approval
 
 from .tbi_definitions import EXTERNAL_NAME, HFS_VMAT_PLAN_NAME, HFS_VMAT_BEAMSET_NAME, \
     FFS_VMAT_PLAN_NAME, FFS_VMAT_BEAMSET_NAME, HFS_TOMO_PLAN_NAME, HFS_TOMO_BEAMSET_NAME, FFS_TOMO_PLAN_NAME, \
     FFS_TOMO_BEAMSET_NAME
 
+@dataclass
+class Pd:
+    error: list
+    db: object  # PyScriptObject
+    case: object  # PyScriptObject
+    patient: object  # PyScriptObject
+    exam: object  # PyScriptObject
+    plan: object  # PyScriptObject
+    beamset: object  # PyScriptObject
 
-def register_images(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, testing):
+
+def register_images(pd_hfs: Pd, pd_ffs: Pd, hfs_scan_name: str, ffs_scan_name: str, testing: bool) -> None:
+    """
+    Register HFS and FFS images, performing rigid registration if not already approved.
+
+    Args:
+        pd_hfs (Pd): Patient data for head-first supine.
+        pd_ffs (Pd): Patient data for feet-first supine.
+        hfs_scan_name (str): Name of the HFS scan.
+        ffs_scan_name (str): Name of the FFS scan.
+        testing (bool): If True, skip registration and only clean externals.
+
+    Returns:
+        None
+    """
     if not testing:
         # Make external clean on both
         ext_clean = make_externalclean(
@@ -60,8 +91,18 @@ def register_images(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, testing):
         logging.info(f'Approved registration found between {pd_ffs.exam.Name} and {pd_hfs.exam.Name}.')
 
 
-def update_plan_and_beamset(pd, beamset_name, plan_name=None):
-    # Update the plan and beamset for the given patient data
+def update_plan_and_beamset(pd: Pd, beamset_name: str, plan_name: Optional[str] = None) -> Pd:
+    """
+    Update the plan and beamset for the given patient data.
+
+    Args:
+        pd (Pd): Patient data dataclass.
+        beamset_name (str): Name of the beamset to update.
+        plan_name (Optional[str], optional): Name of the plan to update. Defaults to None.
+
+    Returns:
+        Pd: Updated patient data with new plan and beamset.
+    """
     case = pd.case
     if not plan_name:
         plan = [p for p in case.TreatmentPlans if any(bs.DicomPlanLabel == beamset_name for bs in p.BeamSets)]
@@ -73,27 +114,54 @@ def update_plan_and_beamset(pd, beamset_name, plan_name=None):
         beamset = [bs for bs in plan.BeamSets if bs.DicomPlanLabel == beamset_name][0]
     if not plan or not beamset:
         raise RuntimeError(f'Plan with beamset {beamset_name} not found')
-    pd = pd._replace(plan=plan, beamset=beamset)
+    pd = replace(pd, plan=plan, beamset=beamset)
     return pd
 
 
-def set_current_plan_beamset(pd):
-    """ Set the current plan and beamset for the given patient data """
+def set_current_plan_beamset(pd: Pd) -> None:
+    """
+    Set the current plan and beamset for the given patient data.
+
+    Args:
+        pd (Pd): Patient data dataclass.
+
+    Returns:
+        None
+    """
     if pd.plan and pd.beamset:
         pd.patient.Save()
         pd.plan.SetCurrent()
         pd.beamset.SetCurrent()
 
 
-def reset_primary_secondary(exam1, exam2):
-    # Resets exam 1 as primary and exam2 as secondary
+def reset_primary_secondary(exam1: object, exam2: object) -> None:
+    """
+    Resets exam1 as primary and exam2 as secondary.
+
+    Args:
+        exam1 (object): The exam to set as primary.
+        exam2 (object): The exam to set as secondary.
+
+    Returns:
+        None
+    """
     exam1.SetPrimary()
     exam2.SetSecondary()
 
 
-def initialize_patient_data(hfs_exam, ffs_exam, vmat=False, tomo=False):
-    # Initialize patient data structures
-    Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
+def initialize_patient_data(hfs_exam: object, ffs_exam: object, vmat: bool = False, tomo: bool = False) -> Tuple[Pd, Pd]:
+    """
+    Initialize patient data structures for HFS and FFS exams.
+
+    Args:
+        hfs_exam (object): The HFS exam object.
+        ffs_exam (object): The FFS exam object.
+        vmat (bool, optional): Whether to initialize for VMAT. Defaults to False.
+        tomo (bool, optional): Whether to initialize for Tomo. Defaults to False.
+
+    Returns:
+        Tuple[Pd, Pd]: Tuple of (pd_hfs, pd_ffs) patient data dataclasses.
+    """
     case = GeneralOperations.find_scope(level='Case')
     hfs_plan = None
     hfs_beamset = None
@@ -140,7 +208,16 @@ def initialize_patient_data(hfs_exam, ffs_exam, vmat=False, tomo=False):
     return pd_hfs, pd_ffs
 
 
-def rename_exams(case):
+def rename_exams(case: object) -> Tuple[str, object, str, object]:
+    """
+    Rename exams in the case to 'HFS' and 'FFS' as appropriate, and return their names and objects.
+
+    Args:
+        case (object): The RayStation case object.
+
+    Returns:
+        Tuple[str, object, str, object]: (hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam)
+    """
     hfs_scan_name = ""
     hfs_exam = None
     ffs_scan_name = ""
@@ -175,15 +252,34 @@ def rename_exams(case):
     return hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam
 
 
-def determine_prefix(exam):
-    # Return HFS or FFS depending on exam orientation
+def determine_prefix(exam: object) -> str:
+    """
+    Return 'hfs' or 'ffs' depending on exam orientation.
+
+    Args:
+        exam (object): The RayStation exam object.
+
+    Returns:
+        str: 'hfs' if head-first supine, 'ffs' if feet-first supine.
+    """
     if exam.PatientPosition == 'HFS':
         return 'hfs'
     elif exam.PatientPosition == 'FFS':
         return 'ffs'
 
 
-def check_registration_approval(pd_ffs, ffs_scan_name, hfs_scan_name):
+def check_registration_approval(pd_ffs: Pd, ffs_scan_name: str, hfs_scan_name: str) -> bool:
+    """
+    Check if registration between FFS and HFS scans is approved.
+
+    Args:
+        pd_ffs (Pd): Patient data for feet-first supine.
+        ffs_scan_name (str): Name of the FFS scan.
+        hfs_scan_name (str): Name of the HFS scan.
+
+    Returns:
+        bool: True if registration is approved, False otherwise.
+    """
     approved = False
     # Look through registration objects
     registrations = get_rigid_registrations(pd_ffs.case)
@@ -206,10 +302,18 @@ def check_registration_approval(pd_ffs, ffs_scan_name, hfs_scan_name):
     return approved
 
 
-def verify_registration_approval(pd_ffs, ffs_scan_name, hfs_scan_name):
-    # Check for existing registration, if approved return approved
-    # Otherwise look for existing registrations and if they are not approved
-    # prompt user to approve them or to allow them to be overwritten
+def verify_registration_approval(pd_ffs: Pd, ffs_scan_name: str, hfs_scan_name: str) -> bool:
+    """
+    Check for existing registration, prompt user if not approved.
+
+    Args:
+        pd_ffs (Pd): Patient data for feet-first supine.
+        ffs_scan_name (str): Name of the FFS scan.
+        hfs_scan_name (str): Name of the HFS scan.
+
+    Returns:
+        bool: True if registration is approved, False otherwise.
+    """
     registrations = False
     # Look through registration objects
     approved = check_registration_approval(pd_ffs, ffs_scan_name, hfs_scan_name)
@@ -236,11 +340,17 @@ def verify_registration_approval(pd_ffs, ffs_scan_name, hfs_scan_name):
     return approved
 
 
-def get_center(rs_obj, roi_name):
-    # Given a structure name, depending on the patient orientation
-    # solve for the most inferior extent of the roi and return that coordinate
-    #
-    # Check for an empty contour
+def get_center(rs_obj: Pd, roi_name: str) -> dict:
+    """
+    Get the center coordinates of a given ROI for the provided patient data.
+
+    Args:
+        rs_obj (Pd): Patient data dataclass.
+        roi_name (str): Name of the ROI.
+
+    Returns:
+        dict: Dictionary with 'x', 'y', 'z' coordinates of the ROI center, or None if not found.
+    """
     [roi_check] = check_roi(rs_obj.case, rs_obj.exam, rois=roi_name)
     if not roi_check:
         return None

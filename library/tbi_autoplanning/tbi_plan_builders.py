@@ -15,19 +15,16 @@ from .tbi_definitions import (
 )
 
 
-def tomo_calc_iso(patient_data, target):
+def tomo_calc_iso(patient_data: object, target: str) -> str:
     """
-    This function creates a fiducial point (SimFiducial) if it does not exist,
-    and prompts the user to place it. It then calculates the coordinates of an
-    isocenter and creates an ROI named 'ROI_<ffs/hfs>_iso' at that location.
+    Creates a fiducial point (SimFiducial) if it does not exist, prompts the user to place it, calculates the coordinates of an isocenter, and creates an ROI at that location.
 
     Args:
-        patient_data (Object): Object containing the patient case and
-            examination information.
+        patient_data (object): RayStation object with .case and .exam attributes.
         target (str): Name of the target ROI.
 
     Returns:
-        iso_name (str): Name of the created isocenter ROI.
+        str: Name of the created isocenter ROI.
     """
 
     fiducial_point_name = 'SimFiducials'
@@ -90,7 +87,21 @@ def tomo_calc_iso(patient_data, target):
     return iso_name
 
 
-def get_tomo_plan_defs(rso, target, nfx, rx, optimize=False, kidney_sparing=False):
+def get_tomo_plan_defs(rso: object, target: str, nfx: int, rx: int, optimize: bool = False, kidney_sparing: bool = False) -> dict:
+    """
+    Generates a protocol dictionary for Tomo TBI planning based on patient orientation and options.
+
+    Args:
+        rso (object): RayStation object with .case and .exam attributes.
+        target (str): Name of the target ROI.
+        nfx (int): Number of fractions.
+        rx (int): Radiation dose.
+        optimize (bool, optional): Whether to optimize. Defaults to False.
+        kidney_sparing (bool, optional): Whether to use kidney sparing protocol. Defaults to False.
+
+    Returns:
+        dict: Protocol dictionary for Tomo TBI planning.
+    """
     iso_target = tomo_calc_iso(rso, target=target)
     protocol = {
         'protocol_name': PROTOCOL_NAME_TOMO,
@@ -127,22 +138,21 @@ def get_tomo_plan_defs(rso, target, nfx, rx, optimize=False, kidney_sparing=Fals
     return protocol
 
 
-def get_vmat_plan_defs(rso, hfs_pois, ffs_pois, nfx, rx, optimize=False, kidney_sparing=False):
+def get_vmat_plan_defs(rso: object, hfs_pois: list, ffs_pois: list, nfx: int, rx: int, optimize: bool = False, kidney_sparing: bool = False) -> tuple:
     """
-        This function generates data dictionaries for multiple plan treatments.
+    Generates data dictionaries for multiple VMAT plan treatments.
 
-        Args:
-            rso (object): RayStation object.
-            hfs_pois (list): A list of HFS (Head-First Supine) Points of Interest (POIs).
-            ffs_pois (list): A list of FFS (Feet-First Supine) POIs.
-            nfx (int): Number of fractions.
-            rx (int): Radiation dose.
-            optimize (bool): If True, optimization should be performed.
-            kidney_sparing (bool): If True, kidney sparing takes place.
+    Args:
+        rso (object): RayStation object with .case and .exam attributes.
+        hfs_pois (list): List of HFS (Head-First Supine) Points of Interest (POIs).
+        ffs_pois (list): List of FFS (Feet-First Supine) POIs.
+        nfx (int): Number of fractions.
+        rx (int): Radiation dose.
+        optimize (bool, optional): If True, optimization should be performed. Defaults to False.
+        kidney_sparing (bool, optional): If True, kidney sparing is enabled. Defaults to False.
 
-        Returns:
-            tuple: Returns two lists of dictionaries, hfs_dict and ffs_dict, that include data
-            for HFS and FFS plans respectively.
+    Returns:
+        tuple: Two lists of dictionaries, hfs_dict and ffs_dict, for HFS and FFS plans respectively.
     """
     # Define the structure sets for various numbers of isocenters
     hfs_data = {
@@ -198,7 +208,7 @@ def get_vmat_plan_defs(rso, hfs_pois, ffs_pois, nfx, rx, optimize=False, kidney_
     # Select beamset names depending on the number of POIs
     hfs_beamset_names, ffs_beamset_names = hfs_data[len(hfs_pois)], ffs_data[len(ffs_pois)]
 
-    def create_translation_map(i, total_points, j_range, site, rx, offset):
+    def create_translation_map(i: int, total_points: int, j_range: range, site: str, rx: int, offset: int) -> dict:
         """
             Creates a translation map for the given site and point in the range.
 
@@ -241,7 +251,7 @@ def get_vmat_plan_defs(rso, hfs_pois, ffs_pois, nfx, rx, optimize=False, kidney_
 
         return translation_map
 
-    def create_optimization_instructions(i, pois, site, prior_beamset_name):
+    def create_optimization_instructions(i: int, pois: list, site: str, prior_beamset_name: str) -> dict:
         """
             Creates optimization instructions for a given site.
 
@@ -260,7 +270,7 @@ def get_vmat_plan_defs(rso, hfs_pois, ffs_pois, nfx, rx, optimize=False, kidney_
             optimization_instructions['optimize_with_background'] = VMAT_FFS_TRANSFER_NAME
         return optimization_instructions
 
-    def get_xml_config(patient_position, n_pts):
+    def get_xml_config(patient_position: str, n_pts: int) -> dict:
         if kidney_sparing:
             pelvis_order_name = HFS_PELVIS_KIDNEY_ORDER_NAME
         else:
@@ -310,8 +320,8 @@ def get_vmat_plan_defs(rso, hfs_pois, ffs_pois, nfx, rx, optimize=False, kidney_
         else:
             return FFS_XML_CONFIG[n_pts]
 
-    def create_dict(pois, beamset_names,
-                    site, order_target_name, target, name_offset=0):
+    def create_dict(pois: list, beamset_names: list,
+                    site: str, order_target_name: str, target: str, name_offset: int = 0) -> list:
         """
             Creates a dictionary of plan parameters.
 
@@ -392,24 +402,18 @@ def get_vmat_plan_defs(rso, hfs_pois, ffs_pois, nfx, rx, optimize=False, kidney_
     return hfs_dict, ffs_dict
 
 
-def beamset_complete(rso, beamset_name):
-    """Check if a beamset with a matching name exists and if it has valid segments and dose.
-
-    Searches through all TreatmentPlans in the provided RSO object for a beamset whose
-    DicomPlanLabel matches the given beamset_name. If found, it then validates each beam
-    in the beamset by ensuring that for each beam, BeamMU > 0 and either:
-      - The DeliveryTechnique is 'TomoHelical', or
-      - The beam has valid segments (HasValidSegments is True).
-    Finally, it checks if the beamset has associated dose values.
+def beamset_complete(rso: object, beamset_name: str) -> bool:
+    """
+    Checks if a beamset is complete for the given RayStation object.
 
     Args:
-        rso: A RayStation object with a nested structure (e.g., rso.case.TreatmentPlans).
-        beamset_name: The name of the beamset to search for.
+        rso (object): RayStation object with .case attribute.
+        beamset_name (str): Name of the beamset to check.
 
     Returns:
-        A list of booleans in the order:
-          [beamset_exists, beamset_has_valid_segments, beamset_has_dose]
+        bool: True if the beamset is complete, False otherwise.
     """
+    # Accessing rso.case (RayStation dynamic attribute)
     # Find the beamset with the matching name, if it exists.
     beamset = next(
         (bs for plan in rso.case.TreatmentPlans for bs in plan.BeamSets
@@ -419,7 +423,7 @@ def beamset_complete(rso, beamset_name):
 
     # If no beamset is found, return all False.
     if beamset is None:
-        return [False, False, False]
+        return False
 
     # Mark that the beamset exists.
     beamset_exists = True
@@ -433,10 +437,21 @@ def beamset_complete(rso, beamset_name):
     # Check that the beamset has dose values.
     beamset_has_dose = beamset.FractionDose.DoseValues is not None
 
-    return [beamset_exists, beamset_has_valid_segments, beamset_has_dose]
+    return bool(beamset_exists and beamset_has_valid_segments and beamset_has_dose)
 
 
-def check_fiducials(pd, fiducial_name):
+def check_fiducials(pd: object, fiducial_name: str) -> tuple:
+    """
+    Checks if a fiducial point exists and is defined in all potential exams.
+
+    Args:
+        pd (object): RayStation object with .case attribute.
+        fiducial_name (str): Name of the fiducial point to check.
+
+    Returns:
+        tuple: (point_exists, point_defined) where each is a bool.
+    """
+    # Accessing pd.case (RayStation dynamic attribute)
     # Check all potential exams to ensure the fiducial is defined
     fiducial_check = []
     pois = [p.Name for p in pd.case.PatientModel.PointsOfInterest]

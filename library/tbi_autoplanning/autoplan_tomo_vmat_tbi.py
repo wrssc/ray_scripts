@@ -74,14 +74,6 @@ Notes:
 - This module focuses on workflow control, user interaction, and error handling.
 - For more details on helper functions, see the respective modules in `tbi_autoplanning/` and `library/`.
 """
-
-from typing import Optional, Tuple, List, Dict, Any
-from .tbi_utils import Pd
-from collections import namedtuple
-
-# Define Pd namedtuple locally for type hints
-# Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
-
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '04-Feb-2025'
@@ -102,6 +94,9 @@ import logging
 import connect
 import os
 import traceback
+
+from typing import Optional, Tuple, List, Dict, Any
+from collections import namedtuple
 try:
     import FreeSimpleGUI as Sg
 except ImportError:
@@ -127,9 +122,9 @@ from .tbi_definitions import PATH_PROTOCOLS, PATH_TO_OUTPUT, PROTOCOL_FILE_TOMO,
     VMAT_FFS_TRANSFER_NAME, JUNCTION_POINT, EXTERNAL_SETUP, AVOID_HFS_NAME, \
     AVOID_FFS_NAME, SKIN_AVOIDANCE, LUNG_AVOID_NAME, LUNGS_EVAL_NAME, KIDNEY_AVOID_NAME, \
     TARGET_FFS, JUNCTION_PREFIX_FFS, JUNCTION_PREFIX_HFS, HFS_TARGET_EVAL_NAME, FFS_TARGET_EVAL_NAME, \
-    HFS_TARGET_NAMES, FFS_TARGET_NAMES, TARGET_HFS, DEFAULT_VOXEL_SIZE
+    HFS_TARGET_NAMES, FFS_TARGET_NAMES, TARGET_HFS, DEFAULT_VOXEL_SIZE, NFX_KEY, TOTAL_DOSE_KEY, VMAT_KEY, TOMO_KEY, KIDNEY_KEY, NO_KIDNEY_KEY, PAUSE_KEY
 from .tbi_utils import update_plan_and_beamset, set_current_plan_beamset, \
-    reset_primary_secondary, initialize_patient_data, rename_exams
+    reset_primary_secondary, initialize_patient_data, rename_exams, Pd
 
 from .roi_operations import make_structures
 
@@ -523,10 +518,10 @@ def calculate_ffs_on_hfs_image(values) -> 'Pd':  # type: ignore
     Minimal wrapper that orchestrates the logic, but delegates the heavy-lifting
     to 'calculate_ffs_on_hfs_logic' in 'dose_management.py'.
     """
-    nfx: int = int(values['-NFX-'])
-    rx: int = int(values['-TOTAL DOSE-'])
-    make_vmat_plan: bool = values['-VMAT-']
-    make_tomo_plan: bool = values['-TOMO-']
+    nfx: int = int(values[NFX_KEY])
+    rx: int = int(values[TOTAL_DOSE_KEY])
+    make_vmat_plan: bool = values[VMAT_KEY]
+    make_tomo_plan: bool = values[TOMO_KEY]
 
     # Any "rename_exams" or "initialize_patient_data" can stay here:
     temp_case = GeneralOperations.find_scope(level='Case')
@@ -554,10 +549,10 @@ def export_ffs_dose(values) -> None:
     :param values: values from the GUI
     :return: None
     """
-    nfx: int = int(values['-NFX-'])
-    rx: int = int(values['-TOTAL DOSE-'])
-    make_vmat_plan: bool = values['-VMAT-']
-    make_tomo_plan: bool = values['-TOMO-']
+    nfx: int = int(values[NFX_KEY])
+    rx: int = int(values[TOTAL_DOSE_KEY])
+    make_vmat_plan: bool = values[VMAT_KEY]
+    make_tomo_plan: bool = values[TOMO_KEY]
 
     temp_case = GeneralOperations.find_scope(level='Case')
     hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam = rename_exams(temp_case)
@@ -589,11 +584,11 @@ def generate_planning_structures(values) -> None:
         None
     """
     # Extract necessary variables from values
-    nfx: int = int(values['-NFX-'])
-    rx: int = int(values['-TOTAL DOSE-'])
-    make_vmat_plan: bool = values['-VMAT-']
-    make_tomo_plan: bool = values['-TOMO-']
-    kidney_sparing: bool = values['-KIDNEY-']
+    nfx: int = int(values[NFX_KEY])
+    rx: int = int(values[TOTAL_DOSE_KEY])
+    make_vmat_plan: bool = values[VMAT_KEY]
+    make_tomo_plan: bool = values[TOMO_KEY]
+    kidney_sparing: bool = values[KIDNEY_KEY]
     make_junctions: bool = False
 
     # Get patient and case
@@ -624,10 +619,10 @@ def generate_planning_structures(values) -> None:
 
 def make_ffs_plan(values) -> None:
     # Implement the logic to make FFS plan
-    nfx: int = int(values['-NFX-'])
-    rx: int = int(values['-TOTAL DOSE-'])
-    make_vmat_plan: bool = values['-VMAT-']
-    make_tomo_plan: bool = values['-TOMO-']
+    nfx: int = int(values[NFX_KEY])
+    rx: int = int(values[TOTAL_DOSE_KEY])
+    make_vmat_plan: bool = values[VMAT_KEY]
+    make_tomo_plan: bool = values[TOMO_KEY]
 
     # Get patient and case
     temp_case = GeneralOperations.find_scope(level='Case')
@@ -669,10 +664,10 @@ def make_ffs_plan(values) -> None:
 
 
 def optimize_plan(values, plan_orientation: str) -> None:
-    nfx: int = int(values['-NFX-'])
-    rx: int = int(values['-TOTAL DOSE-'])
-    make_vmat_plan: bool = values['-VMAT-']
-    make_tomo_plan: bool = values['-TOMO-']
+    nfx: int = int(values[NFX_KEY])
+    rx: int = int(values[TOTAL_DOSE_KEY])
+    make_vmat_plan: bool = values[VMAT_KEY]
+    make_tomo_plan: bool = values[TOMO_KEY]
 
     # Get patient and case
     temp_case = GeneralOperations.find_scope(level='Case')
@@ -747,11 +742,11 @@ def make_hfs_plan(values) -> None:
 
     """
     # Implement the logic to make HFS plan
-    nfx: int = int(values['-NFX-'])
-    rx: int = int(values['-TOTAL DOSE-'])
-    make_vmat_plan: bool = values['-VMAT-']
-    make_tomo_plan: bool = values['-TOMO-']
-    kidney_sparing: bool = values['-KIDNEY-']
+    nfx: int = int(values[NFX_KEY])
+    rx: int = int(values[TOTAL_DOSE_KEY])
+    make_vmat_plan: bool = values[VMAT_KEY]
+    make_tomo_plan: bool = values[TOMO_KEY]
+    kidney_sparing: bool = values[KIDNEY_KEY]
 
     # Get patient and case
     temp_case = GeneralOperations.find_scope(level='Case')
@@ -822,10 +817,10 @@ def make_hfs_plan(values) -> None:
 
 
 def export_ffs_dose_to_hfs_plan(values) -> None:
-    nfx: int = int(values['-NFX-'])
-    rx: int = int(values['-TOTAL DOSE-'])
-    make_vmat_plan: bool = values['-VMAT-']
-    make_tomo_plan: bool = values['-TOMO-']
+    nfx: int = int(values[NFX_KEY])
+    rx: int = int(values[TOTAL_DOSE_KEY])
+    make_vmat_plan: bool = values[VMAT_KEY]
+    make_tomo_plan: bool = values[TOMO_KEY]
     # Get patient and case
     temp_case = GeneralOperations.find_scope(level='Case')
     hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam = rename_exams(temp_case)
@@ -907,21 +902,21 @@ def tbi_gui() -> Dict:
 
     # Define the GUI layout
     gui_layout = [
-        [Sg.Text('Enter Number of Fractions'), Sg.Input(default_text=fractions or '', key='-NFX-')],
-        [Sg.Text('Enter TOTAL Dose in cGy'), Sg.Input(default_text=dose or '', key='-TOTAL DOSE-')],
+        [Sg.Text('Enter Number of Fractions'), Sg.Input(default_text=fractions or '', key=NFX_KEY)],
+        [Sg.Text('Enter TOTAL Dose in cGy'), Sg.Input(default_text=dose or '', key=TOTAL_DOSE_KEY)],
         [Sg.Radio(
-            'Generate Tomo Plan', "RADIO1", default=False, key='-TOMO-',
+            'Generate Tomo Plan', "RADIO1", default=False, key=TOMO_KEY,
             tooltip='Choose only one, but choose wisely', enable_events=True),
             Sg.Radio(
-                'Generate VMAT Plan', "RADIO1", default=False, key='-VMAT-',
+                'Generate VMAT Plan', "RADIO1", default=False, key=VMAT_KEY,
                 tooltip='There can be only one.', enable_events=True)],
         [Sg.Radio(
-            'Do Kidney sparing', "RADIO2", default=False, key='-KIDNEY-',
+            'Do Kidney sparing', "RADIO2", default=False, key=KIDNEY_KEY,
             tooltip='Kidneys to be spared and excluded from coverage', enable_events=True),
             Sg.Radio(
-                'No kidney sparing', "RADIO2", default=False, key='-NO KIDNEY-',
+                'No kidney sparing', "RADIO2", default=False, key=NO_KIDNEY_KEY,
                 tooltip='No need for Kidney sparing', enable_events=True)],
-        [make_toggle_button('Pause Script', '-PAUSE-')],
+        [make_toggle_button('Pause Script', PAUSE_KEY)],
         [Sg.Column([
             [Sg.Frame("FFS Planning", [
                 [make_toggle_button('Generate Structures', '-FFS STRUCTURES-')],
@@ -960,15 +955,15 @@ def tbi_gui() -> Dict:
         elif event == "OK":
             selections.update(values)
             break
-        elif event == '-PAUSE-':
+        elif event == PAUSE_KEY:
             connect.await_user_input('Script paused. Resume script to continue.')
             window[event].update(button_color=('black', 'lightgray'))
         elif event in ['-FFS STRUCTURES-', '-FFS PLAN-', '-OPT FFS-', '-HFS PLAN-', '-CALC FFS ON HFS-',
                        '-EXPORT FFS-', '-OPT HFS-']:
             # Check if total fractions, total dose, and plan type are selected
-            if not values['-NFX-'] or not values['-TOTAL DOSE-'] or not (
-                    values.get('-TOMO-') or values.get('-VMAT-')) or not (
-                    values.get('-KIDNEY-') or values.get('-NO KIDNEY-')):
+            if not values[NFX_KEY] or not values[TOTAL_DOSE_KEY] or not (
+                    values.get(TOMO_KEY) or values.get(VMAT_KEY)) or not (
+                    values.get(KIDNEY_KEY) or values.get(NO_KIDNEY_KEY)):
                 Sg.popup_error(
                     'Please enter Number of Fractions, Total Dose, '
                     'select Plan Type (Tomo or VMAT) and kidney sparing before proceeding.')
@@ -1021,10 +1016,10 @@ def tbi_gui() -> Dict:
 
     if not selections:
         raise RuntimeError('TBI Script was cancelled')
-    if selections.get('-TOMO-', False):
+    if selections.get(TOMO_KEY, False):
         selections['-MACHINE-'] = "HDA0488"
         selections['-THI-'] = True
-    elif selections.get('-VMAT-', False):
+    elif selections.get(VMAT_KEY, False):
         selections['-MACHINE-'] = "TrueBeam_NoTrack"
         selections['-THI-'] = False
 

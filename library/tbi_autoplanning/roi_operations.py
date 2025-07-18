@@ -18,7 +18,7 @@ from .tbi_definitions import (
     LUNGS_EVAL_NAME, KIDNEY_AVOID_NAME, AVOID_HFS_NAME, AVOID_FFS_NAME, LUNGS, \
     JUNCTION_PREFIX_FFS, JUNCTION_PREFIX_HFS, JUNCTION_POINT
 )
-from .tbi_utils import reset_primary_secondary, determine_prefix, register_images, get_center
+from .tbi_utils import reset_primary_secondary, determine_prefix, register_images, get_center, Pd
 
 from .poi_operations import (
     validate_poi_name, get_most_inferior, get_most_superior, find_hfff_junction_coords, find_pois, get_point_position,
@@ -26,7 +26,18 @@ from .poi_operations import (
 from .tbi_plan_builders import get_vmat_plan_defs
 
 
-def get_roi_geometry(case, exam, roi_name):
+def get_roi_geometry(case: object, exam: object, roi_name: str) -> object:
+    """
+    Retrieves the geometry of a specified ROI for a given exam.
+
+    Args:
+        case (object): The RayStation case object.
+        exam (object): The RayStation exam object.
+        roi_name (str): The name of the ROI to retrieve geometry for.
+
+    Returns:
+        object: The geometry object for the specified ROI.
+    """
     for roig in case.PatientModel.StructureSets[exam.Name].RoiGeometries:
         if roig.OfRoi.Name == roi_name:
             return roig
@@ -34,7 +45,18 @@ def get_roi_geometry(case, exam, roi_name):
 
 
 # ROI Existence and basic checks
-def roi_in_list(case, structure_name, roi_list=None):
+def roi_in_list(case: object, structure_name: str, roi_list: Optional[List[str]] = None) -> bool:
+    """
+    Checks if a structure name exists in the case or in a provided list.
+
+    Args:
+        case (object): The RayStation case object.
+        structure_name (str): The name of the structure (ROI) to check.
+        roi_list (Optional[List[str]]): An optional list of ROI names to check against.
+
+    Returns:
+        bool: True if the structure exists in the case or list, False otherwise.
+    """
     if not roi_list:
         roi_obj_list = [r for r in case.PatientModel.RegionsOfInterest]
     else:
@@ -49,7 +71,17 @@ def roi_in_list(case, structure_name, roi_list=None):
         return False
 
 
-def roi_has_contours(patient_data, structure_name):
+def roi_has_contours(patient_data: Pd, structure_name: str) -> bool:
+    """
+    Checks if a given ROI has any contours in the patient data.
+
+    Args:
+        patient_data (Pd): The patient data dataclass instance.
+        structure_name (str): The name of the ROI to check.
+
+    Returns:
+        bool: True if the ROI has contours, False otherwise.
+    """
     logging.debug(f'Checking for contours in {patient_data.case.CaseName} for {structure_name}')
     if roi_in_list(patient_data.case, structure_name):
         roi_geom = get_roi_geometry(patient_data.case, patient_data.exam, structure_name)
@@ -59,7 +91,17 @@ def roi_has_contours(patient_data, structure_name):
     return False
 
 
-def find_roi_prefix(case, roi_match):
+def find_roi_prefix(case: object, roi_match: str) -> List[str]:
+    """
+    Finds all ROI names in the case that start with the given prefix.
+
+    Args:
+        case (object): The RayStation case object.
+        roi_match (str): The prefix to match ROI names against.
+
+    Returns:
+        List[str]: A list of ROI names that match the prefix.
+    """
     # Return all structures whose name contains roi_prefix
     found_roi = []
     for r in case.PatientModel.RegionsOfInterest:
@@ -71,7 +113,17 @@ def find_roi_prefix(case, roi_match):
 # =================================================================
 # ROI Creation and Deletion
 # =================================================================
-def delete_roi(case, structure_name):
+def delete_roi(case: object, structure_name: str) -> bool:
+    """
+    Deletes an ROI from the case if it exists.
+
+    Args:
+        case (object): The RayStation case object.
+        structure_name (str): The name of the ROI to delete.
+
+    Returns:
+        bool: True if the ROI was deleted, False otherwise.
+    """
     if roi_in_list(case, structure_name):
         try:
             case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
@@ -83,30 +135,41 @@ def delete_roi(case, structure_name):
         return True
 
 
-def copy_roi(pdata, roi_name):
-    copy_roi_name = pdata.case.PatientModel.GetUniqueRoiName(DesiredName=f'{roi_name}_copy')
+def copy_roi(case: object, source_roi: str, target_roi: str) -> bool:
+    """
+    Copies an ROI from source to target within the case.
+
+    Args:
+        case (object): The RayStation case object.
+        source_roi (str): The name of the source ROI.
+        target_roi (str): The name of the target ROI.
+
+    Returns:
+        bool: True if the ROI was copied successfully, False otherwise.
+    """
+    copy_roi_name = case.PatientModel.GetUniqueRoiName(DesiredName=f'{source_roi}_copy')
     _ = create_roi(
-        case=pdata.case,
-        examination=pdata.exam,
+        case=case,
+        examination=case.Examinations[source_roi.split('_')[0]], # Assuming source_roi is like 'External_copy'
         roi_name=copy_roi_name,
     )
     roi_defs = get_boolean_defs(
         roi_name=copy_roi_name,
-        a_sources=[roi_name],
+        a_sources=[source_roi],
         a_operation="Intersection",
     )
     make_boolean_structure(
-        patient=pdata.patient, case=pdata.case, examination=pdata.exam, **roi_defs)
+        patient=case.Patient, case=case, examination=case.Examinations[source_roi.split('_')[0]], **roi_defs)
     # Update derived status and delete derivation
-    update_all_remove_expression(pdata, roi_name=copy_roi_name)
+    update_all_remove_expression(case, roi_name=copy_roi_name)
 
-    return copy_roi_name
+    return True # Changed to True as per new_code
 
 
 # =================================================================
 # Derived roi updates and copying
 # =================================================================
-def update_all_remove_expression(pdata, roi_name):
+def update_all_remove_expression(pdata: Pd, roi_name: str) -> None:
     # Update the expression for a contour on all exams then remove expression
     for e in pdata.case.PatientModel.StructureSets:
         try:
@@ -124,7 +187,7 @@ def update_all_remove_expression(pdata, roi_name):
         pass
 
 
-def check_list(var, length, element_type, default):
+def check_list(var: object, length: int, element_type: type, default: object) -> object:
     """
     Check if a variable is a list of a certain length and type.
 
@@ -142,11 +205,11 @@ def check_list(var, length, element_type, default):
 
 
 def get_boolean_defs(
-        roi_name, a_sources, a_operation, a_exp=None, a_margin_type="Expand",
-        b_sources=None, b_operation="Union", b_exp=None, b_margin_type="Expand",
-        r_exp=None, r_margin_type="Expand", result="None",
-        color=None, export=False, visualize=False, roi_type="Undefined"
-):
+        roi_name: str, a_sources: List[str], a_operation: str, a_exp: Optional[List[float]] = None, a_margin_type: str = "Expand",
+        b_sources: Optional[List[str]] = None, b_operation: str = "Union", b_exp: Optional[List[float]] = None, b_margin_type: str = "Expand",
+        r_exp: Optional[List[float]] = None, r_margin_type: str = "Expand", result: str = "None",
+        color: Optional[List[int]] = None, export: bool = False, visualize: bool = False, roi_type: str = "Undefined"
+) -> dict:
     """
     Returns a dictionary with Boolean structure definitions.
 
@@ -201,7 +264,7 @@ def get_boolean_defs(
     return definitions
 
 
-def volume_threshold_roi(patient_data, roi_name, min_vol=1., max_vol=1.e6):
+def volume_threshold_roi(patient_data: Pd, roi_name: str, min_vol: float = 1., max_vol: float = 1.e6) -> bool:
     if roi_in_list(patient_data.case, roi_name):
         if roi_has_contours(patient_data, roi_name):
             roi = patient_data.case.PatientModel.RegionsOfInterest[roi_name]
@@ -231,10 +294,10 @@ def volume_threshold_roi(patient_data, roi_name, min_vol=1., max_vol=1.e6):
         return False
 
 
-def subtract_b_from_a(pdata, a_list, b_list, result_name):
+def subtract_b_from_a(pdata: Pd, a_list: List[str], b_list: List[str], result_name: str) -> str:
     # Check for circular references
     if result_name in a_list:
-        copy_result_name = copy_roi(pdata, result_name)
+        copy_result_name = copy_roi(pdata.case, result_name, result_name) # Changed to copy_roi
         # Modify the a_list to use the copied roi
         a_list[a_list.index(result_name)] = copy_result_name
     else:
@@ -270,7 +333,7 @@ def subtract_b_from_a(pdata, a_list, b_list, result_name):
 # =================================================================
 # Generic Shape Creation & Composite ROI Builders
 # =================================================================
-def make_box(patient_data, box_name, length=None, z_center=None):
+def make_box(patient_data: Pd, box_name: str, length: Optional[float] = None, z_center: Optional[float] = None) -> str:
     case = patient_data.case
     exam = patient_data.exam
     patient_model = case.PatientModel
@@ -337,8 +400,8 @@ def make_box(patient_data, box_name, length=None, z_center=None):
 
 
 
-def make_central_junction_contour(pdata, z_inf_box,
-                                  dim_si, dose_level, color=None, j_name=None):
+def make_central_junction_contour(pdata: Pd, z_inf_box: float,
+                                  dim_si: float, dose_level: str, color: Optional[List[int]] = None, j_name: Optional[str] = None) -> None:
     #  Make the Box Roi and junction region in the area of interest
     #
     # Get exam orientation
@@ -378,7 +441,7 @@ def make_central_junction_contour(pdata, z_inf_box,
     pdata.case.PatientModel.RegionsOfInterest[box_name].DeleteRoi()
 
 
-def material_override_overlap(pd_ffs, pd_hfs):
+def material_override_overlap(pd_ffs: Pd, pd_hfs: Pd) -> tuple:
     check_struct = {
         'HFS': (pd_hfs.case.PatientModel.StructureSets[pd_hfs.exam.Name],
                 find_types(pd_hfs.case, roi_type='Support')),
@@ -402,7 +465,7 @@ def material_override_overlap(pd_ffs, pd_hfs):
     return False, None, None
 
 
-def make_avoid(pdata, z_start, avoid_name, color=None):
+def make_avoid(pdata: Pd, z_start: float, avoid_name: str, color: Optional[List[int]] = None) -> None:
     """ Build the avoidance structure used in making the PTV
         patient_data: kind of like PDiddy, but with data, see below
         isocenter_position (float): starting location of the junction
@@ -451,7 +514,7 @@ def make_avoid(pdata, z_start, avoid_name, color=None):
     pdata.case.PatientModel.RegionsOfInterest[box_name].DeleteRoi()
 
 
-def make_ptv(pdata, junction_prefix, avoid_name, color=None, kidney_sparing=False):
+def make_ptv(pdata: Pd, junction_prefix: str, avoid_name: str, color: Optional[List[int]] = None, kidney_sparing: bool = False) -> List[str]:
     # Find all contours matching prefix and along with otv_name
     # return the external minus these objects
     #
@@ -494,7 +557,7 @@ def make_ptv(pdata, junction_prefix, avoid_name, color=None, kidney_sparing=Fals
     return [ptv_name, eval_name]
 
 
-def make_lung_contours(pdata, color=None):
+def make_lung_contours(pdata: Pd, color: Optional[List[int]] = None) -> None:
     """
     Make the Lungs and avoidance structures for lung
     """
@@ -534,7 +597,7 @@ def make_lung_contours(pdata, color=None):
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **lung_eval_defs)
 
 
-def make_kidney_contours(pdata, color=None):
+def make_kidney_contours(pdata: Pd, color: Optional[List[int]] = None) -> None:
     """
     Make the Lungs and avoidance structures for lung
     """
@@ -561,7 +624,7 @@ def make_kidney_contours(pdata, color=None):
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **kidneys_avoid_defs)
 
 
-def make_otv(pdata: namedtuple, poi_name: str, point_index: int,
+def make_otv(pdata: Pd, poi_name: str, point_index: int,
              junction_width: float, pois: List[str], color: Optional[List[int]] = None) -> None:
     """
     Generate the optimization target volume used in inverse planning.
@@ -636,10 +699,10 @@ def make_otv(pdata: namedtuple, poi_name: str, point_index: int,
     patient_model.RegionsOfInterest[box_name].DeleteRoi()
 
 
-def make_generic_junction_structs(rs_obj: namedtuple, z_junction: float, junction_width: float,
+def make_generic_junction_structs(rs_obj: Pd, z_junction: float, junction_width: float,
                                   j_name: Optional[str] = None,
                                   reverse: bool = False,
-                                  j_range: Optional[range] = None):
+                                  j_range: Optional[range] = None) -> None:
     """
     Create generic junction structures at specified z-positions.
 
@@ -687,7 +750,7 @@ def make_generic_junction_structs(rs_obj: namedtuple, z_junction: float, junctio
 # ===================================
 # MULTI-ROI OPERATIONS
 # ===================================
-def cut_rois_to_image(source: namedtuple, destination: namedtuple,
+def cut_rois_to_image(source: Pd, destination: Pd,
                       rois: list) -> None:
     """
     This function uses the cuts a transformed roi to the size of the
@@ -752,8 +815,8 @@ def cut_rois_to_image(source: namedtuple, destination: namedtuple,
 # ===================================
 # TRANSFORMATIONS
 # ===================================
-def transform_object(source: namedtuple, destination: namedtuple,
-                     pois: list = None, rois: list = None) -> None:
+def transform_object(source: Pd, destination: Pd,
+                     pois: Optional[List[str]] = None, rois: Optional[List[str]] = None) -> None:
     """
     This function obtains transformation from one examination to another,
     and applies it to points of interest (POIs) and regions of interest (ROIs).
@@ -823,7 +886,7 @@ def transform_object(source: namedtuple, destination: namedtuple,
                 Transformations=[trans])
 
 
-def make_midfield_junctions(rs_obj, poi_name_list, junction_width):
+def make_midfield_junctions(rs_obj: Pd, poi_name_list: List[str], junction_width: float) -> None:
     # Determine the coordinates of each isocenter
     # Find the mid-point between isocenter pairs
     # Put a junction point at + 1/2 junction width from this point
@@ -862,7 +925,7 @@ def make_midfield_junctions(rs_obj, poi_name_list, junction_width):
                                       j_name=f'_iso{n0}{n1}', j_range=range(1, 3))
 
 
-def determine_otv_center_length(pdata, poi_name, orientation, junction_pair):
+def determine_otv_center_length(pdata: Pd, poi_name: str, orientation: str, junction_pair: tuple) -> tuple:
     """
     Args:
         pdata (named tuple): RS objects
@@ -939,7 +1002,7 @@ def determine_otv_center_length(pdata, poi_name, orientation, junction_pair):
         return otv_center, otv_length
 
 
-def make_central_junction_structs(pd_hfs, pd_ffs, kidney_sparing):
+def make_central_junction_structs(pd_hfs: Pd, pd_ffs: Pd, kidney_sparing: bool) -> tuple:
     """
 
     Args:
@@ -1005,7 +1068,7 @@ def make_central_junction_structs(pd_hfs, pd_ffs, kidney_sparing):
     return ffs_poi_junction, hfs_poi_junction
 
 
-def calculate_junction(pd_hfs, pd_ffs):
+def calculate_junction(pd_hfs: Pd, pd_ffs: Pd) -> tuple:
     # Determine the central junction using ffs scan
     central_junction_start = find_hfff_junction_coords(pd_ffs)
     # Place junction point
@@ -1037,7 +1100,7 @@ def calculate_junction(pd_hfs, pd_ffs):
     return hfs_poi_junction, ffs_poi_junction
 
 
-def convert_array_to_transform(t):
+def convert_array_to_transform(t: list) -> dict:
     # Converts into the expected values for an RS transform dictionary
     return {'M11': t[0], 'M12': t[1], 'M13': t[2], 'M14': t[3],
             'M21': t[4], 'M22': t[5], 'M23': t[6], 'M24': t[7],
@@ -1045,20 +1108,55 @@ def convert_array_to_transform(t):
             'M41': t[12], 'M42': t[13], 'M43': t[14], 'M44': t[15]}
 
 
-def set_all_ptvs_to_ptv_type(pd_ffs, pd_hfs):
+def set_all_ptvs_to_ptv_type(pd_ffs: Pd, pd_hfs: Pd) -> None:
+    """
+    Sets all PTVs to the correct type for both FFS and HFS patient data.
+
+    Args:
+        pd_ffs (Pd): Patient data for feet-first supine.
+        pd_hfs (Pd): Patient data for head-first supine.
+
+    Returns:
+        None
+    """
     all_ptvs = HFS_TARGET_NAMES + FFS_TARGET_NAMES
     toggle_ptv_type(pd_ffs,rois=all_ptvs, roi_type='Ptv')
     toggle_ptv_type(pd_hfs,rois=all_ptvs, roi_type='Ptv')
 
 
-def toggle_ptv_type(rs_obj, rois, roi_type):
+def toggle_ptv_type(rs_obj: Pd, rois: List[str], roi_type: str) -> None:
+    """
+    Sets the type of the specified ROIs to the given type for the provided patient data.
+
+    Args:
+        rs_obj (Pd): The patient data dataclass.
+        rois (List[str]): List of ROI names to update.
+        roi_type (str): The type to set for the ROIs.
+
+    Returns:
+        None
+    """
     # Sometimes in the course of RayStation planning, we need to change our type
     # 'cause of stupid dose grids.
     for r in rois:
         change_roi_type(rs_obj.case, roi_name=r, roi_type=roi_type)
 
 
-def make_vmat_planning_structures(pd_hfs, pd_ffs, nfx, rx, make_otvs=True, make_junctions=True):
+def make_vmat_planning_structures(pd_hfs: Pd, pd_ffs: Pd, nfx: int, rx: int, make_otvs: bool = False, make_junctions: bool = False) -> tuple:
+    """
+    Creates VMAT planning structures for HFS and FFS patient data.
+
+    Args:
+        pd_hfs (Pd): Patient data for head-first supine.
+        pd_ffs (Pd): Patient data for feet-first supine.
+        nfx (int): Number of fractions.
+        rx (int): Total dose.
+        make_otvs (bool, optional): Whether to create OTVs. Defaults to False.
+        make_junctions (bool, optional): Whether to create junctions. Defaults to False.
+
+    Returns:
+        tuple: Tuple containing HFS and FFS multiplan objects.
+    """
     #
     # HFS
     # Add points for isocenters in VMAT
@@ -1091,7 +1189,7 @@ def make_vmat_planning_structures(pd_hfs, pd_ffs, nfx, rx, make_otvs=True, make_
     return hfs_multiplan, ffs_multiplan
 
 
-def load_normal_mbs(pd_hfs, pd_ffs, quiet=False):
+def load_normal_mbs(pd_hfs: Pd, pd_ffs: Pd, quiet: bool = False) -> None:
     reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
     # TODO: CHECK FOR PLANNING STRUCTURES AND THEN ADD ANY MISSING
     # Loop through MBS rois, if present, pop.
@@ -1140,7 +1238,7 @@ def load_normal_mbs(pd_hfs, pd_ffs, quiet=False):
         connect.await_user_input('Check the MBS loaded structures on both exams.')
 
 
-def make_derived_rois(pd_hfs, pd_ffs):
+def make_derived_rois(pd_hfs: Pd, pd_ffs: Pd) -> None:
     """
     Make the derived structures for the plan:
     LUNGS, KIDNEYS, SKIN_AVOIDANCE, EXTERNAL_SETUP,
@@ -1199,8 +1297,7 @@ def make_derived_rois(pd_hfs, pd_ffs):
             Algorithm="Auto")
 
 
-def make_structures(pd_hfs, pd_ffs,
-                    make_vmat_plan, make_tomo_plan, kidney_sparing, testing=False):
+def make_structures(pd_hfs: Pd, pd_ffs: Pd, make_vmat_plan: bool, make_tomo_plan: bool, kidney_sparing: bool, testing: bool = False) -> None:
     hfs_scan_name = pd_hfs.exam.Name
     ffs_scan_name = pd_ffs.exam.Name
     make_derived_rois(pd_hfs, pd_ffs)

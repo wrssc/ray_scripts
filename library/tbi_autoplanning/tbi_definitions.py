@@ -1,6 +1,14 @@
+"""
+tbi_definitions.py
+
+This module contains constants and configuration values used throughout the TBI autoplanning workflow.
+All values are project-specific and are used for protocol, plan, beamset, and ROI naming, as well as for geometric and dosimetric parameters.
+"""
+
 import math
 import os
 
+# Folder and path definitions for protocol and output locations
 PROTOCOL_FOLDER = r'../../protocols'
 INSTITUTION_FOLDER = r'UW'
 AUTOPLAN_FOLDER = r'AutoPlans'
@@ -9,6 +17,8 @@ PATH_PROTOCOLS = os.path.join(os.path.dirname(__file__),
 PATH_TO_OUTPUT = os.path.normpath(
     "Q:\\RadOnc\\RayStation\\RayScripts\\AutoPlanData")
 DICOM_PATH = os.path.normpath('\\\\m-rayscon02587\\DicomImageStorage')
+
+# Protocol and plan/beamset naming conventions
 PROTOCOL_FILE_TOMO = "TomoTBI.xml"
 PROTOCOL_NAME_TOMO = "UW Tomo TBI"
 ORDER_NAME_FFS_TOMO = "TomoTBI_FFS"
@@ -22,6 +32,8 @@ PROTOCOL_NAME_VMAT = "UW VMAT TBI"
 BEAMSET_HFS_VMAT = "VMAT-HFS-TBI"
 BEAMSET_FFS_VMAT = "VMAT-FFS-TBI"
 VMAT_MACHINE = "TrueBeam"
+
+# Order names for VMAT sub-plans
 HFS_PELVIS_ORDER_NAME = 'VMAT_TBI_HFS_PELVIS_UPDATED'
 HFS_PELVIS_KIDNEY_ORDER_NAME = 'VMAT_TBI_HFS_PELVIS_KIDNEY'
 HFS_CHEST_ORDER_NAME = 'VMAT_TBI_HFS_CHEST_NOOBJ'
@@ -31,7 +43,11 @@ FFS_LEGS_ORDER_NAME = 'VMAT_TBI_FFS_LEGS_NOOBJ'
 FFS_FEET_ORDER_NAME = 'VMAT_TBI_FFS_FEET_NOOBJ'
 ORDER_TARGET_NAME_FFS = "PTV_p_FFS"
 ORDER_TARGET_NAME_HFS = "PTV_p_HFS"
+
+# Default voxel size for dose grid (in cm)
 DEFAULT_VOXEL_SIZE = {'x': 0.4, 'y': 0.4, 'z': 0.4}  # [cm]
+
+# Plan and beamset names for Tomo and VMAT
 HFS_TOMO_PLAN_NAME = "HFS__TBI_Tomo_Auto"
 HFS_TOMO_BEAMSET_NAME = "HFS__TBI_Tomo"
 FFS_TOMO_BEAMSET_NAME = "FFS__TBI_Tomo"
@@ -43,25 +59,29 @@ HFS_VMAT_PLAN_NAME = HFS_VMAT_BEAMSET_NAME + "_Auto"
 FFS_VMAT_BEAMSET_NAME = "FFS__VMA"
 FFS_VMAT_PLAN_NAME = FFS_VMAT_BEAMSET_NAME + "_Auto"
 VMAT_FFS_TRANSFER_NAME = "VMAT_FFS_Trnsfr"
-MIN_FFS_OVERLAP = 2  # Minimum Overlap
-HFS_OVERLAP = 5  # Minimum Overlap
+
+# Geometric and dosimetric parameters for TBI planning
+MIN_FFS_OVERLAP = 2  # Minimum Overlap [cm]
+HFS_OVERLAP = 5  # Minimum Overlap [cm]
 FW = 39  # 39 cm of MLC based field
-CENTRAL_JUNCTION_WIDTH = 1.2 * 9
+CENTRAL_JUNCTION_WIDTH = 1.2 * 9  # [cm]
 FFS_MAX_TREATMENT_LENGTH = 99  # TODO - A fudge - based junction placement on packing HFS
 FFS_OVERSHOOT = 3  # cm - Distance of overshoot of beam past toes
-FFS_SHIFT_BUFFER = 2
+FFS_SHIFT_BUFFER = 2  # [cm]
 FFS_TREATMENT_LENGTH = (FFS_MAX_TREATMENT_LENGTH
                         - FFS_OVERSHOOT
                         - FFS_SHIFT_BUFFER
                         - CENTRAL_JUNCTION_WIDTH)
 FFS_ISO_NUMBER = math.ceil(FFS_MAX_TREATMENT_LENGTH / (FW - MIN_FFS_OVERLAP))
-HFS_MAX_TREATMENT_LENGTH = 114.5
-HFS_SHIFT_BUFFER = 2
+HFS_MAX_TREATMENT_LENGTH = 114.5  # [cm]
+HFS_SHIFT_BUFFER = 2  # [cm]
 HFS_OVERSHOOT = 3  # cm - Distance of overshoot of beam past top of head
 HFS_TREATMENT_LENGTH = (HFS_MAX_TREATMENT_LENGTH
                         + HFS_OVERSHOOT
                         + HFS_SHIFT_BUFFER
                         + CENTRAL_JUNCTION_WIDTH)
+
+# POI and ROI naming conventions
 JUNCTION_POINT = "junction"
 HFS_POI = 'HFS_POI'
 FFS_POI = 'FFS_POI'
@@ -89,6 +109,8 @@ HFS_TARGET_EVAL_NAME = TARGET_HFS + EVAL_SUFFIX
 FFS_TARGET_EVAL_NAME = TARGET_FFS + EVAL_SUFFIX
 HFS_TARGET_NAMES = [TARGET_HFS, HFS_TARGET_EVAL_NAME]
 FFS_TARGET_NAMES = [TARGET_FFS, FFS_TARGET_EVAL_NAME]
+
+# Model-based segmentation (MBS) ROI definitions
 MBS_ROIS = {'Kidney_L': {'CaseType': "Abdomen",
                          'ModelName': r"Kidney (Left)",
                          'RoiName': r"Kidney_L",
@@ -105,6 +127,8 @@ MBS_ROIS = {'Kidney_L': {'CaseType': "Abdomen",
                        'ModelName': r"Lung (Right)",
                        'RoiName': r"Lung_R",
                        'RoiColor': "54, 247, 223"}}
+
+# Color palette for ROI display (RGB triplets)
 COLORS = [[127, 0, 255],
           [0, 0, 255],
           [0, 127, 255],
@@ -116,3 +140,15 @@ COLORS = [[127, 0, 255],
           [255, 127, 0],
           [255, 0, 0],
           [255, 0, 255]]
+
+# =====================
+# GUI Key Constants
+# =====================
+NFX_KEY = '-NFX-'
+TOTAL_DOSE_KEY = '-TOTAL DOSE-'
+VMAT_KEY = '-VMAT-'
+TOMO_KEY = '-TOMO-'
+KIDNEY_KEY = '-KIDNEY-'
+NO_KIDNEY_KEY = '-NO KIDNEY-'
+PAUSE_KEY = '-PAUSE-'
+# Add more GUI keys as needed

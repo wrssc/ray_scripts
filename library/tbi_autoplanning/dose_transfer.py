@@ -11,11 +11,23 @@ try:
 except ImportError:
     import PySimpleGUI as Sg
 
+from typing import Optional, List, Tuple
 from .tbi_definitions import TOMO_FFS_TRANSFER_NAME, VMAT_FFS_TRANSFER_NAME, HFS_TOMO_PLAN_NAME, \
     HFS_VMAT_PLAN_NAME, FFS_PLACEHOLDER_NAME, DICOM_PATH, FFS_VMAT_PLAN_NAME
+from .tbi_utils import Pd
 
 
-def plan_transfer_successful(pd_hfs, pd_ffs, nfx):
+
+def plan_transfer_successful(pd_hfs: Pd, pd_ffs: Pd, nfx: int) -> bool:
+    """
+    Check if the FFS plan has been successfully transferred to the HFS representation.
+    Args:
+        pd_hfs: Patient data for HFS (RayStation API object or Pd namedtuple).
+        pd_ffs: Patient data for FFS (RayStation API object or Pd namedtuple).
+        nfx: Number of fractions expected.
+    Returns:
+        bool: True if transfer is successful, False otherwise.
+    """
     # Look through the existing plans in the HFS representation,
     # and check if the FFS plan has been transferred
     # Find the corresponding dose evaluation
@@ -53,10 +65,14 @@ def plan_transfer_successful(pd_hfs, pd_ffs, nfx):
     return False
 
 
-def find_dose_evaluation(pd_ffs, pd_hfs):
+def find_dose_evaluation(pd_ffs: Pd, pd_hfs: Pd) -> Tuple[Optional[object], Optional[object]]:
     """
-    Find the dose evaluation for the FFS plan on the HFS exam and
-    the dose evaluation
+    Find the dose evaluation for the FFS plan on the HFS exam.
+    Args:
+        pd_ffs: Patient data for FFS.
+        pd_hfs: Patient data for HFS.
+    Returns:
+        Tuple of (dose_on_examination, dose_evaluation) or (None, None) if not found.
     """
     fraction_evaluations = [f for f in pd_ffs.case.TreatmentDelivery.FractionEvaluations]
     ffs_dose_on_examination = None
@@ -72,7 +88,14 @@ def find_dose_evaluation(pd_ffs, pd_hfs):
     return ffs_dose_on_examination, ffs_dose_evaluation
 
 
-def get_available_evaluation_doses(case):
+def get_available_evaluation_doses(case: object) -> List[dict]:
+    """
+    Get all available evaluation doses for a case.
+    Args:
+        case: RayStation case object.
+    Returns:
+        List of dictionaries with dose evaluation info.
+    """
     evaluation_doses = []
     fraction_evaluations = [f for f in case.TreatmentDelivery.FractionEvaluations]
     for f in fraction_evaluations:
@@ -90,7 +113,17 @@ def get_available_evaluation_doses(case):
     return evaluation_doses
 
 
-def get_evaluation_dose_values(origin_beamset, destination_exam, destination_patient_position, evaluation_doses):
+def get_evaluation_dose_values(origin_beamset: str, destination_exam: str, destination_patient_position: str, evaluation_doses: List[dict]) -> Optional[object]:
+    """
+    Retrieve dose values for a specific origin beamset and destination.
+    Args:
+        origin_beamset: Name of the origin beamset.
+        destination_exam: Name of the destination exam.
+        destination_patient_position: Patient position string.
+        evaluation_doses: List of evaluation dose dicts.
+    Returns:
+        Dose data or None if not found.
+    """
     for de in evaluation_doses:
         if de['Origin Beamset'] == origin_beamset and \
                 de['Destination Exam'] == destination_exam and \
@@ -99,7 +132,18 @@ def get_evaluation_dose_values(origin_beamset, destination_exam, destination_pat
     return None
 
 
-def rename_hfs_preplan(case, input_plan_name, input_beamset_name, output_plan_name, output_beamset_name):
+def rename_hfs_preplan(case: object, input_plan_name: str, input_beamset_name: str, output_plan_name: str, output_beamset_name: str) -> Optional[object]:
+    """
+    Rename a preplan and its beamset in the HFS case.
+    Args:
+        case: RayStation case object.
+        input_plan_name: Current plan name.
+        input_beamset_name: Current beamset name.
+        output_plan_name: New plan name.
+        output_beamset_name: New beamset name.
+    Returns:
+        The updated plan object, or None if not found.
+    """
     # Check if the plan already exists
     for p in case.TreatmentPlans:
         if p.Name == input_plan_name:
@@ -115,15 +159,13 @@ def rename_hfs_preplan(case, input_plan_name, input_beamset_name, output_plan_na
     return case.TreatmentPlans[output_plan_name]
 
 
-def export_background_dose(pd_ffs, pd_hfs):
+def export_background_dose(pd_ffs: Pd, pd_hfs: Pd) -> str:
     """
-    Exports background dose data by identifying and importing the correct dose series
+    Export background dose data by identifying and importing the correct dose series
     from the DICOM repository while ensuring no duplicate or incorrect doses are imported.
-
     Args:
         pd_ffs: Forward-facing patient data object.
         pd_hfs: Head-first supine patient data object.
-
     Returns:
         str: Error message if an issue occurs; otherwise, returns an empty string.
     """
@@ -262,9 +304,14 @@ def export_background_dose(pd_ffs, pd_hfs):
     return ""
 
 
-def get_dicom_entries(dicom_elements, api_dicom_object):
+def get_dicom_entries(dicom_elements: dict, api_dicom_object: object) -> dict:
     """
-    Fetches DICOM tag values for the given elements.
+    Fetch DICOM tag values for the given elements.
+    Args:
+        dicom_elements: Dict of DICOM tag tuples.
+        api_dicom_object: RayStation DICOM object.
+    Returns:
+        Dict of DICOM tag values.
     """
     series_or_instances = {}
     for key, (group, element) in dicom_elements.items():
@@ -278,19 +325,43 @@ def get_dicom_entries(dicom_elements, api_dicom_object):
     return series_or_instances
 
 
-def potential_transfer_plan_names(pd_ffs):
+def potential_transfer_plan_names(pd_ffs: Pd) -> List[str]:
+    """
+    Get possible plan names for transfer based on modality.
+    Args:
+        pd_ffs: Patient data for FFS.
+    Returns:
+        List of plan names.
+    """
     modality = pd_ffs.beamset.DeliveryTechnique
     return [FFS_PLACEHOLDER_NAME, HFS_TOMO_PLAN_NAME] if modality == 'TomoHelical' \
         else [FFS_PLACEHOLDER_NAME, HFS_VMAT_PLAN_NAME]
 
 
-def potential_transfer_beamset_names(pd_ffs):
+def potential_transfer_beamset_names(pd_ffs: Pd) -> List[str]:
+    """
+    Get possible beamset names for transfer based on modality.
+    Args:
+        pd_ffs: Patient data for FFS.
+    Returns:
+        List of beamset names.
+    """
     modality = pd_ffs.beamset.DeliveryTechnique
     return [FFS_PLACEHOLDER_NAME, TOMO_FFS_TRANSFER_NAME] if modality == 'TomoHelical' \
         else [FFS_PLACEHOLDER_NAME, VMAT_FFS_TRANSFER_NAME]
 
 
-def check_empty_plans(pd_ffs, pd_hfs, exists=True, unique=True):
+def check_empty_plans(pd_ffs: Pd, pd_hfs: Pd, exists: bool = True, unique: bool = True) -> None:
+    """
+    Check for empty plan containers in the HFS plan.
+    Args:
+        pd_ffs: Patient data for FFS.
+        pd_hfs: Patient data for HFS.
+        exists: Whether the plan should exist.
+        unique: Whether only one should exist.
+    Raises:
+        RuntimeError if the check fails.
+    """
     # Check for containers already existing in the hfs plan.
     empty_plans = []
     hfs_plan_names = potential_transfer_plan_names(pd_ffs)
@@ -315,11 +386,18 @@ def check_empty_plans(pd_ffs, pd_hfs, exists=True, unique=True):
             f'plan name "{FFS_PLACEHOLDER_NAME}" and re-export the FFS plan')
 
 
-def calculate_ffs_on_hfs_logic(pd_ffs, pd_hfs, nfx, rx, make_vmat_plan, make_tomo_plan):
+def calculate_ffs_on_hfs_logic(pd_ffs: Pd, pd_hfs: Pd, nfx: int, rx: int, make_vmat_plan: bool, make_tomo_plan: bool) -> Pd:
     """
-    A helper that does the heavy-lifting for 'calculate_ffs_on_hfs_image'.
-    It modifies pd_ffs, updates the dose grid, and computes dose on the HFS exam.
-    This function stays free of references to the 'main' file to avoid circular imports.
+    Helper to calculate FFS dose on HFS image, update dose grid, and compute dose.
+    Args:
+        pd_ffs: Patient data for FFS.
+        pd_hfs: Patient data for HFS.
+        nfx: Number of fractions.
+        rx: Prescription dose.
+        make_vmat_plan: Whether to make a VMAT plan.
+        make_tomo_plan: Whether to make a Tomo plan.
+    Returns:
+        Updated pd_ffs object.
     """
 
     case = pd_ffs.case
@@ -358,14 +436,13 @@ def calculate_ffs_on_hfs_logic(pd_ffs, pd_hfs, nfx, rx, make_vmat_plan, make_tom
     return pd_ffs
 
 
-def rescale_dose_grid_to_all_scans(pdata):
-    """Rescale dose grid to cover all scans.
-
-    We compute a bounding box from all ROI geometries (PTVs, Support, External).
-    We then potentially shift and enlarge the dose grid if necessary.
-    Specifically, if the modality is TomoHelical, we apply a fudge factor of 1.1
-    that lowers the corner in the Y direction by 10% of the original bounding-box size
-    and thus increases the Y dimension by 10%.
+def rescale_dose_grid_to_all_scans(pdata: Pd) -> bool:
+    """
+    Rescale dose grid to cover all scans, updating if necessary.
+    Args:
+        pdata: Patient data object.
+    Returns:
+        bool: True if the grid was updated, False otherwise.
     """
 
     pm = pdata.case.PatientModel
@@ -459,7 +536,16 @@ def rescale_dose_grid_to_all_scans(pdata):
     return needs_update
 
 
-def dose_calc_gui(case, plans, beamsets):
+def dose_calc_gui(case: object, plans: List[str], beamsets: List[str]) -> Tuple[object, object]:
+    """
+    GUI for selecting FFS plan and beamset.
+    Args:
+        case: RayStation case object.
+        plans: List of plan names.
+        beamsets: List of beamset names.
+    Returns:
+        Tuple of (selected plan, selected beamset).
+    """
     Sg.ChangeLookAndFeel('DarkPurple4')
     layout = [[Sg.Text("FFS Plan")],
               [Sg.Combo(plans, key="-FFS PLAN-",

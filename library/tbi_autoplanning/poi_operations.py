@@ -2,14 +2,24 @@ import math
 import logging
 import sys
 import re
+from typing import List, Optional
 from library.StructureOperations import find_types, create_poi, check_roi
 from .tbi_definitions import HFS_OVERLAP, FW, CENTRAL_JUNCTION_WIDTH, FFS_MAX_TREATMENT_LENGTH, \
     FFS_OVERSHOOT, FFS_SHIFT_BUFFER, FFS_ISO_NUMBER, HFS_MAX_TREATMENT_LENGTH, HFS_SHIFT_BUFFER, HFS_OVERSHOOT, \
     JUNCTION_POINT, HFS_POI, FFS_POI, COLORS
-from .tbi_utils import determine_prefix, get_center
+from .tbi_utils import Pd, determine_prefix, get_center
 
 
-def poi_in_list(case, poi_name, poi_list=None):
+def poi_in_list(case: object, poi_name: str, poi_list: Optional[List[str]] = None) -> bool:
+    """
+    Check if a POI with the given name exists in the case or in a provided list.
+    Args:
+        case: RayStation case object.
+        poi_name: Name of the POI to check.
+        poi_list: Optional list of POI names to restrict the search.
+    Returns:
+        bool: True if POI is found, False otherwise.
+    """
     if not poi_list:
         poi_obj_list = [p for p in case.PatientModel.PointsOfInterest]
     else:
@@ -24,15 +34,15 @@ def poi_in_list(case, poi_name, poi_list=None):
         return False
 
 
-def validate_poi_name(poi_name):
+def validate_poi_name(poi_name: str) -> int:
     """
     Validate the format of the POI name. The last character should be an integer.
-
     Args:
         poi_name (str): The name of the POI.
-
     Returns:
         int: The integer at the end of the POI name.
+    Raises:
+        ValueError: If the last character is not an integer.
     """
     try:
         return int(poi_name[-1])
@@ -43,7 +53,16 @@ def validate_poi_name(poi_name):
                          'contain an integer in the last digit.')
 
 
-def place_ffs_vmat_pois(pd_ffs, junction, offset):
+def place_ffs_vmat_pois(pd_ffs: Pd, junction: object, offset: int) -> float:
+    """
+    Place FFS VMAT POIs from the junction to the inferior limit of the scan.
+    Args:
+        pd_ffs: Patient data for FFS.
+        junction: Junction POI object.
+        offset: Offset for POI numbering.
+    Returns:
+        float: The junction width used.
+    """
     # create a set of points that ensures coverage from junction point
     # to the limit of the ffs scan
     [external_name] = find_types(pd_ffs.case,
@@ -82,7 +101,15 @@ def place_ffs_vmat_pois(pd_ffs, junction, offset):
     return ffs_junction_width
 
 
-def place_hfs_vmat_pois(pd_hfs, junction):
+def place_hfs_vmat_pois(pd_hfs: Pd, junction: object) -> float:
+    """
+    Place HFS VMAT POIs from the junction to the superior limit of the scan.
+    Args:
+        pd_hfs: Patient data for HFS.
+        junction: Junction POI object.
+    Returns:
+        float: The junction width used.
+    """
     # create a set of points that ensures coverage from junction point
     # to the limit of the ffs scan
     [external_name] = find_types(pd_hfs.case,
@@ -133,7 +160,18 @@ def place_hfs_vmat_pois(pd_hfs, junction):
     return hfs_junction_width
 
 
-def make_poi(case, exam, coords, name, color):
+def make_poi(case: object, exam: object, coords: dict, name: str, color: str) -> str:
+    """
+    Create a POI in the given case and exam with specified coordinates and color.
+    Args:
+        case: RayStation case object.
+        exam: RayStation exam object.
+        coords: Dict with 'x', 'y', 'z' coordinates.
+        name: Name of the POI.
+        color: Color string.
+    Returns:
+        str: Name of the created POI.
+    """
     for p in case.PatientModel.PointsOfInterest:
         if p.Name == name:
             p.DeleteRoi()
@@ -148,7 +186,15 @@ def make_poi(case, exam, coords, name, color):
     return name
 
 
-def find_hfff_junction_coords(pd_ffs, max_treatment_length=FFS_MAX_TREATMENT_LENGTH):
+def find_hfff_junction_coords(pd_ffs: Pd, max_treatment_length: float = FFS_MAX_TREATMENT_LENGTH) -> dict:
+    """
+    Find the coordinates for the HFS-FFS junction point.
+    Args:
+        pd_ffs: Patient data for FFS.
+        max_treatment_length: Maximum treatment length to use.
+    Returns:
+        dict: Coordinates for the junction point.
+    """
     # Find the inferior most point from the ffs scan on the external
     [external_name] = find_types(
         pd_ffs.case, roi_type='External')
@@ -163,7 +209,15 @@ def find_hfff_junction_coords(pd_ffs, max_treatment_length=FFS_MAX_TREATMENT_LEN
     }
 
 
-def place_hfff_junction_poi(pd_hfs, coord_hfs):
+def place_hfff_junction_poi(pd_hfs: Pd, coord_hfs: dict) -> None:
+    """
+    Place the HFS-FFS junction POI in the HFS scan.
+    Args:
+        pd_hfs: Patient data for HFS.
+        coord_hfs: Coordinates for the junction POI.
+    Returns:
+        None
+    """
     # Create a junction point and use the coordinates determined above
 
     _ = create_poi(
@@ -177,30 +231,49 @@ def place_hfff_junction_poi(pd_hfs, coord_hfs):
     )
 
 
-def round_iso(iso):
+def round_iso(iso: float) -> float:
+    """
+    Round the isocenter position to the nearest 0.1.
+    Args:
+        iso: Isocenter position.
+    Returns:
+        float: Rounded isocenter position.
+    """
     return math.ceil(iso * 10) / 10
 
 
-def sort_pois(pois):
+def sort_pois(pois: List[str]) -> List[str]:
+    """
+    Sort a list of POI names by the integer at the end.
+    Args:
+        pois: List of POI names.
+    Returns:
+        List of sorted POI names.
+    """
     # Sort the list using the custom sorting key
     return sorted(pois, key=extract_number)
 
 
-def extract_number(s):
+def extract_number(s: str) -> int:
+    """
+    Extract the trailing integer from a string, or return inf if not found.
+    Args:
+        s: String to extract from.
+    Returns:
+        int: Extracted integer or inf.
+    """
     match = re.search(r'\d+$', s)
     return int(match.group()) if match else float('inf')
 
 
-def determine_junction_pair(index, pois, junction_width, orientation):
+def determine_junction_pair(index: int, pois: List[str], junction_width: float, orientation: str) -> tuple:
     """
     Determine the junction pair based on patient orientation and POI index.
-
     Args:
-        index (int): Index of the POI in the list.
-        pois (list): List of POIs.
-        junction_width (float): Width of the junction.
-        orientation (str): Orientation of the patient - 'HFS' or 'FFS'.
-
+        index: Index of the POI in the list.
+        pois: List of POIs.
+        junction_width: Width of the junction.
+        orientation: Orientation of the patient - 'HFS' or 'FFS'.
     Returns:
         tuple: The junction pair.
     """
@@ -220,12 +293,15 @@ def determine_junction_pair(index, pois, junction_width, orientation):
             return junction_width, junction_width
 
 
-def find_pois(pdata):
+def find_pois(pdata: Pd) -> List[str]:
     """
+    Find and sort POIs for the given patient data and orientation.
     Args:
-        pdata (named tuple): RS objects
+        pdata: Patient data object.
     Returns:
-        list: sorted points of interest with orientation-determined suffix
+        List of sorted POI names.
+    Raises:
+        RuntimeError: If no POIs are found.
     """
     prefix = determine_prefix(pdata.exam)
     if prefix == 'ffs':
@@ -241,7 +317,17 @@ def find_pois(pdata):
                            f'found in exam {pdata.exam.Name}')
 
 
-def get_point_position(pdata, poi_name):
+def get_point_position(pdata: Pd, poi_name: str) -> object:
+    """
+    Get the position of a POI by name.
+    Args:
+        pdata: Patient data object.
+        poi_name: Name of the POI.
+    Returns:
+        The POI position object.
+    Raises:
+        RuntimeError: If the POI is not found.
+    """
     try:
         poi_geom0 = pdata.case.PatientModel.StructureSets[pdata.exam.Name] \
             .PoiGeometries[poi_name]
@@ -250,7 +336,15 @@ def get_point_position(pdata, poi_name):
     return poi_geom0.Point
 
 
-def get_most_inferior(patient_data, roi_name):
+def get_most_inferior(patient_data: Pd, roi_name: str) -> Optional[float]:
+    """
+    Get the most inferior z-coordinate of a given ROI.
+    Args:
+        patient_data: Patient data object.
+        roi_name: Name of the ROI.
+    Returns:
+        The most inferior z-coordinate, or None if not found.
+    """
     # Given a structure name, depending on the patient orientation
     # solve for the most inferior extent of the roi and return that coordinate
     #
@@ -269,7 +363,15 @@ def get_most_inferior(patient_data, roi_name):
         return None
 
 
-def get_most_superior(patient_data, roi_name):
+def get_most_superior(patient_data: Pd, roi_name: str) -> Optional[float]:
+    """
+    Get the most superior z-coordinate of a given ROI.
+    Args:
+        patient_data: Patient data object.
+        roi_name: Name of the ROI.
+    Returns:
+        The most superior z-coordinate, or None if not found.
+    """
     # Given a structure name, depending on the patient orientation
     # solve for the most superior extent of the roi and return that coordinate
     #
@@ -289,21 +391,16 @@ def get_most_superior(patient_data, roi_name):
         return None
 
 
-def estimate_patient_height(pd_hfs, pd_ffs, external_roi_name="External", junction_name="junction"):
+def estimate_patient_height(pd_hfs: Pd, pd_ffs: Pd, external_roi_name: str = "External", junction_name: str = "junction") -> float:
     """
     Estimate patient height using HFS and FFS scans.
-
-    The function obtains the top (head) and bottom (feet) positions from the external ROI
-    and uses a common junction point (defined in both scans) to cross-check the computation.
-
     Args:
-        pd_hfs: Patient data for the HFS (Head First Supine) scan.
-        pd_ffs: Patient data for the FFS (Feet First Supine) scan.
-        external_roi_name (str): Name of the external ROI. Default is "External".
-        junction_name (str): Name of the junction POI. Default is "junction".
-
+        pd_hfs: Patient data for HFS.
+        pd_ffs: Patient data for FFS.
+        external_roi_name: Name of the external ROI.
+        junction_name: Name of the junction POI.
     Returns:
-        float: Estimated patient height (in the same unit as the z-coordinate, typically centimeters).
+        float: Estimated patient height.
     """
     # Retrieve the superior-most z-coordinate from the HFS scan (e.g., top of the head)
     head_top = get_most_superior(pd_hfs, external_roi_name)
