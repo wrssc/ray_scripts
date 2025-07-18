@@ -1,6 +1,7 @@
 from typing import NamedTuple, Tuple
 import re
 from PlanReview.review_definitions import PASS, FAIL, ALERT
+from PlanReview.utils.review_api_versions import get_acceptance_level_from_planning_goal
 
 
 def check_prv_status(rso: NamedTuple) -> Tuple[str, str]:
@@ -130,7 +131,7 @@ def check_prv_status(rso: NamedTuple) -> Tuple[str, str]:
                                 (pg.Priority == 1 or pg.Priority > 1000) and \
                                 (pg.Type == 'DoseAtAbsoluteVolume' or pg.Type == 'DoseAtVolume'):
                             goal_value = e.GetClinicalGoalValue()
-                            pass_level = e.PlanningGoal.AcceptanceLevel
+                            pass_level = get_acceptance_level_from_planning_goal(e.PlanningGoal)
                             if goal_value < pass_level * tolerance / 100.:
                                 serial_negligible[s] = goal_value
                             else:

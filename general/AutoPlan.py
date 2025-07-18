@@ -937,9 +937,18 @@ def autoplan(autoplan_parameters, **kwargs):
                                          supports=beamset_defs.support_roi,
                                          quiet=user_prompts)
         for support in beamset_defs.support_roi:
-            logging.debug(f'Loaded support structure {support} and assigned to beamset'
-                          f' {rso.beamset.DicomPlanLabel}')
-            rso.beamset.IncludeRoiInRadiationSet(RoiName=support)
+            try:
+                logging.debug(f'Loaded support structure {support} and assigned to beamset'
+                              f' {rso.beamset.DicomPlanLabel}')
+                rso.beamset.IncludeRoiInRadiationSet(RoiName=support)
+            except Exception as e:
+                if "The ROI is already included in the beam set" in str(e):
+                    logging.debug(f'Support structure {support} already included in '
+                                  f'radiation set {rso.beamset.DicomPlanLabel}')
+                    pass
+                else:
+                    logging.warning(f'Error loading support structure {support}: {e}')
+
 
     else:
         logging.info(f'Loading support {beamset_defs.support_roi} '
