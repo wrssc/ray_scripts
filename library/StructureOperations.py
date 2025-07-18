@@ -59,11 +59,13 @@ import numpy as np
 import pandas as pd
 import xml.etree.ElementTree as Et
 import clr
+clr.AddReference("System.Drawing")
 import System.Drawing
 import sys
 from os import path, listdir
 from api.api_structures import delete_geometry
 
+# TODO: Reexamine this. Seems very odd we need hard coded system paths
 rab_git = "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts"
 sys.path.append(
     "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW")
@@ -79,7 +81,6 @@ INSTITUTION_FOLDER = r'UW'
 BEAMSET_FOLDER = r'beamset_templates'
 PATH_BEAMSETS = path.join(PROTOCOL_FOLDER, INSTITUTION_FOLDER, BEAMSET_FOLDER)
 
-clr.AddReference("System.Drawing")
 
 from GeneralOperations import logcrit as logcrit
 import UserInterface

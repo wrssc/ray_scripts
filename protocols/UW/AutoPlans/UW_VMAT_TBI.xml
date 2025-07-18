@@ -11384,13 +11384,29 @@
         </beam>
     </beamset>
     <optimization_config>
-        <name>3 warmstarts VMAT</name>
-        <description>3 warmstart optimization</description>
+        <name>VMAT FFS 3 Starts</name>
+        <description>3 Start optimization</description>
         <technique>VMAT</technique>
         <initial max_it="80" int_it="40">Iteration 0</initial>
-        <warmstart max_it="30" int_it="10" n="3">Iteration_1to3</warmstart>
+        <warmstart max_it="30" int_it="10" n="2">Iteration_1to3</warmstart>
+        <lock_dose_grid>False</lock_dose_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+        <block_prompt>False</block_prompt>
+        <use_treat_settings>False</use_treat_settings>
+        <robust sup="0.7" inf="0.7" ant="0" post="0" right="0" left="0" position_uncertainty="IndependentIsocenters">
+            True
+        </robust>
+    </optimization_config>
+    <optimization_config>
+        <name>VMAT HFS 3 Starts</name>
+        <description>3 Start optimization with a locked dose grid</description>
+        <technique>VMAT</technique>
+        <initial max_it="80" int_it="40">Iteration 0</initial>
+        <warmstart max_it="30" int_it="10" n="2">Iteration_1to3</warmstart>
         <lock_dose_grid>True</lock_dose_grid>
-        <vary_grid dose_dim1="0.5" dose_dim2="0.5" dose_dim3="0.5" dose_dim4="0.4">False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
         <reduce_oar>False</reduce_oar>

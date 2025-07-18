@@ -14,7 +14,6 @@ else:
 
 import library.GeneralOperations as GeneralOperations
 from library.StructureOperations import make_externalclean, check_roi
-from library.api.api_case import get_rigid_registrations
 
 from .tbi_definitions import EXTERNAL_NAME, HFS_VMAT_PLAN_NAME, HFS_VMAT_BEAMSET_NAME, \
     FFS_VMAT_PLAN_NAME, FFS_VMAT_BEAMSET_NAME, HFS_TOMO_PLAN_NAME, HFS_TOMO_BEAMSET_NAME, FFS_TOMO_PLAN_NAME, \
@@ -65,8 +64,7 @@ def register_images(pd_hfs: Pd, pd_ffs: Pd, hfs_scan_name: str, ffs_scan_name: s
             delete=False,
         )
 
-    # TODO: Review - this isn't catching correctly. approved is False
-    approved = verify_registration_approval(pd_ffs, ffs_scan_name, hfs_scan_name)
+    approved = check_registration(pdata_hfs=pd_hfs, pdata_ffs=pd_ffs)
 
     if not approved:
         pd_ffs.case.ComputeGrayLevelBasedRigidRegistration(
@@ -268,76 +266,105 @@ def determine_prefix(exam: object) -> str:
         return 'ffs'
 
 
-def check_registration_approval(pd_ffs: Pd, ffs_scan_name: str, hfs_scan_name: str) -> bool:
+def frame_of_reference_registration(pdata_hfs):
     """
-    Check if registration between FFS and HFS scans is approved.
-
-    Args:
-        pd_ffs (Pd): Patient data for feet-first supine.
-        ffs_scan_name (str): Name of the FFS scan.
-        hfs_scan_name (str): Name of the HFS scan.
-
-    Returns:
-        bool: True if registration is approved, False otherwise.
+    Check if there is a FrameOfReferenceRegistration in the case.
+    :return: True if there is a FrameOfReferenceRegistration, False otherwise
     """
-    approved = False
-    # Look through registration objects
-    registrations = get_rigid_registrations(pd_ffs.case)
-    for r in registrations:
-        try:
-            _ = r.RegistrationSource
-        except AttributeError:
-            logging.debug('No approved registrations found')
-            approved = False
-            break
-        if r.RegistrationSource.FromExamination.Name == ffs_scan_name \
-                and r.RegistrationSource.ToExamination.Name == hfs_scan_name \
-                and r.Review:
-            try:
-                if r.Review.ApprovalStatus == 'Approved':
-                    approved = True
-            except AttributeError:
-                approved = False
-            break
-    return approved
+    if pdata_hfs.case.FrameOfReferenceRegistrations is not None and \
+            len(pdata_hfs.case.FrameOfReferenceRegistrations) > 0 and \
+            len(pdata_hfs.case.FrameOfReferenceRegistrations) == 1:
+        return pdata_hfs.case.FrameOfReferenceRegistrations[0]
+    return None
 
 
-def verify_registration_approval(pd_ffs: Pd, ffs_scan_name: str, hfs_scan_name: str) -> bool:
+def rigid_registration(pdata_hfs):
     """
-    Check for existing registration, prompt user if not approved.
-
-    Args:
-        pd_ffs (Pd): Patient data for feet-first supine.
-        ffs_scan_name (str): Name of the FFS scan.
-        hfs_scan_name (str): Name of the HFS scan.
-
-    Returns:
-        bool: True if registration is approved, False otherwise.
+    Check if there is a RigidRegistration in the case.
+    :return: True if there is a RigidRegistration, False otherwise
     """
-    registrations = False
-    # Look through registration objects
-    approved = check_registration_approval(pd_ffs, ffs_scan_name, hfs_scan_name)
+    if pdata_hfs.case.RigidRegistrations is not None and \
+            len(pdata_hfs.case.RigidRegistrations) > 0 and \
+            len(pdata_hfs.case.RigidRegistrations) == 1:
+        return pdata_hfs.case.RigidRegistrations[0]
+    return None
 
-    if not approved:
-        for s in pd_ffs.case.StructureRegistrations:
-            if s.FromExamination.Name == hfs_scan_name \
-                    and s.ToExamination.Name == ffs_scan_name:
-                registrations = True
-                if s.Review:
-                    try:
-                        if s.Review.ApprovalStatus == 'Approved':
-                            approved = True
-                    except AttributeError:
-                        approved = False
-                break
-    if approved:
-        return approved
-    else:
-        if registrations:
-            connect.await_user_input('An existing FFS to HFS registration has been'
-                                     ' found.\n Approve it to avoid an overwrite')
-            approved = check_registration_approval(pd_ffs, ffs_scan_name, hfs_scan_name)
-    return approved
+
+def structure_registration(pdata_hfs):
+    """
+    Check if there is a StructureRegistration in the case.
+    :return: True if there is a StructureRegistration, False otherwise
+    """
+    if pdata_hfs.case.StructureRegistrations is not None and \
+            len(pdata_hfs.case.StructureRegistrations) > 0 and \
+            len(pdata_hfs.case.StructureRegistrations) == 1:
+        return pdata_hfs.case.StructureRegistrations[0]
+
+
+def no_registrations(pdata):
+    """ Check that there are no registrations in the case """
+    if not frame_of_reference_registration(pdata) and \
+            not rigid_registration(pdata) and not structure_registration(pdata):
+        return True
+
+
+def check_registration(pdata_hfs, pdata_ffs):
+    def _check_registration_direction(expected_from, expected_to):
+        """
+        Check if the registration direction is correct.
+        :param expected_from: expected FromExamination name
+        :param expected_to: expected ToExamination name
+        Returns: True if the registration direction matches expected
+        """
+        sr_check = structure_registration(pdata_hfs)
+
+        if hasattr(sr_check, 'FromExamination') and \
+                hasattr(sr_check, 'ToExamination'):
+            if sr_check.FromExamination.Name == expected_from and \
+                    sr_check.ToExamination.Name == expected_to:
+                return True
+        return False
+
+    def _registration_approved():
+        """
+        Check if the registration is approved.
+        :return: True if the registration is approved, False otherwise
+        """
+        if hasattr(registration, 'Review') and hasattr(registration.Review, 'ApprovalStatus'):
+            return registration.Review.ApprovalStatus == 'Approved'
+
+    if no_registrations(pdata_hfs):
+        raise RuntimeError('No registrations found, this script requires a registration '
+                               'from HFS to FFS.\n'
+                               f'Please run the Generate Structures script first.')
+    # Check if there is merely a rigid registration, if so raise an error
+    # since we cannot use it for dose calculation
+    if rigid_registration(pdata_hfs):
+        raise RuntimeError('There is a rigid registration in the case, this script requires a '
+                           'FrameOfReferenceRegistration for dose calculation, please delete it an run'
+                           ' the FFS Structures function first')
+    # Get the frame of reference registration
+    registration = frame_of_reference_registration(pdata_hfs)
+    if not registration:
+        raise RuntimeError('No FrameOfReferenceRegistration found, this script requires a '
+                           'registration from HFS to FFS, please run the Generate Structures function first')
+    # Check the direction of the registration
+    hfs_exam_name = pdata_hfs.exam.Name
+    ffs_exam_name = pdata_ffs.exam.Name
+    # Backwards, potential API bug, FROM:FFS -> TO:HFS when the GUI shows FROM:HFS -> TO:FFS
+    correct_registration = _check_registration_direction(expected_from=ffs_exam_name,
+                                                         expected_to=hfs_exam_name)
+    if not correct_registration:
+        str_reg = structure_registration(pdata_hfs)
+        # Floating == To, and Reference == From
+        floating = str_reg.ToExamination.Name
+        reference = str_reg.FromExamination.Name
+        raise RuntimeError(f'\nThe registration direction is incorrect,'
+                           f'\nexpected From: {hfs_exam_name} \u2192 To: {ffs_exam_name},'
+                           f'\nbut got From: {reference} \u2192 To: {floating}.'
+                           f'\nPlease run the Generate Structures function first')
+    # Return True if the registration is approved
+    return _registration_approved()
 
 
 def get_center(rs_obj: Pd, roi_name: str) -> dict:

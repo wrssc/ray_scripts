@@ -422,11 +422,7 @@ def calculate_ffs_on_hfs_logic(pd_ffs: Pd, pd_hfs: Pd, nfx: int, rx: int, make_v
     # Now compute dose on the HFS image
     hfs_scan_name = pd_hfs.exam.Name
     pd_ffs.beamset.ComputeDoseOnAdditionalSets(
-        OnlyOneDosePerImageSet=True,
-        AllowGridExpansion=True,
-        ExaminationNames=[hfs_scan_name],
-        FractionNumbers=[0],
-        ComputeBeamDoses=True
+        Examinations=[pd_hfs.exam],
     )
 
     # Must save to get the dose properly recognized in RayStation
