@@ -96,7 +96,6 @@ import os
 import traceback
 
 from typing import Optional, Tuple, List, Dict, Any
-from collections import namedtuple
 try:
     import FreeSimpleGUI as Sg
 except ImportError:
@@ -134,7 +133,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 # general_dir = os.path.join(script_dir, '../../../', 'general')
 # sys.path.insert(1, general_dir)
 
-DEBUG = False
+DEBUG = True
 
 
 def hfs_ffs_exam_present(case) -> Tuple[bool, bool]:
@@ -788,10 +787,7 @@ def make_hfs_plan(values) -> None:
         ffs_pois = find_pois(pd_ffs)
         hfs_multiplan, ffs_multiplan = get_vmat_plan_defs(pd_hfs, hfs_pois, ffs_pois, nfx=nfx, rx=rx,
                                                           kidney_sparing=kidney_sparing)
-    try:
-        tbi_hfs_protocol = multi_autoplan(hfs_multiplan)
-    except Exception as e:
-        error_message = f'Error in multi_autoplan: {e}'
+    tbi_hfs_protocol = multi_autoplan(hfs_multiplan)
 
     toggle_ptv_type(pd_hfs,
                     rois=FFS_TARGET_NAMES,
