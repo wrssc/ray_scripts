@@ -65,10 +65,11 @@ __help__ = 'https://github.com/wrssc/ray_scripts/wiki/DICOM-Export'
 __copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
 
 import os
-import xml.etree.ElementTree
+import xml.etree.ElementTree as ET
 import time
 import tempfile
 import logging
+import traceback
 import pydicom
 import shutil
 import math
@@ -76,16 +77,31 @@ import random
 import string
 import re
 import UserInterface
+import pprint
+import numpy as np
 from pynetdicom import AE
 from pynetdicom.sop_class import RTPlanStorage, RTStructureSetStorage, CTImageStorage, RTDoseStorage, Verification
+from pydicom.tag import Tag
 from pydicom.uid import ImplicitVRLittleEndian
 from pydicom.dataset import Dataset
+from pydicom.errors import InvalidDicomError
 from collections import OrderedDict
-from typing import List, Pattern
+from typing import List, Pattern, Any, Optional, Tuple, Sequence, Dict
+from decimal import Decimal, ROUND_HALF_UP, getcontext, ROUND_HALF_EVEN
+from dataclasses import dataclass
+from functools  import partial
+from typing import Callable, Any, Dict
+
+
+# @dataclass(frozen=True)
+# class FilterSpec:
+#     name:      str
+#     fn:        Callable[..., str]   # returns a message; may be no-op
+#     predicate: Callable[[Dict[str, Any]], bool]
 
 # Parse destination and filters XML files
-dest_xml = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__), 'DicomDestinations.xml'))
-filter_xml = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__), 'DicomFilters.xml'))
+dest_xml = ET.parse(os.path.join(os.path.dirname(__file__), 'DicomDestinations.xml'))
+filter_xml = ET.parse(os.path.join(os.path.dirname(__file__), 'DicomFilters.xml'))
 
 # local_AET defines the AE title that will be used by the script when communicating with the destination
 local_AET = 'RAYSTATION_SSCP'
@@ -110,6 +126,14 @@ class InvalidOperationException(Exception):
     pass
 
 
+# ----- RT Plan Export Filter Class --------------------------------
+# @dataclass(frozen=True)
+# class FilterSpec:
+#     name: str
+#     fn: Callable[..., str]  # returns a message; may be no-op
+#     predicate: Callable[[Dict[str, Any]], bool]
+
+
 def get_referenced_beam_name(rtplan: Dataset, ref_beam: Dataset) -> str:
     """Return the human‐readable BeamName for a ReferencedBeamSequence item,
     falling back to “Beam<Number>” if the name isn’t present.
@@ -127,6 +151,11 @@ def get_referenced_beam_name(rtplan: Dataset, ref_beam: Dataset) -> str:
     """
     # 1) get the beam number from the reference sequence
     if not hasattr(ref_beam, "ReferencedBeamNumber"):
+        traceback.print_exc()
+        logging.error("An error occurred: " +
+                      "Referenced BeamNumber is missing on referenced beam entry" +
+                      f"\nTraceback:\n {traceback.format_exc()}"
+                      )
         raise AttributeError("ReferencedBeamNumber missing on referenced beam entry")
     try:
         beam_num = int(ref_beam.ReferencedBeamNumber)
@@ -147,6 +176,125 @@ def get_referenced_beam_name(rtplan: Dataset, ref_beam: Dataset) -> str:
 
     # 4) fallback
     return f"Beam{beam_num}"
+
+
+def get_referenced_beam_attribute(rtplan: Dataset, ref_beam: Dataset, attr: str) -> Any:
+    """Return the value of a specified attribute from a ReferencedBeamSequence item.
+
+    Args:
+        rtplan (pydicom.dataset.Dataset): The RT Plan Dataset containing BeamSequence.
+        ref_beam (pydicom.dataset.Dataset): One entry from
+            ds.FractionGroupSequence[0].ReferencedBeamSequence.
+        attr (str): The attribute name to retrieve from the referenced beam.
+
+    Returns:
+        Any: The value of the specified attribute, or None if not found.
+
+    Raises:
+        AttributeError: If ref_beam has no ReferencedBeamNumber.
+    """
+    if not hasattr(ref_beam, "ReferencedBeamNumber"):
+        traceback.print_exc()
+        logging.error(f"An error occurred while attempting to retrieve attr {attr}: " +
+                      "Referenced BeamNumber is missing on referenced beam entry" +
+                      f"\nTraceback:\n {traceback.format_exc()}"
+                      )
+        raise AttributeError(
+            f"ReferencedBeamNumber missing on referenced beam entry for attribute {attr}"
+        )
+
+    beam_num = int(ref_beam.ReferencedBeamNumber)
+    full_beams = getattr(rtplan, "BeamSequence", [])
+
+    for beam in full_beams:
+        if hasattr(beam, "BeamNumber") and beam.BeamNumber == beam_num:
+            return getattr(beam, attr, None)
+
+    return None
+
+
+def export_beamset_rtplan(case, exam, beamset):
+    """Export the specified beamset to a temporary directory and return the RT Plan as a pydicom Dataset.
+
+    This function uses RayStation’s ScriptableDicomExport API to export only the RT Plan
+    for the given beamset. It then scans the export folder for the DICOM file whose
+    SOP Class UID matches RTPlanStorage, reads it with pydicom, and returns it.
+
+    Args:
+        case (object): RayStation Case object (e.g., from get_current('Case')).
+        exam (object): RayStation Examination object (e.g., from get_current('Examination')).
+        beamset (object): RayStation BeamSet object (e.g., from get_current('BeamSet')).
+
+    Returns:
+        pydicom.dataset.FileDataset: The RT Plan dataset read from the exported DICOM file.
+
+    Raises:
+        FileNotFoundError: If no RT Plan file is found in the export directory.
+        Exception: Propagates any exceptions raised by the export call.
+    """
+    # Create a temporary directory for export
+    export_dir = tempfile.mkdtemp(prefix='rtplan_export_')
+    try:
+        # Perform the export: only RT Plan (no CT, no structures, no dose)
+        case.ScriptableDicomExport(
+            ExportFolderPath=export_dir,
+            # Examinations=[],
+            BeamSets=[beamset.BeamSetIdentifier()],
+            IgnorePreConditionWarnings=True,
+        )
+
+        # Scan for the RT Plan DICOM file
+        for fname in os.listdir(export_dir):
+            fpath = os.path.join(export_dir, fname)
+            try:
+                ds = pydicom.dcmread(fpath)
+            except pydicom.errors.InvalidDicomError:
+                continue
+            # Identify the RT Plan by its SOP Class UID
+            if ds.file_meta.MediaStorageSOPClassUID == RTPlanStorage:
+                return ds
+
+        # If we reach here, no RT Plan was found
+        raise FileNotFoundError(f'No RT Plan file found in {export_dir}')
+
+    finally:
+        # Clean up the temporary directory
+        shutil.rmtree(export_dir, ignore_errors=True)
+
+
+def load_rtplan(filepath: str) -> pydicom.dataset.FileDataset:
+    """Load an RT Plan DICOM file from disk and return the pydicom Dataset.
+
+    This function reads a DICOM file at the given path, verifies that it
+    contains an RT Plan (SOP Class UID == RTPlanStorage), and returns the
+    corresponding pydicom FileDataset.
+
+    Args:
+        filepath (str): Full path to the DICOM file to load.
+
+    Returns:
+        pydicom.dataset.FileDataset: The RT Plan dataset.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        InvalidDicomError: If the file cannot be parsed as a DICOM file.
+        ValueError: If the file is not an RT Plan (wrong SOP Class UID).
+    """
+    if not os.path.isfile(filepath):
+        raise FileNotFoundError(f"No such file: '{filepath}'")
+
+    try:
+        ds = pydicom.dcmread(filepath)
+    except InvalidDicomError as e:
+        raise InvalidDicomError(f"Failed to read DICOM file '{filepath}': {e}")
+
+    sop_class = ds.file_meta.get('MediaStorageSOPClassUID', None)
+    if sop_class != RTPlanStorage:
+        raise ValueError(
+            f"File '{filepath}' is not an RT Plan (SOP Class UID {sop_class})"
+        )
+
+    return ds
 
 
 # -------- tighter canonicalisation ------------------------------------------
@@ -221,7 +369,7 @@ def _uniq(rx: Pattern[str], text: str) -> list[str]:
     for m in rx.finditer(text):
         raw = m.group(1).strip()
         fp = _canon(raw)
-        out.setdefault(fp, raw)          # first-seen wording wins
+        out.setdefault(fp, raw)  # first-seen wording wins
     return list(out.values())
 
 
@@ -239,8 +387,8 @@ def summarize(log: str) -> str:
         parts.append(s[1].strip())
 
     if msgs := _uniq(MESSAGE, log):
-        msgs = _prefer_shortest(msgs)           # enable idea 2 if desired
-        msgs = [_drop_parenthetical_echo(x) for x in msgs]   # idea 3
+        msgs = _prefer_shortest(msgs)  # enable idea 2 if desired
+        msgs = [_drop_parenthetical_echo(x) for x in msgs]  # idea 3
         parts.append(" | ".join(msgs))
     # Fallback: still nothing? grab the first meaningful line
     if not parts:
@@ -249,6 +397,8 @@ def summarize(log: str) -> str:
         parts.append(msgs)
 
     return " – ".join(parts)
+
+
 
 
 def handle_raygateway_error(error: Exception, beamset_name: str) -> dict:
@@ -297,7 +447,7 @@ def send(case,
          gantry_period=None,
          couch_speed=None,
          round_jaws=False,
-         prescription=False,
+         aria_prescription_filters=False,
          no_ref_point_location=False,
          block_accessory=False,
          block_tray_id=False,
@@ -674,10 +824,10 @@ def send(case,
                     message = apply_gantry_period_filter(ds=ds, expected=expected, gantry_period=gantry_period)
                     logging.debug(message)
 
-                # 13) Prescription and RPM gating (unchanged)
-                if prescription:
-                    message = old_apply_prescription_filter(ds=ds, beamset=beamset, expected=expected,
-                                                            ref_point_location=no_ref_point_location)
+                # 13) Prescription filter for ARIA
+                if aria_prescription_filters:
+                    message = apply_prescription_filter_aria(
+                        ds=ds, beamset=beamset, expected=expected)
                     if 'ERROR' in message:
                         raise InvalidOperationException(
                             'Prescription filter failed for {}: {}'.format(get_rt_plan_label(ds), message))
@@ -1432,9 +1582,556 @@ def apply_gantry_period_filter(ds, expected, gantry_period):
     return '; '.join(messages)
 
 
-def old_apply_prescription_filter(ds, beamset, expected, ref_point_location) -> str:
+def apply_primary_dose_reference_sequence(
+        ds: pydicom.Dataset,
+        beamset: Any,
+        expected: Any,
+        insert_reference_coords: bool
+) -> str:
     """
-    Build and insert the primary prescription reference point, and redistribute beam doses.
+    Build or update the RTPlan DoseReferenceSequence for the primary aria_prescription_filters.
+
+    This wraps the internal helper `_build_primary_dose_reference`, which:
+      - Creates a new item in DoseReferenceSequence (300A,0010).
+      - Sets DoseReferenceNumber (300A,0012), Description (300A,0016),
+        StructureType (300A,0014 = COORDINATES or SITE), and
+        DoseReferencePointCoordinates (300A,0018) if coordinate mode.
+      - Generates a DoseReferenceUID (300A,0013) under the RTPlan’s SeriesInstanceUID prefix.
+      - Sets DoseReferenceType (300A,0020 = TARGET), DeliveryMaximumDose (300A,0023),
+        and OrganAtRiskMaximumDose (300A,002C).
+      - For SITE mode, writes Varian private tags (3267,1000… / 3267,0010…).
+
+    Args:
+        ds: Full pydicom Dataset for the RTPlan.
+        beamset: RayStation BeamSet (or list thereof) containing DicomPlanLabel
+                 and Prescription.PrimaryPrescriptionDoseReference.
+        expected: Edits tracker to record modified DICOM elements.
+        insert_reference_coords: If True, use COORDINATES mode; if False, SITE mode.
+
+    Returns:
+        A semicolon-delimited summary of all operations performed.
+    """
+    # Delegate to the helper and join its log messages
+    msgs: List[str] = _build_dose_reference_sequence(
+        ds,
+        beamset,
+        expected,
+        insert_reference_coords
+    )
+    return "; ".join(msgs)
+
+
+def _build_dose_reference_sequence(
+        ds: pydicom.Dataset,
+        beamset: Any,
+        expected: Any,
+        ref_point_location: bool
+) -> List[str]:
+    """Create or update the DoseReferenceSequence with primary aria_prescription_filters details.
+
+    DICOM tags used:
+      - (300A,0010) DoseReferenceSequence (SQ)
+      - (300A,0012) DoseReferenceNumber (IS) - 1 for primary and 2, 3, etc. for subsequent -> Check only
+      - (300A,0014) DoseReferenceStructureType (CS): COORDINATES for primary and SITE for secondary -> Check only
+      - (300A,0016) DoseReferenceDescription (LO) -> TODO: This seems to be wonky in RS and appears off in ARIA
+      - (300A,0018) DoseReferencePointCoordinates (DS) - Must be Kept if Primary -> Check only
+      - (300A,0013) DoseReferenceUID (UI) -> TODO
+      - (300A,0020) DoseReferenceType (CS): TARGET -> Check only
+      - (300A,0023) DeliveryMaximumDose (DS)
+      - (300A,0026) Target Prescription Dose (DS) - TODO: Needs to be exactly set to RS Values - Coming over with rounding errors
+      - (300A,002C) OrganAtRiskMaximumDose (DS)
+      - Private tags for Varian/UF: (3267,1000…), (3267,0010…)
+
+    Args:
+        ds: Full RTPlan pydicom Dataset.
+        beamset: Selected BeamSet with Prescription info.
+        expected: _Edits tracker for recording modified tags.
+        ref_point_location: True for coordinate refs, False for SITE‐based refs.
+
+    Returns:
+        List of operation messages for logging.
+    """
+    msgs: List[str] = []
+    seq0 = ds.FractionGroupSequence[0].ReferencedBeamSequence[0]
+
+    # Create a new DoseReference item
+    ref = pydicom.Dataset()
+    ref.add_new(0x300A0012, 'IS', 1)  # DoseReferenceNumber
+
+    # Description uses PlanLabel + ".0"
+    desc = f"{beamset.DicomPlanLabel}.0"
+    ref.add_new(0x300A0016, 'LO', desc)  # DoseReferenceDescription
+    msgs.append(f"Set DoseReferenceDescription='{desc}'")
+
+    # StructureType: COORDINATES or SITE
+    if ref_point_location:
+        ref.add_new(0x300A0014, 'CS', 'COORDINATES')  # DoseReferenceStructureType
+        coords = getattr(seq0, 'BeamDoseSpecificationPoint', [0, 0, 0])
+        ref.add_new(0x300A0018, 'DS', coords)  # DoseReferencePointCoordinates
+        msgs.append(f"Coordinates mode: set DoseReferencePointCoordinates={coords}")
+    else:
+        ref.add_new(0x300A0014, 'CS', 'SITE')  # DoseReferenceStructureType
+        # OnStructure.Name or Description for SITE refs
+        prim = beamset.Prescription.PrimaryPrescriptionDoseReference
+        if hasattr(prim, 'OnStructure'):
+            site_val = prim.OnStructure.Name
+        else:
+            site_val = getattr(prim, 'Description', 'UNKNOWN')
+        # Varian private tag for structure name
+        ref.add_new(0x32671000, 'UT', site_val)
+        expected.add(ref[0x32671000])
+        ref.add_new(0x32670010, 'LO', 'UW Madison RayScripts 3267')
+        expected.add(ref[0x32670010])
+        msgs.append(f"SITE mode: set private tag OnStructure/Description='{site_val}'")
+
+    # Generate a new DoseReferenceUID under the same SeriesInstanceUID prefix
+    prefix = '.'.join(str(ds.SeriesInstanceUID).split('.')[:4]) + '.'
+    uid = pydicom.uid.generate_uid(prefix=prefix)
+    ref.add_new(0x300A0013, 'UI', uid)  # DoseReferenceUID
+    msgs.append(f"Generated DoseReferenceUID={uid}")
+
+    # Target type and dose values (Gy)
+    ref.add_new(0x300A0020, 'CS', 'TARGET')  # DoseReferenceType
+    max_dose = beamset.Prescription.PrimaryPrescriptionDoseReference.DoseValue / 100
+    ref.add_new(0x300A0023, 'DS', max_dose)  # DeliveryMaximumDose
+    ref.add_new(0x300A002C, 'DS', max_dose)  # OrganAtRiskMaximumDose
+    msgs.append(f"Set maximum dose = {max_dose} Gy")
+
+    # Insert or update the sequence on the RTPlan
+    if 'DoseReferenceSequence' not in ds:
+        ds.add_new(0x300A0010, 'SQ', pydicom.Sequence([ref]))
+        expected.add(ds[0x300A0010])
+        msgs.append("Added new DoseReferenceSequence to RTPlan")
+    else:
+        ds.DoseReferenceSequence = pydicom.Sequence([ref])
+        msgs.append("Replaced existing DoseReferenceSequence in RTPlan")
+
+    return msgs
+
+
+def apply_beam_dose_specification_filter(
+        ds: pydicom.Dataset,
+        expected: Any,
+        apply_beam_spec_point: bool
+) -> str:
+    """
+    Add or remove per-beam BeamDoseSpecificationPoint entries based on flag.
+
+    This wraps the internal helper `_adjust_beam_dose_spec_and_distribution`, which:
+      - Iterates each beam in FractionGroupSequence[0].ReferencedBeamSequence.
+      - If `apply_beam_spec_point` is True, reads the RTPlan’s DoseReferencePointCoordinates
+        and writes them to each beam’s BeamDoseSpecificationPoint (300A,0082).
+      - If False, removes any existing BeamDoseSpecificationPoint (300A,0082),
+        BeamDosePointDepth (300A,0088), RadiologicalDepth (300A,0089),
+        and BeamDoseType (300A,0090).
+      - Scales or uniformly distributes BeamDose (300A,0084) to match the primary aria_prescription_filters.
+
+    Args:
+        ds: Full pydicom Dataset for the RTPlan.
+        expected: Edits tracker to record modified DICOM elements.
+        apply_beam_spec_point: If True, add spec points; if False, strip them.
+
+    Returns:
+        A semicolon-delimited summary of all operations performed.
+    """
+    msgs: List[str] = _adjust_beam_dose_spec_and_distribution(
+        ds,
+        expected,
+        apply_beam_spec_point
+    )
+    return "; ".join(msgs)
+
+
+def _adjust_beam_dose_spec_and_distribution(
+        ds: pydicom.Dataset,
+        expected: Any,
+        ref_point_location: bool
+) -> List[str]:
+    """Adjust each beam’s specification point and scale or distribute beam doses.
+
+    DICOM tags used:
+      - (300A,0082) BeamDoseSpecificationPoint (DS)
+      - (300A,0084) BeamDose (DS)
+      - Optional removal of: (300A,0088) BeamDosePointDepth, (300A,0089) RadiologicalDepth,
+        (300A,0090) BeamDoseType
+      - Private tags commented for future use: (3249,1010...), (3249,0010...)
+
+    Args:
+        ds: Full RTPlan pydicom Dataset.
+        expected: _Edits tracker for recording modified tags.
+        ref_point_location: True to add coords, False to remove existing coords.
+
+    Returns:
+        List of operation messages for logging.
+    """
+    msgs: List[str] = []
+    frac = ds.FractionGroupSequence[0]
+    beams = frac.ReferencedBeamSequence
+    total_dose = sum(getattr(b, 'BeamDose', 0) for b in beams if hasattr(b, 'BeamDose'))
+    count = len(beams)
+    # Add or remove BeamDoseSpecificationPoint per beam
+    for b in beams:
+        name = get_referenced_beam_name(ds, b)
+        if ref_point_location:
+            coords = ds.DoseReferenceSequence[0].DoseReferencePointCoordinates
+            b.add_new(0x300A0082, 'DS', coords)  # BeamDoseSpecificationPoint
+            expected.add(b[0x300A0082], beam=b)
+            msgs.append(f"Beam '{name}': set BeamDoseSpecificationPoint={coords}")
+        else:
+            # remove location-based tags if present
+            for tag in (0x300A0082, 0x300A0088, 0x300A0089, 0x300A0090):
+                if hasattr(b, tag):
+                    del b[tag]
+            msgs.append(f"Beam '{name}': cleared specification point tags")
+
+    # If no explicit beam doses, distribute evenly
+    if total_dose == 0:
+        uniform = ds.DoseReferenceSequence[0].DeliveryMaximumDose \
+                  / (count * frac.NumberOfFractionsPlanned)
+        for b in beams:
+            b.add_new(0x300A0084, 'DS', uniform)  # BeamDose
+            expected.add(b[0x300A0084], beam=b)
+            msgs.append(f"Beam '{get_referenced_beam_name(ds, b)}': assigned uniform dose={uniform}")
+    else:
+        # Scale existing BeamDose to match new total aria_prescription_filters
+        for b in beams:
+            if hasattr(b, 'BeamDose'):
+                scaled = b.BeamDose * ds.DoseReferenceSequence[0].DeliveryMaximumDose \
+                         / (total_dose * frac.NumberOfFractionsPlanned)
+                if b.BeamDose != scaled:
+                    b.BeamDose = scaled
+                    expected.add(b[0x300A0084], beam=b)
+                    msgs.append(f"Beam '{get_referenced_beam_name(ds, b)}': scaled dose={scaled}")
+
+    return msgs
+
+
+def quantize_beam_doses_to_total(
+        beam_doses: List[float],
+        total_dose: float,
+        decimals: int = 3
+) -> List[float]:
+    """
+    Given an initial set of beam doses (which may be unnormalized weights or raw dose values),
+    compute a new set of beam doses that exactly sum to `total_dose` when each value is
+    rounded to `decimals` decimal places.
+
+    Steps:
+      1. Normalize the input `beam_doses` so their sum is 1.0 (weights).
+      2. Multiply each weight by `total_dose` to get the raw target dose for each beam.
+      3. Quantize each raw dose to the specified number of decimal places using
+         ROUND_HALF_UP.
+      4. Compute the residual error (total_dose minus sum of quantized doses).
+      5. Add the residual error to the beam with the largest original weight to
+         ensure the final list sums exactly to `total_dose`.
+
+    Args:
+        beam_doses: List of initial beam dose values or relative weights.
+        total_dose: Desired total dose (same units as beam_doses).
+        decimals: Number of decimal places for the DICOM DS string (e.g. 3).
+
+    Returns:
+        A new list of beam doses (floats) whose rounded sum equals `total_dose`.
+    """
+    # Convert to Decimal for accurate rounding
+    D = Decimal
+    total_d = D(str(total_dose))
+    # Compute sum of inputs and derive normalized weights
+    sum_input = sum(beam_doses)
+    if sum_input == 0:
+        raise ValueError("Sum of beam_doses must be non-zero")
+    weights = [D(str(b)) / D(str(sum_input)) for b in beam_doses]
+
+    # Raw target doses
+    raw = [(w * total_d) for w in weights]
+    # Quantize each to the specified precision
+    quantized = [
+        r.quantize(D(f'1.{"0" * decimals}'), rounding=ROUND_HALF_UP)
+        for r in raw
+    ]
+
+    # Compute and absorb rounding error
+    error = total_d - sum(quantized)
+    # Find the index with largest weight
+    max_idx = max(range(len(weights)), key=lambda i: weights[i])
+    quantized[max_idx] = quantized[max_idx] + error
+
+    # Convert back to floats
+    return [float(q) for q in quantized]
+
+
+def format_dose_value(val: Decimal, max_chars: int = 16, decimals: int = 10, strip=False) -> str:
+    """
+    Format a Decimal for DICOM DS with fixed decimal precision and optional trailing zeros,
+    preserving exact float interpretation for ARIA.
+
+    Args:
+        val (Decimal): Value to format
+        max_chars (int): DICOM DS max string length (16 default)
+        decimals (int): Number of decimal places to preserve
+        strip (bool): If True, strip trailing zeros; if False, preserve them
+
+    Returns:
+        str: Formatted string preserving trailing zeros
+    """
+    if strip:
+        # Strip trailing zeros if requested
+        s = f"{val:.{decimals}f}".rstrip('0').rstrip('.')
+    else:
+        s = f"{val:.{decimals}f}"  # Do NOT strip trailing zeros
+    if len(s) > max_chars:
+        # fallback to rounded form with fewer decimals
+        s = f"{val:.8f}"
+    if len(s) > max_chars:
+        s = f"{val:.6f}"
+    return s[:max_chars]
+
+
+# ----- Build Filters --------------------------------
+# FILTER_CATALOG : tuple[FilterSpec, ...] = (
+#     #1) Setup fields
+#     #   Apply setup Dose rate and nominal beam energy for setup fields
+#     FilterSpec(
+#         name='setup_beam_filter',
+#         fn=adjust_setup_field,
+#         predicate=lambda c: c['setup_beam_filter']
+#     ),
+#     #2) Machine filter
+#     FilterSpec(
+#         name='machine_filter',
+#         fn=apply_machine_filter,
+#
+#    )
+# )
+
+
+def find_beamset_by_label(beamsets, ds):
+    """
+    Find a matching BeamSet by DicomPlanLabel in the provided list of beamsets.
+
+    Args:
+        beamsets: List of BeamSet objects.
+        ds: pydicom Dataset containing the RTPlan with DicomPlanLabel.
+
+    Returns:
+        The matching BeamSet object or None if not found.
+    """
+    ds_rt_plan_label = get_rt_plan_label(ds)
+    if isinstance(beamsets, list):
+        beamset = next((b for b in beamsets if b.DicomPlanLabel == ds_rt_plan_label), None)
+    else:
+        beamset = beamsets
+    if beamset is None:
+        logging.warning(f'No matching beamset found for DicomPlanLabel: {ds_rt_plan_label} in beamset_list')
+        return None
+    return beamset
+
+
+# from typing import List, Tuple, Optional
+# import xml.etree.ElementTree as ET
+
+def generate_extended_va_xml(
+        dose_refs: List[Tuple[int, Optional[float], Optional[float]]],
+        beams: Optional[List[Tuple[int, int]]] = None,
+        tolerance_table: Optional[List[Tuple[str, str]]] = None
+) -> str:
+    """
+    Generate compact ExtendedVAPlanInterface XML string with no newlines or extra spacing.
+
+    Args:
+        dose_refs: List of tuples (ref_num, daily_limit, session_limit).
+        beams: Optional list of tuples (ReferencedBeamNumber, FieldOrder).
+        tolerance_table: Optional list of (field_name, value) pairs.
+
+    Returns:
+        str: XML string suitable for writing to DICOM tag (no newlines).
+    """
+    root = ET.Element("ExtendedVAPlanInterface", Version="1")
+
+    # Beams
+    beams_elem = ET.SubElement(root, "Beams")
+    if beams:
+        for num, order in beams:
+            beam = ET.SubElement(beams_elem, "Beam")
+            ET.SubElement(beam, "ReferencedBeamNumber").text = str(num)
+            ext = ET.SubElement(beam, "BeamExtension")
+            ET.SubElement(ext, "FieldOrder").text = str(order)
+            ET.SubElement(ext, "GantryRtnExtendedStart").text = "false"
+            ET.SubElement(ext, "GantryRtnExtendedStop").text = "false"
+
+    # ToleranceTables
+    tables_elem = ET.SubElement(root, "ToleranceTables")
+    if tolerance_table:
+        table = ET.SubElement(tables_elem, "ToleranceTable")
+        ET.SubElement(table, "ReferencedToleranceTableNumber").text = "1"
+        ext = ET.SubElement(table, "ToleranceTableExtension")
+        for field, val in tolerance_table:
+            ET.SubElement(ext, field).text = val
+
+    # DoseReferences
+    dose_elem = ET.SubElement(root, "DoseReferences")
+    for number, daily, session in dose_refs:
+        dr = ET.SubElement(dose_elem, "DoseReference")
+        ET.SubElement(dr, "ReferencedDoseReferenceNumber").text = str(number)
+        ext = ET.SubElement(dr, "DoseReferenceExtension")
+        if daily is not None:
+            ET.SubElement(ext, "DailyDoseLimit").text = str(daily)
+        if session is not None:
+            ET.SubElement(ext, "SessionDoseLimit").text = str(session)
+
+    # Generate compact XML string
+    xml_str = ET.tostring(
+        root,
+        encoding="utf-8",
+        xml_declaration=True,
+        short_empty_elements=False
+    ).decode("utf-8")
+    xml_str = xml_str.replace("\n", "").replace("\r", "").replace("\t", "").strip()
+    return xml_str
+
+
+def add_dose_reference_extension_tag(ds: Dataset, beamsets, expected) -> str:
+    """
+    Adds the Varian VISION 3253 private dose reference extension tag to a DICOM dataset.
+
+    Args:
+        ds (Dataset): The RT Plan DICOM dataset to modify.
+        beamsets: RayStation beamsets object to extract dose references from.
+        expected: A set-like container to track added tags (used downstream for filtering/export).
+    """
+
+    def get_dose_references(ds, beamsets) -> List[Tuple[int, Optional[float], Optional[float]]]:
+        """Extract dose references from the beamset."""
+        beamset = find_beamset_by_label(beamsets, ds)
+        dose_refs = []
+        references = beamset.Prescription.PrescriptionDoseReferences
+        for ref in references:
+            ref_number = references.IndexOf(ref) + 1  # DICOM uses 1-based indexing
+            number_of_fractions = Decimal(str(ds.FractionGroupSequence[0].NumberOfFractionsPlanned))
+            total_dose = Decimal(str(ref.DoseValue)) / Decimal('100')  # Convert to Gy
+            daily_limit = format_dose_value(total_dose / number_of_fractions, strip=True)
+            session_limit = format_dose_value(total_dose / number_of_fractions, strip=True)
+            dose_refs.append((ref_number, daily_limit, session_limit))
+        dose_refs.reverse()
+        return dose_refs
+
+    # Register private creator
+    private_creator_tag = Tag(0x3253, 0x0010)
+    private_creator_value = "Varian Medical Systems VISION 3253"
+    ds.add_new(private_creator_tag, 'LO', private_creator_value)
+    expected.add(ds[private_creator_tag])
+
+    # Get dose references
+    dose_refs = get_dose_references(ds, beamsets)
+
+    # Generate XML using full interface generator (only dose refs in this context)
+    xml_string = generate_extended_va_xml(
+        dose_refs=dose_refs,
+        beams=None,
+        tolerance_table=None
+    )
+
+    # Store XML in private tag (3253,1000)
+    # Encode the xml string as bytes
+    xml_encode = xml_string.encode('utf-8')
+    private_data_tag = Tag(0x3253, 0x1000)
+    ds.add_new(private_data_tag, 'UN', xml_encode)
+    expected.add(ds[private_data_tag])
+    ds.add_new(Tag(0x3253, 0x1002), 'UN', b'ExtendedIF')
+    expected.add(ds[Tag(0x3253, 0x1002)])
+    # ds.add_new(Tag(0x3253, 0x1001), 'UN', b'2858')
+    # expected.add(ds[Tag(0x3253, 0x1001)])
+
+
+def get_rs_prescription(beamset):
+    """Get the primary aria_prescription_filters dose reference from the beamset."""
+    if hasattr(beamset.Prescription, 'PrimaryPrescriptionDoseReference'):
+        return beamset.Prescription.PrimaryPrescriptionDoseReference
+    else:
+        logging.warning('No primary aria_prescription_filters dose reference found in beamset.')
+        return False
+
+
+def scale_reference_point_doses_to_prescription(current_beamset, dcm_rt_plan, decimal_precision=3,
+                                                expected=None):
+    desired_decimals = decimal_precision
+    precision_scale = Decimal('10') ** desired_decimals  # e.g. Decimal('100')
+    quantum = Decimal('1.' + '0' * desired_decimals)  # e.g. Decimal('1.00')
+
+    primary_rx = get_rs_prescription(current_beamset)
+    n_fractions = Decimal(str(dcm_rt_plan.FractionGroupSequence[0].NumberOfFractionsPlanned))
+    primary_rx_dose = Decimal(str(primary_rx.DoseValue)) / Decimal('100')  # Convert to Gy
+    primary_fractional_dose = primary_rx_dose / n_fractions
+
+    doses = []
+    beam_sequences = []
+    for beam_sequence in dcm_rt_plan.FractionGroupSequence[0].ReferencedBeamSequence:
+        if hasattr(beam_sequence, 'BeamDose'):
+            doses.append(Decimal(str(beam_sequence.BeamDose)))
+            beam_sequences.append(beam_sequence)
+
+    scale = primary_fractional_dose / sum(doses)
+    print(f'Current dose sum is {sum(doses)}')
+    q_scaled_doses = []
+    remainders = []
+    # Logic for quantized dose adjustment with remainders
+    for d in doses:
+        quant_dose = (d * scale).quantize(Decimal(quantum), rounding=ROUND_HALF_UP)
+        q_scaled_doses.append(quant_dose)
+        remainders.append(d * scale - quant_dose)
+    integer_target = int((primary_fractional_dose * precision_scale).to_integral_value(rounding=ROUND_HALF_UP))
+    int_scaled_doses = [int((sd * precision_scale).to_integral_value(rounding=ROUND_HALF_UP)) for sd in
+                        q_scaled_doses]
+    K = int(integer_target - sum(int_scaled_doses))
+    # 1) Pair each remainder with its beam index
+    pairs = list(enumerate(remainders))
+    #    -> [(0, rho_0), (1, rho_1), ..., (n-1, rho_{n-1})]
+    # 2) Sort descending if K>0 (or ascending if K<0)
+    pairs.sort(key=lambda x: x[1], reverse=(K > 0))
+    # 3) Apply ±1 quantum to the top |K| beams, i.e. those with the largest remainders
+    for idx, _ in pairs[:abs(K)]:
+        int_scaled_doses[idx] += 1 if K > 0 else -1
+    # 4) Convert back to decimal doses
+    adjusted_values = [u / Decimal(precision_scale) for u in int_scaled_doses]
+    post_float_error = float(primary_fractional_dose) - sum([float(i) for i in adjusted_values])
+
+    # 5) Update the BeamDose values in the beam sequences
+    for beam_sequence, adjusted_value, dose in zip(beam_sequences, adjusted_values, doses):
+        # Update the BeamDose value in the beam sequence
+        beam_sequence.BeamDose = format_dose_value(adjusted_value)
+        # Log the changes in dose values
+        ref_beam_name = get_referenced_beam_attribute(dcm_rt_plan, beam_sequence, 'BeamName')
+        print(
+            f"Adjusted BeamDose for {ref_beam_name} from {dose:.{decimal_precision}f} to "
+            f"{adjusted_value:.{decimal_precision}f} Gy, %diff = "
+            f"{((adjusted_value - dose) / dose * 100):.12f}%")
+        if expected is not None:
+            expected.add(beam_sequence[0x300A0084], beam=beam_sequence)
+    print(
+        f'Sum of Adjusted: {sum(adjusted_values):.{decimal_precision}f}, with residual error = {post_float_error:.2e}')
+
+
+def apply_prescription_filter_aria(ds, beamset, expected) -> str:
+    """
+    Build and insert the primary aria_prescription_filters reference point, and redistribute beam doses, pretty much
+    just for ARIA. This is because, to get the reference point doses to add correctly, we need to modify
+    the beam dose specification points (making them locationless). Obviously, Mobius doesn't like that
+    ARIA sets the dose to the primary reference point using the values in (300A,0084) BeamDose, so those have to
+    add up to exactly the primary aria_prescription_filters dose for the other dose levels to be correct.
+    DICOM tags used:
+    - (300A,0010) DoseReferenceSequence (SQ)
+    - (300A,0012) DoseReferenceNumber (IS) - 1 for primary and 2, 3, etc. for subsequent -> Check only
+    - (300A,0014) DoseReferenceStructureType (CS): COORDINATES for primary and SITE for secondary -> Check only
+    - (300A,0016) DoseReferenceDescription (LO) -> TODO: This seems to be wonky in RS and appears off in ARIA
+    - (300A,0018) DoseReferencePointCoordinates (DS) - Must be Kept if Primary -> Check only
+    - (300A,0013) DoseReferenceUID (UI) -> TODO
+    - (300A,0020) DoseReferenceType (CS): TARGET -> Check only
+    - (300A,0023) DeliveryMaximumDose (DS) ?
+    - (300A,0026) Target Prescription Dose (DS) - TODO: Needs to be exactly set to RS Values - Coming over with rounding errors
+    - (300A,002C) OrganAtRiskMaximumDose (DS)
+    - (300A, 0082) BeamDoseSpecificationPoint (DS) -
+    - Private tags for Varian/UF: (3267,1000…), (3267,0010…)
+
     Args:
         ds:                 full pydicom Dataset for the RTPlan
         beamset:            beamset object (to grab DicomPlanLabel & Prescription data)
@@ -1442,180 +2139,322 @@ def old_apply_prescription_filter(ds, beamset, expected, ref_point_location) -> 
         ref_point_location: bool, whether to insert coordinates or SITE
     Returns:
         msg (str): Summary message, or ''.
-        TODO: Add Varian private tags for secondary prescription reference points.
     """
+
+    def _determine_prescription_type(primary_dose_reference):
+        """Determine the type of aria_prescription_filters based on the beamset."""
+        # Check for a primary dose reference object in RS
+        if hasattr(primary_dose_reference, 'OnStructure'):
+            return 'STRUCTURE'
+        elif hasattr(primary_dose_reference, 'Description'):
+            return 'SITE'
+        else:
+            return 'UNKNOWN'
+
+    def _fraction_group_sequence_valid(ds):
+        """Check if the FractionGroupSequence exists and has referenced beams."""
+        if 'FractionGroupSequence' not in ds:
+            logging.warning('No FractionGroupSequence found in RTPlan.')
+            return False
+        if len(ds.FractionGroupSequence[0].ReferencedBeamSequence) == 0:
+            logging.warning('No ReferencedBeamSequence found in FractionGroupSequence.')
+            return False
+        return True
+
+    def _find_rx_reference(beamset, dose_reference_sequence):
+        logging.debug(f'Finding matching aria_prescription_filters for dose reference: '
+                      f'{beamset.DicomPlanLabel}')
+
+        dose_ref_num = dose_reference_sequence.DoseReferenceNumber
+        dose_ref_desc = dose_reference_sequence.DoseReferenceDescription
+        pdrs = beamset.Prescription.PrescriptionDoseReferences
+        if not dose_ref_desc:
+            logging.warning(f'DoseReferenceDescription is empty for DoseReferenceNumber {dose_ref_num}. '
+                            'Final Dose script was not run for this patient and associated errors should be expected')
+            traceback.print_exc()
+            logging.warning(f"DoseReferenceDescription is empty for DoseReferenceNumber {dose_ref_num}. "
+                            f'Final Dose script was not run for this patient and associated errors should be expected. '
+                            f'\n Traceback:\n {traceback.format_exc()}')
+            raise ValueError(
+                f'DoseReferenceDescription is empty for DoseReferenceNumber {dose_ref_num}. '
+                'Cannot find matching info, it is likely the Final Dose script '
+                'was not run before this one. Please run the Final Dose script first or disable '
+                'filters and manually set reference point data.'
+            )
+        for pdr in pdrs:
+            logging.debug(f'Checking PDR: {pdr.Description} '
+                          f'with number {pdrs.IndexOf(pdr)} '
+                          f'against {dose_ref_desc} with number {dose_ref_num}')
+            if pdrs.IndexOf(pdr) == dose_ref_num - 1 and pdr.Description == dose_ref_desc:
+                return pdr
+        return None
+
+    def _add_private_dose_reference_identifier(item, description_str: str, expected):
+        creator_tag = Tag(index_private_creator)
+        data_tag = Tag(index_private_data)
+        # Encode the description string as bytes
+        description_str = description_str.encode('utf-8')
+        if creator_tag in item:
+            item[creator_tag].value = "Varian Medical Systems VISION 3267"
+        else:
+            item.add_new(creator_tag, 'LO', "Varian Medical Systems VISION 3267")
+            expected.add(item[creator_tag])
+        if data_tag in item:
+            item[data_tag].value = description_str
+        else:
+            item.add_new(data_tag, 'UN', description_str)
+            expected.add(item[data_tag])
+
+    def _mu_scaled_beam_doses(mu: List[Decimal],
+                              rx_primary: Decimal,
+                              n_fractions: Decimal,
+                              decimals: int = 3
+                              ) -> Tuple[List[Decimal], Decimal]:
+        """
+        Compute MU-weighted BeamDose values and apply a K-remainder
+        redistribution so the rounded triplet sums exactly to the
+        prescription per fraction.
+
+        Args
+        ----
+        mu : list of MU values, one per beam (setup beams already removed)
+        rx_primary : prescription per fraction for the primary point [Gy]
+        n_fractions : number of fractions planned
+        decimals : number of decimal places allowed (Varian = 3)
+
+        Returns
+        -------
+        doses : list of adjusted BeamDose values [Gy] (length = len(mu))
+        rx_primary : returned unchanged for convenience
+        """
+        precision_scale = Decimal(10) ** decimals  # e.g. 1000
+        quantum = Decimal(f"1e-{decimals}")  # e.g. 0.001
+        primary_fractional_dose = rx_primary / n_fractions
+        print(f'Input primary dose: {rx_primary} Gy, MU: {mu}, n_fractions: {n_fractions}'
+              f'with primary fractional dose: {primary_fractional_dose} Gy')
+
+        total_mu = sum(mu)
+        # --- raw MU-weighted dose before rounding ----------------------------
+        unscaled = [primary_fractional_dose * m / total_mu for m in mu]
+
+        # --- first pass: round to grid ---------------------------------------
+        q_doses = [d.quantize(quantum, ROUND_HALF_UP) for d in unscaled]
+
+        # --- remainder pass (K-remainder, identical to Varian’s ±0.001 loop) --
+        int_target = int((primary_fractional_dose * precision_scale).to_integral_value(ROUND_HALF_UP))
+        int_doses = [int((d * precision_scale).to_integral_value(ROUND_HALF_UP)) for d in q_doses]
+        K = int_target - sum(int_doses)  # number of quanta we still need
+
+        if K:  # distribute the leftover quanta
+            # sort indices by size of remainder *before* the first rounding
+            remainders = [u - q for u, q in zip(unscaled, q_doses)]
+            order = sorted(range(len(mu)),
+                           key=lambda i: remainders[i],
+                           reverse=(K > 0))
+            for i in order[:abs(K)]:
+                int_doses[i] += 1 if K > 0 else -1
+
+        doses = [Decimal(u) / precision_scale for u in int_doses]
+        print(f'Output doses: {doses}, with total dose: {sum(doses)},'
+              f' and residual error: {primary_fractional_dose - sum(doses)}')
+        return doses, rx_primary
+
+    def beams_have_dose(dcm_rt_plan):
+        """Check if any beams in the DICOM RTPlan have a BeamDose value."""
+        return any(hasattr(beam, 'BeamDose') for beam in dcm_rt_plan.FractionGroupSequence[0].ReferencedBeamSequence)
+
     msgs = []
+    # index_dose_reference_structure_type = 0x300a0014
+    index_ref_point_desc = 0x300a0016
+    index_dose_del_max_dose = 0x300a0023
+    index_target_prescription_dose = 0x300a0026
+    index_target_maximum_dose = 0x300a0027
+    index_beam_dose_per_beam = 0x300a0084
+    index_private_creator = 0x32670010  # Private creator tag for Varian VISION 3267
+    index_private_data = 0x32671000  # Private data tag for Varian VISION 3267
+    getcontext().prec = 28  # high enough to avoid rounding issues
+
     # If the beamset type is list, then we need to match the DicomPlanLabel attribute with the plan name
     # of the ds passed to this function
-    ds_rt_plan_label = get_rt_plan_label(ds)
     if isinstance(beamset, list):
-        beamset = next((b for b in beamset if b.DicomPlanLabel == ds_rt_plan_label), None)
+        logging.debug(f'Applying aria_prescription_filters filter to beamsets: {[b.DicomPlanLabel for b in beamset]}')
     else:
-        beamset = beamset
-    if beamset is None:
-        logging.warning(f'No matching beamset found for DicomPlanLabel: {ds_rt_plan_label} in beamset_list')
+        logging.debug(f'Applying aria_prescription_filters filter to beamset: {beamset.DicomPlanLabel}')
+    beamset = find_beamset_by_label(beamset, ds)
+    logging.debug(f'Found beamset: {beamset.DicomPlanLabel} to match with DicomPlanLabel: {get_rt_plan_label(ds)}')
+    msgs.append(f'Rx Filter for {beamset.DicomPlanLabel}: ')
+    # only proceed if aria_prescription_filters data exists
+    # Check the ds for FractionGroupSequence and ReferencedBeamSequence
+    if not _fraction_group_sequence_valid(ds):
         return ''
-    else:
-        msgs.append(f'Rx Filter for {beamset.DicomPlanLabel}: ')
-    # only proceed if prescription data exists
-    presc = getattr(beamset.Prescription, 'PrimaryPrescriptionDoseReference', None)
-    if (not presc or 'FractionGroupSequence' not in ds
-            or len(ds.FractionGroupSequence[0].ReferencedBeamSequence) == 0):
+    # Fetch the aria_prescription_filters object
+    primary_dose_ref = get_rs_prescription(beamset)
+    if type(primary_dose_ref) is bool:
         return ''
-    # Create reference point for primary dose prescription in a se
-    # Declare a new dataset for the Dose Reference Sequence
-    ref = pydicom.Dataset()
-    ref.add_new(0x300a0012, 'IS', 1)
-    dose_ref_desc = str(beamset.DicomPlanLabel) + '.0'
-    ref.add_new(0x300a0016, 'LO', dose_ref_desc)
-    msgs.append(f"Set DoseReferenceDescription='{dose_ref_desc}'")
+    number_of_fractions = Decimal(str(ds.FractionGroupSequence[0].NumberOfFractionsPlanned))
 
-    # Add coordinates to the primary reference point
-    if ref_point_location:
-        ref.add_new(0x300a0014, 'CS', 'COORDINATES')
-        msgs.append("Reference point has location, set DoseReferenceStructureType=COORDINATES")
-        ref_beam_seq = ds.FractionGroupSequence[0].ReferencedBeamSequence[0]
-        if 'BeamDoseSpecificationPoint' in ref_beam_seq:
-            ref.add_new(0x300a0018, 'DS', ref_beam_seq.BeamDoseSpecificationPoint)
-            msgs.append(
-                f"BeamDoseSpecification point declared,  DoseReferencePointCoordinates={ref_beam_seq.BeamDoseSpecificationPoint}")
+    for drs in ds.DoseReferenceSequence:
+        deliv_tag = Tag(index_dose_del_max_dose)
+        targ_tag = Tag(index_target_maximum_dose)
+        rx_tag = Tag(index_target_prescription_dose)
+        # struct_type_tag = Tag(index_dose_reference_structure_type)
+        rs_prescription = _find_rx_reference(beamset, drs)
+        dose_ref_num = Tag(0x300A0012)  # DoseReferenceNumber
+        if rs_prescription is None:
+            traceback.print_exc()
+            logging.error(f'The aria_prescription_filters description is set to an unexpected value. '
+                          f'It is {drs.DoseReferenceDescription}, and would expect it was: {beamset.DicomPlanLabel}|1...n '
+                          f'Unable to find matching aria_prescription_filters for DoseReferenceSequence:'
+                          f' {drs.DoseReferenceDescription}, likely due to missing Final Dose script ')
+            raise ValueError(
+                f'The aria_prescription_filters description is set to an unexpected value.\n'
+                f'It is {drs.DoseReferenceDescription}, and would expect it was: {beamset.DicomPlanLabel}|1...n\n'
+                f'Please run the Final Dose script first or disable filters and manually set reference point data '
+                f'in ARIA.'
+            )
         else:
-            ref.add_new(0x300a0018, 'DS', [0, 0, 0])
-            msgs.append("No BeamDoseSpecificationPoint, set DoseReferencePointCoordinates=[0, 0, 0]")
-    else:
-        # If no reference_point location should be used, set the Rx type to site
-        ref.add_new(0x300a0014, 'CS', 'SITE')
-        msgs.append("Reference point has no location, set DoseReferenceStructureType=SITE")
-        # Set the Varian internal tag designating the Target Volume in ARIA
-        primary_dose_ref = beamset.Prescription.PrimaryPrescriptionDoseReference
-        if hasattr(primary_dose_ref, 'OnStructure'):
-            ref.add_new(0x32671000, 'UT', primary_dose_ref.OnStructure.Name)
-            msgs.append(f"Primary reference is OnStructure Name={primary_dose_ref.OnStructure.Name}")
-        # Address "Site"-based prescriptions
-        elif hasattr(primary_dose_ref, 'Description'):
-            ref.add_new(0x32671000, 'UT', primary_dose_ref.Description)
-            msgs.append(f"Primary reference is Site-based Description={primary_dose_ref.Description}")
+            # ARIA rounds to 3 decimals then adjusts weights by 0.001 to reduce rounding error
+            # maximum expected error is 0.0005 Gy * n fractions
+            if drs.get(dose_ref_num, None) is not None and drs.DoseReferenceNumber == 1:
+                # If this is the primary dose reference, do not set tolerance
+                tol_factor = Decimal('0')
+            else:
+                tol_factor = Decimal('0') + Decimal('0.0005')  # 0.0005 x beam number
+            rx_str = drs.get(rx_tag, None)
+            if rx_str is None:
+                rx_dose = Decimal(str(rs_prescription.DoseValue)) / Decimal('100')  # Convert to Gy
+            else:
+                rx_dose = Decimal(str(rx_str.value))  # Already in Gy
+            new_val = format_dose_value(rx_dose, strip=False)
+            new_tol = format_dose_value(rx_dose + tol_factor * number_of_fractions, strip=False)
+
+            # Target Prescription Dose
+            if rx_tag in drs:
+                # overwrite the existing element’s value
+                drs[rx_tag].value = new_val
+            else:
+                # create it from scratch (VR “DS” for Decimal String)
+                drs.add_new(rx_tag, 'DS', new_val)
+                expected.add(drs[rx_tag])
+
+            # DeliveryMaximumDose
+            if deliv_tag in drs:
+                # overwrite the existing element’s value
+                drs[deliv_tag].value = new_val
+            else:
+                # create it from scratch (VR “DS” for Decimal String)
+                drs.add_new(deliv_tag, 'DS', new_val)
+                expected.add(drs[deliv_tag])
+
+            # TargetMaximumDose
+            if targ_tag in drs:
+                drs[targ_tag].value = new_tol
+            else:
+                drs.add_new(targ_tag, 'DS', new_tol)
+                expected.add(drs[targ_tag])
+        # Insert private reference tags for the Daily and Session Dose reference limits
+        # Retreive the reference point name from the beamset
+        ref_point_desc = drs.get(index_ref_point_desc, None)
+        if ref_point_desc is None:
+            # If the reference point description is not set, use the beamset DicomPlanLabel
+            traceback.print_exc()
+            logging.error(f"An error occurred while attempting to retrieve a DoseReferenceDescription "
+                          f"for beamset {beamset.DicomPlanLabel}. "
+                          f"\n Traceback:\n {traceback.format_exc()}")
+            raise ValueError(
+                f'Beam {beamset.DicomPlanLabel}: DoseReferenceDescription not found, '
+                f'cannot proceed with dose adjustment.'
+            )
         else:
-            msgs.append('ERROR: Unsupported prescription type for locationless reference point. Report to developer')
-
-        expected.add(ref[0x32671000])
-        # Add the private tag indicator
-        ref.add_new(0x32670010, 'LO', 'UW Madison RayScripts 3267')
-        msgs.append("Added private tag indicator, UW Madison RayScripts 3267")
-        expected.add(ref[0x32670010])
-
-    # Build Dose Reference UID
-    series_uid = str(ds.SeriesInstanceUID).split('.', 4)
-    prefix_uid = ""
-    for i in range(4):
-        prefix_uid += series_uid[i] + '.'
-    dose_reference_uid = pydicom.uid.generate_uid(prefix=prefix_uid)
-    ref.add_new(0x300a0013, 'UI', dose_reference_uid)
-    msgs.append(f"Generated DoseReferenceUID={dose_reference_uid}")
-
-    ref.add_new(0x300a0020, 'CS', 'TARGET')
-    msgs.append("Set DoseReferenceType=TARGET")
-    primary_prescription = beamset.Prescription.PrimaryPrescriptionDoseReference
-    ref.add_new(0x300a0023, 'DS', primary_prescription.DoseValue / 100)
-    msgs.append(f"Set DeliveryMaximumDose={primary_prescription.DoseValue / 100} in Gy")
-    ref.add_new(0x300a002c, 'DS', primary_prescription.DoseValue / 100)
-    msgs.append(f"Set OrganAtRiskMaximumDose={primary_prescription.DoseValue / 100} in Gy")
-
-    if 'DoseReferenceSequence' not in ds:
-        ds.add_new(0x300a0010, 'SQ', pydicom.Sequence([ref]))
-        msgs.append("Added DoseReferenceSequence to RTPlan")
-        expected.add(ds[0x300a0010])
-    else:
-        # Generate a DICOM UID for tracking the prescription to the same volume
-        if 'DoseReferenceUID' not in ds.DoseReferenceSequence[0] or \
-                ds.DoseReferenceSequence[0].DoseReferenceUID != \
-                ref.DoseReferenceUID:
-            msgs.append("Updating DoseReferenceUID")
-            expected.add(ref[0x300a0013])
-
-        if 'DoseReferenceStructureType' not in ds.DoseReferenceSequence[0] or \
-                ds.DoseReferenceSequence[0].DoseReferenceStructureType != \
-                ref.DoseReferenceStructureType:
-            msgs.append("Updating DoseReferenceStructureType")
-            expected.add(ref[0x300a0014])
-
-        if 'DoseReferenceDescription' not in ds.DoseReferenceSequence[0] or \
-                ds.DoseReferenceSequence[0].DoseReferenceDescription != ref.DoseReferenceDescription:
-            msgs.append("Updating DoseReferenceDescription")
-            expected.add(ref[0x300a0016])
-
-        if ref_point_location:
-            if 'DoseReferencePointCoordinates' not in ds.DoseReferenceSequence[0] or \
-                    ds.DoseReferenceSequence[0].DoseReferencePointCoordinates != \
-                    ref.DoseReferencePointCoordinates:
-                msgs.append("Updating DoseReferencePointCoordinates")
-                expected.add(ref[0x300a0018])
-
-        if 'DoseReferenceType' not in ds.DoseReferenceSequence[0] or \
-                ds.DoseReferenceSequence[0].DoseReferenceType != ref.DoseReferenceType:
-            expected.add(ref[0x300a0020])
-
-        if 'DeliveryMaximumDose' not in ds.DoseReferenceSequence[0] or \
-                ds.DoseReferenceSequence[0].DeliveryMaximumDose != ref.DeliveryMaximumDose:
-            expected.add(ref[0x300a0023])
-            msgs.append("Updating DeliveryMaximumDose")
-
-        if 'OrganAtRiskMaximumDose' not in ds.DoseReferenceSequence[0] or \
-                ds.DoseReferenceSequence[0].OrganAtRiskMaximumDose != ref.OrganAtRiskMaximumDose:
-            expected.add(ref[0x300a002c])
-            msgs.append("Updating OrganAtRiskMaximumDose")
-
-        ds.DoseReferenceSequence = pydicom.Sequence([ref])
-        msgs.append("Updated existing DoseReferenceSequence in RTPlan")
+            _add_private_dose_reference_identifier(drs, ref_point_desc.value, expected)
 
     # Adjust beam doses to sum to primary dose point (if dose was not specified, evenly distribute it)
-    total_dose = 0
-    total_count = 0
+    total_dose = Decimal('0.0')
+    total_count = Decimal('0.0')
+    total_mu = Decimal('0.0')
+
     # Loop through the beams in the FractionGroupSequence
     for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
         beam_name = get_referenced_beam_name(ds, b)
-        total_count += 1
+        tdt = get_referenced_beam_attribute(ds, b, 'TreatmentDeliveryType')
+        if tdt == "SETUP" or tdt is None:
+            logging.debug(f"{beam_name} is a setup beam skipping")
+            continue
+        total_count += Decimal('1')
         if hasattr(b, 'BeamDose'):
-            total_dose += b.BeamDose
-        if 'BeamDoseSpecificationPoint' not in b and ref_point_location:
-            b.add_new(0x300a0082, 'DS', ref.DoseReferencePointCoordinates)
-            expected.add(b[0x300a0082], beam=b)
-            msgs.append(f'Beam {beam_name}: Added BeamDoseSpecificationPoint={ref.DoseReferencePointCoordinates}')
-        elif 'BeamDoseSpecificationPoint' in b and not ref_point_location:
-            # Following the varian private tag method of making beam points track to a
-            # "<DoseReferenceUID>\00"
-            # reference_beam_sequence_uid = str(dose_reference_uid) + r"\00"
-            # Add in private tags indicating primary reference point UID
-            # b.add_new(0x32491010,'UT',reference_beam_sequence_uid)
-            # expected.add(b[0x32491010], beam=b)
-            # Add the private tag indicator
-            # b.add_new(0x32490010, 'LO', 'UW Madison RayScripts 3249')
-            # expected.add(b[0x32490010])
-            msgs.append(f'Beam {beam_name}: Deleting ref point location data.')
-            if hasattr(b, 'BeamDoseSpecificationPoint'):
-                del b[0x300a0082]  # Beam Dose Point Specification Coordinates
-            if hasattr(b, 'BeamDosePointDepth'):
-                del b[0x300a0088]  # Beam Dose Point Depth
-            if hasattr(b, 'RadiologicalDepth'):
-                del b[0x300a0089]  # Beam Dose Point Equivalent Depth
-            if hasattr(b, 'BeamDoseType'):
-                del b[0x300a0090]  # Beam Dose Type
-    if total_dose == 0:
+            total_dose += Decimal(str(b.BeamDose))
+        if hasattr(b, 'BeamMeterset'):
+            total_mu += Decimal(str(b.BeamMeterset))
+    primary_dose = Decimal(str(primary_dose_ref.DoseValue)) / Decimal('100')  # Convert to Gy
+    # Rescale the primary dose
+
+    # Normalize by beam MU
+    # if beams_have_dose(ds):
+        # scale_reference_point_doses_to_prescription(current_beamset=beamset,
+        #                                              dcm_rt_plan=ds, expected=expected,
+        #                                              decimal_precision=3)
+    if total_mu >= 0:
+        mu_values = []
+        ref_beams = []
         for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
-            beam_dose = ref.DeliveryMaximumDose / \
-                        (total_count * ds.FractionGroupSequence[0].NumberOfFractionsPlanned)
-            b.add_new(0x300a0084, 'DS', beam_dose)
-            expected.add(b[0x300a0084], beam=b)
-            msgs.append = f"Beam {beam_name}: Set BeamDose={beam_dose}"
+            if get_referenced_beam_attribute(ds, b, 'TreatmentDeliveryType') == "SETUP":
+                continue
+            mu_values.append(Decimal(str(b.BeamMeterset)))
+            ref_beams.append(b)
+        doses, _ = _mu_scaled_beam_doses(mu_values,
+                                         primary_dose,
+                                         number_of_fractions,
+                                         decimals=8)
+
+        for b, dose in zip(ref_beams, doses):
+            # write exactly three decimals
+            b.add_new(index_beam_dose_per_beam, 'DS', f"{dose:.3f}")
+            expected.add(b[index_beam_dose_per_beam], beam=b)
+        # for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
+        #     beam_name = get_referenced_beam_name(ds, b)
+        #     tdt = get_referenced_beam_attribute(ds, b, 'TreatmentDeliveryType')
+        #     if tdt == "SETUP" or tdt is None:
+        #         logging.debug(f"{beam_name} is a setup beam skipping")
+        #         continue
+        #     mu = Decimal(str(b.BeamMeterset))
+        #     max_beam_dose = primary_dose * mu / (total_mu * number_of_fractions)
+        #     # Ensure the max_beam_dose is formatted correctly
+        #     # Set the precision of max_beam_dose to 10 digits to avoid rounding issues
+        #     max_beam_dose = format_dose_value(max_beam_dose, strip=False)
+        #     #
+        #     b.add_new(index_beam_dose_per_beam, 'DS', max_beam_dose)
+        #     expected.add(b[index_beam_dose_per_beam], beam=b)
+        #     msgs.append(f"Beam {beam_name}: Set BeamDose={max_beam_dose} for MU={mu}, "
+        #                 f"TotalMU={total_mu}, NumberOfFractions={number_of_fractions}")
+    elif total_count == 0:
+        for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
+            beam_name = get_referenced_beam_name(ds, b)
+            tdt = get_referenced_beam_attribute(ds, b, 'TreatmentDeliveryType')
+            if tdt == "SETUP" or tdt is None:
+                logging.debug(f"{beam_name} is a setup beam skipping")
+                continue
+            # Calculate the beam dose per fraction
+            beam_dose = primary_dose / (total_count * number_of_fractions)
+            # Ensure the beam_dose is formatted correctly
+            beam_dose = format_dose_value(beam_dose, strip=False)
+            b.add_new(index_beam_dose_per_beam, 'DS', beam_dose)
+            expected.add(b[index_beam_dose_per_beam], beam=b)
+            msgs.append(f"Beam {beam_name}: Set BeamDose={beam_dose} for {total_count}, "
+                        f"NumberOfFractions={number_of_fractions}")
     else:
         for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
-            if hasattr(b, 'BeamDose'):
-                max_beam_dose = b.BeamDose * ref.DeliveryMaximumDose / \
-                                (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned)
-                if b.BeamDose != max_beam_dose:
-                    b.BeamDose = max_beam_dose
-                    expected.add(b[0x300a0084], beam=b)
-                    msgs.append(f"Beam {beam_name}: Scaled BeamDose={max_beam_dose}")
+            # Let's get the correct Beam Dose and fudge it so that it exactly adds to the primary dose
+            beam_name = get_referenced_beam_name(ds, b)
+
+            total_count = Decimal(str(total_count))
+            beam_dose = primary_dose / (total_count * number_of_fractions)
+            # Ensure the beam_dose is formatted correctly
+            beam_dose = format_dose_value(beam_dose, strip=False)
+            b.add_new(index_beam_dose_per_beam, 'DS', beam_dose)
+            expected.add(b[index_beam_dose_per_beam], beam=b)
+            msgs.append = f"Beam {beam_name}: Set BeamDose={beam_dose}"
+
+    add_dose_reference_extension_tag(ds, beamset, expected)
     return '; '.join(msgs)
 
 

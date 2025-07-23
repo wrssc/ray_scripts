@@ -92,11 +92,11 @@ def create_site_billing_row(fill_row, index, visible):
                              visible=visible,
                              enable_events=True),
                     ]
-                    # sg.Input(size=(20, 1), key='-INPUT-', enable_events=True),
-                    # Sg.Listbox(key=create_tuple_key(KEY_DOSE_SITE, index),
-                    #            values=beamset_aliases,
-                    #            size=(20, 1),
-                    #            enable_events=True)]
+        # sg.Input(size=(20, 1), key='-INPUT-', enable_events=True),
+        # Sg.Listbox(key=create_tuple_key(KEY_DOSE_SITE, index),
+        #            values=beamset_aliases,
+        #            size=(20, 1),
+        #            enable_events=True)]
         billing_row = [Sg.Text('Select treatment technique',
                                visible=visible,
                                key=create_tuple_key(KEY_DOSE_BILL + KEY_T, index),
@@ -805,6 +805,9 @@ def validate_beamset_information(preplan_dict):
         popup_message += 'Number of beamsets needed to proceed.\n'
         num_beamsets = 0
     else:
+        logging.debug(f'Keys in use prior to fail: KEY_BEAMSET {KEY_BEAMSET}, '
+                      f'KEY_BEAMSET_COUNT {KEY_BEAMSET_COUNT}: value in preplan'
+                      f' {preplan_dict[KEY_BEAMSET][KEY_BEAMSET_COUNT]}')
         num_beamsets = int(preplan_dict[KEY_BEAMSET][KEY_BEAMSET_COUNT])
     # Beamset information is required
     for i in range(num_beamsets):
@@ -1013,7 +1016,6 @@ def extract_values_preplan_tab(main_window):
     }
 
     return values_dict
-
 
 
 def old_extract_values_preplan_tab(main_window):
@@ -1258,4 +1260,3 @@ def find_site_technique_from_beamset_name(beamset_name, num_beamsets, main_windo
                 if main_window[dose_bill_key].get() else ''
             return dose_site_value, dose_bill_value
     return None, None
-

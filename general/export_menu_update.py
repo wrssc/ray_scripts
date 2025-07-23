@@ -48,7 +48,8 @@ EXPORT_OPTIONS = {
     # Enabled in the script and defaulted to yes
     'ADJUST_ELECTRON_DOSERATE': ('Adjust Electron Dose Rate', RADIO_ON, ENABLED, ['Electrons']),
     'USE_PRDR_DOSERATE': ('Use PRDR Dose Rate', RADIO_ON, ENABLED, ['PRDR']),
-    'APPLY_PRESCRIPTION_REFERENCE_POINT': ('Apply Prescription Reference Point', RADIO_ON, ENABLED, []),
+    'APPLY_PRESCRIPTION_REFERENCE_POINT': ('Exact reference point contributions (applied to ARIA-only)',
+                                           RADIO_ON, ENABLED, []),
     'UPDATE_SETUP_BEAMS': ('Update Setup Beams', RADIO_ON, ENABLED, ['Photons', 'Electrons']),
     # Enabled in the script but defaulted to no
     'USE_GATED': ('Internal Target RPM Gated Treatment (NOT ALIGN RT)', RADIO_OFF, ENABLED, ['Photons', 'Electrons']),
@@ -823,7 +824,7 @@ def main():
                                table=initial_table_position,
                                pa_threshold=response.get('SET_PA_AUTOMATICALLY', False),
                                round_jaws=response.get('ROUND_JAWS', False),
-                               prescription=response.get('APPLY_PRESCRIPTION_REFERENCE_POINT', False),
+                               aria_prescription_filters=response.get('APPLY_PRESCRIPTION_REFERENCE_POINT', False),
                                no_ref_point_location=response.get('NO_REF_POINT_LOCATION', False),
                                block_accessory=response.get('APPLY_BLOCK_ACCESSORY_TO_ELECTRON_FIELDS', False),
                                block_tray_id=response.get('COPY_ELECTRON_BLOCK_NAME_TO_ID', False),
