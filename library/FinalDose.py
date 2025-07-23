@@ -78,13 +78,138 @@ from GeneralOperations import logcrit as logcrit
 from PlanOperations import find_beamset
 import StructureOperations
 import clr
+import re
+
+clr.AddReference("System.Xml")
 import os
 from api.api_beamsets import adjust_emc_calculation
 from api.api_ui import ui_click_plan_optimization
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library/OldPlanReview'))
 
-clr.AddReference("System.Xml")
+# Pattern for a beamset name of form 'XXXX_YYY_R#A#'
+_SUFFIX_PATTERN = re.compile(r'^[A-Za-z0-9]{4}_[A-Za-z0-9]{3}_R\d+A\d+$')
+
+
+def format_prescription_description(element_name, beamset_name):
+    return f'{element_name}:{beamset_name}'
+
+
+def determine_prescription_type(prescription_dose_reference):
+    """Determines the prescription type based on the prescription dose reference.
+
+    Args:
+        prescription_dose_reference (PrescriptionDoseReference): The prescription dose reference to check.
+
+    Returns:
+        str: The prescription type.
+    """
+    if hasattr(prescription_dose_reference, 'OnStructure'):
+        return 'Roi-based', prescription_dose_reference.OnStructure.Name
+    elif hasattr(prescription_dose_reference, 'OnDoseSpecificationPoint') and \
+            prescription_dose_reference.OnDoseSpecificationPoint is not None:
+        return 'Dsp-based', prescription_dose_reference.OnDoseSpecificationPoint.Name
+    elif hasattr(prescription_dose_reference, 'PrescriptionType') and \
+            prescription_dose_reference.PrescriptionType == 'DoseAtPoint':
+        return 'Site-based', prescription_dose_reference.Description
+    else:
+        return 'Unknown', None
+
+
+def fix_description_suffix(description: str, beamset_name: str) -> str:
+    """Ensure prescription description ends with the current beamset name.
+
+    If `description` contains ':' and the text after the last colon matches
+    an old beamset-name pattern (4 chars + '_' + 3 chars + '_R#A#), replace
+    that suffix with `beamset_name`. Otherwise, return `description` unchanged.
+
+    Args:
+        description: Existing prescription description string.
+        beamset_name: Current DicomPlanLabel of the beamset (e.g. 'PROS_VMA_R1A1').
+
+    Returns:
+        The corrected description string.
+    """
+    # Only consider strings containing at least one ':' and longer than beamset_name
+    logging.debug(f'Checking description: {description} for beamset name: {beamset_name}')
+    if ":" in description and len(description) > len(beamset_name):
+        logging.debug(f'Fixing description suffix for {description} with beamset name {beamset_name}')
+        head, sep, tail = description.rpartition(":")
+        # If the old suffix looks like a beamset name, swap it out
+        if _SUFFIX_PATTERN.match(tail):
+            logging.debug(f'Replacing old beamset name suffix in description: {tail}')
+            return f"{head}{sep}{beamset_name}"
+    return f"{description}:{beamset_name}"
+
+
+def review_target_history(beamset):
+    """ Review the target history for this beamset and prior beamsets using this contour's UID
+    1. Does it have the same Geometry as any othert beamset's target
+    2. Do the dose levels match
+    """
+    pass
+
+
+def check_description_unique(patient, proposed_description, adapted=False):
+    # Scan the cases to see if this description is already used
+    for case in patient.Cases:
+        for plan in case.TreatmentPlans:
+            for beamset in plan.BeamSets:
+                if hasattr(beamset, 'Review') and \
+                        hasattr(beamset.Review, 'ApprovalStatus') and \
+                        beamset.Review.ApprovalStatus == 'Approved':
+                    if hasattr(beamset.Prescription, 'PrescriptionDoseReferences'):
+                        prescription_dose_references = beamset.Prescription.PrescriptionDoseReferences
+                        for pdr in prescription_dose_references:
+                            # TODO: match on first 8 characters of the description, if adapted set to prior ref
+                            #       if not, match on the full description
+                            if pdr.Description == proposed_description:
+                                logging.warning(f'Proposed description {proposed_description} already exists in '
+                                                f'beamset {beamset.DicomPlanLabel}')
+                                return False
+    return True
+
+
+def set_prescription_description(patient, beamset):
+    """Sets the prescription description for the beamset.
+    V0. Set Description to <beamset name 13 chars>|D1, |D2, etc...
+    * Checked:
+       - Roi-based prescription types
+       - Background dose use
+
+    Args:
+        patient (Patient): The RS patient object for the current patient.
+        beamset (BeamSet): The beamset to set the prescription description for.
+    """
+    beamset_name = beamset.DicomPlanLabel
+    if hasattr(beamset.Prescription, 'PrescriptionDoseReferences'):
+        prescription_dose_references = beamset.Prescription.PrescriptionDoseReferences
+        indx = 1
+        for pdr in prescription_dose_references:
+            rx_type, name_of_pdr = determine_prescription_type(pdr)
+            # logging.info(f'Processing prescription dose reference of type: {rx_type} for beamset: {beamset_name},'
+            #              f' with name: {name_of_pdr}')
+            ref_indx = 0
+            proposed_description = f'{beamset_name}|D{indx}'
+            while not check_description_unique(patient, proposed_description):
+                logging.warning(f'Proposed description {proposed_description} already exists in beamset '
+                                f'{beamset.DicomPlanLabel}, skipping setting description')
+                # If the description already exists, increment the index and try again
+                proposed_description = f'{beamset_name[:11]}|D{indx}.{ref_indx}'
+                logging.warning(f'Incrementing index to {ref_indx} for beamset {beamset.DicomPlanLabel}'
+                                f' to make description unique for reference point. Trying {proposed_description}')
+                ref_indx += 1
+            if rx_type == 'Site-based':
+                # Make sure this has not already been named
+                pdr.Description = proposed_description  # fix_description_suffix(pdr.Description, beamset_name)
+            elif rx_type == 'Unknown':
+                logging.warning(f'Beamset {beamset_name} has an unknown prescription type for dose reference: {pdr}')
+                pdr.Description = proposed_description
+            else:
+                pdr.Description = proposed_description  # format_prescription_description(name_of_pdr, beamset_name)
+            indx += 1
+    else:
+        logging.warning(f'Beamset {beamset_name} does not have any prescription dose references')
 
 
 def compute_dose(beamset, dose_algorithm):
@@ -197,7 +322,7 @@ def process_rois_for_export(plan, case):
             logging.debug(f'Including {r.Name} in the export list')
 
     # Get any rois included in a prescription
-    rois_for_export = find_prescription_rois(case,rois_for_export)
+    rois_for_export = find_prescription_rois(case, rois_for_export)
 
     # Add support, external, and bolus structures
     rois_for_export.extend(StructureOperations.find_types(case, 'Bolus'))
@@ -259,24 +384,16 @@ def final_dose_v15(site=None, technique=None, rso=None, beamset_name=None):
     # Let the statements below change as needed
     check_lateral_pa = False
     # Set up the workflow steps.
-    steps = ['Exclude irrelevant rois from export']
+    steps = ['Exclude irrelevant rois from export',
+             'Modify Prescription Description',
+             'Rename Beams',
+             'Compute Dose if necessary',
+             'Set DSP',
+             ]
     if 'Tomo' not in beamset.DeliveryTechnique and beamset.Modality != 'Electrons':
         if check_lateral_pa:
             steps.append('Check Laterality')
-        steps.append('Rename Beams')
-        steps.append('Compute Dose if necessary')
-        steps.append('Set DSP')
         steps.append('Recompute Dose')
-
-    if 'Tomo' in beamset.DeliveryTechnique:
-        steps.append('Rename Beams')
-        steps.append('Compute Dose if necessary')
-        steps.append('Set DSP')
-
-    if beamset.Modality == 'Electrons':
-        steps.append('Rename Beams')
-        steps.append('Compute Dose if necessary')
-        steps.append('Set DSP')
 
     status = UserInterface.ScriptStatus(steps=steps,
                                         docstring=__doc__,
@@ -285,6 +402,8 @@ def final_dose_v15(site=None, technique=None, rso=None, beamset_name=None):
 
     # Exclude irrelevant rois from export
     process_rois_for_export(plan, case)
+
+    set_prescription_description(patient, beamset)
 
     if rename_beams:
         # Rename the beams
@@ -499,10 +618,9 @@ def final_dose_v12(site=None, technique=None, rso=None, beamset_name=None):
 
     logcrit('Final Dose Script Run Successfully')
 
-
 # def main():
 #     #
-    # Detect API version
+# Detect API version
 #     version, sub_version = detect_api_version()
 #     if version == 15:
 #         final_dose_v15()
