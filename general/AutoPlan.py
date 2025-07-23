@@ -330,6 +330,55 @@ def multi_autoplan(multi_plan_parameters):
     return multi_plan_parameters
 
 
+def remove_existing_supports(case, beamset):
+    """
+    Remove existing support structures from the beamset.
+    Args:
+        case: The current case object.
+        beamset: The current beamset object.
+    Returns:
+        None
+    """
+    existing_supports = StructureOperations.find_types(case, roi_type='Support')
+    existing_supports += StructureOperations.find_types(case, roi_type='Fixation')
+    if existing_supports:
+        for s in existing_supports:
+            try:
+                logging.debug(f'Excluding support structure {s} from beamset {beamset.DicomPlanLabel}')
+                beamset.ExcludeRoiFromRadiationSet(RoiName=s)
+            except Exception as e:
+                logging.warning(f'Error excluding support structure {s} from beamset: {e}')
+
+
+def include_supports_in_beamset(beamset, supports):
+    """
+    Include support structures in the beamset radiation set.
+    This function attempts to include each support structure in the beamset's radiation set.
+    If a support structure is already included, it will log a debug message and continue.
+    If an error occurs while including a support structure, it will log a warning message.
+
+    Args:
+        beamset: The current beamset object.
+        supports: A list of support structure names to be included in the beamset.
+
+    Returns:
+        None
+
+    """
+    for support in supports:
+        try:
+            logging.debug(f'Loaded support structure {support} and assigned to beamset'
+                          f' {beamset.DicomPlanLabel}')
+            beamset.IncludeRoiInRadiationSet(RoiName=support)
+        except Exception as e:
+            if "The ROI is already included in the beam set" in str(e):
+                logging.debug(f'Support structure {support} already included in '
+                              f'radiation set {beamset.DicomPlanLabel}')
+                pass
+            else:
+                logging.warning(f'Error loading support structure {support}: {e}')
+
+
 def copy_plan_set_copy_current(rso, new_plan_name):
     # Copy the plan and create a named tuple for return
     Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
@@ -373,7 +422,7 @@ def autoplan(autoplan_parameters, **kwargs):
         iso_dict = autoplan_parameters.get('iso', {})
         multi_isocenter = autoplan_parameters.get('multi_isocenter', False)
         machine = autoplan_parameters['machine']
-        user_prompts = autoplan_parameters.get('user_prompts', None)
+        user_prompts = autoplan_parameters.get('user_prompts', True)
         optimize = autoplan_parameters.get('optimize', True)
         ignore_status = autoplan_parameters.get('ignore_status', False)
         multi_plan_parameters = kwargs.get('beamset_list', [])
@@ -932,24 +981,29 @@ def autoplan(autoplan_parameters, **kwargs):
         strip_roi_support = strip_roi_support.replace(" ", "")
         strip_roi_support = strip_roi_support.strip()
         beamset_defs.support_roi = strip_roi_support.split(",")
+    logging.debug(f'Beamset support structures: {beamset_defs.support_roi}, '
+                  f'user prompts: {user_prompts}, '
+                  f'strip_roi_support: {strip_roi_support}')
     if user_prompts and strip_roi_support:
-        AutoPlanOperations.load_supports(rso=rso,
-                                         supports=beamset_defs.support_roi,
-                                         quiet=user_prompts)
-        for support in beamset_defs.support_roi:
-            try:
-                logging.debug(f'Loaded support structure {support} and assigned to beamset'
-                              f' {rso.beamset.DicomPlanLabel}')
-                rso.beamset.IncludeRoiInRadiationSet(RoiName=support)
-            except Exception as e:
-                if "The ROI is already included in the beam set" in str(e):
-                    logging.debug(f'Support structure {support} already included in '
-                                  f'radiation set {rso.beamset.DicomPlanLabel}')
-                    pass
-                else:
-                    logging.warning(f'Error loading support structure {support}: {e}')
-
-
+        remove_existing_supports(case=rso.case, beamset=rso.beamset)
+        # existing_supports = StructureOperations.find_types(
+        #     rso.case, roi_type='Fixation')
+        # existing_supports += StructureOperations.find_types(
+        #     rso.case, roi_type='Support')
+        AutoPlanOperations.load_supports(rso=rso, supports=beamset_defs.support_roi, quiet=user_prompts)
+        include_supports_in_beamset(beamset=rso.beamset, supports=beamset_defs.support_roi)
+        # for support in beamset_defs.support_roi:
+        #    try:
+        #        logging.debug(f'Loaded support structure {support} and assigned to beamset'
+        #                      f' {rso.beamset.DicomPlanLabel}')
+        #        rso.beamset.IncludeRoiInRadiationSet(RoiName=support)
+        #    except Exception as e:
+        #        if "The ROI is already included in the beam set" in str(e):
+        #            logging.debug(f'Support structure {support} already included in '
+        #                          f'radiation set {rso.beamset.DicomPlanLabel}')
+        #            pass
+        #        else:
+        #            logging.warning(f'Error loading support structure {support}: {e}')
     else:
         logging.info(f'Loading support {beamset_defs.support_roi} '
                      f'skipped for testing')

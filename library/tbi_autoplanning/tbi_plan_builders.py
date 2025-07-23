@@ -87,7 +87,8 @@ def tomo_calc_iso(patient_data: object, target: str) -> str:
     return iso_name
 
 
-def get_tomo_plan_defs(rso: object, target: str, nfx: int, rx: int, optimize: bool = False, kidney_sparing: bool = False) -> dict:
+def get_tomo_plan_defs(rso: object, target: str, nfx: int, rx: int, optimize: bool = False,
+                       kidney_sparing: bool = False) -> dict:
     """
     Generates a protocol dictionary for Tomo TBI planning based on patient orientation and options.
 
@@ -138,7 +139,8 @@ def get_tomo_plan_defs(rso: object, target: str, nfx: int, rx: int, optimize: bo
     return protocol
 
 
-def get_vmat_plan_defs(rso: object, hfs_pois: list, ffs_pois: list, nfx: int, rx: int, optimize: bool = False, kidney_sparing: bool = False) -> tuple:
+def get_vmat_plan_defs(rso: object, hfs_pois: list, ffs_pois: list, nfx: int, rx: int, optimize: bool = False,
+                       kidney_sparing: bool = False) -> tuple:
     """
     Generates data dictionaries for multiple VMAT plan treatments.
 
@@ -378,11 +380,11 @@ def get_vmat_plan_defs(rso: object, hfs_pois: list, ffs_pois: list, nfx: int, rx
                 'beamset_name': HFS_VMAT_BEAMSET_NAME if site == 'HFS_' else FFS_VMAT_BEAMSET_NAME,
                 'machine': VMAT_MACHINE,
                 'beamset_template': template,
-                'beamset_exists_skip': all(beamset_complete(rso, n)),
+                'beamset_exists_skip': beamset_exists(rso, n),
                 'multi_isocenter': True,
                 'iso': {'type': 'POI', 'target': target_poi},
                 'optimize': optimize,
-                'user_prompts': False,
+                'user_prompts': True if i == 0 else False,
             })
             prior_beamset_name = n
         return dictionary
@@ -402,7 +404,81 @@ def get_vmat_plan_defs(rso: object, hfs_pois: list, ffs_pois: list, nfx: int, rx
     return hfs_dict, ffs_dict
 
 
-def beamset_complete(rso: object, beamset_name: str) -> bool:
+def beamset_exists(rso: object, beamset_name: str) -> bool:
+    """
+    Checks if a beamset exists for the given RayStation object.
+
+    Args:
+        rso (object): RayStation object with .case attribute.
+        beamset_name (str): Name of the beamset to check.
+
+    Returns:
+        bool: True if the beamset exists, False otherwise.
+    """
+    if get_beamset(rso, beamset_name) is None:
+        return False
+    else:
+        return True
+
+
+def get_beamset(rso: object, beamset_name: str) -> object:
+    """
+    Retrieves a beamset by name for the given RayStation object.
+
+    Args:
+        rso (object): RayStation object with .case attribute.
+        beamset_name (str): Name of the beamset to retrieve.
+
+    Returns:
+        object: The beamset if it exists, None otherwise.
+    """
+    beamset = next(
+        (bs for plan in rso.case.TreatmentPlans for bs in plan.BeamSets
+         if bs.DicomPlanLabel == beamset_name), None
+    )
+    return beamset
+
+
+def beamset_has_valid_segments(rso: object, beamset_name: str) -> bool:
+    """
+    Checks if a beamset has valid segments for the given RayStation object.
+
+    Args:
+        rso (object): RayStation object with .case attribute.
+        beamset_name (str): Name of the beamset to check.
+
+    Returns:
+        bool: True if the beamset has valid segments, False otherwise.
+    """
+    beamset = get_beamset(rso, beamset_name)
+    if not beamset:
+        return False
+
+    has_valid_segments = all(
+        b.BeamMU > 0 and (b.DeliveryTechnique == 'TomoHelical' or b.HasValidSegments)
+        for b in beamset.Beams
+    )
+    return has_valid_segments
+
+
+def beamset_has_dose(rso: object, beamset_name: str) -> bool:
+    """
+    Checks if a beamset has dose values for the given RayStation object.
+
+    Args:
+        rso (object): RayStation object with .case attribute.
+        beamset_name (str): Name of the beamset to check.
+
+    Returns:
+        bool: True if the beamset has dose values, False otherwise.
+    """
+    beamset = get_beamset(rso, beamset_name)
+    if not beamset:
+        return False
+    return beamset.FractionDose.DoseValues is not None
+
+
+def beamset_complete(rso: object, beamset_name: str) -> tuple:
     """
     Checks if a beamset is complete for the given RayStation object.
 
@@ -411,33 +487,21 @@ def beamset_complete(rso: object, beamset_name: str) -> bool:
         beamset_name (str): Name of the beamset to check.
 
     Returns:
-        bool: True if the beamset is complete, False otherwise.
+        tuple: (beamset_present: bool, does the beamset exist with the name mathing beamset_name,
+                beamset_has_valid_segments: bool, does the beamset have valid segments,
+                beamset_has_dose: bool, does the beamset have dose values).
+
     """
-    # Accessing rso.case (RayStation dynamic attribute)
-    # Find the beamset with the matching name, if it exists.
-    beamset = next(
-        (bs for plan in rso.case.TreatmentPlans for bs in plan.BeamSets
-         if bs.DicomPlanLabel == beamset_name),
-        None
-    )
-
-    # If no beamset is found, return all False.
-    if beamset is None:
-        return False
-
     # Mark that the beamset exists.
-    beamset_exists = True
+    present = beamset_exists(rso, beamset_name)
 
     # Validate each beam: Must have BeamMU > 0 and either be 'TomoHelical' or have valid segments.
-    beamset_has_valid_segments = all(
-        b.BeamMU > 0 and (b.DeliveryTechnique == 'TomoHelical' or b.HasValidSegments)
-        for b in beamset.Beams
-    )
+    has_valid_segments = beamset_has_valid_segments(rso, beamset_name)
 
     # Check that the beamset has dose values.
-    beamset_has_dose = beamset.FractionDose.DoseValues is not None
+    has_dose = beamset_has_dose(rso, beamset_name)
 
-    return bool(beamset_exists and beamset_has_valid_segments and beamset_has_dose)
+    return present, has_valid_segments, has_dose
 
 
 def check_fiducials(pd: object, fiducial_name: str) -> tuple:

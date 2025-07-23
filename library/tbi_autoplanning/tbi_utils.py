@@ -19,6 +19,7 @@ from .tbi_definitions import EXTERNAL_NAME, HFS_VMAT_PLAN_NAME, HFS_VMAT_BEAMSET
     FFS_VMAT_PLAN_NAME, FFS_VMAT_BEAMSET_NAME, HFS_TOMO_PLAN_NAME, HFS_TOMO_BEAMSET_NAME, FFS_TOMO_PLAN_NAME, \
     FFS_TOMO_BEAMSET_NAME
 
+
 @dataclass
 class Pd:
     error: list
@@ -64,7 +65,7 @@ def register_images(pd_hfs: Pd, pd_ffs: Pd, hfs_scan_name: str, ffs_scan_name: s
             delete=False,
         )
 
-    approved = check_registration(pdata_hfs=pd_hfs, pdata_ffs=pd_ffs)
+    approved = check_registration(pdata_hfs=pd_hfs, pdata_ffs=pd_ffs, allow_missing=True)
 
     if not approved:
         pd_ffs.case.ComputeGrayLevelBasedRigidRegistration(
@@ -147,7 +148,8 @@ def reset_primary_secondary(exam1: object, exam2: object) -> None:
     exam2.SetSecondary()
 
 
-def initialize_patient_data(hfs_exam: object, ffs_exam: object, vmat: bool = False, tomo: bool = False) -> Tuple[Pd, Pd]:
+def initialize_patient_data(hfs_exam: object, ffs_exam: object, vmat: bool = False, tomo: bool = False) -> Tuple[
+    Pd, Pd]:
     """
     Initialize patient data structures for HFS and FFS exams.
 
@@ -266,14 +268,28 @@ def determine_prefix(exam: object) -> str:
         return 'ffs'
 
 
+def single_registration(registrations: object) -> bool:
+    """
+    Check if there is a single registration in the case.
+    :return: True if there is a single registration, False otherwise
+    """
+    if registrations is None:
+        logging.info('No registrations found in the case')
+        return False
+    if len(registrations) == 1:
+        logging.info('Single registration found in the case')
+        return True
+    elif len(registrations) > 1:
+        logging.info(f'Multiple registrations found in the case: {len(registrations)}')
+        return False
+
+
 def frame_of_reference_registration(pdata_hfs):
     """
     Check if there is a FrameOfReferenceRegistration in the case.
     :return: True if there is a FrameOfReferenceRegistration, False otherwise
     """
-    if pdata_hfs.case.FrameOfReferenceRegistrations is not None and \
-            len(pdata_hfs.case.FrameOfReferenceRegistrations) > 0 and \
-            len(pdata_hfs.case.FrameOfReferenceRegistrations) == 1:
+    if single_registration(pdata_hfs.case.FrameOfReferenceRegistrations):
         return pdata_hfs.case.FrameOfReferenceRegistrations[0]
     return None
 
@@ -283,9 +299,7 @@ def rigid_registration(pdata_hfs):
     Check if there is a RigidRegistration in the case.
     :return: True if there is a RigidRegistration, False otherwise
     """
-    if pdata_hfs.case.RigidRegistrations is not None and \
-            len(pdata_hfs.case.RigidRegistrations) > 0 and \
-            len(pdata_hfs.case.RigidRegistrations) == 1:
+    if single_registration(pdata_hfs.case.RigidRegistrations):
         return pdata_hfs.case.RigidRegistrations[0]
     return None
 
@@ -295,10 +309,9 @@ def structure_registration(pdata_hfs):
     Check if there is a StructureRegistration in the case.
     :return: True if there is a StructureRegistration, False otherwise
     """
-    if pdata_hfs.case.StructureRegistrations is not None and \
-            len(pdata_hfs.case.StructureRegistrations) > 0 and \
-            len(pdata_hfs.case.StructureRegistrations) == 1:
+    if single_registration(pdata_hfs.case.StructureRegistrations):
         return pdata_hfs.case.StructureRegistrations[0]
+    return None
 
 
 def no_registrations(pdata):
@@ -306,10 +319,11 @@ def no_registrations(pdata):
     if not frame_of_reference_registration(pdata) and \
             not rigid_registration(pdata) and not structure_registration(pdata):
         return True
+    return False
 
 
-def check_registration(pdata_hfs, pdata_ffs):
-    def _check_registration_direction(expected_from, expected_to):
+def check_registration(pdata_hfs, pdata_ffs, allow_missing: bool = False) -> bool:
+    def _incorrect_registration_direction(expected_from, expected_to):
         """
         Check if the registration direction is correct.
         :param expected_from: expected FromExamination name
@@ -320,8 +334,8 @@ def check_registration(pdata_hfs, pdata_ffs):
 
         if hasattr(sr_check, 'FromExamination') and \
                 hasattr(sr_check, 'ToExamination'):
-            if sr_check.FromExamination.Name == expected_from and \
-                    sr_check.ToExamination.Name == expected_to:
+            if sr_check.FromExamination.Name == expected_to and \
+                    sr_check.ToExamination.Name == expected_from:
                 return True
         return False
 
@@ -333,10 +347,10 @@ def check_registration(pdata_hfs, pdata_ffs):
         if hasattr(registration, 'Review') and hasattr(registration.Review, 'ApprovalStatus'):
             return registration.Review.ApprovalStatus == 'Approved'
 
-    if no_registrations(pdata_hfs):
+    if no_registrations(pdata_hfs) and not allow_missing:
         raise RuntimeError('No registrations found, this script requires a registration '
-                               'from HFS to FFS.\n'
-                               f'Please run the Generate Structures script first.')
+                           'from HFS to FFS.\n'
+                           f'Please run the Generate Structures script first.')
     # Check if there is merely a rigid registration, if so raise an error
     # since we cannot use it for dose calculation
     if rigid_registration(pdata_hfs):
@@ -345,16 +359,16 @@ def check_registration(pdata_hfs, pdata_ffs):
                            ' the FFS Structures function first')
     # Get the frame of reference registration
     registration = frame_of_reference_registration(pdata_hfs)
-    if not registration:
+    if not registration and not allow_missing:
         raise RuntimeError('No FrameOfReferenceRegistration found, this script requires a '
                            'registration from HFS to FFS, please run the Generate Structures function first')
     # Check the direction of the registration
     hfs_exam_name = pdata_hfs.exam.Name
     ffs_exam_name = pdata_ffs.exam.Name
     # Backwards, potential API bug, FROM:FFS -> TO:HFS when the GUI shows FROM:HFS -> TO:FFS
-    correct_registration = _check_registration_direction(expected_from=ffs_exam_name,
-                                                         expected_to=hfs_exam_name)
-    if not correct_registration:
+    incorrect_registration = _incorrect_registration_direction(expected_from=ffs_exam_name,
+                                                               expected_to=hfs_exam_name)
+    if incorrect_registration:
         str_reg = structure_registration(pdata_hfs)
         # Floating == To, and Reference == From
         floating = str_reg.ToExamination.Name

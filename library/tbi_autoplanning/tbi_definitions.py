@@ -151,4 +151,3 @@ TOMO_KEY = '-TOMO-'
 KIDNEY_KEY = '-KIDNEY-'
 NO_KIDNEY_KEY = '-NO KIDNEY-'
 PAUSE_KEY = '-PAUSE-'
-# Add more GUI keys as needed

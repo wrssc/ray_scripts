@@ -422,8 +422,6 @@ def make_box(patient_data, box_name, length=None, z_center=None, delete_existing
                            f"on exam {exam.Name}")
 
 
-
-
 def make_central_junction_contour(pdata, z_inf_box,
                                   dim_si, dose_level, color=None, j_name=None):
     #  Make the Box Roi and junction region in the area of interest
