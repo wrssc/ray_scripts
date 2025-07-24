@@ -1606,7 +1606,7 @@ def old_apply_prescription_filter(ds, beamset, expected, ref_point_location) -> 
                         (total_count * ds.FractionGroupSequence[0].NumberOfFractionsPlanned)
             b.add_new(0x300a0084, 'DS', beam_dose)
             expected.add(b[0x300a0084], beam=b)
-            msgs.append = f"Beam {beam_name}: Set BeamDose={beam_dose}"
+            msgs.append(f"Beam {beam_name}: Set BeamDose={beam_dose}")
     else:
         for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
             if hasattr(b, 'BeamDose'):
