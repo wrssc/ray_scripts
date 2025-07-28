@@ -1,14 +1,14 @@
 # roi_operations.py
 from typing import Optional, List
-from collections import namedtuple
 import sys
 import logging
 import connect
 import math
+import numpy as np
 
 from library.StructureOperations import (
     create_roi, make_boolean_structure, change_roi_type,
-    find_types, exclude_from_export,)
+    find_types, exclude_from_export, )
 import library.AutoPlanOperations as AutoPlanOperations
 from .tbi_definitions import (
     CENTRAL_JUNCTION_WIDTH, FFS_MAX_TREATMENT_LENGTH, LUNG_AVOID_MARGIN, LUNGS_EVAL_MARGIN, \
@@ -148,23 +148,27 @@ def delete_roi(case: object, structure_name: str) -> bool:
         return True
 
 
-def copy_roi(case: object, source_roi: str, target_roi: str) -> bool:
+def copy_roi(pdata: Pd, source_roi: str, target_roi: str = None) -> str:
     """
     Copies an ROI from source to target within the case.
 
     Args:
-        case (object): The RayStation case object.
+        pdata (Pd): The patient data containing case and examination information.
         source_roi (str): The name of the source ROI.
         target_roi (str): The name of the target ROI.
 
     Returns:
         bool: True if the ROI was copied successfully, False otherwise.
     """
-    copy_roi_name = case.PatientModel.GetUniqueRoiName(DesiredName=f'{source_roi}_copy')
+    if not target_roi:
+        copy_roi_name = pdata.case.PatientModel.GetUniqueRoiName(DesiredName=f'{source_roi}_copy')
+    else:
+        copy_roi_name = target_roi
     _ = create_roi(
-        case=case,
-        examination=case.Examinations[source_roi.split('_')[0]], # Assuming source_roi is like 'External_copy'
+        case=pdata.case,
+        examination=pdata.exam,
         roi_name=copy_roi_name,
+        delete_existing=True
     )
     roi_defs = get_boolean_defs(
         roi_name=copy_roi_name,
@@ -172,16 +176,30 @@ def copy_roi(case: object, source_roi: str, target_roi: str) -> bool:
         a_operation="Intersection",
     )
     make_boolean_structure(
-        patient=case.Patient, case=case, examination=case.Examinations[source_roi.split('_')[0]], **roi_defs)
+        patient=pdata.patient, case=pdata.case, examination=pdata.exam, **roi_defs)
     # Update derived status and delete derivation
-    update_all_remove_expression(case, roi_name=copy_roi_name)
-
-    return True # Changed to True as per new_code
+    update_all_remove_expression(pdata, roi_name=copy_roi_name)
+    return copy_roi_name
 
 
 # =================================================================
 # Derived roi updates and copying
 # =================================================================
+def update_this_exam_remove_expression(pdata, roi_name):
+    try:
+        pdata.case.PatientModel.RegionsOfInterest[roi_name].UpdateDerivedGeometry(
+            Examination=pdata.exam,
+            Algorithm="Auto"
+        )
+    except Exception as err:
+        logging.debug(f'Error in updating geometry for {roi_name}: {err}')
+    try:
+        pdata.case.PatientModel.RegionsOfInterest[roi_name].DeleteExpression()
+    except Exception as err:
+        logging.debug(f'Error in eliminating derived for {roi_name}: {err}')
+        pass
+
+
 def update_derived_expressions_on_all_exams(pdata, roi_name):
     """
     Update the derived geometry for a given ROI on all examinations of the patient.
@@ -321,7 +339,8 @@ def volume_threshold_roi(patient_data: Pd, roi_name: str, min_vol: float = 1., m
 def subtract_b_from_a(pdata: Pd, a_list: List[str], b_list: List[str], result_name: str) -> str:
     # Check for circular references
     if result_name in a_list:
-        copy_result_name = copy_roi(pdata.case, result_name, result_name) # Changed to copy_roi
+        copy_result_name = copy_roi(pdata=pdata,
+                                    source_roi=result_name)
         # Modify the a_list to use the copied roi
         a_list[a_list.index(result_name)] = copy_result_name
     else:
@@ -342,7 +361,7 @@ def subtract_b_from_a(pdata: Pd, a_list: List[str], b_list: List[str], result_na
         examination=pdata.exam, **roi_defs)
     try:
         pdata.case.PatientModel.RegionsOfInterest[result_name].UpdateDerivedGeometry(
-            Examination=pdata.case.Examinations[pdata.exam.OnExamination.Name],
+            Examination=pdata.exam,
             Algorithm="Auto"
         )
     except Exception as err:
@@ -357,6 +376,7 @@ def subtract_b_from_a(pdata: Pd, a_list: List[str], b_list: List[str], result_na
 # =================================================================
 # Generic Shape Creation & Composite ROI Builders
 # =================================================================
+
 def make_box(patient_data, box_name, length=None, z_center=None, delete_existing=True):
     case = patient_data.case
     exam = patient_data.exam
@@ -423,7 +443,8 @@ def make_box(patient_data, box_name, length=None, z_center=None, delete_existing
 
 
 def make_central_junction_contour(pdata, z_inf_box,
-                                  dim_si, dose_level, color=None, j_name=None):
+                                  dim_si, dose_level, color=None, j_name=None,
+                                  source_roi_name=None):
     #  Make the Box Roi and junction region in the area of interest
     #
     # Get exam orientation
@@ -437,8 +458,11 @@ def make_central_junction_contour(pdata, z_inf_box,
     else:
         sys.exit(f'Unknown patient orientation {prefix}')
     # Find the name of the external contour
-    external_name = find_types(pdata.case,
-                               roi_type='External')[0]
+    if not source_roi_name:
+        external_name = find_types(pdata.case,
+                                   roi_type='External')[0]
+    else:
+        external_name = source_roi_name
     box_name = 'box_' + str(round(z_inf_box, 1))
     overlap_box = 1.001
     box_name = make_box(pdata, box_name,
@@ -459,7 +483,8 @@ def make_central_junction_contour(pdata, z_inf_box,
         case=pdata.case,
         roi_name=junction_name,
         roi_type='Ptv')
-    update_all_remove_expression(pdata=pdata, roi_name=junction_name)
+    update_this_exam_remove_expression(pdata=pdata, roi_name=junction_name)
+    # update_all_remove_expression(pdata=pdata, roi_name=junction_name)
     pdata.case.PatientModel.RegionsOfInterest[box_name].DeleteRoi()
 
 
@@ -553,7 +578,8 @@ def make_avoidance_ffs(ffs_pdata, hfs_pdata, z_start_ffs, z_start_hfs, avoid_nam
                         z_center=z_center_hfs)
 
 
-def make_ptv(pdata: Pd, junction_prefix: str, avoid_name: str, color: Optional[List[int]] = None, kidney_sparing: bool = False) -> List[str]:
+def make_ptv(pdata: Pd, junction_prefix: str, avoid_name: str, color: Optional[List[int]] = None,
+             kidney_sparing: bool = False) -> List[str]:
     # Find all contours matching prefix and along with otv_name
     # return the external minus these objects
     #
@@ -800,67 +826,6 @@ def make_generic_junction_structs(rs_obj: Pd, z_junction: float, junction_width:
 # ===================================
 # MULTI-ROI OPERATIONS
 # ===================================
-def cut_rois_to_image(source: Pd, destination: Pd,
-                      rois: list) -> None:
-    """
-    This function uses the cuts a transformed roi to the size of the
-    external in the destination image.
-    It creates a large box to ensure the entire source contour will be
-    included, then it subtracts the external volume in the destination
-    image.
-
-    Args:
-        source (namedtuple): Object containing patient case and examination
-            information for the source examination.
-        destination (namedtuple): Object containing patient case and examination information for the destination examination.
-        rois (list): List of names of regions of interest to transform.
-
-    Returns:
-        None
-    """
-
-    # Maximum possible height for bounding box (in cm)
-    wadlow = 272  # 272 cm is the maximum height of a human but in RS 2024a is the maximum
-
-    # Placeholder for ROIs to be deleted
-    delete_list = []
-
-    # Create a bounding box larger than possible body size
-    big_box = make_box(destination, box_name='big_box', length=wadlow)
-    delete_list.append(big_box)
-
-    # Create a bounding box as large as the external examination
-    box_name = make_box(destination, box_name=f'fov_box')
-    delete_list.append(box_name)
-
-    # Subtract smaller box from the large one
-    # Switch to boolean subtraction
-    subtraction_box_name = destination.case.PatientModel.GetUniqueRoiName(DesiredName='SubtractionBox')
-
-    subtraction_box_name = subtract_b_from_a(
-        pdata=destination,
-        a_list=[big_box],
-        b_list=[box_name],
-        result_name=subtraction_box_name,
-    )
-    delete_list.append(subtraction_box_name)
-
-    # Transform ROIs according to the determined direction
-    transform_object(source, destination, rois=rois)
-
-    # Subtract any regions outside of the destination set from the ROIs
-    for roi in rois:
-        subtraction_box_name = subtract_b_from_a(
-            pdata=destination,
-            a_list=[roi],
-            b_list=[subtraction_box_name],
-            result_name=roi,
-        )
-
-    # Delete temporary ROIs
-    for roi_to_delete in delete_list:
-        delete_roi(source.case, roi_to_delete)
-
 
 # ===================================
 # TRANSFORMATIONS
@@ -1069,6 +1034,7 @@ def make_central_junction_structs(pd_hfs: Pd, pd_ffs: Pd, kidney_sparing: bool) 
     # IsoDose levels declaration and colors.
     j_i = [10, 20, 30, 40, 50, 60, 70, 80, 90]
     dim_si = CENTRAL_JUNCTION_WIDTH / len(j_i)
+
     dose_levels = {10: [127, 0, 255],
                    20: [0, 0, 255],
                    30: [0, 127, 255],
@@ -1193,7 +1159,8 @@ def toggle_ptv_type(rs_obj: Pd, rois: List[str], roi_type: str) -> None:
         change_roi_type(rs_obj.case, roi_name=r, roi_type=roi_type)
 
 
-def make_vmat_planning_structures(pd_hfs: Pd, pd_ffs: Pd, nfx: int, rx: int, make_otvs: bool = False, make_junctions: bool = False) -> tuple:
+def make_vmat_planning_structures(pd_hfs: Pd, pd_ffs: Pd, nfx: int, rx: int, make_otvs: bool = False,
+                                  make_junctions: bool = False) -> tuple:
     """
     Creates VMAT planning structures for HFS and FFS patient data.
 
@@ -1303,6 +1270,134 @@ def make_derived_rois(pd_hfs: Pd, pd_ffs: Pd) -> None:
     make_skin_avoidance(pd_hfs)
 
 
+def get_slice_positions(exam):
+    # Get slice positions in linear array
+    slice_positions = np.array(exam.Series[0].ImageStack.SlicePositions)
+    #
+    # Starting corner of the image set
+    image_corner = exam.Series[0].ImageStack.Corner
+    #
+    # Actual z positions
+    dicom_slice_positions = image_corner.z + slice_positions
+    return dicom_slice_positions
+
+
+def get_image_xy_size(exam):
+    num_x_pixels = exam.Series[0].ImageStack.NrPixels.x
+    num_y_pixels = exam.Series[0].ImageStack.NrPixels.y
+    pixel_size_x = exam.Series[0].ImageStack.PixelSize.x
+    pixel_size_y = exam.Series[0].ImageStack.PixelSize.y
+    return {'x': num_x_pixels * pixel_size_x,
+            'y': num_y_pixels * pixel_size_y}
+
+
+def get_image_xy_center(exam):
+    corner = exam.Series[0].ImageStack.Corner
+    x_pixels = exam.Series[0].ImageStack.NrPixels.x
+    y_pixels = exam.Series[0].ImageStack.NrPixels.y
+    x_pixel_size = exam.Series[0].ImageStack.PixelSize.x
+    y_pixel_size = exam.Series[0].ImageStack.PixelSize.y
+    return corner.x + (x_pixels * x_pixel_size) / 2, \
+           corner.y + (y_pixels * y_pixel_size) / 2
+
+
+def get_slice_spacing(slice_positions, slice_direction: str) -> float:
+    if slice_direction == 'inferior':
+        # Inferior slice spacing
+        slice_spacing = slice_positions[1] - slice_positions[0]
+    elif slice_direction == 'superior':
+        # Superior slice spacing
+        slice_spacing = slice_positions[-1] - slice_positions[-2]
+    else:
+        raise ValueError("slice_direction must be either 'inferior' or 'superior'")
+    return slice_spacing
+
+
+def get_last_slice_box_center(exam, slice_positions, slice_direction: str) -> dict:
+    center_x, center_y = get_image_xy_center(exam)
+    center = {'x': center_x, 'y': center_y}
+    if slice_direction == 'inferior':
+        # Inferior slice center
+        center['z'] = slice_positions[0]
+    elif slice_direction == 'superior':
+        # Superior slice center
+        center['z'] = slice_positions[-1]
+    return center
+
+
+def create_box_at_last_slice(pdata: Pd, slice_direction: str) -> str:
+    box_roi_name = 'LastSlice' + slice_direction
+    box_geom = create_roi(
+        case=pdata.case,
+        examination=pdata.exam,
+        roi_name=box_roi_name,
+        delete_existing=True)
+    # Retrieve slice spacing from exam data to ensure the box will include the last slice only.
+    slice_positions = get_slice_positions(pdata.exam)
+    center = get_last_slice_box_center(pdata.exam, slice_positions=slice_positions,
+                                       slice_direction=slice_direction)
+    xy_box_size = get_image_xy_size(pdata.exam)
+    slice_width = get_slice_spacing(
+        slice_positions, slice_direction=slice_direction)
+    box_size = {'x': xy_box_size['x'], 'y': xy_box_size['y'],
+                'z': slice_width}
+    box_geom.OfRoi.CreateBoxGeometry(
+        Size=box_size,
+        Examination=pdata.exam,
+        Center=center,
+        Representation='Voxels',
+        VoxelSize=None)
+    return box_roi_name
+
+
+def delete_last_slice(pdata: Pd, roi_name: str, slice_position: str) -> float:
+    """ Delete the last slice of the roi_name structure
+        The decision to delete the inferior or superior slice is determined by the keyword
+
+    RayStation offers no tool for directly editing a contour that does not involve copying the entire array into
+    memory across the C# to Python boundary so we create a single slice at inferior or superior slice position
+    and subtract it.
+
+    :param pdata: d
+    :param roi_name: Name of the ROI to delete the last slice from
+    :param slice_position: 'inferior' or 'superior'
+    :return: The z-coordinate of the slice that was deleted
+    """
+    # Create a box at the last slice position
+    box_roi_name = create_box_at_last_slice(pdata, slice_position)
+    # Subtract the box from the roi_name structure
+    subtract_b_from_a(pdata=pdata,
+                      a_list=[roi_name],
+                      b_list=[box_roi_name],
+                      result_name=roi_name,
+                      )
+    # Delete the box
+    pdata.case.PatientModel.RegionsOfInterest[box_roi_name].DeleteRoi()
+
+
+def delete_last_slice_on_external(pdata_hfs: Pd, pdata_ffs: Pd) -> None:
+    """
+    Deletes the last slice of the ExternalClean structure on both HFS and FFS scans.
+    This prevents the error:
+        Beam entry validation failed. The beam <> is entering the image set 'HFS' through an area
+        where the External ROI <> has a non- negligible area.
+        This indicates that the ROl is erroneously cut at the image set border
+        and the dose computations may be incorrect.
+        beyond the scan length of the registered scan.
+    :param pdata_hfs: HFS patient data
+    :param pdata_ffs: FFS patient data
+    :return:
+    """
+    # Delete the last superior slice of the ExternalClean structure on FFS
+    reset_primary_secondary(pdata_ffs.exam, pdata_hfs.exam)
+    delete_last_slice(pdata=pdata_ffs, roi_name=EXTERNAL_NAME, slice_position='superior')
+    # Delete the last inferior slice of the ExternalClean structure on HFS
+    reset_primary_secondary(pdata_hfs.exam, pdata_ffs.exam)
+    delete_last_slice(pdata=pdata_hfs, roi_name=EXTERNAL_NAME, slice_position='inferior')
+    # Reassign the External structure as type External:
+    change_roi_type(pdata_hfs.case, roi_name=EXTERNAL_NAME, roi_type='External')
+
+
 def make_external_setup(pdata):
     """
     Make the External PRV10 structure for the plan.
@@ -1334,7 +1429,7 @@ def make_external_setup(pdata):
                         'Posterior': EXTERNAL_SETUP_EXP,
                         'Right': EXTERNAL_SETUP_EXP,
                         'Left': EXTERNAL_SETUP_EXP})
-    update_derived_expressions_on_all_exams(pdata, roi_name=EXTERNAL_SETUP)
+    update_all_remove_expression(pdata, roi_name=EXTERNAL_SETUP)
 
 
 def make_skin_avoidance(pdata):
@@ -1361,10 +1456,11 @@ def make_skin_avoidance(pdata):
     )
     make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **skin_defs)
-    update_derived_expressions_on_all_exams(pdata,roi_name=SKIN_AVOIDANCE)
+    update_all_remove_expression(pdata, roi_name=SKIN_AVOIDANCE)
 
 
-def make_structures(pd_hfs: Pd, pd_ffs: Pd, make_vmat_plan: bool, make_tomo_plan: bool, kidney_sparing: bool, testing: bool = False) -> None:
+def make_structures(pd_hfs: Pd, pd_ffs: Pd, make_vmat_plan: bool, make_tomo_plan: bool, kidney_sparing: bool,
+                    testing: bool = False) -> None:
     hfs_scan_name = pd_hfs.exam.Name
     ffs_scan_name = pd_ffs.exam.Name
     make_derived_rois(pd_hfs, pd_ffs)
@@ -1408,3 +1504,7 @@ def make_structures(pd_hfs: Pd, pd_ffs: Pd, make_vmat_plan: bool, make_tomo_plan
 
     ffs_poi_junction, hfs_poi_junction = make_central_junction_structs(
         pd_hfs, pd_ffs, kidney_sparing=kidney_sparing)
+
+    # As a last step, modify the External to remove the last slice (HFS) and first slice
+    # (FFS) to prevent the error of beam entry validation.
+    delete_last_slice_on_external(pd_hfs, pd_ffs)

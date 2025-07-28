@@ -17,7 +17,6 @@ from .tbi_definitions import TOMO_FFS_TRANSFER_NAME, VMAT_FFS_TRANSFER_NAME, HFS
 from .tbi_utils import Pd
 
 
-
 def plan_transfer_successful(pd_hfs: Pd, pd_ffs: Pd, nfx: int) -> bool:
     """
     Check if the FFS plan has been successfully transferred to the HFS representation.
@@ -113,7 +112,8 @@ def get_available_evaluation_doses(case: object) -> List[dict]:
     return evaluation_doses
 
 
-def get_evaluation_dose_values(origin_beamset: str, destination_exam: str, destination_patient_position: str, evaluation_doses: List[dict]) -> Optional[object]:
+def get_evaluation_dose_values(origin_beamset: str, destination_exam: str, destination_patient_position: str,
+                               evaluation_doses: List[dict]) -> Optional[object]:
     """
     Retrieve dose values for a specific origin beamset and destination.
     Args:
@@ -132,7 +132,8 @@ def get_evaluation_dose_values(origin_beamset: str, destination_exam: str, desti
     return None
 
 
-def rename_hfs_preplan(case: object, input_plan_name: str, input_beamset_name: str, output_plan_name: str, output_beamset_name: str) -> Optional[object]:
+def rename_hfs_preplan(case: object, input_plan_name: str, input_beamset_name: str, output_plan_name: str,
+                       output_beamset_name: str) -> Optional[object]:
     """
     Rename a preplan and its beamset in the HFS case.
     Args:
@@ -226,8 +227,7 @@ def export_background_dose(pd_ffs: Pd, pd_hfs: Pd) -> str:
                 "Beam" not in entry['SeriesDescription'] and
                 "Evaluation Fx Dose" in entry['SeriesDescription'] and
                 check_datetime_match(mod_datetime, entry) and
-                entry['Modality'] == 'RTDOSE'
-        )]
+                entry['Modality'] == 'RTDOSE')]
 
     def remove_directory_contents_with_prompt(dir_path):
         """
@@ -269,7 +269,7 @@ def export_background_dose(pd_ffs: Pd, pd_hfs: Pd) -> str:
     today_str = datetime.date.today().strftime("%Y%m%d")
     # Prompt user to export the evaluation dose
     connect.await_user_input(f'Export to Target: PACS-RayStation\n '
-                             f'Evaluation Fx Dose {FFS_VMAT_PLAN_NAME} (HFS)\n'
+                             f'Evaluation Fx Dose {pd_ffs.beamset.DicomPlanLabel} (HFS)\n'
                              f'Make sure to deselect beam doses')
 
     patient_path = find_patient_directory(DICOM_PATH, pd_ffs.patient.PatientID, mod_date) or \
@@ -386,7 +386,8 @@ def check_empty_plans(pd_ffs: Pd, pd_hfs: Pd, exists: bool = True, unique: bool 
             f'plan name "{FFS_PLACEHOLDER_NAME}" and re-export the FFS plan')
 
 
-def calculate_ffs_on_hfs_logic(pd_ffs: Pd, pd_hfs: Pd, nfx: int, rx: int, make_vmat_plan: bool, make_tomo_plan: bool) -> Pd:
+def calculate_ffs_on_hfs_logic(pd_ffs: Pd, pd_hfs: Pd, nfx: int, rx: int, make_vmat_plan: bool,
+                               make_tomo_plan: bool) -> Pd:
     """
     Helper to calculate FFS dose on HFS image, update dose grid, and compute dose.
     Args:
@@ -461,7 +462,7 @@ def rescale_dose_grid_to_all_scans(pdata: Pd) -> bool:
     logging.debug(f'Current dose grid bounding box: {bb}')
 
     # Types of ROIs to consider
-    types = ['Ptv', 'Support', 'External']
+    types = ['Ptv', 'Support', 'External', 'Fixation']
 
     # Collect all structure sets and adjust bounding box as needed
     for s in pm.StructureSets:
@@ -486,13 +487,17 @@ def rescale_dose_grid_to_all_scans(pdata: Pd) -> bool:
                     # Extend the bounding box if needed
                     for c, v in bs_tr[0].items():
                         if v < bb[0][c]:
-                            logging.debug(f'Lower corner extended in {c} '
-                                          f'from {bb[0][c]} to {v}')
+                            logging.debug(
+                                f'Roi {r.OfRoi.Name} extends bounding box: '
+                                f'Lower corner extended in {c} '
+                                f'from {bb[0][c]} to {v}')
                             bb[0][c] = v
                     for c, v in bs_tr[1].items():
                         if v > bb[1][c]:
-                            logging.debug(f'Upper corner extended in {c} '
-                                          f'from {bb[1][c]} to {v}')
+                            logging.debug(
+                                f'Roi {r.OfRoi.Name} extends bounding box: '
+                                f'Upper corner extended in {c} '
+                                f'from {bb[1][c]} to {v}')
                             bb[1][c] = v
 
                 except Exception as e:
