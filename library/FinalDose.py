@@ -420,10 +420,12 @@ def final_dose_v15(site=None, technique=None, rso=None, beamset_name=None):
             # Set the DSP for the plan and recompute dose to force an update of the DSP
             BeamOperations.set_dsp(plan=plan,
                                    beam_set=beamset)
+            BeamOperations.delete_unused_dsps(plan=plan)
+            BeamOperations.change_dsp_visualization_diameter(plan=plan)
             beamset.ComputeDose(ComputeBeamDoses=True,
                                 DoseAlgorithm=dose_algorithm,
                                 ForceRecompute=True)
-            status.next_step('DSP set. Script complete')
+            status.next_step('DSP set and minimized. Script complete')
         else:
             # Compute dose in case it hasn't been done yet
             _ = compute_dose(beamset=beamset, dose_algorithm=dose_algorithm)
@@ -460,7 +462,9 @@ def final_dose_v15(site=None, technique=None, rso=None, beamset_name=None):
             logging.info(f'Beamset {beamset.DicomPlanLabel} did not need to be recomputed: {e}')
         # Set the DSP and TODO: add rx surface
         BeamOperations.set_dsp(plan=plan, beam_set=beamset, percent_rx=98., method='Centroid')
-        status.next_step('DSP set, checking statistics')
+        BeamOperations.delete_unused_dsps(plan=plan)
+        BeamOperations.change_dsp_visualization_diameter(plan=plan)
+        status.next_step('DSP set and minimized, checking statistics')
         mc_histories = 1e6  # RS 11 Cannot exceed 1e6 without long computation times
         # Make sure electron monte carlo statistical uncertainty is clinical
         emc_result = BeamOperations.check_emc(beamset, stat_limit=0.005, histories=mc_histories)

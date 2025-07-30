@@ -3252,6 +3252,61 @@ def set_dsp(plan, beam_set, percent_rx=100., method='MU'):
     # beam_set.ComputeDose(DoseAlgorithm=algorithm, ForceRecompute='TRUE')
 
 
+def delete_unused_dsps(plan):
+    """
+    Delete unused DSPs in the plan.
+    This function will iterate through all beamsets in the plan and check for DSPs that are not
+    used in any beam dose. If a DSP is not used, and it is not part of an approved beamset
+    it will be deleted.
+    Args:
+        plan: object of type Plan, which contains the beamsets to check for unused DSPs.
+
+    Returns: None
+
+    """
+    all_dsps = {}
+    used_dsps = {}
+    for beamset in plan.BeamSets:
+        all_dsps[beamset.DicomPlanLabel] = []
+        used_dsps[beamset.DicomPlanLabel] = []
+        if beamset_is_approved(beamset):
+            continue  # Skip approved beamsets
+        for dsp in beamset.DoseSpecificationPoints:
+            all_dsps[beamset.DicomPlanLabel].append(dsp.Name)
+        for bd in beamset.FractionDose.BeamDoses:
+            if hasattr(bd.UserSetBeamDoseSpecificationPoint, 'Name'):
+                used_dsps[beamset.DicomPlanLabel].append(bd.UserSetBeamDoseSpecificationPoint.Name)
+    # Match on name
+    unused_dsps = {}
+    for beamset_name, all_dsps in all_dsps.items():
+        used_dsps_in_set = used_dsps.get(beamset_name, [])
+        unused_dsps[beamset_name] = [dsp for dsp in all_dsps if dsp not in used_dsps_in_set]
+    for beamset_name, unused_dsps in unused_dsps.items():
+        # Delete unused DSPs
+        for unused in unused_dsps:
+            logging.debug('Deleting unused DSP {} in beamset {}'.format(unused, beamset_name))
+            plan.BeamSets[beamset_name].DeleteDoseSpecificationPoint(Name=unused)
+
+
+def change_dsp_visualization_diameter(plan):
+    for beamset in plan.BeamSets:
+        if beamset_is_approved(beamset):
+            continue
+        for dsp in beamset.DoseSpecificationPoints:
+            if hasattr(dsp, 'VisualizationDiameter'):
+                # Set the visualization diameter to 0.1 mm
+                dsp.VisualizationDiameter = 0.01
+
+
+def beamset_is_approved(beamset):
+    if hasattr(beamset.Review, "ApprovalStatus"):
+        if beamset.Review.ApprovalStatus == 'Approved':
+            return True
+        else:
+            return False
+    else:
+        return False
+
 def load_beams_xml(filename, beamset_name, path):
     """Load a beamset from the file located in the path in the filename:
     :param filename: The name of the xml file housing the beamset to be loaded
