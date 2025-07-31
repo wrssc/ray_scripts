@@ -145,7 +145,7 @@ def main():
                                    machine=None,
                                    table=None,
                                    round_jaws=False,
-                                   prescription=False,
+                                   aria_prescription_filters=False,
                                    block_accessory=False,
                                    block_tray_id=False,
                                    bar=True)
