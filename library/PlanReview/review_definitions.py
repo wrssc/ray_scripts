@@ -2082,48 +2082,60 @@ GRID_PREFERENCES = {
         'DOSE_GRID': 0.15,  # 1.5 mm
         'FRACTION_SIZE_LIMIT': 801,  # cGy
         'SLICE_THICKNESS': 0.2,  # 2.0 mm
+        'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT']},
     },
     'SBRT_FINE': {
         'PLAN_NAMES': PLAN_NAMES['SPINE_SBRT'] + PLAN_NAMES['HEAD_NECK_SBRT'],
         'DOSE_GRID': 0.15,  # 1.5 mm
         'FRACTION_SIZE_LIMIT': 801,  # cGy
         'SLICE_THICKNESS': 0.1,  # 2.0 mm
+        'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT']},
     },
     'SRS': {
         'PLAN_NAMES': PLAN_NAMES['BRAIN_FSRT'] + PLAN_NAMES['SRS'],
         'DOSE_GRID': 0.1,  # 1.0 mm
         'FRACTION_SIZE_LIMIT': 1500,  # cGy
         'SLICE_THICKNESS': 0.1,  # 1.0 mm
+        'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT']},
     },
     'TBI': {
         'PLAN_NAMES': PLAN_NAMES['TBI'],
         'DOSE_GRID': 0.5,  # 5 mm
         'FRACTION_SIZE_LIMIT': None,  # Don't check
         'SLICE_THICKNESS': 0.4,  # 4 mm
+        'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT']},
     },
     'VMAT': {
         'PLAN_NAMES': PLAN_NAMES['VMAT'],
         'DOSE_GRID': 0.3,  # 3 mm
         'FRACTION_SIZE_LIMIT': 800,  # cGy
         'SLICE_THICKNESS': 0.3,  # 3 mm
+        'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT']},
     },
     'THI': {
         'PLAN_NAMES': PLAN_NAMES['THI'],
         'DOSE_GRID': 0.3,  # 3 mm
         'FRACTION_SIZE_LIMIT': 800,  # cGy
         'SLICE_THICKNESS': 0.3,  # 3 mm
+        'TOLERANCE_TABLE_GUIDE': {},
     },
     '3D': {
         'PLAN_NAMES': PLAN_NAMES['3D'],
         'DOSE_GRID': 0.4,  # 3 mm
         'FRACTION_SIZE_LIMIT': 800,  # cGy
         'SLICE_THICKNESS': 0.4,  # 4 mm
+        'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT'],
+                                  'PHOTON': ['Weekly kV', 'Clinical setup'],
+                                  'ELECTRON': ['Weekly kV', 'Clinical setup']},
     },
     '2D': {
         'PLAN_NAMES': PLAN_NAMES['2D'],
         'DOSE_GRID': 0.4,  # 3 mm
         'FRACTION_SIZE_LIMIT': 800,  # cGy
         'SLICE_THICKNESS': 0.4,  # 4 mm
+        'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT'],
+                                  'PHOTON': ['Weekly kV', 'Clinical setup'],
+                                  'ELECTRON': ['Weekly kV', 'Clinical setup']},
     },
 }
 

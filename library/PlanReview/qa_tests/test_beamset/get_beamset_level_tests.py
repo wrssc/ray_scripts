@@ -20,16 +20,24 @@ from .check_pacemaker import check_pacemaker
 from .parse_beamset_selection import parse_beamset_selection
 from .compare_rx_to_preplan import match_fractions_to_preplan
 from .compare_rx_to_preplan import match_rx_to_preplan
+from .check_prescription_description import check_prescription_description
 from PlanReview.review_definitions import REVIEW_LEVELS
 from PlanReview.qa_tests.analyze_logs import retrieve_logs
 
 
-def get_beamset_level_tests(rso, physics_review=True, log_messages=None, values=None):
+def get_beamset_level_tests(rso, physics_review=True, log_messages=None, values=None,
+                            roi_voxel_representations=None):
     if log_messages is None:
         log_messages = retrieve_logs(rso)
     # Don't proceed if no beamset is defined
     if not rso.beamset:
         return {}
+    if roi_voxel_representations is None:
+        rois_checked=None
+        rois_to_delete=None
+    else:
+        rois_checked = roi_voxel_representations['rois_checked']
+        rois_to_delete = roi_voxel_representations['rois_to_delete']
 
     beamset_checks_dict = {
         f"{REVIEW_LEVELS['PLAN_DATA']}::Beamset approval status":
@@ -43,7 +51,8 @@ def get_beamset_level_tests(rso, physics_review=True, log_messages=None, values=
         f"{REVIEW_LEVELS['PATIENT_MODEL']}::Couch Type Correct":
             (check_couch_type, {}),
         f"{REVIEW_LEVELS['PLAN_DESIGN']}::Clearance Check":
-            (check_isocenter_clearance, {}),
+            (check_isocenter_clearance,
+             {'rois_checked': rois_checked, 'rois_to_delete': rois_to_delete}),
         f"{REVIEW_LEVELS['PLAN_DESIGN']}::Slice Thickness Comparison":
             (check_slice_thickness, {}),
         f"{REVIEW_LEVELS['PATIENT_MODEL']}::Bolus Application":
@@ -54,6 +63,8 @@ def get_beamset_level_tests(rso, physics_review=True, log_messages=None, values=
             (check_pacemaker, {}),
         f"{REVIEW_LEVELS['PLAN_DESIGN']}::Dose Grid Size Check":
             (check_dose_grid, {}),
+        f"{REVIEW_LEVELS['PLAN_DESIGN']}::Prescription description (Aria) reference point":
+            (check_prescription_description, {}),
     }
     if values:
         beamset_checks_dict.update({

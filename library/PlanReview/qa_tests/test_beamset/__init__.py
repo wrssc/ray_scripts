@@ -18,3 +18,7 @@ from PlanReview.qa_tests.test_beamset.check_no_fly import check_no_fly
 from PlanReview.qa_tests.test_beamset.check_pacemaker import check_pacemaker
 from PlanReview.qa_tests.test_beamset.check_isocenter_clearance  \
     import check_isocenter_clearance
+from PlanReview.qa_tests.test_beamset.check_isocenter_clearance \
+    import extract_voxel_representation
+from PlanReview.qa_tests.test_beamset.check_isocenter_clearance \
+    import find_externals_and_supports

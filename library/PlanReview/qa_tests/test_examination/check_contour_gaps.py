@@ -106,7 +106,7 @@ def get_contour_list(rso):
     # Define exclusion patterns
     exclude_from_contour_analysis = ['NoFlyZone_PRV', '^OTV.*', '^PTV.*_Eval$', '^sOTV.*', '^External.*', '^Skin.*',
                                      '^Normal.*', '^Lungs.*','^Parotids.*','^[Rr]ing.*', '^Lung_[RL]$',
-                                     r'\b\w+_PRV\d{2}\b', '^Chestwall.*$', 'All_PTVs']
+                                     r'\b\w+_PRV\d{2}\b', '^Chestwall.*$', 'All_PTVs', '(?i).*hfs.*', '(?i).*ffs.*']
     for roi_name in roi_list:
         roi = rso.case.PatientModel.RegionsOfInterest[roi_name]
         if roi.OrganData.OrganType not in organ_types or roi.Type not in roi_types:
