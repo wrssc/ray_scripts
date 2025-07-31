@@ -265,6 +265,7 @@ def handle_raygateway_error(error: Exception, beamset_name: str) -> dict:
     parsed_error = summarize(error)
     # This is the error thrown when a plan is already in the iDMS
     existing_plan_exception = f"_{beamset_name} already exist"
+    # Error occurs when an ROI exceeds the maximum length for DICOM export
     element_too_long = 'Element 3006,0050 is too long to be written in Explicit'
     if existing_plan_exception in error:
         return {'continue': True, 'message': f'Parent Plan is already in IDMS {beamset_name}'

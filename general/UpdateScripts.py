@@ -236,8 +236,8 @@ def main() -> None:
         return
     local_path = Path(local)
 
-    # Put the temp folder two levels up from the target so it's on the same drive
-    temp_root = local_path.parent.parent
+    # Put the temp folder a level up from the target so it's on the same drive
+    temp_root = local_path.parent
     temp_root.mkdir(parents=True, exist_ok=True)
     temp_dir = Path(tempfile.mkdtemp(prefix="ray_scripts_update_", dir=str(temp_root)))
     logging.info(f"Using temporary directory: {temp_dir}")
