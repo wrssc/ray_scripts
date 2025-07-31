@@ -562,13 +562,19 @@ def detect_collisions(rso, roi_dict, testing=False):
     # TODO: create a test function option for find_gantry_angular_traversal that returns 180.1 to 179.9
     gantry_sweeps = find_gantry_angular_traversal(rso, testing=testing)
     # TODO: test function will sweep couch angles from 270 to 90 degrees
+    # TODO: Need further downsampling for TBIs
     roi_downsampled = {}
     for roi_name, roi_pts in roi_dict.items():
-        if len(roi_pts) > 1e5:
+        logging.info(f"Checking ROI: {roi_name} with {len(roi_pts)} points")
+        print(f"Checking ROI: {roi_name} with {len(roi_pts)} points")
+        if len(roi_pts) > 1e6:
+            roi_downsampled[roi_name] = downsample_points(roi_pts, voxel_size=[2, 2, 2])
+        elif len(roi_pts) > 1e5:
             roi_downsampled[roi_name] = downsample_points(roi_pts, voxel_size=[0.5, 0.5, 0.5])
         else:
             roi_downsampled[roi_name] = roi_pts
 
+    # TODO: check travel of beams, no sense in repeating the same gantry angles
     for beam in rso.beamset.Beams:
         beam_name = beam.Name
         couch_angle = get_couch_angle(rso, beam_name)
@@ -582,6 +588,8 @@ def detect_collisions(rso, roi_dict, testing=False):
         angles, clockwise = gantry_sweeps[beam_name]
         # time_1 = time.perf_counter()
         # print(f"Time to get gantry angles for beam {beam_name}: {(time_1 - time_0) * 1000:7.2f} ms")
+        logging.info(f"Checking beam: {beam_name} with couch angle: {couch_angle} degrees, "
+                        f"isocenter: {isocenter} cm, angles: {len(angles)}")
 
         for roi_name, roi_pts in roi_downsampled.items():
             # print(f"Checking ROI: {roi_name} for beam: {beam_name} which has {len(roi_pts)} points")
@@ -681,7 +689,14 @@ def detect_collisions_tomo(rso, roi_dict, external_roi, support_rois, clearance_
     from PlanReview.review_definitions import PASS, FAIL
     beam_name = rso.beamset.Beams[0].Name
     bore_clearance_issues = []
-    for roi, contour_points in roi_dict.items():
+    # Downsample points
+    roi_dict_downsampled = {}
+    for roi_name, roi_pts in roi_dict.items():
+        if len(roi_pts) > 1e5:
+            roi_dict_downsampled[roi_name] = downsample_points(roi_pts, voxel_size=[0.5, 0.5, 0.5])
+        else:
+            roi_dict_downsampled[roi_name] = roi_pts
+    for roi, contour_points in roi_dict_downsampled.items():
         shifted_points = shift_to_isocenter_and_couch_rotate_points(rso, contour_points,
                                                                     beam_name,
                                                                     representation='Points',
@@ -756,8 +771,8 @@ def find_externals_and_supports(rso):
     """
     from PlanReview.utils import get_roi_names_from_type
     external = get_roi_names_from_type(rso, roi_type='External')[0]
-    supports = get_roi_names_from_type(rso, roi_type='Support')
-    supports += get_roi_names_from_type(rso, roi_type='Fixation')
+    supports = get_roi_names_from_type(rso, roi_type='Support', test_has_contours=True)
+    supports += get_roi_names_from_type(rso, roi_type='Fixation', test_has_contours=True)
     return external, supports
 
 
@@ -798,7 +813,7 @@ def extract_voxel_representation(rso, rois):
     return rois_checked, rois_to_delete
 
 
-def check_isocenter_clearance(rso):
+def check_isocenter_clearance(rso, **kwargs):
     from PlanReview.review_definitions import (ALERT, SUPPORT_TOLERANCE,
                                                PASS, FAIL)
     """
@@ -834,6 +849,8 @@ def check_isocenter_clearance(rso):
         PASS: Case 2 Collision_Check_2, ZZUWQA_ScTest_01Oct2024 Brai_PRD_R0A1
             (passes without the RPO beam - clinical solution).
     """
+    rois_checked = kwargs.get('rois_checked', None)
+    rois_to_delete = kwargs.get('rois_to_delete', None)
     # TODO:
     #     Add support_tolerance instead of the hardcoded entry in detect_collisions
     #     Filter the points before the rotation
@@ -847,8 +864,9 @@ def check_isocenter_clearance(rso):
     external, supports = find_externals_and_supports(rso)
     if not external and not supports:
         return ALERT, f'No Supports or External found, no clearance test performed.'
-    # Get voxel representations of external and support ROIs
-    rois_checked, rois_to_delete = extract_voxel_representation(rso, [external] + supports)
+    if rois_checked is None:
+        # Get voxel representations of external and support ROIs
+        rois_checked, rois_to_delete = extract_voxel_representation(rso, [external] + supports)
     if not rois_checked:
         return ALERT, f'No valid ROIs found for clearance check.'
     if 'Tomo' in clearance_diameter_roi_name:

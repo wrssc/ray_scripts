@@ -167,6 +167,7 @@
         consideration of the pre-logcrit syntax and post-logcrit syntax
     Individual Test improvements:
     TODO: Contour gap check need only include human-drawn contours
+    TODO: Eliminate TBI targets from the contour interpolation check
 
 
 

@@ -48,7 +48,7 @@ EXPORT_OPTIONS = {
     # Enabled in the script and defaulted to yes
     'ADJUST_ELECTRON_DOSERATE': ('Adjust Electron Dose Rate', RADIO_ON, ENABLED, ['Electrons']),
     'USE_PRDR_DOSERATE': ('Use PRDR Dose Rate', RADIO_ON, ENABLED, ['PRDR']),
-    'APPLY_PRESCRIPTION_REFERENCE_POINT': ('Apply Prescription Reference Point', RADIO_ON, ENABLED, []),
+    'APPLY_PRESCRIPTION_REFERENCE_POINT': ('Modify Prescription Reference point for ARIA', RADIO_ON, ENABLED, []),
     'UPDATE_SETUP_BEAMS': ('Update Setup Beams', RADIO_ON, ENABLED, ['Photons', 'Electrons']),
     # Enabled in the script but defaulted to no
     'USE_GATED': ('Internal Target RPM Gated Treatment (NOT ALIGN RT)', RADIO_OFF, ENABLED, ['Photons', 'Electrons']),
@@ -644,14 +644,8 @@ def main():
         'ignore_warnings': ['Yes', 'No']
     }
     initial = {'dicom_export_selections': ['CT', 'Structures'],
-               'beamset_selections': [],
-               'ignore_warnings': 'No'}
+               'beamset_selections': [], 'ignore_warnings': 'Yes'}
     # if ignore:
-    initial['ignore_warnings'] = 'Yes'
-    logging.debug(f'Beamset is {beamset.DicomPlanLabel if beamset else "None"}'
-                  f'and DicomExportMachines is {DicomExport.machines(beamset) if beamset else "None"}')
-    logging.debug(
-        f'Len of DicomExport.machines(beamset) is {len(DicomExport.machines(beamset)) if beamset else "None"}')
     if beamset is not None and len(DicomExport.machines(beamset)) > 0:
         options['dicom_export_selections'] += ['Beam Set(s)', 'Beam Set Dose(s)', 'Beam Dose(s)']
         # Delivery system selection
@@ -690,8 +684,6 @@ def main():
         warning='These settings will apply to all exported beamsets, '
                 'if a filter is inappropriate for a beamset, export it separately.'
     )
-    logging.debug('Showing DICOM export dialog with inputs: '
-                  f'{inputs}, types: {types}, options: {options}, initial: {initial}, required: {required}')
     response = dialog.run()
     if response == {}:
         status.finish('DICOM export was cancelled')
@@ -823,7 +815,7 @@ def main():
                                table=initial_table_position,
                                pa_threshold=response.get('SET_PA_AUTOMATICALLY', False),
                                round_jaws=response.get('ROUND_JAWS', False),
-                               prescription=response.get('APPLY_PRESCRIPTION_REFERENCE_POINT', False),
+                               aria_prescription_filters=response.get('APPLY_PRESCRIPTION_REFERENCE_POINT', False),
                                no_ref_point_location=response.get('NO_REF_POINT_LOCATION', False),
                                block_accessory=response.get('APPLY_BLOCK_ACCESSORY_TO_ELECTRON_FIELDS', False),
                                block_tray_id=response.get('COPY_ELECTRON_BLOCK_NAME_TO_ID', False),
