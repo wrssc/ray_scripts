@@ -5,7 +5,7 @@ from collections import OrderedDict
 from PlanReview.review_definitions import DOMAIN_TYPE, FAIL
 from PlanReview.qa_tests.test_examination import get_exam_level_tests
 from PlanReview.qa_tests.test_plan import get_plan_level_tests
-from PlanReview.qa_tests.test_beamset import get_beamset_level_tests
+from PlanReview.qa_tests.test_beamset.get_beamset_level_tests import get_beamset_level_tests
 from PlanReview.qa_tests.test_beamset.check_isocenter_clearance import (extract_voxel_representation,
                                                                         find_externals_and_supports)
 from PlanReview.qa_tests.test_sandbox import get_sandbox_level_tests
