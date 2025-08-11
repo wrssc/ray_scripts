@@ -21,6 +21,7 @@ from .parse_beamset_selection import parse_beamset_selection
 from .compare_rx_to_preplan import match_fractions_to_preplan
 from .compare_rx_to_preplan import match_rx_to_preplan
 from .check_prescription_description import check_prescription_description
+from .check_tolerance_table import check_tolerance_table
 from PlanReview.review_definitions import REVIEW_LEVELS
 from PlanReview.qa_tests.analyze_logs import retrieve_logs
 
@@ -72,6 +73,8 @@ def get_beamset_level_tests(rso, physics_review=True, log_messages=None, values=
                 (match_fractions_to_preplan, {'VALUES': values}),
             f"{REVIEW_LEVELS['PLAN_DESIGN']}::Target Doses Match Treatment Planning Order":
                 (match_rx_to_preplan, {'VALUES': values}),
+            f"{REVIEW_LEVELS['PLAN_DESIGN']}::Tolerance Table Check":
+                (check_tolerance_table, {'VALUES': values}),
                 })
 
     # Plan check for VMAT

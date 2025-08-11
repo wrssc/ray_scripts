@@ -22,3 +22,6 @@ from PlanReview.qa_tests.test_beamset.check_isocenter_clearance \
     import extract_voxel_representation
 from PlanReview.qa_tests.test_beamset.check_isocenter_clearance \
     import find_externals_and_supports
+from PlanReview.qa_tests.test_beamset.check_prescription_description \
+    import check_prescription_description
+from PlanReview.qa_tests.test_beamset.check_tolerance_table import check_tolerance_table
