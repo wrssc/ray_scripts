@@ -67,7 +67,11 @@ def check_tolerance_table(rso: NamedTuple, **kwargs: dict) -> Tuple[str, str]:
         tolerance_tables = preferences.get('TOLERANCE_TABLE_GUIDE', {})
         for table, imaging_frequencies in tolerance_tables.items():
             if table not in tolerance_table_guide:
-                tolerance_table_guide[table].extend(imaging_frequencies)
+                tolerance_table_guide[table] = []
+            if imaging_frequencies is not None:
+                for im_fr in imaging_frequencies:
+                    if im_fr not in tolerance_table_guide[table]:
+                        tolerance_table_guide[table].append(im_fr)
 
     # Check if the tolerance table label is in the tolerance table guide
     if tolerance_table_label not in tolerance_table_guide.keys():
