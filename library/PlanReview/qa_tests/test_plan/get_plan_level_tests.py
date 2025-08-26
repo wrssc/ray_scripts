@@ -9,4 +9,5 @@ def get_plan_level_tests(rso, physics_review=True):
         f"{REVIEW_LEVELS['PLAN_DATA']}::Plan approval status":
             (check_plan_approved, {"do_physics_review": physics_review}),
     }
+
     return plan_checks_dict

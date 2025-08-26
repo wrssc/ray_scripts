@@ -358,7 +358,7 @@ def main():
                                machine=response['c'],
                                table=t,
                                # round_jaws=filters[2] in response['e'],
-                               prescription=create_reference_point,
+                               aria_prescription_filters=create_reference_point,
                                no_ref_point_location=ref_point_location,
                                block_accessory=block_accessory,
                                block_tray_id=block_tray_id,

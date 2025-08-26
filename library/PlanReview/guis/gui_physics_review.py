@@ -133,7 +133,6 @@ def launch_physics_review_gui(rso, relaunch=False, review_type='Physics'):
     # Variable initialization
     # GUI setup
     gui_state_manager.gui_dict = initialize_gui_dict(review_type=review_type)
-
     #
     # First Frame:
     gui_state_manager.protocols = load_protocols(PROTOCOL_DIR)

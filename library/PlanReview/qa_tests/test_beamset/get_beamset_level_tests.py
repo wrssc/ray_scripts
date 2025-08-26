@@ -21,6 +21,8 @@ from .parse_beamset_selection import parse_beamset_selection
 from .compare_rx_to_preplan import match_fractions_to_preplan
 from .compare_rx_to_preplan import match_rx_to_preplan
 from .check_prescription_description import check_prescription_description
+from .check_tolerance_table import check_tolerance_table
+from .check_machine_name import check_machine_name
 from PlanReview.review_definitions import REVIEW_LEVELS
 from PlanReview.qa_tests.analyze_logs import retrieve_logs
 
@@ -72,42 +74,14 @@ def get_beamset_level_tests(rso, physics_review=True, log_messages=None, values=
                 (match_fractions_to_preplan, {'VALUES': values}),
             f"{REVIEW_LEVELS['PLAN_DESIGN']}::Target Doses Match Treatment Planning Order":
                 (match_rx_to_preplan, {'VALUES': values}),
+            f"{REVIEW_LEVELS['PLAN_DESIGN']}::Tolerance Table Check":
+                (check_tolerance_table, {'VALUES': values}),
                 })
 
     # Plan check for VMAT
     #
     technique = rso.beamset.DeliveryTechnique if rso.beamset else None
-    if technique == 'DynamicArc':
-        try:
-            if rso.beamset.Beams[0].HasValidSegments:
-                beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Control Point Spacing"] = (
-                    check_control_point_spacing, {'expected': 2.})
-                # TODO: Add after more testing
-                #     beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
-                #     compute_vmat_beam_properties, {})
-                beamset_checks_dict[f"{REVIEW_LEVELS['OPTIMIZATION']}::Planning Risk Volume Assessment"] = \
-                    (check_prv_status, {})
-        except Exception as e:
-            if 'Index was out of range. Must be non-negative ' in str(e):
-                pass
-    elif technique == 'SMLC':
-        if rso.beamset.Modality == 'Electrons':
-            beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Electron MC Statistics"] = (
-                check_emc_statistics, {})
-        else:
-            try:
-                _ = rso.beamset.Beams[0].Segments[0]  # Determine if beams have segments
-                # TODO: Add after more testing
-                #     beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
-                #     compute_vmat_beam_properties, {})
-                beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::EDW MU Check"] = (
-                    check_edw_mu, {})
-                beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::EDW FieldSize Check"] = (
-                    check_edw_field_size, {})
-            except Exception as e:
-                logging.warning(f'Error observed during SMLC-specific checks {e}')
-                pass
-    elif 'Tomo' in technique:
+    if 'Tomo' in technique:
         try:
             _ = rso.beamset.Beams[0].Segments[0]  # If beams have segments
             beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Isocenter Lateral Acceptable"] = (
@@ -119,4 +93,37 @@ def get_beamset_level_tests(rso, physics_review=True, log_messages=None, values=
         except Exception as e:
             logging.warning(f'Error observed during Tomo-specific checks {e}')
             pass
+    else:
+        beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Machine Name Check"] = (
+            check_machine_name, {})
+        if technique == 'DynamicArc':
+            try:
+                if rso.beamset.Beams[0].HasValidSegments:
+                    beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Control Point Spacing"] = (
+                        check_control_point_spacing, {'expected': 2.})
+                    # TODO: Add after more testing
+                    #     beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
+                    #     compute_vmat_beam_properties, {})
+                    beamset_checks_dict[f"{REVIEW_LEVELS['OPTIMIZATION']}::Planning Risk Volume Assessment"] = \
+                        (check_prv_status, {})
+            except Exception as e:
+                if 'Index was out of range. Must be non-negative ' in str(e):
+                    pass
+        elif technique == 'SMLC':
+            if rso.beamset.Modality == 'Electrons':
+                beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Electron MC Statistics"] = (
+                    check_emc_statistics, {})
+            else:
+                try:
+                    _ = rso.beamset.Beams[0].Segments[0]  # Determine if beams have segments
+                    # TODO: Add after more testing
+                    #     beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
+                    #     compute_vmat_beam_properties, {})
+                    beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::EDW MU Check"] = (
+                        check_edw_mu, {})
+                    beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::EDW FieldSize Check"] = (
+                        check_edw_field_size, {})
+                except Exception as e:
+                    logging.warning(f'Error observed during SMLC-specific checks {e}')
+                    pass
     return beamset_checks_dict
