@@ -1,8 +1,9 @@
+from typing import Dict, Tuple, List, Optional, Any
+import logging
 import numpy as np
 import math
-from typing import Dict, Tuple
+import pandas as pd  # requires pandas
 from PlanReview.utils.contour_utilities import (copy_roi, get_voxel_coordinates)
-import logging
 
 tomotherapy_clearance = 130  # cm. Conservative estimate of tomo couch throw
 truebeam_clearance = 200  # cm. Measured from scale drawings of the TrueBeam at Couch=0
@@ -540,18 +541,17 @@ def detect_collisions(rso, roi_dict, testing=False):
 
     In test mode:
         * Gantry varies between 180.1 and 179.9 degrees
-        * Couch angle varies between 270 and 90 degrees
+        * Couch angle varies between 271 and 90 degrees
         * Isocenter position varies relative to the supplied region of interest center
     """
     import time
-    # from PlanReview.review_definitions import ALERT, PASS, FAIL, SUPPORT_TOLERANCE
-    # import numpy as np
+    from PlanReview.review_definitions import ALERT, PASS, FAIL, SUPPORT_TOLERANCE, TRUEBEAM_MAX_DIAMETER
 
     # --- head model parameters (cm) ---
     diameter = 76.3  # use the TrueBeam cover diameter (≈76.3 cm)
     length = 84.2  # length of the gantry head (cm)
-    h_fail = 36.0  # fail offset distance (cm)
-    h_alert = 34.0  # alert offset distance (cm)
+    h_fail = TRUEBEAM_MAX_DIAMETER / 2 - SUPPORT_TOLERANCE #  36.0 fail offset distance (cm)
+    h_alert = TRUEBEAM_MAX_DIAMETER / 2 - SUPPORT_TOLERANCE - 2 #  34.0 alert offset distance (cm)
 
     bad_gantry_fail = {}
     bad_gantry_alert = {}
@@ -613,22 +613,6 @@ def detect_collisions(rso, roi_dict, testing=False):
             masks_fail, masks_alert = fast_head_collision_masks_dual(
                 pts_dicom, diameter, length, h_fail, h_alert, angles
             )
-            # masks_fail = fast_head_collision_masks(pts_dicom, D, H, h_fail, angles)
-            # time_2 = time.perf_counter()
-            # print(f"\t * Get collision masks: {(time_2 - time_1)*1000:7.2f} ms")
-            # Build ranges of angles that fail
-            # fail_ranges = [
-            #     (start, end)
-            #     for start, end in group_overlapping_angles(
-            #         [ang for ang, hit in masks_fail.items() if any(hit)]
-            #     )
-            #  ]
-            #  time_3 = time.perf_counter()
-            # print(f"\t * Group overlapping angles: {(time_3 - time_2)*1000:7.2f} ms")
-            # if fail_ranges:
-            #     bad_gantry_fail.setdefault(roi_name, {})[beam_name] = (fail_ranges, clockwise)
-            #     print(f"\t * Found {len(fail_ranges)} failing angle ranges: {fail_ranges}")
-            # Alternative
             # 1) pull out only the angles with any collision
             hit_angles = [ang for ang, hit in masks_fail.items() if any(hit)]
             # print(f"\t * Found {len(hit_angles)} fail angles with collisions: {hit_angles}")
@@ -641,37 +625,19 @@ def detect_collisions(rso, roi_dict, testing=False):
             # time_3 = time.perf_counter()
             fail_ranges = old_group_overlapping_angles(hit_ints)
             # time_4 = time.perf_counter()
-            # print(f"\t * Alt-Grouping angles took: {(time_4 - time_3) * 1000:7.2f} ms")
             if fail_ranges:
                 bad_gantry_fail.setdefault(roi_name, {})[beam_name] = (fail_ranges, clockwise)
-                # print(f"\t * Found {len(fail_ranges)} failing angle ranges: {fail_ranges}")
 
             # Alert‐level: less conservative (head assumed 38 cm away)
             hits_alert = [ang for ang, hit in masks_alert.items() if any(hit)]
-            # print(f"\t * Found {len(hits_alert)} angles with alerts: {hits_alert}")
             # 2) round to ints, dedupe, sort
             hit_ints_alert = sorted({int(round(ang)) for ang in hits_alert})
-            # print(f"\t * Found {len(hit_ints_alert)} unique angles with alerts: {hit_ints_alert}")
             # 3) group into contiguous ranges
             alert_ranges = old_group_overlapping_angles(hit_ints_alert)
-            # print(f"\t * Found {len(alert_ranges)} alert angle ranges: {alert_ranges}")
             if alert_ranges:
                 bad_gantry_alert.setdefault(roi_name, {})[beam_name] = (alert_ranges, clockwise)
-                # print(f"\t * Found {len(alert_ranges)} alert angle ranges: {alert_ranges}")
-            # masks_alert = head_collision_masks(pts_dicom, D, H, h_alert, angles)
-            # masks_alert = fast_head_collision_masks(pts_dicom, D, H, h_alert, angles)
-            # alert_ranges = [
-            #     (start, end)
-            #     for start, end in group_overlapping_angles(
-            #         [ang for ang, hit in masks_alert.items() if any(hit)]
-            #     )
-            #  ]
-            # time_5 = time.perf_counter()
-            # print(f"\t * Group alert angles: {(time_5 - time_4)*1000:7.2f} seconds")
-            # if alert_ranges:
-            #     bad_gantry_alert.setdefault(roi_name, {})[beam_name] = (alert_ranges, clockwise)
-            #     print(f"\t * Found {len(fail_ranges)} alert angle ranges: {alert_ranges}")
-            # ----------------------------------------------------
+    logging.debug("Collision detection complete: fail_rois=%d alert_rois=%d",
+                  len(bad_gantry_fail), len(bad_gantry_alert))
     for roi_name, fail_dict in bad_gantry_fail.items():
         print(f"ROI {roi_name} has {len(fail_dict)} beams with collision issues:")
         for beam_name, (ranges, clockwise) in fail_dict.items():
@@ -757,6 +723,158 @@ def format_beam_collisions(bad_gantry):
 
 
 # ================= Main Function =================
+
+def ranges_to_side_cutoffs(
+    ranges: List[Tuple[int, int]],
+    left_edge: float = 179.9,
+    right_edge: float = 180.1,
+) -> Tuple[float, float]:
+    """Reduce blocked ranges to (left_min, right_max) using Varian IEC rules.
+
+    Args:
+        ranges: List of contiguous blocked ranges (start,end) in [0,360), start<=end.
+        left_edge: Default when no left-side block. Use 179.9 if you prefer strict 180E handling.
+        right_edge: Default when no right-side block. Use 180.1 if you prefer strict 180E handling.
+
+    Returns:
+        (left_min, right_max). If no block on a side, returns the corresponding edge default.
+    """
+    left_candidates = []
+    right_candidates = []
+    for s, e in ranges:
+        s = int(s) % 360
+        e = int(e) % 360
+        if e < s:
+            parts = [(s, 359), (0, e)]
+        else:
+            parts = [(s, e)]
+        for a, b in parts:
+            # Left side [0,180]
+            ls, le = max(a, 0), min(b, 180)
+            if ls <= le:
+                left_candidates.append(ls)     # pick smallest on left
+            # Right side [180,360]
+            rs, re = max(a, 180), min(b, 360)
+            if rs <= re:
+                right_candidates.append(re)    # pick largest on right
+    left_min  = min(left_candidates) if left_candidates else left_edge
+    right_max = max(right_candidates) if right_candidates else right_edge
+    return float(left_min), float(right_max)
+
+def build_beam_clearance_table(
+    rso,
+    bad_gantry_fail: Dict[str, Dict[str, Tuple[List[Tuple[int,int]], bool]]],
+    bad_gantry_alert: Dict[str, Dict[str, Tuple[List[Tuple[int,int]], bool]]],
+    *,
+    left_edge: float = 179.9,
+    right_edge: float = 180.1,
+    beam_meta: Optional[Dict[str, Dict[str, Any]]] = None,
+    csv_path: Optional[str] = None,
+    logger: Optional[logging.Logger] = None,
+) -> pd.DataFrame:
+    """Create per-ROI, per-beam cutoffs for FAIL/ALERT/PASS with optional metadata and CSV.
+
+    Args:
+        rso: RayStation ScriptObjects NamedTuple. Used to enumerate all beams.
+        bad_gantry_fail: {roi: {beam: ([(start,end), ...], clockwise_bool)}}
+        bad_gantry_alert: same shape for ALERT.
+        left_edge, right_edge: defaults when a side has no block.
+        beam_meta: optional {beam_name: {"couch_to_iso":..., "lat_offset":..., ...}}
+        csv_path: optional CSV output.
+        logger: optional logger.
+
+    Returns:
+        DataFrame with columns:
+          roi, beam, level, direction, ranges, left_min, right_max,
+          couch_to_iso?, lat_offset? (if provided), and any extra meta fields.
+    """
+    rows = []
+    all_beams = [b.Name for b in rso.beamset.Beams]
+
+    def add(level_dict: Dict[str, Dict[str, Tuple[List[Tuple[int,int]], bool]]], level: str):
+        for roi, beams in level_dict.items():
+            for beam, (ranges, clockwise) in beams.items():
+                lmin, rmax = ranges_to_side_cutoffs(ranges, left_edge, right_edge)
+                meta = beam_meta.get(beam, {}) if beam_meta else {}
+                rows.append({
+                    "roi": roi,
+                    "beam": beam,
+                    "level": level,
+                    "direction": "CW" if clockwise else "CCW",
+                    "ranges": ";".join([f"{int(s)}-{int(e)}" if s!=e else f"{int(s)}" for s,e in ranges]),
+                    "left_min": lmin,
+                    "right_max": rmax,
+                    **meta,
+                })
+
+    add(bad_gantry_fail, "FAIL")
+    add(bad_gantry_alert, "ALERT")
+
+    # PASS rows for beams not present above
+    present = {(r["roi"], r["beam"]) for r in rows}
+    rois = sorted(set(list(bad_gantry_fail.keys()) + list(bad_gantry_alert.keys())))
+    for roi in rois:
+        for beam in all_beams:
+            if (roi, beam) in present:
+                continue
+            meta = beam_meta.get(beam, {}) if beam_meta else {}
+            rows.append({
+                "roi": roi,
+                "beam": beam,
+                "level": "PASS",
+                "direction": "NA",
+                "ranges": "",
+                "left_min": left_edge,    # no block -> defaults
+                "right_max": right_edge,
+                **meta,
+            })
+
+    df = pd.DataFrame(rows)
+    # Optional severity ordering: FAIL > ALERT > PASS
+    cat = pd.CategoricalDtype(categories=["FAIL","ALERT","PASS"], ordered=True)
+    if "level" in df:
+        df["level"] = df["level"].astype(cat)
+    df.sort_values(["roi","beam","level"], inplace=True)
+
+    if logger:
+        for roi, sub in df.groupby("roi"):
+            worst = "FAIL" if (sub["level"] == "FAIL").any() else ("ALERT" if (sub["level"] == "ALERT").any() else "PASS")
+            logger.info("ROI %s summary: worst=%s, beams=%d", roi, worst, sub["beam"].nunique())
+
+    if csv_path:
+        df.to_csv(csv_path, index=False)
+    return df
+
+
+def split_points_by_collision_for_angle(
+    points_iso_dicom: np.ndarray,
+    diameter: float,
+    head_length: float,
+    offset: float,
+    angle_deg: float,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Return (colliding_points, clearing_points) for a single IEC angle.
+
+    Args:
+        points_iso_dicom: (N,3) points already shifted to iso and rotated by couch.
+        diameter: head diameter cm.
+        head_length: head length cm.
+        offset: center offset from iso cm (use fail or alert offset).
+        angle_deg: Varian IEC gantry angle in degrees.
+
+    Returns:
+        colliding_points, clearing_points
+    """
+    R = diameter / 2.0
+    half_L = head_length / 2.0
+    phi = np.deg2rad((360 - (angle_deg - 90)) % 360)
+    d = np.array([np.cos(phi), np.sin(phi), 0.0])                # axis unit vector
+    C = (offset + half_L) * d                                    # cylinder center
+    rel = points_iso_dicom - C
+    t = rel @ d
+    perp2 = np.einsum("ij,ij->i", rel, rel) - t**2
+    inside = (perp2 <= R**2) & (t >= -half_L) & (t <= half_L)
+    return points_iso_dicom[inside], points_iso_dicom[~inside]
 
 
 def find_externals_and_supports(rso):
