@@ -37,3 +37,4 @@ _static/
 _templates/!/Script_Selector_py3_11.py
 Pipfile.lock
 ide.general.xml
+/Lib/
