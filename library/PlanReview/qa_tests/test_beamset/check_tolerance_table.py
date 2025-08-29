@@ -18,6 +18,7 @@ def get_beamset_tolerance_table(beamset: Any) -> Optional[str]:
         return None
 
 
+
 def check_tolerance_table(rso: NamedTuple, **kwargs: dict) -> Tuple[str, str]:
     """ Import the imaging frequency from values and check against the tolerance table.
     1) Check if the imaging frequency is specified in the input values.
