@@ -2016,8 +2016,8 @@ PACEMAKER_PRV_NAME = "Block_Pacemaker_PRV50"
 PACEMAKER_SEARCH_DISTANCE = 10.  # cm distance over which to look for the 2 Gy dose level
 PACEMAKER_DISTANCE_TOLERANCE = 2.  # cm distance from which we want the 2 Gy line to be away from
 # the pacer
-SUPPORT_TOLERANCE = 3.0  # cm, the minimum clearance distance between external and any support at isocenter
-TRUEBEAM_MAX_DIAMETER = 80.0  # cm, the "pin" diameter of the TrueBeam
+SUPPORT_TOLERANCE = 0.0  # cm, the minimum clearance distance between external and any support at isocenter
+TRUEBEAM_MAX_DIAMETER = 80.0  # cm, the "pin" diameter of the TrueBeam [confirmed with couch height measurement]
 HDA_MAX_DIAMETER = 85.0  # cm, the cover diameter of the Tomo HDA
 #
 # PLANNING DEFAULTS
