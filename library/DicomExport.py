@@ -447,7 +447,7 @@ def send(case,
          gantry_period=None,
          couch_speed=None,
          round_jaws=False,
-         aria_prescription_filters=False,
+         aria_compatibility_mode=False,
          no_ref_point_location=False,
          block_accessory=False,
          block_tray_id=False,
@@ -484,7 +484,7 @@ def send(case,
 
         else:
             logging.debug('Provided destination {} was found'.format(d))
-    # Load energy filters for selected machine
+    # Load energy filters for the selected machine
     if fff_energy_filter:
         energy_list = energies(beamset, machine)
     else:
@@ -675,24 +675,6 @@ def send(case,
                         UserInterface.MessageBox(raygateway_response['message'], 'Export Fail')
                         status = False
                         raise
-                    # parsed_error = parse_raygateway_message(error)
-                    # This is the error thrown when a plan is already in the iDMS
-                    # existing_plan_exception = f"_{beamset.DicomPlanLabel} already exist"
-                    # element_too_long = 'Element 3006,0050 is too long to be written in Explicit'
-                    # if existing_plan_exception in error:
-                    #     logging.debug('Parent plan likely in iDMS already. Error is {}'.format(parsed_error))
-                    #     logging.info('Parent Plan is already in IDMS {}'.format(beamset.DicomPlanLabel))
-                    #     pass
-                    # elif element_too_long in error:
-                    #     logging.debug(f'Error encountered during export of {beamset.DicomPlanLabel}: {parsed_error}')
-                    #     logging.info(f"An ROI in the {beamset.DicomPlanLabel} exceeds the maximum tolerable "
-                    #                  f"length for DICOM export. Simplify ROIs with _npts>2500")
-                    #     status=False
-                    # else:
-                    #     logging.error('DicomExport failed {}'.format(parsed_error))
-                    #     UserInterface.MessageBox(f'DICOM export failed {parsed_error}', 'Export Fail')
-                    #     status = False
-                    #     raise
                 logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
             else:
                 try:
@@ -834,7 +816,7 @@ def send(case,
                         logging.debug(f"\t{rt_plan_msg}: {message}")
 
                 # 14) Prescription filter for ARIA - Must be last filter applied!
-                if aria_prescription_filters:
+                if aria_compatibility_mode:
                     # Create a copy for ARIA specific export
                     ds_aria = deepcopy(ds)
                     expected_aria = deepcopy(expected)
@@ -924,7 +906,7 @@ def send(case,
         else:
             assoc = None
 
-        selected_files = select_modified_files_for_destination(modified, info, aria_prescription_filters)
+        selected_files = select_modified_files_for_destination(modified, info, aria_compatibility_mode)
         i = 0
         total = len(selected_files)
         for fpath in selected_files:
@@ -1087,9 +1069,33 @@ def is_aria_destination(info: dict) -> bool:
 
 def select_modified_files_for_destination(modified_dir: str,
                                           info: dict,
-                                          aria_prescription_filters: bool) -> List[str]:
+                                          aria_compatibility_mode: bool) -> List[str]:
+    """
+    Selects modified files for a specified destination directory, filtering DICOM files based on their
+    SOP Class UID and compatibility mode.
+
+    This function processes a directory of modified files, determines files of interest based on their
+    file names and DICOM metadata, and returns a list of selected file paths. The selection can vary
+    depending on whether ARIA compatibility mode is enabled and if the destination is associated with
+    ARIA.
+
+    ARIA compatibility mode is intended to ensure that if both a base RT Plan and an ARIA-specific
+    RT Plan exist for the same SOP Instance UID, only the ARIA-specific version is selected for export.
+    For ARIA Destinations, RT Dose files are excluded when ARIA compatibility mode is active.
+
+    Args:
+        modified_dir (str): The directory containing modified files to process.
+        info (dict): Metadata about the destination or relevant context.
+        aria_compatibility_mode (bool): A flag indicating whether to enable ARIA-specific compatibility.
+
+    Returns:
+        List[str]: A list of selected file paths based on the input directory and filtering criteria.
+    """
     plans_by_uid: dict[str, dict[str, str]] = {}
     non_plans: List[str] = []
+    # Indication that we want the ARIA-specific version of the plan if it exists, exclude the dose
+    # because the destination is ARIA and the filter is active
+    want_aria = aria_compatibility_mode and is_aria_destination(info)
 
     for m in os.listdir(modified_dir):
         fpath = os.path.join(modified_dir, m)
@@ -1106,10 +1112,12 @@ def select_modified_files_for_destination(modified_dir: str,
             else:
                 bucket['base'] = fpath
         else:
+            if ds.SOPClassUID == RTDoseStorage and want_aria:
+                # If we want ARIA plans, exclude non-plans
+                continue
             non_plans.append(fpath)
 
     selected = list(non_plans)
-    want_aria = aria_prescription_filters and is_aria_destination(info)
 
     for uid, paths in plans_by_uid.items():
         if want_aria and 'aria' in paths:
@@ -1650,7 +1658,7 @@ def apply_gantry_period_filter(ds, expected, gantry_period):
 #         insert_reference_coords: bool
 # ) -> str:
 #     """
-#     Build or update the RTPlan DoseReferenceSequence for the primary aria_prescription_filters.
+#     Build or update the RTPlan DoseReferenceSequence for the primary aria_compatibility_mode.
 #
 #     This wraps the internal helper `_build_primary_dose_reference`, which:
 #       - Creates a new item in DoseReferenceSequence (300A,0010).
@@ -1688,7 +1696,7 @@ def apply_gantry_period_filter(ds, expected, gantry_period):
 #         expected: Any,
 #         ref_point_location: bool
 # ) -> List[str]:
-#     """Create or update the DoseReferenceSequence with primary aria_prescription_filters details.
+#     """Create or update the DoseReferenceSequence with primary aria_compatibility_mode details.
 #
 #     DICOM tags used:
 #       - (300A,0010) DoseReferenceSequence (SQ)
@@ -1785,7 +1793,7 @@ def apply_gantry_period_filter(ds, expected, gantry_period):
 #       - If False, removes any existing BeamDoseSpecificationPoint (300A,0082),
 #         BeamDosePointDepth (300A,0088), RadiologicalDepth (300A,0089),
 #         and BeamDoseType (300A,0090).
-#       - Scales or uniformly distributes BeamDose (300A,0084) to match the primary aria_prescription_filters.
+#       - Scales or uniformly distributes BeamDose (300A,0084) to match the primary aria_compatibility_mode.
 #
 #     Args:
 #         ds: Full pydicom Dataset for the RTPlan.
@@ -1854,7 +1862,7 @@ def apply_gantry_period_filter(ds, expected, gantry_period):
 #             expected.add(b[0x300A0084], beam=b)
 #             msgs.append(f"Beam '{get_referenced_beam_name(ds, b)}': assigned uniform dose={uniform}")
 #     else:
-#         # Scale existing BeamDose to match new total aria_prescription_filters
+#         # Scale existing BeamDose to match new total aria_compatibility_mode
 #         for b in beams:
 #             if hasattr(b, 'BeamDose'):
 #                 scaled = b.BeamDose * ds.DoseReferenceSequence[0].DeliveryMaximumDose \
@@ -2103,13 +2111,13 @@ def find_prescription_index_of_dicom_dose_reference(dose_reference_sequence, bea
             logging.debug(f"Found matching prescription dose reference: {pdr.Description} "
                           f"with index {prescription_dose_references.IndexOf(pdr)}")
             return prescription_dose_references.IndexOf(pdr)
-    logging.error(f'The aria_prescription_filters description is set to an unexpected value. '
+    logging.error(f'The aria_compatibility_mode description is set to an unexpected value. '
                   f'It is {dose_reference_sequence.DoseReferenceDescription}, and would expect it was:'
                   f' {beamset.DicomPlanLabel}|D1...n '
-                  f'Unable to find matching aria_prescription_filters for DoseReferenceSequence:'
+                  f'Unable to find matching aria_compatibility_mode for DoseReferenceSequence:'
                   f' {dose_reference_sequence.DoseReferenceDescription}, likely due to missing Final Dose script ')
     raise ValueError(
-        f'The aria_prescription_filters description is set to an unexpected value.\n'
+        f'The aria_compatibility_mode description is set to an unexpected value.\n'
         f'It is {dose_reference_sequence.DoseReferenceDescription}, and would expect it was: '
         f'{beamset.DicomPlanLabel}|D1...n\n'
         f'Please run the Final Dose script first or disable filters and manually set reference point data '
@@ -2176,11 +2184,11 @@ def add_dose_reference_extension_tag(ds: Dataset, beamsets, expected) -> str:
 
 
 def get_rs_prescription(beamset):
-    """Get the primary aria_prescription_filters dose reference from the beamset."""
+    """Get the primary aria_compatibility_mode dose reference from the beamset."""
     if hasattr(beamset.Prescription, 'PrimaryPrescriptionDoseReference'):
         return beamset.Prescription.PrimaryPrescriptionDoseReference
     else:
-        logging.warning('No primary aria_prescription_filters dose reference found in beamset.')
+        logging.warning('No primary aria_compatibility_mode dose reference found in beamset.')
         return False
 
 
@@ -2245,11 +2253,11 @@ def get_rs_prescription(beamset):
 
 def apply_prescription_filter_aria(ds, beamset, expected) -> str:
     """
-    Build and insert the primary aria_prescription_filters reference point, and redistribute beam doses, pretty much
+    Build and insert the primary aria_compatibility_mode reference point, and redistribute beam doses, pretty much
     just for ARIA. This is because, to get the reference point doses to add correctly, we need to modify
     the beam dose specification points (making them locationless). Obviously, Mobius doesn't like that
     ARIA sets the dose to the primary reference point using the values in (300A,0084) BeamDose, so those have to
-    add up to exactly the primary aria_prescription_filters dose for the other dose levels to be correct.
+    add up to exactly the primary aria_compatibility_mode dose for the other dose levels to be correct.
     DICOM tags used:
     - (300A,0010) DoseReferenceSequence (SQ)
     - (300A,0012) DoseReferenceNumber (IS) - 1 for primary and 2, 3, etc. for subsequent -> Check only
@@ -2274,7 +2282,7 @@ def apply_prescription_filter_aria(ds, beamset, expected) -> str:
     """
 
     def _determine_prescription_type(primary_dose_reference):
-        """Determine the type of aria_prescription_filters based on the beamset."""
+        """Determine the type of aria_compatibility_mode based on the beamset."""
         # Check for a primary dose reference object in RS
         if hasattr(primary_dose_reference, 'OnStructure'):
             return 'STRUCTURE'
@@ -2294,7 +2302,7 @@ def apply_prescription_filter_aria(ds, beamset, expected) -> str:
         return True
 
     def _find_rx_reference(beamset, dose_reference_sequence):
-        logging.debug(f'Finding matching aria_prescription_filters for dose reference: '
+        logging.debug(f'Finding matching aria_compatibility_mode for dose reference: '
                       f'{beamset.DicomPlanLabel}')
         prescription_index = find_prescription_index_of_dicom_dose_reference(dose_reference_sequence, beamset)
         return beamset.Prescription.PrescriptionDoseReferences[prescription_index]
@@ -2387,17 +2395,17 @@ def apply_prescription_filter_aria(ds, beamset, expected) -> str:
     # If the beamset type is list, then we need to match the DicomPlanLabel attribute with the plan name
     # of the ds passed to this function
     if isinstance(beamset, list):
-        logging.debug(f'Applying aria_prescription_filters filter to beamsets: {[b.DicomPlanLabel for b in beamset]}')
+        logging.debug(f'Applying aria_compatibility_mode filter to beamsets: {[b.DicomPlanLabel for b in beamset]}')
     else:
-        logging.debug(f'Applying aria_prescription_filters filter to beamset: {beamset.DicomPlanLabel}')
+        logging.debug(f'Applying aria_compatibility_mode filter to beamset: {beamset.DicomPlanLabel}')
     beamset = find_beamset_by_label(beamset, ds)
     logging.debug(f'Found beamset: {beamset.DicomPlanLabel} to match with DicomPlanLabel: {get_rt_plan_label(ds)}')
     msgs.append(f'Rx Filter for {beamset.DicomPlanLabel}: ')
-    # only proceed if aria_prescription_filters data exists
+    # only proceed if aria_compatibility_mode data exists
     # Check the ds for FractionGroupSequence and ReferencedBeamSequence
     if not _fraction_group_sequence_valid(ds):
         return ''
-    # Fetch the aria_prescription_filters object
+    # Fetch the aria_compatibility_mode object
     primary_dose_ref = get_rs_prescription(beamset)
     if type(primary_dose_ref) is bool:
         return ''
