@@ -535,13 +535,13 @@ def detect_collisions(rso, roi_dict, testing=False):
       - Fail level: cylinder center at 41 cm from isocenter
       - Alert level: cylinder center at 38 cm from isocenter
     Args:
-        rso: NamedTuple of ScriptObjects in Raystation [case, exam, plan, beamset, db]
+        rso: NamedTuple of ScriptObjects in RayStation [case, exam, plan, beamset, db]
         roi_dict: Dictionary of ROIs to check for collisions.
         testing: Boolean indicating whether to run in test mode.
 
     In test mode:
         * Gantry varies between 180.1 and 179.9 degrees
-        * Couch angle varies between 271 and 90 degrees
+        * The couch angle varies between 271 and 90 degrees
         * Isocenter position varies relative to the supplied region of interest center
     """
     import time
