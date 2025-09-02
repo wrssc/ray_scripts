@@ -92,11 +92,11 @@ def create_site_billing_row(fill_row, index, visible):
                              visible=visible,
                              enable_events=True),
                     ]
-                    # sg.Input(size=(20, 1), key='-INPUT-', enable_events=True),
-                    # Sg.Listbox(key=create_tuple_key(KEY_DOSE_SITE, index),
-                    #            values=beamset_aliases,
-                    #            size=(20, 1),
-                    #            enable_events=True)]
+        # sg.Input(size=(20, 1), key='-INPUT-', enable_events=True),
+        # Sg.Listbox(key=create_tuple_key(KEY_DOSE_SITE, index),
+        #            values=beamset_aliases,
+        #            size=(20, 1),
+        #            enable_events=True)]
         billing_row = [Sg.Text('Select treatment technique',
                                visible=visible,
                                key=create_tuple_key(KEY_DOSE_BILL + KEY_T, index),
@@ -805,6 +805,9 @@ def validate_beamset_information(preplan_dict):
         popup_message += 'Number of beamsets needed to proceed.\n'
         num_beamsets = 0
     else:
+        logging.debug(f'Keys in use prior to fail: KEY_BEAMSET {KEY_BEAMSET}, '
+                      f'KEY_BEAMSET_COUNT {KEY_BEAMSET_COUNT}: value in preplan'
+                      f' {preplan_dict[KEY_BEAMSET][KEY_BEAMSET_COUNT]}')
         num_beamsets = int(preplan_dict[KEY_BEAMSET][KEY_BEAMSET_COUNT])
     # Beamset information is required
     for i in range(num_beamsets):
@@ -1015,110 +1018,6 @@ def extract_values_preplan_tab(main_window):
     return values_dict
 
 
-
-def old_extract_values_preplan_tab(main_window):
-    """
-    Extract the values from the PySimpleGUI window and return them in a dictionary.
-
-    Parameters:
-    main_window (Sg.Window): The main PySimpleGUI window object.
-
-    Returns:
-    dict: A dictionary containing the values of the input fields.
-    """
-    simulation_dict = {
-        # Get the CT Information values
-        KEY_SIM_DATE:
-            main_window[KEY_SIM_DATE].get()
-            if main_window[KEY_SIM_DATE].get() else '',
-        KEY_SLICES:
-            main_window[KEY_SLICES].get()
-            if main_window[KEY_SLICES].get() else '',
-        KEY_PATIENT_ORIENTATION:
-            main_window[KEY_PATIENT_ORIENTATION].get()
-            if main_window[KEY_PATIENT_ORIENTATION].get() else '',
-        KEY_IMD:
-            main_window[KEY_IMD + KEY_RADIO + '-YES'].get()
-            if main_window[KEY_IMD + KEY_RADIO + '-YES'].get else '',
-        KEY_PRIOR_RT:
-            main_window[KEY_PRIOR_RT + KEY_RADIO + '-YES'].get()
-            if main_window[KEY_PRIOR_RT + KEY_RADIO + '-YES'].get else '',
-        # Get the Treatment Instructions values
-        KEY_SITE_SELECT:
-            main_window[KEY_SITE_SELECT].get()
-            if main_window[KEY_SITE_SELECT].get() else '',
-        KEY_PROTOCOL_SELECT:
-            main_window[KEY_PROTOCOL_SELECT].get()
-            if main_window[KEY_PROTOCOL_SELECT].get() else '',
-        KEY_ORDER_SELECT:
-            main_window[KEY_ORDER_SELECT].get()
-            if main_window[KEY_ORDER_SELECT].get() else '',
-        KEY_IMAGING_FREQ:
-            main_window[KEY_IMAGING_FREQ].get()
-            if main_window[KEY_IMAGING_FREQ].get() else '',
-        KEY_TREAT_FREQ:
-            main_window[KEY_TREAT_FREQ].get()
-            if main_window[KEY_TREAT_FREQ].get() else '',
-    }
-
-    # Capture the selected radio buttons, comboboxes, and text inputs
-    treatment_instructions = {}
-    for key, value in main_window.key_dict.items():
-        if isinstance(key, tuple) and len(key) == 2:
-            instruction_key, instruction_idx = key
-            if KEY_TX_INST in instruction_key:
-                instruction_element = main_window[key]
-                if isinstance(instruction_element, Sg.Input):
-                    treatment_instructions[key] = value.get()
-                elif isinstance(instruction_element, Sg.Combo):
-                    treatment_instructions[key] = value.get()
-                elif isinstance(instruction_element, Sg.Radio):
-                    treatment_instructions[key] = value.get()
-
-    # Get the Beamset Information values
-    num_beamsets = main_window[KEY_BEAMSET_COUNT].get() \
-        if main_window[KEY_BEAMSET_COUNT].get() else 1
-    beamset_dict = {
-        KEY_BEAMSET_COUNT: main_window[KEY_BEAMSET_COUNT].get()
-        if main_window[KEY_BEAMSET_COUNT].get() else ''}
-    for i in range(num_beamsets):
-        beamset_dict[create_tuple_key(KEY_BEAMSET_SELECT, i)] = \
-            main_window[create_tuple_key(KEY_BEAMSET_SELECT, i)].get() \
-                if main_window[create_tuple_key(KEY_BEAMSET_SELECT, i)].get() \
-                else ''
-        beamset_dict[create_tuple_key(KEY_BEAMSET + KEY_FRACTIONS, i)] = \
-            int(main_window[create_tuple_key(KEY_BEAMSET + KEY_FRACTIONS, i)].get()) \
-                if main_window[create_tuple_key(KEY_BEAMSET + KEY_FRACTIONS, i)].get() \
-                else -1
-        num_targets = \
-            int(main_window[create_tuple_key(KEY_BEAMSET_TARGET_COUNT, i)].get()
-                ) \
-                if main_window[create_tuple_key(KEY_BEAMSET_TARGET_COUNT, i)].get() \
-                else -1
-        beamset_dict[create_tuple_key(KEY_BEAMSET_TARGET_COUNT, i)] = \
-            num_targets
-        beamset_dict[create_tuple_key(KEY_DOSE_SITE, i)] = \
-            main_window[create_tuple_key(KEY_DOSE_SITE, i)].get() \
-                if main_window[create_tuple_key(KEY_DOSE_SITE, i)].get() \
-                else ''
-        beamset_dict[create_tuple_key(KEY_DOSE_BILL, i)] = \
-            main_window[create_tuple_key(KEY_DOSE_BILL, i)].get() \
-                if main_window[create_tuple_key(KEY_DOSE_BILL, i)].get() \
-                else ''
-        for j in range(num_targets):  # assuming num_targets is defined somewhere
-            for key in [KEY_BEAMSET_TARGET_NAME, KEY_BEAMSET_DOSE, KEY_BEAMSET_FRACTION_DOSE]:
-                window_key = create_tuple_key(key, i, j)
-                if main_window[window_key].get():
-                    beamset_dict[window_key] = main_window[window_key].get()
-    values_dict = {
-        KEY_SIMULATION_DATA: simulation_dict,
-        KEY_TX_INST_SET: treatment_instructions,
-        KEY_BEAMSET: beamset_dict,
-    }
-
-    return values_dict
-
-
 def tuple_key_to_str(value):
     if isinstance(value, dict):
         return {tuple_key_to_str(k): tuple_key_to_str(v) for k, v in value.items()}
@@ -1258,4 +1157,3 @@ def find_site_technique_from_beamset_name(beamset_name, num_beamsets, main_windo
                 if main_window[dose_bill_key].get() else ''
             return dose_site_value, dose_bill_value
     return None, None
-

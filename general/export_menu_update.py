@@ -1,4 +1,4 @@
-""" Dicom Export Functions
+""" DICOM Export Functions
 
    This script is a PySide6-based GUI for exporting DICOM data from a radiation therapy treatment planning system.
 
@@ -10,14 +10,12 @@
             * SRS coords are working
             * RPM Gated Treatment is working
     TODO:
-        * Make machine name a required selection
-        * Make sure that the user "selects" a beamset by clikcing checkbox and update display to show multiple
 
 """
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __license__ = 'GPLv3'
 __help__ = ''
 __copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
@@ -29,7 +27,6 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QStandardItemModel, QStandardItem, QPalette, QColor
 from PySide6.QtCore import Qt
-import sys
 import logging
 import time
 import math
@@ -48,10 +45,12 @@ EXPORT_OPTIONS = {
     # Enabled in the script and defaulted to yes
     'ADJUST_ELECTRON_DOSERATE': ('Adjust Electron Dose Rate', RADIO_ON, ENABLED, ['Electrons']),
     'USE_PRDR_DOSERATE': ('Use PRDR Dose Rate', RADIO_ON, ENABLED, ['PRDR']),
-    'APPLY_PRESCRIPTION_REFERENCE_POINT': ('Apply Prescription Reference Point', RADIO_ON, ENABLED, []),
+    'ARIA_COMPATIBILITY_MODE': ('Apply ARIA compatibility filters (excludes dose, modifies prescription)',
+                                RADIO_ON, ENABLED, []),
     'UPDATE_SETUP_BEAMS': ('Update Setup Beams', RADIO_ON, ENABLED, ['Photons', 'Electrons']),
     # Enabled in the script but defaulted to no
-    'USE_GATED': ('Internal Target RPM Gated Treatment (NOT ALIGN RT)', RADIO_OFF, ENABLED, ['Photons', 'Electrons']),
+    'USE_GATED': ('Internal Target RPM Gated Treatment (NOT ALIGN RT)',
+                  RADIO_OFF, ENABLED, ['Photons', 'Electrons']),
     'NO_REF_POINT_LOCATION': ('Reference Point has no geometric location', RADIO_OFF, ENABLED, []),
     'USE_SRS_COORDS': ('Use SRS table calculation', RADIO_OFF, ENABLED, ['Photons', 'Electrons']),
     # Filters that are currently disabled in the script
@@ -63,7 +62,6 @@ EXPORT_OPTIONS = {
     'ROUND_JAWS': ('Round Jaws', RADIO_ON, DISABLED, ['Photons', 'Electrons']),
     'SET_PA_AUTOMATICALLY': ('Set PA Automatically', RADIO_ON, DISABLED, ['Photons']),
     'IGNORE_MACHINE': ('Ignore machine name', RADIO_OFF, DISABLED, []),
-    # Obsolete
 }
 
 
@@ -299,11 +297,11 @@ class InputDialog(QDialog):
             gb_layout = QFormLayout(gb)
 
             # 1) Warning label spans both columns
-            warning_color = QApplication.palette().color(QPalette.BrightText).name()
-            warn_lbl = QLabel(self.warning or "! These settings apply to *all* exported beamsets", gb)
-            warn_lbl.setWordWrap(True)
-            warn_lbl.setStyleSheet(f"color: {warning_color}; font-weight: bold;")
-            gb_layout.addRow(warn_lbl)
+            warning_text_color = QApplication.palette().color(QPalette.BrightText).name()
+            warning_label = QLabel(self.warning or "! These settings apply to *all* exported beamsets", gb)
+            warning_label.setWordWrap(True)
+            warning_label.setStyleSheet(f"color: {warning_text_color}; font-weight: bold;")
+            gb_layout.addRow(warning_label)
 
             # 2) One row per filter key: label in col 1, yes/no container in col 2
             for key in filter_keys:
@@ -644,14 +642,8 @@ def main():
         'ignore_warnings': ['Yes', 'No']
     }
     initial = {'dicom_export_selections': ['CT', 'Structures'],
-               'beamset_selections': [],
-               'ignore_warnings': 'No'}
+               'beamset_selections': [], 'ignore_warnings': 'Yes'}
     # if ignore:
-    initial['ignore_warnings'] = 'Yes'
-    logging.debug(f'Beamset is {beamset.DicomPlanLabel if beamset else "None"}'
-                  f'and DicomExportMachines is {DicomExport.machines(beamset) if beamset else "None"}')
-    logging.debug(
-        f'Len of DicomExport.machines(beamset) is {len(DicomExport.machines(beamset)) if beamset else "None"}')
     if beamset is not None and len(DicomExport.machines(beamset)) > 0:
         options['dicom_export_selections'] += ['Beam Set(s)', 'Beam Set Dose(s)', 'Beam Dose(s)']
         # Delivery system selection
@@ -690,8 +682,6 @@ def main():
         warning='These settings will apply to all exported beamsets, '
                 'if a filter is inappropriate for a beamset, export it separately.'
     )
-    logging.debug('Showing DICOM export dialog with inputs: '
-                  f'{inputs}, types: {types}, options: {options}, initial: {initial}, required: {required}')
     response = dialog.run()
     if response == {}:
         status.finish('DICOM export was cancelled')
@@ -823,7 +813,7 @@ def main():
                                table=initial_table_position,
                                pa_threshold=response.get('SET_PA_AUTOMATICALLY', False),
                                round_jaws=response.get('ROUND_JAWS', False),
-                               prescription=response.get('APPLY_PRESCRIPTION_REFERENCE_POINT', False),
+                               aria_compatibility_mode=response.get('ARIA_COMPATIBILITY_MODE', False),
                                no_ref_point_location=response.get('NO_REF_POINT_LOCATION', False),
                                block_accessory=response.get('APPLY_BLOCK_ACCESSORY_TO_ELECTRON_FIELDS', False),
                                block_tray_id=response.get('COPY_ELECTRON_BLOCK_NAME_TO_ID', False),

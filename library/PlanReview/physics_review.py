@@ -167,6 +167,7 @@
         consideration of the pre-logcrit syntax and post-logcrit syntax
     Individual Test improvements:
     TODO: Contour gap check need only include human-drawn contours
+    TODO: Eliminate TBI targets from the contour interpolation check
 
 
 
@@ -244,7 +245,7 @@ def physics_review(do_physics_review=True, review_type='Physics'):
              -- Logs
     """
     # Initialize return variable
-    Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan',
+    Pd = namedtuple('Pd', ['error', 'db', 'machine_db', 'case', 'patient', 'exam', 'plan',
                            'beamset'])
     # Get current patient, case, exam
     rso = Pd(error=[],
@@ -252,6 +253,7 @@ def physics_review(do_physics_review=True, review_type='Physics'):
              case=find_scope(level='Case'),
              exam=find_scope(level='Examination'),
              db=find_scope(level='PatientDB'),
+             machine_db=find_scope(level='Machine'),
              plan=find_scope(level='Plan'),
              beamset=find_scope(level='BeamSet'))
     #
@@ -263,7 +265,7 @@ def physics_review(do_physics_review=True, review_type='Physics'):
 
     if not rso:
         # Initialize return variable
-        Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan',
+        Pd = namedtuple('Pd', ['error', 'db', 'machine_db', 'case', 'patient', 'exam', 'plan',
                                'beamset'])
         # Get current patient, case, exam
         rso = Pd(error=[],
@@ -271,6 +273,7 @@ def physics_review(do_physics_review=True, review_type='Physics'):
                  case=find_scope(level='Case'),
                  exam=find_scope(level='Examination'),
                  db=find_scope(level='PatientDB'),
+                 machine_db=find_scope(level='Machine'),
                  plan=find_scope(level='Plan'),
                  beamset=find_scope(level='BeamSet'))
     doc_only = False

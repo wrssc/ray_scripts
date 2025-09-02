@@ -15329,8 +15329,8 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>Pacemaker</name>
-        <TG263PrimaryName>Pacemaker</TG263PrimaryName>
+        <name>Block_Pacemaker</name>
+        <TG263PrimaryName>Block_Pacemaker</TG263PrimaryName>
         <Description>Pacemaker</Description>
         <NCIt></NCIt>
         <TargetType>Non_Anatomic</TargetType>
@@ -15338,11 +15338,11 @@
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Thorax</AnatomicGroup>
         <NCharacters>9</NCharacters>
-        <TG263ReverseOrderName>Pacemaker</TG263ReverseOrderName>
+        <TG263ReverseOrderName>Pacemaker_Block</TG263ReverseOrderName>
         <Export></Export>
         <FMAID></FMAID>
         <Color red="251" green="47" blue="132" Hex="#FB2F84">PinkPiano</Color>
-        <Alias></Alias>
+        <Alias>Pacemaker,pacemaker</Alias>
     </roi>
     <roi>
         <name>Pacemaker_PRVxx</name>
