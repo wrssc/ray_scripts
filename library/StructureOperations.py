@@ -1764,8 +1764,8 @@ def create_prv(
         prv_name: str = r["name"]
 
         prv_rgb: Optional[List[int]] = (
-            [int(x) for x in r["RGBColor"]] if pd.notna(r.get("RGBColor")) else None
-        )
+             [int(x) for x in r["RGBColor"]] if all(pd.notna(r.get("RGBColor"))) else None
+         )
         prv_type: Optional[str] = (
             str(r["RTROIInterpretedType"]) if pd.notna(r.get("RTROIInterpretedType")) else None
         )
