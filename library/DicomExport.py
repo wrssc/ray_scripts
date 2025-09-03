@@ -2075,12 +2075,17 @@ def find_prescription_index_of_dicom_dose_reference(dose_reference_sequence, bea
             )
 
     _check_inputs()
+    precision = 5
+    quantum = Decimal(10) ** -precision
+    failing_conditions = {}
     index_drs = dose_reference_sequence.DoseReferenceNumber
     # If index_drs == 1 -> this is a primary prescription
     prescription_dose_references = beamset.Prescription.PrescriptionDoseReferences
     # Make a dictionary of the conditions to match
+    target_dose = Decimal(str(dose_reference_sequence.TargetPrescriptionDose))
+    round_target_dose = target_dose.quantize(quantum, rounding=ROUND_HALF_UP)
     drs_conditions = {'DESCRIPTION': dose_reference_sequence.DoseReferenceDescription,
-                      'TARGET_DOSE': Decimal(str(dose_reference_sequence.TargetPrescriptionDose)),
+                      'TARGET_DOSE': round_target_dose,
                       'UID': dose_reference_sequence.DoseReferenceUID,
                       'ROI_NUMBER': dose_reference_sequence.ReferencedROINumber
                       if hasattr(dose_reference_sequence, 'ReferencedROINumber') else None
@@ -2091,9 +2096,11 @@ def find_prescription_index_of_dicom_dose_reference(dose_reference_sequence, bea
                       f"with index {prescription_dose_references.IndexOf(pdr)} for matches to these conditions "
                       f"on the dose reference sequence: "
                       f"{drs_conditions}")
+        pdr_target_dose = Decimal(str(pdr.DoseValue)) / Decimal('100')
+        round_pdr_target_dose = pdr_target_dose.quantize(quantum, rounding=ROUND_HALF_UP)
         pdr_conditions = {
             'DESCRIPTION': pdr.Description,
-            'TARGET_DOSE': Decimal(str(pdr.DoseValue)) / Decimal('100'),  # Convert to Gy
+            'TARGET_DOSE': round_pdr_target_dose,
             'UID': pdr.DoseReferenceIdentifier.UID,
             'ROI_NUMBER': pdr.OnStructure.RoiNumber if hasattr(pdr, 'OnStructure')
                                                        and hasattr(pdr.OnStructure, 'RoiNumber') else None
@@ -2111,19 +2118,45 @@ def find_prescription_index_of_dicom_dose_reference(dose_reference_sequence, bea
             logging.debug(f"Found matching prescription dose reference: {pdr.Description} "
                           f"with index {prescription_dose_references.IndexOf(pdr)}")
             return prescription_dose_references.IndexOf(pdr)
-    logging.error(f'The aria_compatibility_mode description is set to an unexpected value. '
-                  f'It is {dose_reference_sequence.DoseReferenceDescription}, and would expect it was:'
-                  f' {beamset.DicomPlanLabel}|D1...n '
-                  f'Unable to find matching aria_compatibility_mode for DoseReferenceSequence:'
-                  f' {dose_reference_sequence.DoseReferenceDescription}, likely due to missing Final Dose script ')
-    raise ValueError(
-        f'The aria_compatibility_mode description is set to an unexpected value.\n'
-        f'It is {dose_reference_sequence.DoseReferenceDescription}, and would expect it was: '
-        f'{beamset.DicomPlanLabel}|D1...n\n'
-        f'Please run the Final Dose script first or disable filters and manually set reference point data '
-        f'in ARIA.'
-    )
-
+        else:
+            # Find the failing conditions
+            failing_conditions = {k: (drs_conditions[k], pdr_conditions[k])
+                                  for k in drs_conditions if drs_conditions[k] != pdr_conditions[k]}
+            logging.debug(f"Prescription dose reference '{pdr.Description}' did not match. "
+                            f"Failing conditions: {failing_conditions}")
+    # If we reach here, no match was found
+    if failing_conditions:
+        if 'DESCRIPTION' in failing_conditions:
+            logging.error(f'The aria_compatibility_mode description is set to an unexpected value. '
+                          f'It is {dose_reference_sequence.DoseReferenceDescription}, and would expect it was:'
+                          f' {beamset.DicomPlanLabel}|D1...n '
+                          f'Unable to find matching aria_compatibility_mode for DoseReferenceSequence:'
+                          f' {dose_reference_sequence.DoseReferenceDescription}, likely due to missing Final Dose script ')
+            raise ValueError(
+                f'The aria_compatibility_mode description is set to an unexpected value.\n'
+                f'It is {dose_reference_sequence.DoseReferenceDescription}, and would expect it was: '
+                f'{beamset.DicomPlanLabel}|D1...n\n'
+                f'Please run the Final Dose script first or disable filters and manually set reference point data '
+                f'in ARIA.'
+            )
+        else:
+            logging.error(f'No matching prescription dose reference found for DoseReferenceNumber: '
+                          f'{dose_reference_sequence.DoseReferenceNumber} with conditions: {drs_conditions}. '
+                          f'Failing conditions: {failing_conditions}. '
+                          f'Please check the prescription dose references in the beamset.')
+            raise ValueError(
+                f'No matching prescription dose reference found for DoseReferenceNumber: '
+                f'{dose_reference_sequence.DoseReferenceNumber} with conditions: {drs_conditions}. '
+                f'Please check the prescription dose references in the beamset.'
+            )
+    else:
+        logging.error(f'No matching prescription dose reference found for DoseReferenceNumber: '
+                      f'{dose_reference_sequence.DoseReferenceNumber}. Please check the prescription dose references '
+                      f'in the beamset.')
+        raise ValueError(
+            f'No matching prescription dose reference found for DoseReferenceNumber: '
+            f'{dose_reference_sequence.DoseReferenceNumber}. Please check the prescription dose references in the beamset.'
+        )
 
 def add_dose_reference_extension_tag(ds: Dataset, beamsets, expected) -> str:
     """
