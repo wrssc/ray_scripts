@@ -124,7 +124,7 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
                                            machine=None,
                                            table=None,
                                            round_jaws=False,
-                                           aria_prescription_filters=False,
+                                           aria_compatibility_mode=False,
                                            block_accessory=False,
                                            block_tray_id=False,
                                            bar=True)
