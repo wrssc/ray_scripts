@@ -321,9 +321,9 @@ def main():
                         iso_vert = beamset.Beams[0].Isocenter.Position.y
                         iso_long = beamset.Beams[0].Isocenter.Position.z
                         t = [
-                            (gamma - iso_lat) * 10.,
-                            (beta - iso_long) * 10.,
                             (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
+                            (beta - iso_long) * 10.,
+                            (gamma - iso_lat) * 10.,
                         ]
                     logging.debug('Table positions updated to {}'.format(t))
                 else:

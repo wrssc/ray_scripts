@@ -779,9 +779,9 @@ def main():
                         iso_vert = beamset.Beams[0].Isocenter.Position.y
                         iso_long = beamset.Beams[0].Isocenter.Position.z
                         initial_table_position = [
-                            (gamma - iso_lat) * 10.,
-                            (beta - iso_long) * 10.,
                             (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
+                            (beta - iso_long) * 10.,
+                            (gamma - iso_lat) * 10.,
                         ]
                     else:
                         WarningBox(
