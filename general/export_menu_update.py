@@ -757,14 +757,21 @@ def main():
                 #
                 # Filters to always be applied
                 # Set Couch
-                initial_table_position = [0, 1000, 0]  # Default
+                initial_table_position = {
+                    'TableTopVerticalPosition': 0,
+                    'TableTopLongitudinalPosition': 1000,
+                    'TableTopLateralPosition': 0,
+                }  # Default
                 frameless_beamnames = ['_FSR_', '_SRS_']
 
                 if use_srs_coords or any(a in beamset.DicomPlanLabel for a in frameless_beamnames) and \
                         'HeadFirstSupine' in beamset.PatientSetup.OfTreatmentSetup.PatientPosition:
-                    user_machine_name = response['delivery_system_selection']
+                    if response['delivery_system_selection'] is None:
+                        to_machine = exported_machine_name
+                    else:
+                        to_machine = response['delivery_system_selection']
                     alpha, beta, gamma = DicomExport.get_table_offsets(
-                        to_machine=user_machine_name,
+                        to_machine=to_machine,
                         from_machine=beamset.MachineReference.MachineName,
                         device_name='QFix_Brain_TBCouch_F2andF3',
                         immobilization_type='Frameless')
@@ -778,11 +785,11 @@ def main():
                         iso_lat = beamset.Beams[0].Isocenter.Position.x
                         iso_vert = beamset.Beams[0].Isocenter.Position.y
                         iso_long = beamset.Beams[0].Isocenter.Position.z
-                        initial_table_position = [
-                            (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
-                            (beta - iso_long) * 10.,
-                            (gamma - iso_lat) * 10.,
-                        ]
+                        initial_table_position = {
+                            'TableTopVerticalPosition': (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
+                            'TableTopLongitudinalPosition': (beta - iso_long) * 10.,
+                            'TableTopLateralPosition': (gamma - iso_lat) * 10.,
+                        }
                     else:
                         WarningBox(
                             'The set-up reference point is not at the DICOM origin. '

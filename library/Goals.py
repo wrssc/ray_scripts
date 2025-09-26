@@ -228,7 +228,7 @@ def print_goal(goal, goal_type='eval'):
         return text
 
 
-def add_goal(goal, plan, roi=None, targets=None, exam=None, case=None):
+def add_goal(goal, plan, beamset, roi=None, targets=None, exam=None, case=None):
 
     if roi is None:
         roi = goal.find('name').text
@@ -414,6 +414,18 @@ def add_goal(goal, plan, roi=None, targets=None, exam=None, case=None):
     else:
         priority = 1
 
+    if goal.find('association') is not None:
+        if goal.find('association').text == 'Plan':
+            beamset_association = None
+            plan_association = True
+        elif goal.find('association').text == 'Beamset':
+            beamset_association = beamset
+            plan_association = False
+    else:
+        beamset_association = beamset
+        plan_association = False
+
+
     logging.debug('Adding {} constraint {}, {}, {}, {}, priority {}'.
                   format(roi, criteria, goal_type, acceptance, parameter, priority))
 
@@ -424,7 +436,10 @@ def add_goal(goal, plan, roi=None, targets=None, exam=None, case=None):
                                                                  GoalType=goal_type,
                                                                  AcceptanceLevel=acceptance,
                                                                  IsComparativeGoal=False,
-                                                                 Priority=priority)
+                                                                 BeamSet=beamset_association,
+                                                                 Priority=priority,
+                                                                 AssociateToPlan=plan_association
+                                                                 )
 
         else:
             plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=roi,
@@ -433,7 +448,10 @@ def add_goal(goal, plan, roi=None, targets=None, exam=None, case=None):
                                                                  AcceptanceLevel=acceptance,
                                                                  ParameterValue=parameter,
                                                                  IsComparativeGoal=False,
-                                                                 Priority=priority)
+                                                                 BeamSet=beamset_association,
+                                                                 Priority=priority,
+                                                                 AssociateToPlan=plan_association
+                                                                 )
 
         return True
 
