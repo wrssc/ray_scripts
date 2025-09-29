@@ -187,8 +187,8 @@ def set_prescription_description(patient, beamset):
         indx = 1
         for pdr in prescription_dose_references:
             rx_type, name_of_pdr = determine_prescription_type(pdr)
-            # logging.info(f'Processing prescription dose reference of type: {rx_type} for beamset: {beamset_name},'
-            #              f' with name: {name_of_pdr}')
+            logging.info(f'Processing prescription dose reference of type: {rx_type} for beamset: {beamset_name},'
+                          f' with name: {name_of_pdr}')
             ref_indx = 0
             proposed_description = f'{beamset_name}|D{indx}'
             while not check_description_unique(patient, proposed_description):
@@ -207,6 +207,7 @@ def set_prescription_description(patient, beamset):
                 pdr.Description = proposed_description
             else:
                 pdr.Description = proposed_description  # format_prescription_description(name_of_pdr, beamset_name)
+                logging.debug(f'Description set to {pdr.Description} for beamset {beamset_name}')
             indx += 1
     else:
         logging.warning(f'Beamset {beamset_name} does not have any prescription dose references')

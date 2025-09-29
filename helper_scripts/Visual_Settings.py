@@ -214,7 +214,8 @@ def get_prescription_dose_levels(beamset):
     prescription_dose_references = get_prescription_dose_references(beamset)
     try:
         for pdr in prescription_dose_references:
-            dose_levels.append(pdr.DoseValue / 100)
+            if pdr.DoseValue/100 not in dose_levels:
+                dose_levels.append(pdr.DoseValue / 100)
     except AttributeError:
         return dose_levels
     return dose_levels
@@ -231,9 +232,11 @@ def change_visualization_targets(rso):
                     rso.patient.Set2DvisualizationForRoi(RoiName=roi.Name,
                                                          Mode='Filled')
                 except Exception as ex:
+                    logging.warning(f'Could not change visualization for {roi.Name} due to {ex}')
                     try:
                         roi.RoiVisualizationSettings.VisualizationMode2D('Filled')
-                    except:
+                    except Exception as e:
+                        logging.warning(f'Could not change visualization for {roi.Name} due to {e}')
                         continue
 
 
