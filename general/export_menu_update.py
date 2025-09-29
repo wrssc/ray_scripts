@@ -770,32 +770,38 @@ def main():
                         to_machine = exported_machine_name
                     else:
                         to_machine = response['delivery_system_selection']
-                    alpha, beta, gamma = DicomExport.get_table_offsets(
-                        to_machine=to_machine,
-                        from_machine=beamset.MachineReference.MachineName,
-                        device_name='QFix_Brain_TBCouch_F2andF3',
-                        immobilization_type='Frameless')
-                    #
-                    # Determine if the DICOM origin was chosen for the set-up location
-                    poi_geometry = beamset.PatientSetup.PatientSetupDevice.SetupReferencePoint
-                    poi_coordinates = [poi_geometry.Point.x,
+                    # For each beamset selected for export, get the table position
+                    initial_table_position = {}
+                    for bsl in response['beamset_selections']:
+                        bs = plan.BeamSets[bsl]
+
+                        alpha, beta, gamma = DicomExport.get_table_offsets(
+                            to_machine=to_machine,
+                            from_machine=bs.MachineReference.MachineName,
+                            device_name='QFix_Brain_TBCouch_F2andF3',
+                            immobilization_type='Frameless')
+                        #
+                        # Determine if the DICOM origin was chosen for the set-up location
+                        poi_geometry = bs.PatientSetup.PatientSetupDevice.SetupReferencePoint
+                        poi_coordinates = [poi_geometry.Point.x,
                                        poi_geometry.Point.y,
                                        poi_geometry.Point.z]
-                    if all(math.isclose(c, 0) for c in poi_coordinates):
-                        iso_lat = beamset.Beams[0].Isocenter.Position.x
-                        iso_vert = beamset.Beams[0].Isocenter.Position.y
-                        iso_long = beamset.Beams[0].Isocenter.Position.z
-                        initial_table_position = {
-                            'TableTopVerticalPosition': (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
-                            'TableTopLongitudinalPosition': (beta - iso_long) * 10.,
-                            'TableTopLateralPosition': (gamma - iso_lat) * 10.,
-                        }
-                    else:
-                        WarningBox(
-                            'The set-up reference point is not at the DICOM origin. '
-                            'The table position will not be updated to match the isocenter.'
-                        )
-                logging.debug(f'For {user_machine_name}: Table positions will be updated to {initial_table_position}')
+                        if all(math.isclose(c, 0) for c in poi_coordinates):
+                            iso_lat = bs.Beams[0].Isocenter.Position.x
+                            iso_vert = bs.Beams[0].Isocenter.Position.y
+                            iso_long = bs.Beams[0].Isocenter.Position.z
+                            initial_table_position[bs.DicomPlanLabel] = {
+                                'TableTopVerticalPosition': (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
+                                'TableTopLongitudinalPosition': (beta - iso_long) * 10.,
+                                'TableTopLateralPosition': (gamma - iso_lat) * 10.,
+                            }
+                        else:
+                            WarningBox(
+                                'The set-up reference point is not at the DICOM origin. '
+                                'The table position will not be updated to match the isocenter.'
+                            )
+                        logging.debug(f'For {user_machine_name}: Beamset {bs.DicomPlanLabel}: Table positions will be'
+                                      f' updated to {initial_table_position[bs.DicomPlanLabel]}')
 
     else:
         f = None
