@@ -393,7 +393,6 @@ def handle_raygateway_error(error: Exception, beamset_name: str) -> dict:
         else:
             error = str(error)
 
-    # TODO: eliminate debug
     logging.debug(f'Handling RayGateway error: {error}')
     parsed_error = summarize(error)
     # This is the error thrown when a plan is already in the iDMS
@@ -2058,6 +2057,10 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
         prescription_index = find_prescription_index_of_dicom_dose_reference(dose_reference_sequence, beamset)
         return beamset.Prescription.PrescriptionDoseReferences[prescription_index]
 
+    def _aria_code(s: str, max_len: int = 16) -> str:
+        s = re.sub(r'[^A-Za-z0-9]', '', s)  # drop spaces, underscores, punctuation
+        return s[:max_len] or "UNK"
+
     def _add_private_dose_reference_identifier(item, description_str: str, expected):
         creator_tag = Tag(index_private_creator)
         data_tag = Tag(index_private_data)
@@ -2099,8 +2102,6 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
         precision_scale = Decimal(10) ** decimals  # e.g. 1000
         quantum = Decimal(f"1e-{decimals}")  # e.g. 0.001
         primary_fractional_dose = rx_primary / n_fractions
-        print(f'Input primary dose: {rx_primary} Gy, MU: {mu}, n_fractions: {n_fractions}'
-              f'with primary fractional dose: {primary_fractional_dose} Gy')
 
         sum_total_mu = sum(mu)
         # --- raw MU-weighted dose before rounding ----------------------------
@@ -2222,7 +2223,13 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
                 f'cannot proceed with dose adjustment.'
             )
         else:
-            _add_private_dose_reference_identifier(drs, ref_point_desc.value, expected)
+            # Determine the prescription type to see if we need to clean the reference point data for aria
+            prescription_type = _determine_prescription_type(primary_dose_ref)
+            if prescription_type == 'SITE':
+                sanitized_desc = _aria_code(ref_point_desc.value)
+                _add_private_dose_reference_identifier(drs, sanitized_desc, expected)
+            else:
+                _add_private_dose_reference_identifier(drs, ref_point_desc.value, expected)
 
     # Adjust beam doses to sum to primary dose point (if dose was not specified, evenly distribute it)
     total_dose = Decimal('0.0')
