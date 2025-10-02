@@ -1510,7 +1510,7 @@ def apply_table_position_filter(ds, expected, beamset, table_position):
             longitudinal = table_position[tp_key].get('TableTopLongitudinalPosition', 1000.0)
             lateral = table_position[tp_key].get('TableTopLateralPosition', 0.0)
         else:
-            # Exit with error
+            # As indexing becomes more robust, this should be replaced with a KeyError. For now, return 0, 1000, 0
             raise KeyError(f'Beam {beam.BeamName}: No table position entry found for DicomPlanLabel="{ds_dicom_plan_label}"')
 
         for cp in getattr(beam, 'ControlPointSequence', []):

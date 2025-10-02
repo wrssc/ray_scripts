@@ -726,7 +726,6 @@ def main():
                 logging.info('User selected to disable all filters in export')
                 f = None
                 response['delivery_system_selection'] = None
-                # Set Couch
                 initial_table_position = None
             else:
                 if response.get('delivery_system_selection'):
@@ -757,11 +756,7 @@ def main():
                 #
                 # Filters to always be applied
                 # Set Couch
-                initial_table_position = {
-                    'TableTopVerticalPosition': 0,
-                    'TableTopLongitudinalPosition': 1000,
-                    'TableTopLateralPosition': 0,
-                }  # Default
+
                 frameless_beamnames = ['_FSR_', '_SRS_']
 
                 if use_srs_coords or any(a in beamset.DicomPlanLabel for a in frameless_beamnames) and \
@@ -802,6 +797,16 @@ def main():
                             )
                         logging.debug(f'For {user_machine_name}: Beamset {bs.DicomPlanLabel}: Table positions will be'
                                       f' updated to {initial_table_position[bs.DicomPlanLabel]}')
+                else:
+                    initial_table_position = {}
+                    for bsl in response['beamset_selections']:
+                        bs = plan.BeamSets[bsl]
+                        initial_table_position[bs.DicomPlanLabel] = {
+                            'TableTopVerticalPosition': 0,
+                            'TableTopLongitudinalPosition': 1000,
+                            'TableTopLateralPosition': 0,
+                        }  # Default
+
 
     else:
         f = None
