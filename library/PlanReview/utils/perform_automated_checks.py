@@ -130,15 +130,15 @@ def perform_automated_checks(rso, do_physics_review,
     if external is not None or supports is not None:
         update_progress_bar(progress_bar, progress_text, 0, 1,
                             'Extracting Voxel Representations of ROIs...')
-        rois_checked, rois_to_delete = extract_voxel_representation(rso, [external] + supports)
+        rois_checked = extract_voxel_representation(rso, [external] + supports)
     else:
-        rois_checked, rois_to_delete = None, None
+        rois_checked = None
     beamset_checks = {
         r.beamset.DicomPlanLabel: get_beamset_level_tests(
             r, do_physics_review, message_logs,
             values=values,
-            roi_voxel_representations={'rois_checked': rois_checked,
-                                       'rois_to_delete': rois_to_delete})
+            roi_voxel_representations={'rois_checked': rois_checked,})
+
         for r in rsos}
     # Gather SandBox Level Checks
     sandbox_checks_dict = get_sandbox_level_tests(rso, do_physics_review)
@@ -155,10 +155,6 @@ def perform_automated_checks(rso, do_physics_review,
         update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
                             f'Exam Test: {key}...')
         pass_result, message, time_log = execute_test(rso, key, p_func[0], p_func[1], time_log)
-        # logging.debug(f'Executing test {key}')
-        # time_0 = datetime.datetime.now()
-        # pass_result, message = p_func[0](rso=rso, **p_func[1])
-        # time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), key)
         node, child = build_tree_element(parent_key=exam_key[0],
                                          child_key=key,
                                          pass_result=pass_result,
