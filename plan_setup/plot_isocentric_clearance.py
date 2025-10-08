@@ -1,4 +1,144 @@
-""" Check Clearance for Beamset """
+""" Check Beamset Clearance
+    Visualize and audit gantry‑to‑patient/support clearance about the isocenter for TrueBeam and Tomo plans.
+    Uses the same analytic cylinder model and ROI voxelization pipeline as
+    `PlanReview.qa_tests.test_beamset.check_isocenter_clearance`.
+    Produces per‑beam angle summaries (PASS/ALERT/FAIL) and optional plots of blocked gantry ranges.
+
+    Version:
+    0.0 Prototype using analytic cylinder model and grouped beam evaluation
+    1.0 Release
+
+
+    Inputs:
+      - rso: RayStation ScriptObjects (NamedTuple of [case, exam, plan, beamset, db])
+      - tolerance overrides (optional): collision/alert, and optional head diameter override
+      - plotting options (optional): show/save path, downsampling thresholds, labels
+      - testing (optional): enable synthetic gantry sweeps
+
+    Outputs:
+      - PASS/ALERT/FAIL status and a concise message summarizing blocked ranges
+      - Optional figures per beam‑group (couch, isocenter) showing blocked gantry angles
+      - Optional CSV/JSON summary of per‑beam blocked angle ranges
+
+    Methods and Key Ideas:
+      - Clearance geometry for TrueBeam is modeled as a finite cylinder (head length and cover diameter),
+        positioned along the beam central axis at each gantry angle with offsets set by collision/alert tolerances.
+      - ROIs (External, Support, Fixation) are converted to voxel coordinates and transformed into an
+        isocentric room frame (patient orientation + couch rotation).
+      - Beams are grouped by [couch angle, isocenter] to avoid redundant computations across beams
+        sharing the same geometry; unique gantry angles are evaluated once per group.
+      - Collisions are determined vectorially by testing whether any ROI voxel lies inside the cylinder
+        for each angle; angles are then mapped back to individual beams and collapsed into contiguous ranges.
+
+    Coordinate Conventions:
+      - Points are shifted to isocenter, then transformed from patient to room frame using patient position
+        via `get_orientation_transform(orientation)`.
+      - A couch rotation about +Y (DICOM sign convention) is applied.
+      - Varian IEC gantry angles are converted to standard cylindrical math for axis vectors:
+          phi = rad((360 - (angle - 90)) % 360)
+          d = \[cos(phi), sin(phi), 0\]
+
+    Pseudocode:
+      1. Resolve machine clearance parameters:
+         clearance = get_clearance_roi_name_and_diameter(
+             rso,
+             collision_tolerance=override_collision,
+             alert_tolerance=override_alert,
+             head_length=None,
+             head_diameter=head_diameter_override
+         )
+      2. Identify ROIs to check:
+         external, supports = find_externals_and_supports(rso)
+         rois = \[external\] + supports
+         if rois empty -> return ALERT ("No Supports or External found")
+      3. Voxelize ROIs:
+         rois_checked = extract_voxel_representation(rso, rois)
+         if empty -> return ALERT ("No valid ROIs")
+      4. If Tomo plan (clearance['roi_name'] contains "Tomo"):
+         - beam_name = first beam
+         - pts_iso = shift_to_isocenter_and_couch_rotate_points(rso, roi_pts, beam_name, 'Points', couch_angle=0)
+         - fail_mask, alert_mask = filter_in_bore_clearing_points_tomo(
+               pts_iso,
+               fail_diameter = clearance['diameter'] - 2 * clearance['collision_tolerance'],
+               alert_diameter = clearance['diameter'] - 2 * clearance['alert_tolerance']
+           )
+         - Classify PASS/ALERT/FAIL based on any mask hits per ROI
+         - Plot optional XY bore circle and flagged points along Z within couch travel
+         - Return status and summary text
+      5. Else (TrueBeam/VMAT/SMLC):
+         - Group beams: groups = build_beam_groups(rso.beamset)
+         - For each group (couch, iso):
+             angles = sorted(unique angles in group)
+             For each ROI:
+               pts_iso = shift_to_isocenter_and_couch_rotate_points(rso, roi_pts, representative_beam, 'Points')
+               h_fail  = clearance['diameter']/2 - clearance['collision_tolerance']
+               h_alert = clearance['diameter']/2 - clearance['alert_tolerance']
+               fail_masks, alert_masks = get_head_collision_masks(
+                   points=pts_iso,
+                   diameter=clearance['COVER_DIAMETER'],
+                   head_length=clearance['head_length'],
+                   offset_fail=h_fail,
+                   offset_alert=h_alert,
+                   gantry_angles=angles
+               )
+               fail_angles  = \{ ang for ang, mask in fail_masks.items()  if any(mask) \}
+               alert_angles = \{ ang for ang, mask in alert_masks.items() if any(mask) \}
+               Map angles back to per‑beam sweeps, collapse via group_overlapping_angles
+         - Aggregate `bad_gantry_fail` and `bad_gantry_alert` across groups
+         - Message = format_beam_collisions(bad_gantry_fail or bad_gantry_alert)
+         - Status = FAIL if any fail ranges, else ALERT if any alert ranges, else PASS
+         - Optional polar plot per group:
+             • Draw alert/fail radial envelopes at isocenter
+             • Overlay blocked angle arcs per beam (CW/CCW annotated)
+             • Optionally scatter downsampled ROI points near collisions
+      6. Return (status, message) and optionally save/export artifacts
+
+    Performance Considerations:
+      - Use `downsample_points` for large ROIs to accelerate plotting and masking.
+      - Beam grouping minimizes repeated angle evaluations for shared couch/isocenter.
+
+    TODO:
+    - Subtitle gantry text should be updated to none instead of displaying prior plot data when no collisions are
+        detected.
+
+    Dependencies:
+      - RayStation scripting (`connect`)
+      - NumPy, optional Matplotlib for plotting
+      - `PlanReview.review_definitions` and `PlanReview.utils.contour_utilities.get_voxel_coordinates_direct_optimized`
+
+    Validation:
+      - Matches `check_isocenter_clearance` PASS/ALERT/FAIL outcomes for clinical test plans and fully tested
+      against measurements. Jupyter notebook available on clinical system at
+      http://localhost:8888/lab/tree/RAB034_Clearance_Check_BreastBoardMatrix.ipynb
+
+    This program is free software: you can redistribute it and/or modify it under
+    the terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 2 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along with
+    this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
+__author__ = 'Adam Bayliss'
+__contact__ = 'rabayliss@wisc.edu'
+__date__ = '08-Oct-2025'
+__version__ = '1.0.0'
+__status__ = 'Production'
+__deprecated__ = False
+__reviewer__ = ''
+__reviewed__ = ''
+__raystation__ = '2025'
+__maintainer__ = 'One maintainer'
+__email__ = 'rabayliss@wisc.edu'
+__license__ = 'GPLv3'
+__copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
+__help__ = ''
+__credits__ = []
 import numpy as np
 import textwrap
 import logging
