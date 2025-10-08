@@ -1952,7 +1952,6 @@ def delete_reference_point_location(ds, beamset, expected) -> str:
         if dose_reference_structure_type is not None:
             if dose_reference_structure_type != 'SITE':
                 drs[drs_type_tag].value = 'SITE'
-                e.add(drs[drs_type_tag])
         else:
             m = "No DoseReferenceSequence found to modify DoseReferenceStructureType"
         return m
