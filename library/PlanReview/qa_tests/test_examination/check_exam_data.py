@@ -1,7 +1,8 @@
 import re
 from dateutil import parser
 from typing import NamedTuple, Tuple
-
+import unicodedata
+from pydicom.valuerep import PersonName
 from PlanReview.review_definitions import PASS,FAIL
 
 
@@ -18,21 +19,64 @@ def match_date(date1, date2):
         return False, p_date1, p_date2
 
 
-def match_patient_name(name1, name2):
-    # Case insensitive match on First and Last name (strip at ^)
-    spl_1 = tuple(re.split(r'\^', name1))
-    spl_2 = tuple(re.split(r'\^', name2))
-    try:
-        if bool(re.match(r'^' + spl_1[0] + r'$', spl_2[0], re.IGNORECASE))\
-           and bool(re.match(re.escape(spl_1[1]), re.escape(spl_2[1]), re.IGNORECASE)):
-            return True, name1, name2
-        else:
-            return False, name1, name2
-    except IndexError:
-        if bool(re.match(r'^' + spl_1[0] + r'$', spl_2[0], re.IGNORECASE)):
-            return True, name1, name2
-        else:
-            return False, name1, name2
+def _norm(s: str) -> str:
+    # Case-insensitive, preserve spaces/hyphens, trim padding per DICOM rules
+    # Dedupes Unicode characters (e.g. full-width vs half-width), combining marks,
+    # case folding, and trims leading/trailing whitespace
+    return unicodedata.normalize("NFKC", s.strip()).casefold()
+
+
+def _split_alpha(pn: PersonName) -> Tuple[str, str, str]:
+    """
+    Extract Alphabetic group only:
+    Family^Given^Middle^(Prefix)^(Suffix)
+    """
+    # PersonName defaults to the first (= alphabetic) group.
+    last   = pn.family_name or ""
+    first  = pn.given_name or ""
+    middle = pn.middle_name or ""
+    return last, first, middle
+
+def match_patient_name(
+    name1: str,
+    name2: str,
+    require_middle: bool = False,
+) -> Tuple[bool, str, str]:
+    """
+    Compare DICOM PN values using pydicom parsing.
+
+    Args:
+      name1: PN string (e.g., 'Last^First^Middle=...').
+      name2: PN string.
+      require_middle: If True, middle must match when present; else ignored.
+
+    Returns:
+      (match, original_name1, original_name2)
+    """
+    # Use pydicom to parse PersonName (PN) values.
+    # Compare only the alphabetic group (first of up to 3 groups).
+    # Ignore name suffixes (e.g., Jr, III) and prefixes (e.g., Dr, Mr).
+    # Ignore case, leading/trailing whitespace, Unicode variants.
+    # Ignore differences in middle name/initial unless require_middle is True.
+    pn1 = PersonName(name1)
+    pn2 = PersonName(name2)
+
+    # Split into components.
+    l1, f1, m1 = _split_alpha(pn1)
+    l2, f2, m2 = _split_alpha(pn2)
+
+    # Compare last and first names.
+    same_last  = _norm(l1) == _norm(l2)
+    same_first = _norm(f1) == _norm(f2)
+
+    if not (same_last and same_first):
+        return False, name1, name2
+
+    if require_middle:
+        return (_norm(m1) == _norm(m2)), name1, name2
+
+    # Accept even if one middle is missing or differs.
+    return True, name1, name2
 
 
 def match_gender(gender1, gender2):

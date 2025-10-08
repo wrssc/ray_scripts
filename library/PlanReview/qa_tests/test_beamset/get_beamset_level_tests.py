@@ -36,10 +36,8 @@ def get_beamset_level_tests(rso, physics_review=True, log_messages=None, values=
         return {}
     if roi_voxel_representations is None:
         rois_checked=None
-        rois_to_delete=None
     else:
         rois_checked = roi_voxel_representations['rois_checked']
-        rois_to_delete = roi_voxel_representations['rois_to_delete']
 
     beamset_checks_dict = {
         f"{REVIEW_LEVELS['PLAN_DATA']}::Beamset approval status":
@@ -54,7 +52,7 @@ def get_beamset_level_tests(rso, physics_review=True, log_messages=None, values=
             (check_couch_type, {}),
         f"{REVIEW_LEVELS['PLAN_DESIGN']}::Clearance Check":
             (check_isocenter_clearance,
-             {'rois_checked': rois_checked, 'rois_to_delete': rois_to_delete}),
+             {'rois_checked': rois_checked}),
         f"{REVIEW_LEVELS['PLAN_DESIGN']}::Slice Thickness Comparison":
             (check_slice_thickness, {}),
         f"{REVIEW_LEVELS['PATIENT_MODEL']}::Bolus Application":

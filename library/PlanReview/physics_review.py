@@ -74,19 +74,10 @@
            * Added a check for the front page data of the number of fractions and the prescription dose
 
 
-
-
-
-
-
-    PRERELEASE:
-    TODO: Fix the slice spacing check to pick just the pertinent technique
-    TODO: Need a required prompt for all entries in the first tab
     TESTS:
     TODO: Add a check on MU/rx in cGy and flag over the 5
     TODO: For GTV, and CTV types. Are these all within a PTV?
     POST RELEASE
-    TODO: WHEN ONLY ONE BEAMSET IN PLAN DEFAULT TO IT.
     TODO: ADD TYPE CHECK TO THE GTV LIST RATHER THAN JUST A REGEX.
     TODO: ADD BRAIN 1mm language
     TODO: HIGHLIGHT FRAMES THAT SHOULD BE FILLED IN AS RED
