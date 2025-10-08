@@ -2139,7 +2139,7 @@ GRID_PREFERENCES = {
         'FRACTION_SIZE_LIMIT': 800,  # cGy
         'SLICE_THICKNESS': 0.4,  # 4 mm
         'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT'],
-                                  'PHOTON': ['Weekly kV', 'Clinical setup'],
+                                  'PHOTON': ['Daily 2D', 'Weekly kV', 'Clinical setup'],
                                   'ELECTRON': ['Weekly kV', 'Clinical setup']},
     },
     '2D': {
@@ -2148,7 +2148,7 @@ GRID_PREFERENCES = {
         'FRACTION_SIZE_LIMIT': 800,  # cGy
         'SLICE_THICKNESS': 0.4,  # 4 mm
         'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT'],
-                                  'PHOTON': ['Weekly kV', 'Clinical setup'],
+                                  'PHOTON': ['Daily 2D', 'Weekly kV', 'Clinical setup'],
                                   'ELECTRON': ['Weekly kV', 'Clinical setup']},
     },
 }

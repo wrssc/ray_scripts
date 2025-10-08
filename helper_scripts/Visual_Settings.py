@@ -214,7 +214,8 @@ def get_prescription_dose_levels(beamset):
     prescription_dose_references = get_prescription_dose_references(beamset)
     try:
         for pdr in prescription_dose_references:
-            dose_levels.append(pdr.DoseValue / 100)
+            if pdr.DoseValue/100 not in dose_levels:
+                dose_levels.append(pdr.DoseValue / 100)
     except AttributeError:
         return dose_levels
     return dose_levels
@@ -251,7 +252,6 @@ def change_visualization_isodose(rso):
     max_dose = find_max_dose_in_plan(beamset=rso.beamset)
     reference_doses = get_prescription_dose_levels(rso.beamset)
     reference_doses = find_goal_dose_levels(plan=rso.plan, priority=2, doses=reference_doses)
-
     isodose_reconfig(case=rso.case,
                      ref_doses=reference_doses,
                      max_dose=max_dose)

@@ -3758,7 +3758,7 @@ def dialog_number_of_targets():
             "3": ["yes"],
             "4": ["yes"],
             "5": ["yes"],
-            '6': ["Concurrent", "Multiple Separate Targets", "Sequential Primary+Boost(s)"],
+            '6': ["Concurrent", "Multiple Separate Targets", ]# "Sequential Primary+Boost(s)"],
             #       "Sequential Primary+Boost(s)",
             #       "Multiple Separate Targets"],
         },
@@ -4728,7 +4728,7 @@ def planning_structures(
     # Generate the OTV's
     # Build a region called z_derived_not_exp_underdose that
     # does not include the underdose expansion
-    if generate_otvs and plan_type != "Multi":
+    if generate_otvs:
         otv_intersect = []
         if generate_underdose:
             otv_subtract = ["Skin_PRV03", "InnerAir", "UnderDose_Exp"]

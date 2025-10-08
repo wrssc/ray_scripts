@@ -394,6 +394,7 @@ def main():
                                roi=roi_name,
                                targets=response['targets'],
                                plan=plan,
+                               beamset=beamset,
                                exam=exam,
                                case=case)
 
