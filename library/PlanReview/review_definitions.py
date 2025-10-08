@@ -2016,9 +2016,23 @@ PACEMAKER_PRV_NAME = "Block_Pacemaker_PRV50"
 PACEMAKER_SEARCH_DISTANCE = 10.  # cm distance over which to look for the 2 Gy dose level
 PACEMAKER_DISTANCE_TOLERANCE = 2.  # cm distance from which we want the 2 Gy line to be away from
 # the pacer
-SUPPORT_TOLERANCE = 5.0  # cm, the minimum clearance distance between external and any support at isocenter
+SUPPORT_TOLERANCE_COLLISION = 2.0  # cm, the minimum clearance distance between external and any support at isocenter
+SUPPORT_TOLERANCE_ALERT = 4.5 # cm, the alert clearance distance between external and any support at isocenter
 TRUEBEAM_MAX_DIAMETER = 80.0  # cm, the "pin" diameter of the TrueBeam [confirmed with couch height measurement]
+TRUEBEAM_COVER_DIAMETER = 76.3 # cm, the cover diameter of the TrueBeam
+TRUEBEAM_PLATE_DIAMETER = 50.0 # cm, the plate diameter of the TrueBeam
+TRUEBEAM_HEAD_LENGTH = 84.2  # cm, the length of the TrueBeam head from the plate to top
+TRUEBEAM_ELECTRON_MAX_DIAMETER = 3 # cm, the max diameter for electrons on the TrueBeam
+TRUEBEAM_A06_CONE_SIZE = 16.24  # cm, the physical size of the 6x6 cone on the TrueBeam
+TRUEBEAM_A10_CONE_SIZE = 20.04  # cm, the physical size of the 10x10 cone on the TrueBeam
+TRUEBEAM_A15_CONE_SIZE = 24.79  # cm, the physical size of the 15x15 cone on the TrueBeam
+TRUEBEAM_A20_CONE_SIZE = 29.54  # cm, the physical size of the 20x20 cone on the TrueBeam
+TRUEBEAM_A25_CONE_SIZE = 34.29  # cm, the physical size of the 25x25 cone on the TrueBeam
+
+
 HDA_MAX_DIAMETER = 85.0  # cm, the cover diameter of the Tomo HDA
+HDA_ALERT_DIAMETER = 78.0  # cm, the alert diameter of the Tomo HDA
+HDA_COUCH_THROW = 130 # cm, the throw of the Tomo HDA couch from isocenter to foot of couch
 #
 # PLANNING DEFAULTS
 DOSE_FRACTION_PAIRS = [(4, 2000), (8, 800)]  # Often mixed up fractionations
