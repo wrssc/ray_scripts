@@ -224,16 +224,24 @@ def change_visualization_targets(rso):
     # Capture the current list of ROI's to avoid saving over them in the future
     target_types = ['Ptv', 'Ctv', 'Gtv']
     for roi in rso.case.PatientModel.RegionsOfInterest:
-        if roi.Type in target_types:
-            roi_geom = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi.Name]
+        roi_representation = rso.case.PatientModel.RegionsOfInterest[roi.Name]
+        if roi_representation.Type in target_types:
+            roi_geom = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi_representation.Name]
             if roi_geom.HasContours():
                 try:
-                    rso.patient.Set2DvisualizationForRoi(RoiName=roi.Name,
-                                                         Mode='Filled')
+                    roi_visualization_status = roi_representation.RoiVisualizationSettings.VisualizationMode2D()
+                    trys = 0
+                    while roi_visualization_status != 'Filled' and trys < 5:
+                        rso.patient.Set2DvisualizationForRoi(RoiName=roi.Name,
+                                                             Mode='filled')
+                    if roi_visualization_status != 'Filled':
+                        logging.warning(f'Could not change visualization for {roi.Name} after 5 tries')
                 except Exception as ex:
+                    logging.warning(f'Could not change visualization for {roi.Name} due to {ex}')
                     try:
                         roi.RoiVisualizationSettings.VisualizationMode2D('Filled')
-                    except:
+                    except Exception as e:
+                        logging.warning(f'Could not change visualization individual settings for {roi.Name} due to {e}')
                         continue
 
 
