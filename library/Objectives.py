@@ -566,7 +566,7 @@ def add_objective(obj, exam, case, plan, beamset,
             RoiName=roi,
             IsConstraint=mco_constraint,
             RestrictAllBeamsIndividually=False,
-            RestrictToBeam=None,
+            RestrictToBeams=[],
             IsRobust=robust,
             RestrictToBeamSet=restrict_beamset,
             UseRbeDose=False)
