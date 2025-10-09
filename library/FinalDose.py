@@ -470,7 +470,7 @@ def final_dose_v15(site=None, technique=None, rso=None, beamset_name=None):
         # Make sure electron monte carlo statistical uncertainty is clinical
         emc_result = BeamOperations.check_emc(beamset, stat_limit=0.005, histories=mc_histories)
         # If the test returns an insufficient uncertainty, change the number of histories
-        if emc_result.bool is False:
+        if emc_result.ok is False:
             adjust_emc_calculation(beamset, histories=emc_result.hist, uncertainty=0.005)
             beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
         # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)
@@ -609,7 +609,7 @@ def final_dose_v12(site=None, technique=None, rso=None, beamset_name=None):
         # Make sure electron monte carlo statistical uncertainty is clinical
         emc_result = BeamOperations.check_emc(beamset, stat_limit=0.005, histories=mc_histories)
         # If the test returns an insufficient uncertainty, change the number of histories
-        if emc_result.bool is False:
+        if emc_result.ok is False:
             adjust_emc_calculation(beamset, histories=emc_result.hist, uncertainty=0.005)
             beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
         # Autoscale must be turned off to round the MU.

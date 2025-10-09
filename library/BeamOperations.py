@@ -86,6 +86,10 @@ from library.api.api_beamsets import get_source_to_surface_distance
 from library.api.api_utils import get_machine
 from library.api.api_beamsets import get_number_of_emc_histories
 from library.api.api_optimization_settings import edit_beam_optimization_settings
+from dataclasses import dataclass
+from typing import Optional, Dict
+import logging
+import math
 
 PROTOCOL_FOLDER = r'../protocols'
 INSTITUTION_FOLDER = r'UW'
@@ -3593,59 +3597,94 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
         return True
 
 
-def emc_calc_params(beamset):
-    """
-    For each beam, go through the beam doses, and return the statistical uncertainty and the
-    MC histories used in beam dose. Return the maximum uncertainty and minimum MC histories.
-    :param beamset: RS beamset
-    :return: NormUnc (the maximum normalized uncertainty) and number of histories used in calc
-    """
-    max_uncertainty = 0
-    # Return electron monte carlo computational parameters
-    for bd in beamset.FractionDose.BeamDoses:
-        max_uncertainty = max(max_uncertainty, bd.DoseValues.RelativeStatisticalUncertainty)
-    min_histories = get_number_of_emc_histories(beamset)
 
-    return {'NormUnc': max_uncertainty, 'MinHist': min_histories}
-
-
+@dataclass
 class EmcTest:
-    # Class used in output of the EMC test, where bool will be T/F depending on clinical
-    # uncertainties met
-    # and hist will return the number of suggested histories if the calculation of dose needs to
-    # be rerun
-    def __init__(self):
-        self.bool = True
-        self.hist = None
+    """Result of EMC check."""
+    ok: bool
+    hist: Optional[int] = None
 
 
-def check_emc(beamset, stat_limit=0.01, histories=5e5):
+def emc_calc_params(beamset) -> Dict[str, Optional[float]]:
+    """Collect EMC params.
+
+    Args:
+        beamset: RS beamset.
+
+    Returns:
+        {"NormUnc": float|None, "MinHist": int|None}
     """
-    Checks the electron monte carlo accuracy to ensure statistical limit is met
-    :param beamset: RS beamset
-    :param stat_limit: limit on the maximum uncertainty normalized to the maximum dose
-    :param histories: number of e mc histories
-    :return: EmcTest: True if meeting both standard clinical goals, otherwise a new recommended
-    number of histories
-    """
-    eval_current_emc = emc_calc_params(beamset)
-    print(f'Current EMC: {eval_current_emc}, and stat limit: {stat_limit} and histories: {histories}')
-    if eval_current_emc['MinHist'] < histories or eval_current_emc['NormUnc'] > stat_limit:
-        EmcTest.bool = False
-        stat_limit_hist = int(
-            eval_current_emc['MinHist'] * (eval_current_emc['NormUnc'] / stat_limit) ** 2.)
-        EmcTest.hist = max(histories, stat_limit_hist)
-        logging.info(
-            'Electron MC check showed an uncertainty of {} recommend increasing histories from {} '
-            'to {}'
-            .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist'], EmcTest.hist))
-    else:
-        EmcTest.bool = True
-        logging.info(
-            'Electron MC check showed clinically-acceptable uncertainty {} and histories {}'
-            .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist']))
+    try:
+        rel_uncs = [bd.DoseValues.RelativeStatisticalUncertainty
+                    for bd in beamset.FractionDose.BeamDoses]
+        norm_unc = max(rel_uncs) if rel_uncs else None
+    except Exception as e:
+        logging.debug("Could not get NormUnc: %s", str(e))
+        norm_unc = None
 
-    return EmcTest
+    try:
+        min_hist = get_number_of_emc_histories(beamset)  # provided elsewhere
+    except Exception as e:
+        logging.debug("Could not get min hist: %s", str(e))
+        min_hist = None
+
+    return {"NormUnc": norm_unc, "MinHist": min_hist}
+
+
+def check_emc(beamset, stat_limit: float = 0.01, histories: int = int(5e5)) -> EmcTest:
+    """Validate Electron Monte Carlo settings.
+
+    Each test is evaluated only if its input is available:
+      - If MinHist is present, check MinHist >= histories.
+      - If NormUnc is present, check NormUnc <= stat_limit and recommend scaled histories:
+          H_reco = ceil(B * (NormUnc/stat_limit)^2),
+        where B = MinHist if present else `histories`.
+
+    Args:
+        beamset: RS beamset.
+        stat_limit: Max allowed normalized statistical uncertainty.
+        histories: Target minimum histories.
+
+    Returns:
+        EmcTest. ok=False if any evaluated check fails. hist is recommended histories if increase suggested.
+    """
+    params = emc_calc_params(beamset)
+    norm_unc: Optional[float] = params.get("NormUnc")
+    min_hist: Optional[int] = params.get("MinHist")
+
+    logging.info(
+        "EMC params: NormUnc=%s, MinHist=%s; limits: stat_limit=%.5g, histories=%d",
+        norm_unc, min_hist, stat_limit, histories,
+    )
+
+    fail = False
+    recommendation: Optional[int] = None
+
+    # 1) Histories threshold check if MinHist is available
+    if min_hist is not None:
+        if min_hist < histories:
+            fail = True
+            recommendation = histories if recommendation is None else max(recommendation, histories)
+
+    # 2) Uncertainty limit check if NormUnc is available
+    if norm_unc is not None:
+        if norm_unc > stat_limit:
+            fail = True
+            base = min_hist if min_hist is not None else histories
+            scaled = int(math.ceil(base * (norm_unc / stat_limit) ** 2))
+            recommendation = scaled if recommendation is None else max(recommendation, scaled)
+
+    if fail:
+        logging.info(
+            "EMC fails. Recommend histories -> %s",
+            recommendation if recommendation is not None else "(Unknown histories) decrease uncertainty",
+        )
+        return EmcTest(ok=False, hist=recommendation)
+
+    # If neither metric available, or available metrics pass
+    logging.info("EMC passes for available inputs.")
+    return EmcTest(ok=True, hist=None)
+
 
 
 def load_beamsets(beamset_type=None, beamset_modality=None):
