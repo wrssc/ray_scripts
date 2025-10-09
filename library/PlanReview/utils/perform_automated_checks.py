@@ -48,6 +48,7 @@ def execute_test(rso, test_name, test_function, kwargs, time_log):
     time_0 = datetime.datetime.now()
     try:
         pass_result, message = test_function(rso=rso, **kwargs)
+        logging.debug(f'Test {test_name} completed with result: {pass_result} and message: {message}')
     except Exception as e:
         message = f"Error: {str(e)}"
         # Capture full traceback as a string
