@@ -144,13 +144,15 @@ import textwrap
 import logging
 from dataclasses import dataclass
 from typing import Iterable, Tuple, Sequence, List, Dict, Optional, Callable
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-from collections import namedtuple
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg, NavigationToolbar2QT
+from collections import namedtuple
 
-from library.PlanReview.review_definitions import (SUPPORT_TOLERANCE_COLLISION, TRUEBEAM_MAX_DIAMETER, TRUEBEAM_COVER_DIAMETER,
-                                                   TRUEBEAM_HEAD_LENGTH)
+from library.PlanReview.review_definitions import (
+    SUPPORT_TOLERANCE_COLLISION, TRUEBEAM_MAX_DIAMETER, TRUEBEAM_COVER_DIAMETER,
+    SUPPORT_TOLERANCE_ALERT, TRUEBEAM_HEAD_LENGTH)
 from library.PlanReview.qa_tests.test_beamset.check_isocenter_clearance import (
     shift_to_isocenter_and_couch_rotate_points, get_head_collision_masks, extract_voxel_representation,
     find_gantry_angular_traversal, filter_in_bore_clearing_points_tomo, build_beam_groups, )
@@ -192,6 +194,13 @@ def plot_clearing_and_colliding_voxels(clearing_points, colliding_points, warnin
     def split(arr):
         return (arr[:, 0], arr[:, 1], arr[:, 2]) if arr.size else ([], [], [])
 
+    plt.style.use("default")
+    mpl.rcParams["patch.edgecolor"] = "none"
+
+    def _scat(ax, x, y, rgb, alpha, label, size):
+        # Pass a single RGBA tuple as a list so Matplotlib cannot colormap it
+        ax.scatter(x, y, s=size, color=[(*rgb, alpha)], edgecolors="none", label=label, zorder=2)
+
     if warning_points is None:
         warning_points = np.empty((0, 3))
     if isocenter is None:
@@ -204,31 +213,32 @@ def plot_clearing_and_colliding_voxels(clearing_points, colliding_points, warnin
     # Create a figure with three subplots for XY, XZ, and YZ planes
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
     if title:
-        fig.suptitle(f"{title}", fontsize=12)
+        fig.suptitle(f"{title}", fontsize=14)
     if gantries:
         wrapped_gantries = textwrap.fill(gantries, width=120, break_long_words=False, replace_whitespace=False)
-        fig.supxlabel(wrapped_gantries, fontsize=14, y=0.02)
+        fig.supxlabel(wrapped_gantries, fontsize=12, y=0.02)
     # Plot XY plane
-    axes[0].scatter(clearing_x, clearing_y, c='b', label='Acceptable Points', s=1, alpha=0.1)
-    axes[0].scatter(colliding_x, colliding_y, c='r', label='Collision Points', s=1, alpha=0.4)
-    axes[0].scatter(warning_x, warning_y, c='orange', label='Alert Points', s=1, alpha=0.4)
+    # XY
+    _scat(axes[0], clearing_x, clearing_y, (0.0, 0.45, 0.74), 0.10, "Acceptable", 1.0)  # blue
+    _scat(axes[0], colliding_x, colliding_y, (1.0, 0.00, 0.00), 0.70, "Collision", 1.5)  # red
+    _scat(axes[0], warning_x, warning_y, (1.0, 0.50, 0.00), 0.40, "Alert", 1.5)  # orange
     axes[0].set_xlabel('X Axis (B wall to A-wall)')
     axes[0].set_ylabel('Y Axis (Floor to Ceiling)')
     axes[0].set_title('XY Projection')
 
     # Plot XZ plane
-    axes[1].scatter(clearing_x, clearing_z, c='b', label='Acceptable Points', s=1, alpha=0.1)
-    axes[1].scatter(colliding_x, colliding_z, c='r', label='Collision Points', s=1, alpha=0.4)
-    axes[1].scatter(warning_x, warning_z, c='orange', label='Alert Points', s=1, alpha=0.4)
+    _scat(axes[1], clearing_x, clearing_z, (0.0, 0.45, 0.74), 0.10, "Acceptable", 1.0)
+    _scat(axes[1], colliding_x, colliding_z, (1.0, 0.00, 0.00), 0.70, "Collision", 1.5)
+    _scat(axes[1], warning_x, warning_z, (1.0, 0.50, 0.00), 0.40, "Alert", 1.5)
     axes[1].set_xlabel('X Axis (B wall to A-wall)')
     axes[1].set_ylabel('Z Axis (Target to Gun)')
     axes[1].set_title('XZ Projection')
     axes[1].legend()
 
     # Plot YZ plane
-    axes[2].scatter(clearing_z, clearing_y, c='b', label='Acceptable Points', s=1, alpha=0.1)
-    axes[2].scatter(colliding_z, colliding_y, c='r', label='Collision Points', s=1, alpha=0.1)
-    axes[2].scatter(warning_z, warning_y, c='orange', label='Alert Points', s=1, alpha=0.1)
+    _scat(axes[2], clearing_z, clearing_y, (0.0, 0.45, 0.74), 0.10, "Acceptable", 1.0)
+    _scat(axes[2], colliding_z, colliding_y, (1.0, 0.00, 0.00), 0.70, "Collision", 1.5)
+    _scat(axes[2], warning_z, warning_y, (1.0, 0.50, 0.00), 0.40, "Alert", 1.5)
     axes[2].set_xlabel('Z Axis (Target to Gun)')
     axes[2].set_ylabel('Y Axis (Floor to Ceiling)')
     axes[2].set_title('ZY Projection')
@@ -307,7 +317,7 @@ def classify_collision_points_truebeam(
     diameter = TRUEBEAM_COVER_DIAMETER
     length = TRUEBEAM_HEAD_LENGTH
     h_fail = TRUEBEAM_MAX_DIAMETER / 2.0 - SUPPORT_TOLERANCE_COLLISION
-    h_warn = h_fail - 2.0
+    h_warn = TRUEBEAM_MAX_DIAMETER / 2.0 - SUPPORT_TOLERANCE_ALERT
 
     masks_fail, masks_warn = get_head_collision_masks(
         pts_iso, diameter, length, h_fail, h_warn, angles
@@ -467,9 +477,9 @@ def make_beam_items(
                 else:
                     good, violate, warn = pts_iso, np.empty((0, 3)), np.empty((0, 3))
 
-            good = downsample(good, n_good, rng)
-            violate = downsample(violate, n_bad, rng)
-            warn = downsample(warn, n_bad, rng)
+            # good = downsample(good, n_good, rng)
+            # violate = downsample(violate, n_bad, rng)
+            # warn = downsample(warn, n_bad, rng)
 
             plan_label = beam_set.DicomPlanLabel
 
@@ -635,36 +645,48 @@ def alt_plot_clearing_and_colliding_voxels(
         import textwrap
         wrapped = textwrap.fill(gantries, width=120, break_long_words=False, replace_whitespace=False)
         fig.supxlabel(wrapped, fontsize=14, y=0.02)
+    # otherwise wipe the sup label
+    else:
+        fig.supxlabel("", y=0.02)
 
     a0, a1, a2 = axes
-    a0.cla();
-    a1.cla();
-    a2.cla()
-    a0.scatter(clearing_x, clearing_y, s=1, alpha=0.1)
-    a0.scatter(colliding_x, colliding_y, s=1, alpha=0.4)
-    a0.scatter(warning_x, warning_y, s=1, alpha=0.4)
-    a0.set_xlabel('X Axis (B wall to A-wall)');
-    a0.set_ylabel('Y Axis (Floor to Ceiling)');
+    for ax in (a0, a1, a2):
+        ax.cla()
+
+    # Explicit colors
+    BLUE = (0.0, 0.45, 0.74, 0.10)  # acceptable
+    RED = (1.0, 0.00, 0.00, 0.70)  # collision
+    ORANGE = (1.0, 0.50, 0.00, 0.40)  # alert
+    # Size of points
+    size_pass = 1.0
+    size_warn = 4.0
+    size_fail = 6.0
+
+    h0 = a0.scatter(clearing_x, clearing_y, s=size_pass, color=[BLUE], edgecolors="none", zorder=1, label="Acceptable")
+    h1 = a0.scatter(colliding_x, colliding_y, s=size_fail, color=[RED], edgecolors="none", zorder=3, label="Collision")
+    h2 = a0.scatter(warning_x, warning_y, s=size_warn, color=[ORANGE], edgecolors="none", zorder=2, label="Alert")
+    a0.set_xlabel('X Axis (B wall to A-wall)')
+    a0.set_ylabel('Y Axis (Floor to Ceiling)')
     a0.set_title('XY Projection')
 
-    a1.scatter(clearing_x, clearing_z, s=1, alpha=0.1)
-    a1.scatter(colliding_x, colliding_z, s=1, alpha=0.4)
-    a1.scatter(warning_x, warning_z, s=1, alpha=0.4)
-    a1.set_xlabel('X Axis (B wall to A-wall)');
-    a1.set_ylabel('Z Axis (Target to Gun)');
+    a1.scatter(clearing_x, clearing_z, s=size_pass, color=[BLUE], edgecolors="none", zorder=1)
+    a1.scatter(colliding_x, colliding_z, s=size_fail, color=[RED], edgecolors="none", zorder=3)
+    a1.scatter(warning_x, warning_z, s=size_warn, color=[ORANGE], edgecolors="none", zorder=2)
+    a1.set_xlabel('X Axis (B wall to A-wall)')
+    a1.set_ylabel('Z Axis (Target to Gun)')
     a1.set_title('XZ Projection')
-    a1.legend(['Acceptable', 'Collision', 'Alert'])
+    a1.legend(handles=[h0, h1, h2], loc="best")
 
-    a2.scatter(clearing_z, clearing_y, s=1, alpha=0.1)
-    a2.scatter(colliding_z, colliding_y, s=1, alpha=0.1)
-    a2.scatter(warning_z, warning_y, s=1, alpha=0.1)
-    a2.set_xlabel('Z Axis (Target to Gun)');
-    a2.set_ylabel('Y Axis (Floor to Ceiling)');
+    a2.scatter(clearing_z, clearing_y, s=size_pass, color=[BLUE], edgecolors="none", zorder=1)
+    a2.scatter(colliding_z, colliding_y, s=size_fail, color=[RED], edgecolors="none", zorder=3)
+    a2.scatter(warning_z, warning_y, s=size_warn, color=[ORANGE], edgecolors="none", zorder=2)
+    a2.set_xlabel('Z Axis (Target to Gun)')
+    a2.set_ylabel('Y Axis (Floor to Ceiling)')
     a2.set_title('ZY Projection')
 
     for ax in (a0, a1, a2):
-        ax.set_xlim([-70, 70]);
-        ax.set_ylim([-70, 70]);
+        ax.set_xlim([-70, 70])
+        ax.set_ylim([-70, 70])
         add_isocenter(ax)
     fig.tight_layout()
     return fig
