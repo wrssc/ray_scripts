@@ -31,7 +31,7 @@ OUTPUT_DIR = os.path.join(RAYSCRIPTS_DIR, "logs")
 PROTECTED_DIR = os.path.join(RAYSCRIPTS_DIR, "Protect")
 # From ARIA User Admin in the ARIA Web Portal Export all users to a
 # non-GitSync directory
-STAFF_XML_PATH = os.path.join(PROTECTED_DIR, "VAUsersandGroupsExport_03Sep2024.xml")
+STAFF_XML_PATH = os.path.join(PROTECTED_DIR, "VAUsersandGroupsExport_17Oct2025.xml")
 
 # Data gathering directory for collecting data for the review script
 DATA_GATHERING_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "DataGathering")
