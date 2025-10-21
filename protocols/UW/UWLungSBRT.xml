@@ -46,11 +46,13 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy</Instruction>
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -176,7 +178,7 @@
                 <dose units="Gy">33</dose>
                 <priority>3</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>Bronchus_L</name>
                 <type>DX</type>
                 <volume units="cc">0.5</volume>
@@ -198,7 +200,7 @@
                 <dose units="Gy">33</dose>
                 <priority>3</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>Bronchus_R</name>
                 <type>DX</type>
                 <volume units="cc">0.5</volume>
@@ -213,21 +215,21 @@
                 <dose units="Gy">33</dose>
                 <priority>3</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>Bronchus</name>
                 <type>DX</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">33</dose>
                 <priority>3</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>Bronchus</name>
                 <type>DX</type>
                 <volume units="cc">0.5</volume>
                 <dose units="Gy">21</dose>
                 <priority>3</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>Bronchus_PRV05</name>
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
@@ -336,13 +338,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
-				<name>Lungs-GTV</name>
-				<type dir="le">VX</type>
-				<volume units="%">50</volume>
-				<dose units="Gy">5</dose>
-				<priority>1</priority>
-			</roi>
+            <roi>
+                <name>Lungs-GTV</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
@@ -373,13 +375,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
-				<name>Lungs-ITV</name>
-				<type dir="le">VX</type>
-				<volume units="%">50</volume>
-				<dose units="Gy">5</dose>
-				<priority>1</priority>
-			</roi>
+            <roi>
+                <name>Lungs-ITV</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Normal_2cm</name>
                 <ref>RTOG 0813</ref>
@@ -439,7 +441,7 @@
                 <dose units="Gy">40</dose>
                 <priority>3</priority>
             </roi>
-			 <roi>
+            <roi>
                 <name>Trachea</name>
                 <type>DX</type>
                 <volume units="cc">5</volume>
@@ -500,11 +502,13 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy</Instruction>
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -631,7 +635,7 @@
                 <dose units="Gy">33</dose>
                 <priority>3</priority>
             </roi>
-			   <roi>
+            <roi>
                 <name>Bronchus_L</name>
                 <type>DX</type>
                 <volume units="cc">0.5</volume>
@@ -653,7 +657,7 @@
                 <dose units="Gy">33</dose>
                 <priority>3</priority>
             </roi>
-			  <roi>
+            <roi>
                 <name>Bronchus_R</name>
                 <type>DX</type>
                 <volume units="cc">0.5</volume>
@@ -668,21 +672,21 @@
                 <dose units="Gy">33</dose>
                 <priority>3</priority>
             </roi>
-			    <roi>
+            <roi>
                 <name>Bronchus</name>
                 <type>DX</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">33</dose>
                 <priority>3</priority>
             </roi>
-			  <roi>
+            <roi>
                 <name>Bronchus</name>
                 <type>DX</type>
                 <volume units="cc">0.5</volume>
                 <dose units="Gy">21</dose>
                 <priority>3</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>Bronchus_PRV05</name>
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
@@ -791,13 +795,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
-				<name>Lungs-GTV</name>
-				<type dir="le">VX</type>
-				<volume units="%">50</volume>
-				<dose units="Gy">5</dose>
-				<priority>1</priority>
-			</roi>
+            <roi>
+                <name>Lungs-GTV</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
@@ -828,13 +832,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
-				<name>Lungs-ITV</name>
-				<type dir="le">VX</type>
-				<volume units="%">50</volume>
-				<dose units="Gy">5</dose>
-				<priority>1</priority>
-			</roi>
+            <roi>
+                <name>Lungs-ITV</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Normal_2cm</name>
                 <ref>RTOG 0813</ref>
@@ -893,7 +897,7 @@
                 <dose units="Gy">40</dose>
                 <priority>3</priority>
             </roi>
-			   <roi>
+            <roi>
                 <name>Trachea</name>
                 <type>DX</type>
                 <volume units="cc">5</volume>
@@ -954,11 +958,13 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy</Instruction>
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1307,11 +1313,13 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy</Instruction>
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1676,11 +1684,13 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy</Instruction>
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1725,7 +1735,7 @@
             </roi>
             <roi>
                 <name>PTV_p</name>
-                <ref>RTOG 0813</ref>
+                <ref>RTOG0813</ref>
                 <type dir="ge" know="rtog_sbr_dgi_minor">CI</type>
                 <index>0.0</index>
                 <dose units="%" roi="PTV_p">50</dose>
@@ -1943,13 +1953,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
-				<name>Lungs-GTV</name>
-				<type dir="le">VX</type>
-				<volume units="%">50</volume>
-				<dose units="Gy">5</dose>
-				<priority>1</priority>
-			</roi>
+            <roi>
+                <name>Lungs-GTV</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
@@ -1980,13 +1990,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
-				<name>Lungs-ITV</name>
-				<type dir="le">VX</type>
-				<volume units="%">50</volume>
-				<dose units="Gy">5</dose>
-				<priority>1</priority>
-			</roi>
+            <roi>
+                <name>Lungs-ITV</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Normal_2cm</name>
                 <ref>RTOG 0813</ref>
@@ -2107,11 +2117,13 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy</Instruction>
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2374,13 +2386,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
-				<name>Lungs-GTV</name>
-				<type dir="le">VX</type>
-				<volume units="%">50</volume>
-				<dose units="Gy">5</dose>
-				<priority>1</priority>
-			</roi>
+            <roi>
+                <name>Lungs-GTV</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
@@ -2411,13 +2423,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
-				<name>Lungs-ITV</name>
-				<type dir="le">VX</type>
-				<volume units="%">50</volume>
-				<dose units="Gy">5</dose>
-				<priority>1</priority>
-			</roi>
+            <roi>
+                <name>Lungs-ITV</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Normal_2cm</name>
                 <ref>RTOG 0813</ref>
@@ -2538,11 +2550,13 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy</Instruction>
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2791,13 +2805,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
-				<name>Lungs-GTV</name>
-				<type dir="le">VX</type>
-				<volume units="%">50</volume>
-				<dose units="Gy">5</dose>
-				<priority>1</priority>
-			</roi>
+            <roi>
+                <name>Lungs-GTV</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
@@ -2828,13 +2842,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
-				<name>Lungs-ITV</name>
-				<type dir="le">VX</type>
-				<volume units="%">50</volume>
-				<dose units="Gy">5</dose>
-				<priority>1</priority>
-			</roi>
+            <roi>
+                <name>Lungs-ITV</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Normal_2cm</name>
                 <ref>RTOG 0813</ref>
@@ -2902,14 +2916,14 @@
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>Stomach</name>
                 <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">12.4</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>Stomach</name>
                 <type>DX</type>
                 <volume units="cc">10</volume>
@@ -2946,7 +2960,7 @@
                 <weight>50</weight>
             </roi>
         </objectives>
-	</order>
+    </order>
     <order>
         <name>Left Lung SBRT [1Fx] [3400cGy]</name>
         <prefix>LuRx_</prefix>
@@ -2970,11 +2984,13 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy</Instruction>
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -3172,13 +3188,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
-				<name>Lungs-GTV</name>
-				<type dir="le">VX</type>
-				<volume units="%">50</volume>
-				<dose units="Gy">5</dose>
-				<priority>1</priority>
-			</roi>
+            <roi>
+                <name>Lungs-GTV</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Lungs-GTV</name>
                 <type dir="le">Mean</type>
@@ -3215,13 +3231,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
-				<name>Lungs-ITV</name>
-				<type dir="le">VX</type>
-				<volume units="%">50</volume>
-				<dose units="Gy">5</dose>
-				<priority>1</priority>
-			</roi>
+            <roi>
+                <name>Lungs-ITV</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Lungs-ITV</name>
                 <type dir="le">Mean</type>
@@ -3251,7 +3267,7 @@
                 <dose units="Gy">26</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>Skin_PRV03</name>
                 <type>DX</type>
                 <volume units="cc">10</volume>
@@ -3311,14 +3327,14 @@
                 <dose units="Gy">20.2</dose>
                 <priority>3</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>Stomach</name>
                 <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">12.4</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>Stomach</name>
                 <type>DX</type>
                 <volume units="cc">10</volume>
@@ -3361,7 +3377,7 @@
                 <weight>50</weight>
             </roi>
         </objectives>
-	</order>
+    </order>
     <order>
         <name>Right Lung SBRT [1Fx] [3400cGy]</name>
         <prefix>LuRx_</prefix>
@@ -3385,11 +3401,13 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy</Instruction>
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -3587,13 +3605,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
-				<name>Lungs-GTV</name>
-				<type dir="le">VX</type>
-				<volume units="%">50</volume>
-				<dose units="Gy">5</dose>
-				<priority>1</priority>
-			</roi>
+            <roi>
+                <name>Lungs-GTV</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Lungs-GTV</name>
                 <type dir="le">Mean</type>
@@ -3630,13 +3648,13 @@
                 <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
-				<name>Lungs-ITV</name>
-				<type dir="le">VX</type>
-				<volume units="%">50</volume>
-				<dose units="Gy">5</dose>
-				<priority>1</priority>
-			</roi>
+            <roi>
+                <name>Lungs-ITV</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Lungs-ITV</name>
                 <type dir="le">Mean</type>
@@ -3666,7 +3684,7 @@
                 <dose units="Gy">26</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>Skin_PRV03</name>
                 <type>DX</type>
                 <volume units="cc">10</volume>
@@ -3726,14 +3744,14 @@
                 <dose units="Gy">20.2</dose>
                 <priority>3</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>Stomach</name>
                 <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">12.4</dose>
                 <priority>1</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>Stomach</name>
                 <type>DX</type>
                 <volume units="cc">10</volume>
@@ -3800,11 +3818,13 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy</Instruction>
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -4270,11 +4290,13 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy</Instruction>
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breathing Instructions
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -5022,44 +5044,44 @@
                 <type>Max</type>
                 <dose units="Gy">1</dose>
                 <weight>3e-6</weight>
-            <roi>
-                <name>Ring_LD</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p">40</dose>
-                <weight>25</weight>
-            </roi>
-            <roi>
-                <name>Normal_2cm</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p">30</dose>
-                <weight>25</weight>
-            </roi>
-            <!--
-            <roi>
-                <name>Ring_HD</name>
-                <type dist="2" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="20">100</dose>
-                <weight>0.1</weight>
-            </roi>
-            <roi>
-                <name>Ring_LD</name>
-                <type dist="5" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="5">40</dose>
-                <weight>0.1</weight>
-            </roi>
-            <roi>
-                <name>Normal_2cm</name>
-                <type dist="5" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="5">40</dose>
-                <weight>0.1</weight>
-            </roi>
-            -->
-            <roi>
-                <name>Chestwall</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p">115</dose>
-                <weight>500</weight>
-            </roi>
+                <roi>
+                    <name>Ring_LD</name>
+                    <type>Max</type>
+                    <dose units="%" roi="PTV_p">40</dose>
+                    <weight>25</weight>
+                </roi>
+                <roi>
+                    <name>Normal_2cm</name>
+                    <type>Max</type>
+                    <dose units="%" roi="PTV_p">30</dose>
+                    <weight>25</weight>
+                </roi>
+                <!--
+                <roi>
+                    <name>Ring_HD</name>
+                    <type dist="2" adapt="True" constraint="False">DFO</type>
+                    <dose units="%" roi="PTV_p" low="20">100</dose>
+                    <weight>0.1</weight>
+                </roi>
+                <roi>
+                    <name>Ring_LD</name>
+                    <type dist="5" adapt="True" constraint="False">DFO</type>
+                    <dose units="%" roi="PTV_p" low="5">40</dose>
+                    <weight>0.1</weight>
+                </roi>
+                <roi>
+                    <name>Normal_2cm</name>
+                    <type dist="5" adapt="True" constraint="False">DFO</type>
+                    <dose units="%" roi="PTV_p" low="5">40</dose>
+                    <weight>0.1</weight>
+                </roi>
+                -->
+                <roi>
+                    <name>Chestwall</name>
+                    <type>Max</type>
+                    <dose units="%" roi="PTV_p">115</dose>
+                    <weight>500</weight>
+                </roi>
                 <name>Chestwall</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p">110</dose>
@@ -5083,20 +5105,26 @@
         <uniform_dose_structs standoff="0.2">Chestwall,Heart,GreatVes</uniform_dose_structs>
         <underdose_structs standoff="0.5">SpinalCord</underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03</skin_structure>
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
+        </skin_structure>
         <ring_hd standoff="0.2" margin_type="Expand" margin_sup="2" margin_inf="2"
-                 margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD</ring_hd>
+                 margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD
+        </ring_hd>
         <ring_ld standoff="0.0" margin_type="Expand" margin_sup="5" margin_inf="5"
-                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD</ring_ld>
+                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD
+        </ring_ld>
         <ring_targets standoff="0.2" margin_type="Expand" margin_sup="2" margin_inf="2"
-                      margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring</ring_targets>
+                      margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring
+        </ring_targets>
         <inner_air>InnerAir</inner_air>
         <superficial_target standoff="0.0" margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-                            margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">OTV_Skin</superficial_target>
+                            margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">OTV_Skin
+        </superficial_target>
         <otv standoff="0.3" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
-             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV</otv>
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
+        </otv>
     </planning_structure_set>
-     <optimization_config>
+    <optimization_config>
         <name>1 warmstarts</name>
         <description>1 warmstart optimization</description>
         <initial max_it="30" int_it="10">Iteration 0</initial>
