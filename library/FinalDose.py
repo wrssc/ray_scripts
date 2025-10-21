@@ -173,6 +173,7 @@ def check_description_unique(patient, proposed_description, adapted=False):
 def set_prescription_description(patient, beamset):
     """Sets the prescription description for the beamset.
     V0. Set Description to <beamset name 13 chars>|D1, |D2, etc...
+    V1. Set Description to <beamset name> of primary only
     * Checked:
        - Roi-based prescription types
        - Background dose use
@@ -182,35 +183,31 @@ def set_prescription_description(patient, beamset):
         beamset (BeamSet): The beamset to set the prescription description for.
     """
     beamset_name = beamset.DicomPlanLabel
-    if hasattr(beamset.Prescription, 'PrescriptionDoseReferences'):
-        prescription_dose_references = beamset.Prescription.PrescriptionDoseReferences
-        indx = 1
-        for pdr in prescription_dose_references:
-            rx_type, name_of_pdr = determine_prescription_type(pdr)
-            logging.info(f'Processing prescription dose reference of type: {rx_type} for beamset: {beamset_name},'
-                          f' with name: {name_of_pdr}')
-            ref_indx = 0
-            proposed_description = f'{beamset_name}|D{indx}'
-            while not check_description_unique(patient, proposed_description):
-                logging.warning(f'Proposed description {proposed_description} already exists in beamset '
-                                f'{beamset.DicomPlanLabel}, skipping setting description')
-                # If the description already exists, increment the index and try again
-                proposed_description = f'{beamset_name[:11]}|D{indx}.{ref_indx}'
-                logging.warning(f'Incrementing index to {ref_indx} for beamset {beamset.DicomPlanLabel}'
-                                f' to make description unique for reference point. Trying {proposed_description}')
-                ref_indx += 1
-            if rx_type == 'Site-based':
-                # Make sure this has not already been named
-                pdr.Description = proposed_description  # fix_description_suffix(pdr.Description, beamset_name)
-            elif rx_type == 'Unknown':
-                logging.warning(f'Beamset {beamset_name} has an unknown prescription type for dose reference: {pdr}')
-                pdr.Description = proposed_description
-            else:
-                pdr.Description = proposed_description  # format_prescription_description(name_of_pdr, beamset_name)
-                logging.debug(f'Description set to {pdr.Description} for beamset {beamset_name}')
-            indx += 1
+
+    if hasattr(beamset.Prescription, 'PrimaryPrescriptionDoseReference'):
+        prescription_dose_references = [beamset.Prescription.PrimaryPrescriptionDoseReference]
+    elif hasattr(beamset.Prescription, 'PrescriptionDoseReferences'):
+        prescription_dose_references = [beamset.Prescription.PrescriptionDoseReferences[0]]
     else:
         logging.warning(f'Beamset {beamset_name} does not have any prescription dose references')
+        return
+    for pdr in prescription_dose_references:
+        rx_type, name_of_pdr = determine_prescription_type(pdr)
+        logging.info(f'Processing primary prescription dose reference of type: {rx_type} for beamset: {beamset_name},'
+                      f' with name: {name_of_pdr}')
+        proposed_description = f'{beamset_name}'
+        if not check_description_unique(patient, proposed_description):
+            raise ValueError('This beamset {beamset_name} name is already defined for this patient in another '
+                            f' plan, please revise the beamset name to be unique')
+        if rx_type == 'Site-based':
+            # Make sure this has not already been named
+            pdr.Description = proposed_description  # fix_description_suffix(pdr.Description, beamset_name)
+        elif rx_type == 'Unknown':
+            logging.warning(f'Beamset {beamset_name} has an unknown prescription type for primary dose reference: {pdr}')
+            pdr.Description = proposed_description
+        else:
+            pdr.Description = proposed_description  # format_prescription_description(name_of_pdr, beamset_name)
+            logging.debug(f'Description set to {pdr.Description} for beamset {beamset_name}')
 
 
 def compute_dose(beamset, dose_algorithm):
@@ -622,19 +619,3 @@ def final_dose_v12(site=None, technique=None, rso=None, beamset_name=None):
         status.next_step('Script Complete')
 
     logcrit('Final Dose Script Run Successfully')
-
-# def main():
-#     #
-# Detect API version
-#     version, sub_version = detect_api_version()
-#     if version == 15:
-#         final_dose_v15()
-#     elif version == 12:
-#         final_dose_v12()
-#     else:
-#         logging.error(f'API version {version} not supported')
-#         sys.exit(f'API version {version} not supported')
-
-
-# if __name__ == '__main__':
-#     main()
