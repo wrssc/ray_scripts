@@ -2,7 +2,11 @@ import json
 import datetime
 from pathlib import Path
 import pydicom
-import PySimpleGUI as sg
+
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 from DicomPairTreeFunctions import compare_dicomrt_plans
 from AriaPlanTransferReviewChecks import run_aria_plan_transfer_checks
 
@@ -59,6 +63,7 @@ def run_dicom_integrity_tool(
     diagnostic=False,
 ):
     import logging
+
     logging.debug(f"Running DIT for {filepath1} and {filepath2}")
     logging.debug(f"File labels: {file_label1} and {file_label2}")
 
@@ -113,7 +118,7 @@ def run_dicom_integrity_tool(
     if plan_names[0] == plan_names[1]:
         tab_title = plan_names[0]
     else:
-        tab_title = f'RS: {plan_names[0]} vs. Aria: {plan_names[1]}'
+        tab_title = f"RS: {plan_names[0]} vs. Aria: {plan_names[1]}"
 
     if diagnostic:
 
@@ -124,10 +129,16 @@ def run_dicom_integrity_tool(
             [
                 sg.Tree(
                     data=dmt_treedata,
-                    headings=["Result", "Comments",],
+                    headings=[
+                        "Result",
+                        "Comments",
+                    ],
                     auto_size_columns=False,
                     col0_width=50,
-                    col_widths=[30, 60,],
+                    col_widths=[
+                        30,
+                        60,
+                    ],
                     num_rows=30,
                     key="-DMT_TREE-",
                     show_expanded=False,
@@ -151,10 +162,7 @@ def run_dicom_integrity_tool(
         ]
 
     if diagnostic:
-        tabs = [
-            sg.Tab(tab_title, tab1_layout),
-            sg.Tab("Diagnostics", tab_diagnostic)
-        ]
+        tabs = [sg.Tab(tab_title, tab1_layout), sg.Tab("Diagnostics", tab_diagnostic)]
     else:
         tabs = [
             sg.Tab(tab_title, tab1_layout),
@@ -163,9 +171,7 @@ def run_dicom_integrity_tool(
     layout = [
         [
             sg.TabGroup(
-                [
-                    tabs
-                ],
+                [tabs],
             )
         ],
         [sg.Button("Report Failing Test")],
@@ -239,18 +245,23 @@ def run_dicom_integrity_tool(
 
     window.close()
 
+
 if __name__ == "__main__":
 
     file_path = Path(
-        r"U:\UWHealth\RadOnc\ShareAll\Users\ZEL\DICOM_Compare_Files\3164588"
+        r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\Clinical\DITTO\2024A Test Cases\BreL_BST_R0A0\2928874"
     )
-    raystation_filename = r"RP1.2.752.243.1.1.20220110105336812.2000.10016.dcm"
-    aria_filename = r"Bol_ARIA1.2.246.352.71.5.137378053967.332155.20220111111326.dcm"
-    aria_filename = r"NoB_ARIA1.2.246.352.71.5.137378053967.332249.20220111111326.dcm"
 
-    file_path = Path(r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\RayStation\DICOMs\Plan_Prostate")
+    raystation_filename = r"RP Corrected.dcm"
+    aria_filename = r"RP.2928874.BreL_BST_R0A0.dcm"
 
-    raystation_filename = r"RP1.2.752.243.1.1.20230321151237111.2000.28646.dcm"
-    aria_filename = r"RP.0783795.Pros_SBR_R1A0.dcm"
+    file_path = Path(
+        r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\Clinical\DITTO\2024A Test Cases\Shoulder"
+    )
 
-    run_dicom_integrity_tool(file_path / raystation_filename, file_path / aria_filename, diagnostic=True)
+    raystation_filename = r"RP1.2.752.243.1.1.20250424174442129.4700.77820.dcm"
+    aria_filename = r"RP.TPL_1310.ShoL_3DC_R0A0.dcm"
+
+    run_dicom_integrity_tool(
+        file_path / raystation_filename, file_path / aria_filename, diagnostic=True
+    )

@@ -28,6 +28,7 @@
         <host type="text">ariadicom.uwhealth.wisc.edu</host>
         <aet type="text">ARIA</aet>
         <port type="int">106</port>
+        <system type="text">ARIA</system>
     </destination>
     <destination type="scp">
         <name type="text">Delta4</name>

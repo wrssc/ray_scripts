@@ -1,5 +1,8 @@
 import uuid
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 from collections import namedtuple
 from PlanReview.review_definitions import FAIL, RED_CIRCLE, PASS, GREEN_CIRCLE
 from PlanReview.review_definitions import YELLOW_CIRCLE, ALERT, BLUE_CIRCLE, DOMAIN_TYPE

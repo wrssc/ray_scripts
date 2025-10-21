@@ -1,4 +1,7 @@
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 import logging
 from PlanReview.review_definitions import (
     ICON_SAVE, ICON_LOAD, ICON_START, ICON_PRINT, ICON_CANCEL, ICON_ERROR, ICON_SUBMIT,

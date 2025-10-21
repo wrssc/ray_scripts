@@ -1,10 +1,13 @@
 import logging
+import traceback
 import datetime
 from collections import OrderedDict
 from PlanReview.review_definitions import DOMAIN_TYPE, FAIL
 from PlanReview.qa_tests.test_examination import get_exam_level_tests
 from PlanReview.qa_tests.test_plan import get_plan_level_tests
-from PlanReview.qa_tests.test_beamset import get_beamset_level_tests
+from PlanReview.qa_tests.test_beamset.get_beamset_level_tests import get_beamset_level_tests
+from PlanReview.qa_tests.test_beamset.check_isocenter_clearance import (extract_voxel_representation,
+                                                                        find_externals_and_supports)
 from PlanReview.qa_tests.test_sandbox import get_sandbox_level_tests
 from PlanReview.qa_tests.test_plan import parse_order_selection
 from PlanReview.qa_tests.analyze_logs import retrieve_logs
@@ -27,7 +30,6 @@ def update_progress_bar(progress_bar, progress_text, tests_performed, progress_t
 
 
 def log_time_log(time_log):
-
     # Sort the time_log by duration
     sorted_time_log = OrderedDict(sorted(time_log.items(), key=lambda item: item[1], reverse=True))
 
@@ -46,8 +48,13 @@ def execute_test(rso, test_name, test_function, kwargs, time_log):
     time_0 = datetime.datetime.now()
     try:
         pass_result, message = test_function(rso=rso, **kwargs)
+        logging.debug(f'Test {test_name} completed with result: {pass_result} and message: {message}')
     except Exception as e:
         message = f"Error: {str(e)}"
+        # Capture full traceback as a string
+        tb_str = traceback.format_exc()
+        # Include traceback details in the message
+        full_message = f"Error: {str(e)}\n\nTraceback:\n{tb_str}"
         # Send an error report email and return a failure
         # Save and email the report
         user_name = get_user_name()
@@ -56,10 +63,11 @@ def execute_test(rso, test_name, test_function, kwargs, time_log):
             patient_id=rso.patient.PatientID,
             beamset_name=rso.beamset.DicomPlanLabel,
             user_name=user_name,
-            report_text=f"Automated report: error occurred while executing the test: {test_name}\n\n{str(e)}"
+            report_text=f"Automated report: error occurred while executing the test: {test_name}\n\n{str(full_message)}"
         )
         email_report(file_path, 'error_report', source='script')
         pass_result = FAIL
+        logging.error(f"Error in test {test_name}: {full_message}")
     time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), test_function.__name__)
     return pass_result, message, time_log
 
@@ -117,17 +125,28 @@ def perform_automated_checks(rso, do_physics_review,
     # Gather Plan Level Checks
     plan_checks_dict = get_plan_level_tests(rso, do_physics_review)
     # Gather BeamSet Level Checks
+    # TODO: We need to perform an extraction of the extract_voxel_representation from check_isocenter_clearance
+    #       and pass those values to that test from here because it is very expensive to do for each beamset.
+    external, supports = find_externals_and_supports(rso)
+    if external is not None or supports is not None:
+        update_progress_bar(progress_bar, progress_text, 0, 1,
+                            'Extracting Voxel Representations of ROIs...')
+        rois_checked = extract_voxel_representation(rso, [external] + supports)
+    else:
+        rois_checked = None
     beamset_checks = {
         r.beamset.DicomPlanLabel: get_beamset_level_tests(
             r, do_physics_review, message_logs,
-            values=values)
+            values=values,
+            roi_voxel_representations={'rois_checked': rois_checked,})
+
         for r in rsos}
     # Gather SandBox Level Checks
     sandbox_checks_dict = get_sandbox_level_tests(rso, do_physics_review)
 
     progress_total = len(patient_checks_dict.keys()) \
                      + len(plan_checks_dict.keys()) \
-                     + sum([len(v) for v in beamset_checks.values()]) + 1
+                     + sum([len(v) for v in beamset_checks.values()]) + 1 + 1
     tests_performed = 1
     update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
                         'Running Exam Tests...')
@@ -137,10 +156,6 @@ def perform_automated_checks(rso, do_physics_review,
         update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
                             f'Exam Test: {key}...')
         pass_result, message, time_log = execute_test(rso, key, p_func[0], p_func[1], time_log)
-        # logging.debug(f'Executing test {key}')
-        # time_0 = datetime.datetime.now()
-        # pass_result, message = p_func[0](rso=rso, **p_func[1])
-        # time_log = parse_time_log(time_log, time_0, datetime.datetime.now(), key)
         node, child = build_tree_element(parent_key=exam_key[0],
                                          child_key=key,
                                          pass_result=pass_result,
@@ -204,7 +219,7 @@ def perform_automated_checks(rso, do_physics_review,
                             f'Testing BeamSet: {bs_name}...')
         for key, b_func in beamset_checks[bs_name].items():
             update_progress_bar(progress_bar, progress_text, tests_performed, progress_total,
-                                f'BeamSet Test: {key}')
+                                f'{bs_name}: BeamSet Test: {key}')
             pass_result, message, time_log = execute_test(r, key, b_func[0], b_func[1], time_log)
             # time_0 = datetime.datetime.now()
             # pass_result, message = b_func[0](rso=r, **b_func[1])

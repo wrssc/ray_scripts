@@ -2,7 +2,10 @@ import os
 import glob
 import re
 import logging
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 from datetime import datetime
 import json
 from PlanReview.review_definitions import OUTPUT_DIR, DATAFILE_EVENT_LIST
@@ -80,6 +83,7 @@ def save_review(rso, values, suffix="_review.json", quiet=False):
         file_name = f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}{suffix}"
         with open(os.path.join(patient_output_dir, file_name), "w") as f:
             json.dump(tuple_key_to_str(values), f)
+            logging.info(f"Review saved to {file_name}")
             if not quiet:
                 Sg.popup("Review saved successfully!")
         return file_name

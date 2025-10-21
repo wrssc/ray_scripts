@@ -284,7 +284,9 @@ def beamset_dialog(protocol, order_targets):
 
 def multi_autoplan(multi_plan_parameters):
     for m in multi_plan_parameters:
-        autoplan_parameters = {
+
+        # Shortened key mappings for autoplan parameters
+        a = {
             'protocol_name': m['protocol_name'],
             'order_name': m['order_name'],
             'exam': m.get('exam', None),
@@ -292,6 +294,7 @@ def multi_autoplan(multi_plan_parameters):
             'site': m['site'],
             'machine': m['machine'],
             'translation_map': m.get('translation_map', None),
+            'plan_name': m.get('plan_name', None),
             'beamset_name': m.get('beamset_name', None),
             'beamset_template': m.get('beamset_template', None),
             'iso_target': m.get('iso_target', None),
@@ -299,16 +302,81 @@ def multi_autoplan(multi_plan_parameters):
             'iso': m.get('iso', None),
             'user_prompts': m.get('user_prompts', True),
             'beamset_exists_skip': m.get('beamset_exists_skip', False),
+            'multi_isocenter': m.get('multi_isocenter', False),
             'optimize': m.get('optimize', True),
             'optimization_instructions': m.get('optimization_instructions', None),
             'ignore_status': True,
         }
-        logging.debug(f'M is {m}')
-        logging.debug(f'Autoplan {autoplan_parameters}')
-        if not autoplan_parameters['beamset_exists_skip']:
-            m['rso'] = autoplan(autoplan_parameters=autoplan_parameters)
-        connect.await_user_input('Completed optimization of current beamset. Please review and continue')
+
+        # Logging the parameters in a structured and readable format
+        logging.debug(
+            f"Starting task for Beamset {a['beamset_name']} on Exam {a['exam']}:\n"
+            f"\tProtocol: {a['protocol_name']}, Order: {a['order_name']}\n"
+            f"\tSite: {a['site']}, Fractions: {a['num_fx']}, Machine: {a['machine']}\n"
+            f"\tIsocenter: Iso: {a['iso']}, Target: {a['iso_target']}, POI: {a['iso_poi']}\n"
+            f"\tBeamset Template: {a['beamset_template']}\n"
+            f"\tOptimization Enabled: {a['optimize']}, Instructions: {a['optimization_instructions']}\n"
+            f"\tOther Settings: Translation Map: {a['translation_map']},\n "
+            f"\tUser Prompts: {a['user_prompts']}, "
+            f"\tBeamset Skip: {a['beamset_exists_skip']}, "
+            f"\tMulti-Isocenter: {a['multi_isocenter']}"
+        )
+
+        if not a['beamset_exists_skip']:
+            m['rso'] = autoplan(autoplan_parameters=a)
+        # If optimization is required, prompt user to continue
+        if m['optimize']:
+            connect.await_user_input('Completed optimization of current beamset. Please review and continue')
     return multi_plan_parameters
+
+
+def remove_existing_supports(case, beamset):
+    """
+    Remove existing support structures from the beamset.
+    Args:
+        case: The current case object.
+        beamset: The current beamset object.
+    Returns:
+        None
+    """
+    existing_supports = StructureOperations.find_types(case, roi_type='Support')
+    existing_supports += StructureOperations.find_types(case, roi_type='Fixation')
+    if existing_supports:
+        for s in existing_supports:
+            try:
+                logging.debug(f'Excluding support structure {s} from beamset {beamset.DicomPlanLabel}')
+                beamset.ExcludeRoiFromRadiationSet(RoiName=s)
+            except Exception as e:
+                logging.warning(f'Error excluding support structure {s} from beamset: {e}')
+
+
+def include_supports_in_beamset(beamset, supports):
+    """
+    Include support structures in the beamset radiation set.
+    This function attempts to include each support structure in the beamset's radiation set.
+    If a support structure is already included, it will log a debug message and continue.
+    If an error occurs while including a support structure, it will log a warning message.
+
+    Args:
+        beamset: The current beamset object.
+        supports: A list of support structure names to be included in the beamset.
+
+    Returns:
+        None
+
+    """
+    for support in supports:
+        try:
+            logging.debug(f'Loaded support structure {support} and assigned to beamset'
+                          f' {beamset.DicomPlanLabel}')
+            beamset.IncludeRoiInRadiationSet(RoiName=support)
+        except Exception as e:
+            if "The ROI is already included in the beam set" in str(e):
+                logging.debug(f'Support structure {support} already included in '
+                              f'radiation set {beamset.DicomPlanLabel}')
+                pass
+            else:
+                logging.warning(f'Error loading support structure {support}: {e}')
 
 
 def copy_plan_set_copy_current(rso, new_plan_name):
@@ -348,17 +416,20 @@ def autoplan(autoplan_parameters, **kwargs):
         translation_map = autoplan_parameters.get('translation_map', None)
         beamset_template = autoplan_parameters.get('beamset_template', None)
         beamset_name = autoplan_parameters.get('beamset_name', None)
+        plan_name = autoplan_parameters.get('plan_name', None)
         iso_target = autoplan_parameters.get('iso_target', None)
         iso_poi = autoplan_parameters.get('iso_poi', None)
         iso_dict = autoplan_parameters.get('iso', {})
+        multi_isocenter = autoplan_parameters.get('multi_isocenter', False)
         machine = autoplan_parameters['machine']
-        user_prompts = autoplan_parameters.get('user_prompts', None)
+        user_prompts = autoplan_parameters.get('user_prompts', True)
         optimize = autoplan_parameters.get('optimize', True)
         ignore_status = autoplan_parameters.get('ignore_status', False)
         multi_plan_parameters = kwargs.get('beamset_list', [])
         optimization_instructions = autoplan_parameters.get('optimization_instructions', {})
         if optimization_instructions:
             background = optimization_instructions.get('optimize_with_background', "")
+            lock_dose_grid = optimization_instructions.get('lock_dose_grid', False)
     else:
         input_protocol_name = None
         input_order_name = None
@@ -367,13 +438,16 @@ def autoplan(autoplan_parameters, **kwargs):
         beamset_etree = None
         beamset_template = None
         beamset_name = None
+        plan_name = None
         iso_target = None
         iso_poi = None
         exam_name = None
         machine = None
+        multi_isocenter = None
         iso_dict = {'type': None, 'target': None}
         translation_map = {}
         optimize = True
+        lock_dose_grid = False
         ignore_status = False
         multi_plan_parameters = []
     logging.debug(f'Optimization Parameters: user_prompts:'
@@ -469,19 +543,17 @@ def autoplan(autoplan_parameters, **kwargs):
     (protocol_file, protocol) = AutoPlanOperations.select_protocol(folder=path_protocols,
                                                                    protocol_name=input_protocol_name)
     protocol_name = protocol.find('name').text
-    logging.debug(
-        'Selected protocol:{} for loading from file:{}'.format(protocol_name, protocol_file))
-    #
+    logging.debug(f'Selected protocol:{protocol_name} for loading from file:{protocol_file}')
     # If the protocol_name is UW WholeBrain execute the whole brain script and quit
     if protocol_name == "UW WholeBrain":
         autoplan_whole_brain.main()
         return
-    #
     # Select the TPO
     if not ignore_status:
         auto_status.next_step(text=script_steps[status_index][1])
         status_index += 1
 
+    logging.debug("Loading order {}".format(input_order_name))
     order = AutoPlanOperations.select_order(protocol, order_name=input_order_name)
     order_name = order.find('name').text
     logcrit(f"Treatment Planning Order selected: {order.find('name').text}")
@@ -515,14 +587,12 @@ def autoplan(autoplan_parameters, **kwargs):
     #
     # Find all target names to be used
     assigned_targets = [v[0] for v in translation_map.values() if v[0]]
-    for a in assigned_targets:
-        logging.debug('Assigned targets are {}'.format(a))
-        logging.debug('Assigned target {} is None {}'.format(a, (a is None)))
     #
     # Next we need the number of fractions, the beamset to load, and the isocenter position.
     #
     # Isocenter position
     available_targets = StructureOperations.find_targets(case=rso.case)
+    # Add All_PTVs to the list of available targets
     if 'All_PTVs' not in available_targets:
         available_targets.append('All_PTVs')
 
@@ -616,7 +686,8 @@ def autoplan(autoplan_parameters, **kwargs):
         beamset_defs.name = site[0:4] + '_' + code + '_Auto'
     else:
         beamset_defs.name = beamset_name
-    plan_name = site[0:4] + '_' + code + '_Auto'
+    if not plan_name:
+        plan_name = site[0:4] + '_' + code + '_Auto'
     new_plan_name = site[0:4] + '_' + code + '_R0A0'
     beamset_defs.DicomName = beamset_defs.name
     if beamset_defs.technique == "TomoHelical":
@@ -641,6 +712,7 @@ def autoplan(autoplan_parameters, **kwargs):
     #     'TargetDose04','ProtocolTarget03','BeamsetPath','BeamsetFile',
     #     'ProtocolBeamset','Machine','Isotarget','PlanningStructurePath',
     #     'PlanningStructureFile','PlanningStructureWorkflow','GoalPath'
+
     #     'GoalFile','ProtocolName','OrderName','OptimizationPath','OptimizationFile',
     #     'OptimizationWorkflow'
     #  }
@@ -666,6 +738,7 @@ def autoplan(autoplan_parameters, **kwargs):
         info = rso.case.QueryPlanInfo(Filter={'Name': plan_name})
         if info[0]['Name'] == plan_name:
             rso = rso._replace(plan=rso.case.TreatmentPlans[plan_name])
+            logging.debug(f'Plan {rso.plan.Name} found and loaded')
     except IndexError:
         rso.case.AddNewPlan(
             PlanName=plan_name,
@@ -675,6 +748,7 @@ def autoplan(autoplan_parameters, **kwargs):
             AllowDuplicateNames=False
         )
         rso = rso._replace(plan=rso.case.TreatmentPlans[plan_name])
+        logging.debug(f'Plan {plan_name} created')
         # Plan creation modification requires a patient save
 
     rso.patient.Save()
@@ -682,15 +756,37 @@ def autoplan(autoplan_parameters, **kwargs):
     if not ignore_status:
         auto_status.next_step(text=script_steps[status_index][1])
         status_index += 1
-    # Load beamset
-    rs_beam_set = BeamOperations.create_beamset(patient=rso.patient,
-                                                case=rso.case,
-                                                exam=rso.exam,
-                                                plan=rso.plan,
-                                                dialog=False,
-                                                BeamSet=beamset_defs,
-                                                create_setup_beams=setup_fields,
-                                                rename_existing=True)
+    if multi_isocenter:
+        logging.debug(f'Creating a beamset using the following definitions: '
+                      f'{beamset_defs.technique}, {beamset_defs.name}')
+        logging.debug(f'All beamset definitions:'
+                      f'{beamset_defs.technique}, {beamset_defs.name}, {beamset_defs.DicomName}, '
+                      f'{beamset_defs.protocol_name}, {beamset_defs.number_of_fractions}, '
+                      f'{beamset_defs.total_dose}, {beamset_defs.machine}, {beamset_defs.iso_target}, '
+                      f'{beamset_defs.iso_poi}, {beamset_defs.modality}')
+        # See if the desired beamset is already in the plan
+        rs_beam_set = BeamOperations.create_beamset(patient=rso.patient,
+                                                    case=rso.case,
+                                                    exam=rso.exam,
+                                                    plan=rso.plan,
+                                                    dialog=False,
+                                                    BeamSet=beamset_defs,
+                                                    create_setup_beams=setup_fields,
+                                                    rename_existing=False)
+        if not rs_beam_set:
+            rs_beam_set = rso.plan.BeamSets[beamset_defs.name]
+        logging.debug(f'Beamset for multi-isocenter beamset: {rs_beam_set.DicomPlanLabel}')
+    else:
+        # Load beamset
+        rs_beam_set = BeamOperations.create_beamset(patient=rso.patient,
+                                                    case=rso.case,
+                                                    exam=rso.exam,
+                                                    plan=rso.plan,
+                                                    dialog=False,
+                                                    BeamSet=beamset_defs,
+                                                    create_setup_beams=setup_fields,
+                                                    rename_existing=True)
+        logging.debug(f'Beamset for single-isocenter beamset: {rs_beam_set.DicomPlanLabel}')
     # ok, now make the beamset current
     rso.patient.Save()
     rs_beam_set.SetCurrent()
@@ -701,24 +797,24 @@ def autoplan(autoplan_parameters, **kwargs):
             BackgroundBeamSetName=background,
             DependencyUpdate="CreateDependency"
         )
+        logging.debug(f'Background beamset {background} added to {rso.beamset.DicomPlanLabel}')
 
     # Set beams from the protocol
     if multi_plan_parameters:
+        logging.debug(f'Setting beams for multi-isocenter beamset')
         for m in multi_plan_parameters:
+            iso_target = None
+            iso_poi = None
+            existing_iso = None
+            iso_name = None
             if beamset_defs.iso_target:
                 iso_target = beamset_defs.iso_target
-                iso_poi = None
-                existing_iso = None
                 iso_name = iso_target
             elif m['iso']['type'] == 'POI':
-                iso_target = None
                 iso_poi = m['iso']['target']
-                existing_iso = None
                 iso_name = iso_poi
             elif m['iso']['type'] == 'ROI':
                 iso_target = m['iso']['target']
-                iso_poi = None
-                existing_iso = None
                 iso_name = m['iso']['target']
             iso_parameters = BeamOperations.find_isocenter_parameters(
                 case=rso.case,
@@ -784,22 +880,19 @@ def autoplan(autoplan_parameters, **kwargs):
                                               beamset_name=beamset_template,
                                               path=path_protocols)
         # Place isocenter
-        try:
-            iso_parameters = BeamOperations.find_isocenter_parameters(
-                case=rso.case,
-                exam=rso.exam,
-                beamset=rs_beam_set,
-                iso_target=iso_target,
-                iso_poi=iso_poi,
-                existing_iso=existing_iso,
-                lateral_zero=lateral_zero,
-                iso_name=iso_name)
-            beamset_defs.iso = iso_parameters
-        except Exception:
-            warning = f'Aborting, could not locate ' \
-                      f'center of {beamset_defs.iso_target}'
-            logging.warning(warning)
-            sys.exit(warning)
+        logging.debug(
+            f'Searching exam {rso.exam.Name} for Iso: Isocenter parameters: iso_target={iso_target}, iso_poi={iso_poi}, existing_iso={existing_iso}, '
+            f'lateral_zero={lateral_zero}, iso_name={iso_name}')
+        iso_parameters = BeamOperations.find_isocenter_parameters(
+            case=rso.case,
+            exam=rso.exam,
+            beamset=rs_beam_set,
+            iso_target=iso_target,
+            iso_poi=iso_poi,
+            existing_iso=existing_iso,
+            lateral_zero=lateral_zero,
+            iso_name=iso_name)
+        beamset_defs.iso = iso_parameters
         # Parse Tomo versus VMAT
         if beamset_defs.technique == 'TomoHelical':
             if len(beams) > 1:
@@ -888,15 +981,29 @@ def autoplan(autoplan_parameters, **kwargs):
         strip_roi_support = strip_roi_support.replace(" ", "")
         strip_roi_support = strip_roi_support.strip()
         beamset_defs.support_roi = strip_roi_support.split(",")
+    logging.debug(f'Beamset support structures: {beamset_defs.support_roi}, '
+                  f'user prompts: {user_prompts}, '
+                  f'strip_roi_support: {strip_roi_support}')
     if user_prompts and strip_roi_support:
-        AutoPlanOperations.load_supports(rso=rso,
-                                         supports=beamset_defs.support_roi,
-                                         quiet=user_prompts)
-        # TODO: Replace with DJJs call
-        # Trim supports
-        StructureOperations.trim_supports(patient=rso.patient,
-                                          case=rso.case,
-                                          exam=rso.exam)
+        remove_existing_supports(case=rso.case, beamset=rso.beamset)
+        # existing_supports = StructureOperations.find_types(
+        #     rso.case, roi_type='Fixation')
+        # existing_supports += StructureOperations.find_types(
+        #     rso.case, roi_type='Support')
+        AutoPlanOperations.load_supports(rso=rso, supports=beamset_defs.support_roi, quiet=user_prompts)
+        include_supports_in_beamset(beamset=rso.beamset, supports=beamset_defs.support_roi)
+        # for support in beamset_defs.support_roi:
+        #    try:
+        #        logging.debug(f'Loaded support structure {support} and assigned to beamset'
+        #                      f' {rso.beamset.DicomPlanLabel}')
+        #        rso.beamset.IncludeRoiInRadiationSet(RoiName=support)
+        #    except Exception as e:
+        #        if "The ROI is already included in the beam set" in str(e):
+        #            logging.debug(f'Support structure {support} already included in '
+        #                          f'radiation set {rso.beamset.DicomPlanLabel}')
+        #            pass
+        #        else:
+        #            logging.warning(f'Error loading support structure {support}: {e}')
     else:
         logging.info(f'Loading support {beamset_defs.support_roi} '
                      f'skipped for testing')
@@ -995,7 +1102,8 @@ def autoplan(autoplan_parameters, **kwargs):
         technique=beamset_defs.technique,
         output_data_dir=path_to_output,
         bypass_user_prompts=True,
-        optimize=optimize
+        optimize=optimize,
+        lock_dose_grid=lock_dose_grid,
     )
     ap_report['time_opt'][1] = timer()
     if opt_status:

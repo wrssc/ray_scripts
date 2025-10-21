@@ -1,4 +1,4 @@
-from typing import NamedTuple, Tuple
+from typing import NamedTuple, Tuple, Dict, Optional
 from PlanReview.review_definitions import PASS, FAIL, ALERT, GRID_PREFERENCES
 import numpy as np
 
@@ -6,6 +6,24 @@ import numpy as np
 def calculate_slice_thickness(img_series):
     slice_positions = np.array(img_series.ImageStack.SlicePositions)
     return np.diff(slice_positions)
+
+
+def _find_plan_match(plan_label: str, grid_prefs: Dict) -> Tuple[Optional[str], Optional[str]]:
+    """Find the first plan_type and matching criterion contained in the plan label.
+
+    Args:
+        plan_label: Beamset DICOM plan label.
+        grid_prefs: GRID_PREFERENCES-like mapping {plan_type: {'PLAN_NAMES': [...], ...}}.
+
+    Returns:
+        (plan_type, matched_criterion) or (None, None) if no match.
+    """
+    pl = plan_label.lower()
+    for plan_type, prefs in grid_prefs.items():
+        for crit in prefs.get("PLAN_NAMES", []):
+            if isinstance(crit, str) and crit.lower() in pl:
+                return plan_type, crit
+    return None, None
 
 
 def check_slice_thickness(rso: NamedTuple) -> Tuple[str, str]:
@@ -43,30 +61,33 @@ def check_slice_thickness(rso: NamedTuple) -> Tuple[str, str]:
     pass_result = ""
     slice_thickness = np.array([])  # Initialize to empty numpy array
 
-    for plan_type, preferences in GRID_PREFERENCES.items():
+    plan_label = rso.beamset.DicomPlanLabel
+    plan_type, matched = _find_plan_match(plan_label, GRID_PREFERENCES)
+    if plan_type:
+        preferences = GRID_PREFERENCES[plan_type]
         plan_names = preferences.get('PLAN_NAMES', [])
         nominal_slice_thickness = preferences.get('SLICE_THICKNESS', 0.0)
 
-        if any(plan_name in rso.beamset.DicomPlanLabel for plan_name in plan_names):
-            for exam_series in rso.exam.Series:
-                slice_thickness = calculate_slice_thickness(exam_series)
+        for exam_series in rso.exam.Series:
+            slice_thickness = calculate_slice_thickness(exam_series)
 
-                if slice_thickness.size > 0:
-                    is_thickness_close = np.isclose(slice_thickness, nominal_slice_thickness).all()
-                    is_thickness_smaller = all(slice_thickness < nominal_slice_thickness)
+            if slice_thickness.size > 0:
+                is_thickness_close = np.isclose(slice_thickness, nominal_slice_thickness).all()
+                is_thickness_smaller = all(slice_thickness < nominal_slice_thickness)
 
-                    if is_thickness_close or is_thickness_smaller:
-                        message_str = f'Slice spacing {np.amax(slice_thickness):.3f} cm ' \
-                                      f'appropriate for plan type {plan_names}'
-                        pass_result = PASS
-                    else:
-                        message_str = f'Slice spacing {np.amax(slice_thickness):.3f} cm ' \
-                                      f'TOO LARGE for plan type {plan_names}'
-                        pass_result = FAIL
+                if is_thickness_close or is_thickness_smaller:
+                    message_str = f'Slice spacing {np.amax(slice_thickness):.3f} cm '\
+                                  f'appropriate for {plan_type}: (match: {matched})'
+                    pass_result = PASS
                 else:
-                    message_str = 'Slice thickness data is missing.'
-                    pass_result = ALERT
+                    message_str = f'Slice spacing {np.amax(slice_thickness):.3f} cm '\
+                                  f'TOO LARGE for plan type {plan_type} '\
+                                  f'expected ≤ {nominal_slice_thickness:.3f} cm '
 
+                    pass_result = FAIL
+            else:
+                message_str = 'Slice thickness data is missing.'
+                pass_result = ALERT
     if not message_str:
         for exam_series in rso.exam.Series:
             slice_thickness = calculate_slice_thickness(exam_series)
@@ -79,4 +100,5 @@ def check_slice_thickness(rso: NamedTuple) -> Tuple[str, str]:
             pass_result = ALERT
 
     return pass_result, message_str
+
 

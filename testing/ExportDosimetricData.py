@@ -32,8 +32,9 @@ import UserInterface
 import json
 import StructureOperations
 
+
 def output_plan_data(path, input_filename, patient_id, case_name, plan_name, beamset_name,
-                  ):
+                     ):
     """
     Write out the status of the optimization for a given patient
 
@@ -57,7 +58,7 @@ def output_plan_data(path, input_filename, patient_id, case_name, plan_name, bea
         # The file does not currently exist or is empty
         output_file = open(output_filename, "w+")
         # Write the header
-        output_message = ( "PatientID" + ",\t"
+        output_message = ("PatientID" + ",\t"
                           + "Case" + ",\t"
                           + "Plan" + ",\t"
                           + "Beamset" + ",\t"
@@ -74,6 +75,7 @@ def output_plan_data(path, input_filename, patient_id, case_name, plan_name, bea
         + "\n"
     output_file.write(output_message)
     output_file.close()
+
 
 def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, plan_name, beamset_name):
     """ Query's database for plan, case, and exam. Returns them as a dict. Saves patient if a
@@ -103,8 +105,8 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
     # Find the patient in the database
     patient_info = db.QueryPatientInfo(
         Filter={
-            #'FirstName': '^{0}$'.format(first_name),
-            #'LastName': '^{0}$'.format(last_name),
+            # 'FirstName': '^{0}$'.format(first_name),
+            # 'LastName': '^{0}$'.format(last_name),
             'PatientID': '^{0}$'.format(patient_id)
         }
     )
@@ -160,6 +162,7 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
 
     return patient_data
 
+
 def gather_tomo_beam_params(beamset):
     # Compute time, rotation period, couch speed, pitch
     #   mod factor
@@ -180,45 +183,47 @@ def gather_tomo_beam_params(beamset):
         # Rotation period: Projection Time * 51
         rp = b.BeamMU * 51.
         # Couch Speed: Total Distance Traveled / Total Time
-        total_travel = b.Segments[number_segments-1].CouchYOffset \
-                      -b.Segments[0].CouchYOffset
+        total_travel = b.Segments[number_segments - 1].CouchYOffset \
+                       - b.Segments[0].CouchYOffset
         couch_speed = total_travel / time
         # Pitch: Distance traveled in rotation / field width
 
         # Convert sinogram to numpy array
         sino_array = numpy.array(sinogram)
         # Mod Factor = Average / Max LOT
-        mod_factor = sino_array.max()/numpy.mean(sino_array !=0)
+        mod_factor = sino_array.max() / numpy.mean(sino_array != 0)
         # Declare the tomo dataframe
         dtypes = numpy.dtype([
-                    ('time', float), # Total time of plan [s]
-                    ('total_travel', float), # Couch travel [cm]
-                    ('couch_speed',float), # Speed of couch [cm/s]
-                    ('sinogram', object), # List of leaf openings
-                    ('mod_factor', float) # Max/Ave_Nonzero
+            ('time', float),  # Total time of plan [s]
+            ('total_travel', float),  # Couch travel [cm]
+            ('couch_speed', float),  # Speed of couch [cm/s]
+            ('sinogram', object),  # List of leaf openings
+            ('mod_factor', float)  # Max/Ave_Nonzero
         ])
         data = numpy.empty(0, dtype=dtypes)
         df = pd.DataFrame(data)
         # Return a dataframe for json output
-        df.at[0,'time'] = time
-        df.at[0,'rp'] = rp
-        df.at[0,'total_travel'] = total_travel
-        df.at[0,'couch_speed'] = couch_speed
-        df.at[0,'sinogram'] = sino_array
-        df.at[0,'mod_factor'] = mod_factor
+        df.at[0, 'time'] = time
+        df.at[0, 'rp'] = rp
+        df.at[0, 'total_travel'] = total_travel
+        df.at[0, 'couch_speed'] = couch_speed
+        df.at[0, 'sinogram'] = sino_array
+        df.at[0, 'mod_factor'] = mod_factor
     return df
+
 
 def get_dvh(roi_name, plan, precision=None):
     # roi_name = name of the roi
     # precision = relative volume precision
     if not precision:
-        precision = 0.01 # output 1% increments
+        precision = 0.01  # output 1% increments
     plan_dose = plan.TreatmentCourse.TotalDose
-    number_dvh_points = int(1./precision) + 1
-    vols = [precision * x for x in range(0,number_dvh_points)]
+    number_dvh_points = int(1. / precision) + 1
+    vols = [precision * x for x in range(0, number_dvh_points)]
     dose_values = plan_dose.GetDoseAtRelativeVolumes(RoiName=roi_name, RelativeVolumes=vols)
-    dose_array = numpy.column_stack([vols,dose_values])
+    dose_array = numpy.column_stack([vols, dose_values])
     return dose_array
+
 
 def clinical_goal_rois(plan):
     # return all roi's which have a clinical goal
@@ -228,6 +233,7 @@ def clinical_goal_rois(plan):
         if e_roi not in goal_rois:
             goal_rois.append(e_roi)
     return goal_rois
+
 
 def get_clinical_goal(plan, roi_name=None):
     # Return all clinical goals for an roi or all rois as a dictionary of dictionary
@@ -264,14 +270,14 @@ def main():
     browser = UserInterface.CommonDialog()
     file_csv = browser.open_file('Select a plan list file', 'CSV Files (*.csv)|*.csv')
     if file_csv != '':
-        plan_data = pd.read_csv(file_csv,converters={
+        plan_data = pd.read_csv(file_csv, converters={
             'PatientID': lambda x: str(x),
             'Case': lambda x: str(x),
             'PlanName': lambda x: str(x),
             'BeamsetName': lambda x: str(x),
             'SourcePlan': lambda x: str(x),
             'SourceBeamset': lambda x: str(x),
-            })
+        })
     ## Create the output file
     path = os.path.dirname(file_csv)
 
@@ -290,38 +296,38 @@ def main():
         patient_data = load_patient_data(
             patient_id=patient_id,
             first_name=None,
-            #first_name=row.FirstName,
+            # first_name=row.FirstName,
             last_name=None,
-            #last_name=row.LastName,
+            # last_name=row.LastName,
             case_name=case_name,
             exam_name=row.ExaminationName,
             plan_name=plan_name,
-            beamset_name = beamset_name
+            beamset_name=beamset_name
         )
         if not patient_data['Error']:
             logging.debug('Loading Patient:{pt}, Case:{c}, Exam{e}, Plan:{p}, Beamset{b}'.format(
-                pt = patient_data['Patient'].Name,
-                c = patient_data['Case'].CaseName,
-                e = patient_data['Exam'].Name,
-                p = patient_data['Plan'].Name,
-                b = patient_data['Beamset'].DicomPlanLabel
+                pt=patient_data['Patient'].Name,
+                c=patient_data['Case'].CaseName,
+                e=patient_data['Exam'].Name,
+                p=patient_data['Plan'].Name,
+                b=patient_data['Beamset'].DicomPlanLabel
             ))
         else:
             logging.debug('Error in loading. {e}'.format(e=patient_data['Error']))
             continue
         output_filename = os.path.join(path, patient_id
-                                            + '_'
-                                            + case_name
-                                            + '_'
-                                            + plan_name
-                                            + '_'
-                                            + beamset_name
-                                            + '.json')
+                                       + '_'
+                                       + case_name
+                                       + '_'
+                                       + plan_name
+                                       + '_'
+                                       + beamset_name
+                                       + '.json')
         # Start building the data dictionary
         data_dict = {'PatientID': patient_id,
-                     'Case':case_name,
-                     'PlanName':plan_name,
-                     'BeamsetName':beamset_name}
+                     'Case': case_name,
+                     'PlanName': plan_name,
+                     'BeamsetName': beamset_name}
         # If there are no goals in this plan, look for another copy of this plan with
         # the optional name given in the input.
         # Copy goals to clinical plan
@@ -344,25 +350,22 @@ def main():
         patient_data['Beamset'].FractionDose.UpdateDoseGridStructures()
         patient_data['Plan'].TreatmentCourse.TotalDose.UpdateDoseGridStructures()
         # Find any structure for which there was a clinical goal
-        data_dict['goals']= get_clinical_goal(patient_data['Plan'], roi_name=None)
+        data_dict['goals'] = get_clinical_goal(patient_data['Plan'], roi_name=None)
         # Get target and roi DVH data
         target_list = StructureOperations.find_targets(patient_data['Case'])
         rois_list = StructureOperations.find_organs_at_risk(patient_data['Case'])
         for t in target_list:
-           data = get_dvh(roi_name=t, plan = patient_data['Plan'],precision=0.001)
-           list_data = data.tolist()
-           data_dict[t + '_DVH'] = list_data
+            data = get_dvh(roi_name=t, plan=patient_data['Plan'], precision=0.001)
+            list_data = data.tolist()
+            data_dict[t + '_DVH'] = list_data
         for r in rois_list:
-           data = get_dvh(roi_name=r, plan = patient_data['Plan'],precision=0.001)
-           list_data = data.tolist()
-           data_dict[r + '_DVH'] = list_data
+            data = get_dvh(roi_name=r, plan=patient_data['Plan'], precision=0.001)
+            list_data = data.tolist()
+            data_dict[r + '_DVH'] = list_data
 
         with open(output_filename, 'w') as fp:
             json.dump(data_dict, fp)
         with open(output_filename, 'r') as fp:
             in_data_dict = json.load(fp)
-
-
-
 
     # Clinical goals

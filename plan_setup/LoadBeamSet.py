@@ -48,7 +48,10 @@ from collections import namedtuple
 from library.api.api_utils import find_scope, get_machine
 from GeneralOperations import logcrit
 from StructureOperations import find_types
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 
 PROTOCOL_FOLDER = r'../protocols'
 INSTITUTION_FOLDER = r'UW'

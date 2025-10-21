@@ -30,6 +30,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import sys
 import logging
 import time
+import math
 
 import connect
 import UserInterface
@@ -311,18 +312,18 @@ def main():
                                   f' are {alpha}, {beta}, {gamma}')
                     #
                     # Determine if the DICOM origin was chosen for the set-up location
-                    poi_geometry = beamset.PatientSetup.LocalizationPoiGeometrySource.PoiGeometries[0]
+                    poi_geometry = beamset.PatientSetup.PatientSetupDevice.SetupReferencePoint
                     poi_coordinates = [poi_geometry.Point.x,
                                        poi_geometry.Point.y,
                                        poi_geometry.Point.z]
-                    if all(c == 0 for c in poi_coordinates):
+                    if all(math.isclose(c, 0) for c in poi_coordinates):
                         iso_lat = beamset.Beams[0].Isocenter.Position.x
                         iso_vert = beamset.Beams[0].Isocenter.Position.y
                         iso_long = beamset.Beams[0].Isocenter.Position.z
                         t = [
-                            (gamma - iso_lat) * 10.,
-                            (beta - iso_long) * 10.,
                             (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
+                            (beta - iso_long) * 10.,
+                            (gamma - iso_lat) * 10.,
                         ]
                     logging.debug('Table positions updated to {}'.format(t))
                 else:
@@ -357,8 +358,8 @@ def main():
                                machine=response['c'],
                                table=t,
                                # round_jaws=filters[2] in response['e'],
-                               prescription=create_reference_point,
-                               ref_point_location=ref_point_location,
+                               aria_prescription_filters=create_reference_point,
+                               no_ref_point_location=ref_point_location,
                                block_accessory=block_accessory,
                                block_tray_id=block_tray_id,
                                pa_threshold=pa_threshold,

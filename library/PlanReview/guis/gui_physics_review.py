@@ -1,6 +1,10 @@
 # Import necessary modules and functions
 import logging
-import PySimpleGUI as Sg
+import connect
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 from PlanReview.review_definitions import PROTOCOL_DIR
 from PlanReview.utils import (get_user_name, get_roi_names_from_type,
                               get_user_display_parameters)
@@ -129,7 +133,6 @@ def launch_physics_review_gui(rso, relaunch=False, review_type='Physics'):
     # Variable initialization
     # GUI setup
     gui_state_manager.gui_dict = initialize_gui_dict(review_type=review_type)
-
     #
     # First Frame:
     gui_state_manager.protocols = load_protocols(PROTOCOL_DIR)
@@ -143,7 +146,8 @@ def launch_physics_review_gui(rso, relaunch=False, review_type='Physics'):
     if targets:
         gui_state_manager.maximum_target_number = len(targets)
     else:
-        gui_state_manager.maximum_target_number = 10
+        raise ValueError('No target structures (PTV or GTV) found in plan. '
+                         'Please add target structures and relaunch the review.')
     # Top frame
     top, top_events = build_top_buttons(gui_state_manager.gui_dict['save_space'],
                                         review_type=gui_state_manager.review_type)

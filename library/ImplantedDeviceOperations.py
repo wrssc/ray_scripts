@@ -2,6 +2,10 @@ import numpy as np
 from scipy.spatial import distance
 from scipy.spatial.transform import Rotation as R
 import pandas as pd
+import time
+import logging
+from StructureOperations import exists_poi
+
 
 TB_STX_LEAF_CENTERS = np.array(
     [
@@ -469,7 +473,7 @@ def get_isoplane_projection_of_points(
     e_s = np.matmul(rot_z, np.array([0, 1, 0]).transpose())
 
     # Define a vector, S, −s*e_s, where e_s is the unit vector from
-    # S to the origin(isocenter) and s is the source-to-axis distance (SAD)
+    # the origin(isocenter) to the source and s is the source-to-axis distance (SAD)
     s = SAD
     S = -s * e_s
 
@@ -479,7 +483,7 @@ def get_isoplane_projection_of_points(
     # Define e_u as the third basis vector using a cross product
     e_u = -np.cross(e_v, e_s)  # DOUBLE CHECK FOR SIGN
 
-    # Generate a rotation matrix to account for gantry angle
+    # Generate a rotation matrix to account for couch angle
     rot_y = R.from_euler(
         "y", list_of_couch_angles, degrees=True
     ).as_matrix()  # DOUBLE CHECK FOR SIGN
@@ -497,13 +501,13 @@ def get_isoplane_projection_of_points(
     We will construct a rotation matrix using R.from_rotvec function from scipy, then 
     update e_u and e_v based on the user-provided collimator angle
     """
-    coll_rad = -list_of_collimator_angles * np.pi / 180.0  # DOUBLE CHECK FOR SIGN
+    coll_rad = -list_of_collimator_angles * np.pi / 180.0  # DOUBLE CHECK SIGN
     rot_coll = R.from_rotvec(np.matmul(np.diag(coll_rad), e_s)).as_matrix()
     e_u = np.einsum("...ij,...j", rot_coll, e_u)
     e_v = np.einsum("...ij,...j", rot_coll, e_v)
 
     """
-    We now have our coordinate system in the BEV. The next step is to 
+    We now have our coordinate system in the BEV. The next step is to
     calculate the transformation between Cartesian and BEV coordinates.
     We will use the equations in the following publication:
     https://iopscience.iop.org/article/10.1088/0031-9155/55/23/002/meta
@@ -537,6 +541,141 @@ def get_isoplane_projection_of_points(
     return (u, v, r)
 
 
+def get_isoplane_projection_of_points_verbose(
+    list_of_points,
+    list_of_gantry_angles=np.array([0]),
+    list_of_collimator_angles=np.array([0]),
+    list_of_couch_angles=np.array([0]),
+    SAD=100,
+):
+    """Projects a list of points into the beams-eye-view
+
+    PARAMETERS
+    ----------
+    list_of_points : np.array
+        An Mx3 numpy array containing M points. Each row is a point in
+        Cartesian coordinates.
+    list_of_gantry_angles : np.array
+        An Nx1 numpy array containing N gantry angles, one for each of the N
+        control points in plan. (degrees, IEC 61217) (default is [0])
+    list_of_collimator_angles : np.array
+        An Nx1 numpy array containing N collimator angles, one for each of the
+        N control points in plan. (degrees, IEC 61217) (default is [0])
+    list_of_couch_angles : np.array
+        An Nx1 numpy array containing N couch angles, one for each of the
+        N control points in plan. (degrees, IEC 61217) (default is [0])
+    SAD : float
+        The machine source-to-axis distance in cm (default is 100)
+
+    RETURNS
+    -------
+    tuple : (np.array, np.array, np.array)
+        Returns u, v and r, all MxN matrices. u and v are BEV coordinates for
+        the M structure points and N control points, and r is the distance from
+        each point to the source.
+    """
+
+    """
+    First, we are going to define an orthogonal coordinate system.
+    Vectors e_u and e_v define the BEV plane, while e_s defines
+    the central axis of the beam
+    """
+
+    assert isinstance(
+        list_of_gantry_angles, np.ndarray
+    ), "list_of_gantry_angles must be an np.array"
+    assert isinstance(
+        list_of_collimator_angles, np.ndarray
+    ), "list_of_collimator_angles must be an np.array"
+    assert isinstance(
+        list_of_couch_angles, np.ndarray
+    ), "list_of_couch_angles must be an np.array"
+    assert len(list_of_gantry_angles) == len(
+        list_of_collimator_angles
+    ), "list_of_gantry_angles and list_of_collimator_angles must have same length"
+    assert len(list_of_gantry_angles) == len(
+        list_of_couch_angles
+    ), "list_of_gantry_angles and list_of_couch_angles must have same length"
+
+    # Generate a rotation matrix to account for gantry angle
+    rot_z = R.from_euler(
+        "z", list_of_gantry_angles, degrees=True
+    ).as_matrix()  # DOUBLE CHECK FOR SIGN
+
+    # Define a unit vector, e_s, that points from the origin to the
+    # photon source. We start with a vector pointing in the positive y
+    # direction, then rotate it around the z-axis by the gantry angle
+    e_s = np.matmul(rot_z, np.array([0, 1, 0]).transpose())
+
+    # Define a vector, S, −s*e_s, where e_s is the unit vector from
+    # the origin(isocenter) to the source and s is the source-to-axis distance (SAD)
+    s = SAD
+    S = -s * e_s
+
+    # Define e_v, which points in the positive z direction, as another basis vector
+    e_v = np.array([0, 0, 1]).transpose()
+
+    # Define e_u as the third basis vector using a cross product
+    e_u = -np.cross(e_v, e_s)  # DOUBLE CHECK FOR SIGN
+
+    # Generate a rotation matrix to account for couch angle
+    rot_y = R.from_euler(
+        "y", list_of_couch_angles, degrees=True
+    ).as_matrix()  # DOUBLE CHECK FOR SIGN
+
+    # Rotate e_s, e_v, e_u, S about the y-axis to account for couch rotation
+    e_s = np.einsum("...ij,...j", rot_y, e_s)
+    e_v = np.einsum("...ij,...j", rot_y, e_v)
+    e_u = np.einsum("...ij,...j", rot_y, e_u)
+    S = np.einsum("...ij,...j", rot_y, S)
+
+    """
+    e_u and e_v define the beams-eye-view plane perpendicular to the source-origin axis
+    Right now, it is oriented with e_v in the z-direction. This will give the correct BEV at 
+    collimator angle zero, but we need to rotate e_u and e_v for other collimator angles.
+    We will construct a rotation matrix using R.from_rotvec function from scipy, then 
+    update e_u and e_v based on the user-provided collimator angle
+    """
+    coll_rad = -list_of_collimator_angles * np.pi / 180.0  # DOUBLE CHECK SIGN
+    rot_coll = R.from_rotvec(np.matmul(np.diag(coll_rad), e_s)).as_matrix()
+    e_u = np.einsum("...ij,...j", rot_coll, e_u)
+    e_v = np.einsum("...ij,...j", rot_coll, e_v)
+
+    """
+    We now have our coordinate system in the BEV. The next step is to
+    calculate the transformation between Cartesian and BEV coordinates.
+    We will use the equations in the following publication:
+    https://iopscience.iop.org/article/10.1088/0031-9155/55/23/002/meta
+    P = Matrix of points in Cartesian coordiantes
+    P_0 = The points of P projected onto an isocenter plane orthogonal to e_s
+
+    From this, we can calculate the BEV coodinates u and v
+    u = P_0 dot e_u
+    v = P_0 dot e_v
+
+    The distance from the source (S) to the points (P) is also valuable. We will
+    call this r = ||(P-S)||. This value is useful for determining if a given point is
+    in front of or behind isocenter (or other stuff in the BEV)
+    """
+    P = list_of_points
+
+    # Supersize S and P for broadcasting
+    SS = S[None, :, :]
+    PP = P[:, None, :]
+
+    PP_minus_SS = PP - SS
+    PP_0 = (
+        SS
+        - (s**2) * (PP_minus_SS) / np.einsum("...k,...k", PP_minus_SS, SS)[:, :, None]
+    )
+    u = np.einsum("...k,...k", PP_0, e_u)
+    v = np.einsum("...k,...k", PP_0, e_v)
+    r = np.linalg.norm(PP_minus_SS, axis=2)
+
+    # Return
+    return (u, v, r, e_u, e_v, e_s)
+
+
 def distance_from_jaws(x, y, list_of_rectangles):
     """Takes a list of N points x and y and returns the distance from M rectangles
 
@@ -552,8 +691,8 @@ def distance_from_jaws(x, y, list_of_rectangles):
 
     RETURNS
     -------
-    np.array of Bool (NxM)
-    True if point is inside limits, else False.
+    np.array (NxM)
+    Distance from each point (N) to the jaws for each control point (M)
     """
 
     assert isinstance(x, np.ndarray), "x must be an np.array"
@@ -578,12 +717,62 @@ def distance_from_jaws(x, y, list_of_rectangles):
     return np.sqrt(dx * dx + dy * dy)
 
 
+def distance_from_jaws_verbose(x, y, list_of_rectangles):
+    """Takes a list of N points x and y and returns the distance from M rectangles
+
+    PARAMETERS
+    ----------
+    x : np.array
+        A numpy array of NxM values.
+    y : np.array
+        A numpy array of NxM values.
+    list_of_rectangles : np.array
+        A numpy array of Mx4 values. Each of the M rows is a list of
+        boundaries [xmin, xmax, ymin, ymax] for each rectangle
+
+    RETURNS
+    -------
+    np.array (NxM)
+    Distance from each point (N) to the jaws for each control point (M)
+    """
+
+    assert isinstance(x, np.ndarray), "x must be an np.array"
+    assert isinstance(y, np.ndarray), "y must be an np.array"
+    assert isinstance(
+        list_of_rectangles, np.ndarray
+    ), "list_of_rectangles must be an np.array"
+    assert x.shape == y.shape, "x and y must have same shape"
+    assert (
+        x.shape[1] == list_of_rectangles.shape[0]
+    ), "axis=1 of x,y must match axis=0 of list_of_rectangles"
+
+    xmin = list_of_rectangles[:, 0]
+    xmax = list_of_rectangles[:, 1]
+    ymin = list_of_rectangles[:, 2]
+    ymax = list_of_rectangles[:, 3]
+
+    zeros = np.zeros(x.shape)
+    dx = np.maximum.reduce([xmin[None, :] - x, zeros, x - xmax[None, :]])
+    dy = np.maximum.reduce([ymin[None, :] - y, zeros, y - ymax[None, :]])
+
+    return np.sqrt(dx * dx + dy * dy), dx, dy
+
+
 def get_device_dist_to_field_edge(
     case,
     beam_set,
     examination,
     roi_name,
 ):
+
+    verbose_output = True
+
+    def report_runtime(start_time, label):
+        elapsed_time = time.time() - start_time
+        logging.debug(f"{label}: {elapsed_time:.2f} seconds")
+
+    start_time = time.time()
+
     list_of_cp_descriptions = []
     list_of_gant_angles = []
     list_of_coll_angles = []
@@ -592,6 +781,8 @@ def get_device_dist_to_field_edge(
     list_of_MLC_positions = []
     iso_np = np.array(list(beam_set.Beams[0].Isocenter.Position.values()))
 
+    report_runtime(start_time, "Starting collection of beam data.")
+
     for beam in beam_set.Beams:
         beam_desc = beam.Name
 
@@ -599,7 +790,7 @@ def get_device_dist_to_field_edge(
         Y1, Y2 = Y_LEAF_BOUNDS[machine_name]
 
         for segment in beam.Segments:
-            segment_desc = segment.SegmentNumber + 1 # +1 since CPs start at 1 in RS
+            segment_desc = segment.SegmentNumber + 1  # +1 since CPs start at 1 in RS
             segment_string = f"{beam_desc}, Control Point {segment_desc}: "
             segment_string += (
                 f"Gantry = {beam.GantryAngle + segment.DeltaGantryAngle} deg, "
@@ -634,6 +825,9 @@ def get_device_dist_to_field_edge(
         list_of_MLC_positions, (list_of_MLC_positions.shape[0] // 60, 60, 4)
     )
 
+    report_runtime(start_time, "Completed collection of beam data.")
+    report_runtime(start_time, "Starting collection of ROI data.")
+
     organ_list = [roi_name]
     organs = [
         case.PatientModel.StructureSets[examination.Name].RoiGeometries[organ]
@@ -641,22 +835,93 @@ def get_device_dist_to_field_edge(
     ]
     organ_coords = convert_roi_geometries_to_list_of_points(organs) - iso_np
 
-    u, v, _ = get_isoplane_projection_of_points(
-        organ_coords,
-        list_of_gantry_angles=list_of_gant_angles,
-        list_of_collimator_angles=list_of_coll_angles,
-        list_of_couch_angles=list_of_couch_angles,
-    )
+    report_runtime(start_time, "Completed collection of ROI data.")
+    report_runtime(start_time, "Starting projection of ROI data into BEV.")
 
-    rect_dist = distance_from_jaws(u, v, list_of_jaw_positions)
+    if verbose_output:
+        (u, v, r, e_u, e_v, e_s) = get_isoplane_projection_of_points_verbose(
+            organ_coords,
+            list_of_gantry_angles=list_of_gant_angles,
+            list_of_collimator_angles=list_of_coll_angles,
+            list_of_couch_angles=list_of_couch_angles,
+        )
+    else:
+        u, v, _ = get_isoplane_projection_of_points(
+            organ_coords,
+            list_of_gantry_angles=list_of_gant_angles,
+            list_of_collimator_angles=list_of_coll_angles,
+            list_of_couch_angles=list_of_couch_angles,
+        )
+
+    report_runtime(start_time, "Completed projection of ROI data into BEV.")
+    report_runtime(start_time, "Starting calculation of distances from collimator.")
+
+    if verbose_output:
+        rect_dist, du, dv = distance_from_jaws_verbose(u, v, list_of_jaw_positions)
+    else:
+        rect_dist = distance_from_jaws(u, v, list_of_jaw_positions)
+
+    report_runtime(start_time, "Completed calculation of distances from collimator.")
+    report_runtime(start_time, "Starting determination of min value")
 
     # Construct string
     min_dist = np.min(rect_dist, axis=None)
     roi_point, control_point = np.unravel_index(
         np.argmin(rect_dist, axis=None), rect_dist.shape
     )
+    if verbose_output:
 
-    min_dist_description = f"The minimum distance of {min_dist} cm occurred for {list_of_cp_descriptions[control_point]}. The DICOM location of nearest approach is {organ_coords[roi_point]+iso_np}"
+        # Delete any current POIs pertaining to CIEDs
+        cied_pois = ["Closest Approach - CIED", "Closest Approach - Ray"]
+
+        for poi in cied_pois:
+            if exists_poi(case=case, pois=poi)[0]:
+                case.PatientModel.PointsOfInterest[poi].DeleteRoi()
+
+        # Create POI at ROI location of closest approach
+        xyz_closest_approach = organ_coords[roi_point] + iso_np
+        case.PatientModel.CreatePoi(
+            Examination=examination,
+            Point={
+                "x": xyz_closest_approach[0],
+                "y": xyz_closest_approach[1],
+                "z": xyz_closest_approach[2],
+            },
+            Name="Closest Approach - CIED",
+            Color="Yellow",
+            VisualizationDiameter=0.1,
+            Type="DoseRegion",
+        )
+        # Create POI at the ray of closest approach
+        mag_factor = r[roi_point, control_point] / 100
+
+        if u[roi_point, control_point] > list_of_jaw_positions[control_point, 1]:
+            u_shift = -mag_factor * du[roi_point, control_point] * e_u[control_point]
+        else:
+            u_shift = mag_factor * du[roi_point, control_point] * e_u[control_point]
+
+        if v[roi_point, control_point] > list_of_jaw_positions[control_point, 3]:
+            v_shift = -mag_factor * dv[roi_point, control_point] * e_v[control_point]
+        else:
+            v_shift = mag_factor * dv[roi_point, control_point] * e_v[control_point]
+
+        xyz_closest_ray = xyz_closest_approach + u_shift + v_shift
+        case.PatientModel.CreatePoi(
+            Examination=examination,
+            Point={
+                "x": xyz_closest_ray[0],
+                "y": xyz_closest_ray[1],
+                "z": xyz_closest_ray[2],
+            },
+            Name="Closest Approach - Ray",
+            Color="Yellow",
+            VisualizationDiameter=0.1,
+            Type="DoseRegion",
+        )
+
+    report_runtime(start_time, "Completed determination of min value.")
+
+    min_dist_description = f"The minimum distance of {min_dist} cm occurred for {list_of_cp_descriptions[control_point]}.\nThe DICOM location of nearest approach is {organ_coords[roi_point]+iso_np}"
 
     return np.min(rect_dist), min_dist_description
 

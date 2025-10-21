@@ -29,6 +29,7 @@ def check_image_extent(rso, **kwargs):
     #
     # Nice strings for output
     z_str = '[' + ('%.2f ' * len(z_extent)) % tuple(z_extent) + ']'
+    t_str_exact = '[' + ('%.2f ' * len(target_extent)) % tuple(target_extent) + ']'
     t_str = '[' + ('%.2f ' * len(buffered_target_extent)) % tuple(buffered_target_extent) + ']'
     if not target_extent:
         message_str = 'No targets found of type Ptv, image extent could not be evaluated'
@@ -39,9 +40,9 @@ def check_image_extent(rso, **kwargs):
                       f'{t_str}'
         pass_result = PASS
     elif z_extent[1] < buffered_target_extent[1] or z_extent[0] > buffered_target_extent[0]:
-        message_str = f'Planning Image extent:{z_str} is insufficient for' \
-                      f' accurate calculation. (SMALLER THAN than S/I target' \
-                      f' extent: {t_str} \xB1 {buffer:.1f} cm)'
+        message_str = f'Planning Image extent:{z_str} insufficient for' \
+                      f' accuracy. (Smaller than target' \
+                      f' extent: {t_str_exact} \xB1 {buffer:.1f} cm)'
         pass_result = FAIL
     else:
         message_str = 'Target length could not be compared to image set'

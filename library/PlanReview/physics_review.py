@@ -74,19 +74,10 @@
            * Added a check for the front page data of the number of fractions and the prescription dose
 
 
-
-
-
-
-
-    PRERELEASE:
-    TODO: Fix the slice spacing check to pick just the pertinent technique
-    TODO: Need a required prompt for all entries in the first tab
     TESTS:
     TODO: Add a check on MU/rx in cGy and flag over the 5
     TODO: For GTV, and CTV types. Are these all within a PTV?
     POST RELEASE
-    TODO: WHEN ONLY ONE BEAMSET IN PLAN DEFAULT TO IT.
     TODO: ADD TYPE CHECK TO THE GTV LIST RATHER THAN JUST A REGEX.
     TODO: ADD BRAIN 1mm language
     TODO: HIGHLIGHT FRAMES THAT SHOULD BE FILLED IN AS RED
@@ -167,6 +158,7 @@
         consideration of the pre-logcrit syntax and post-logcrit syntax
     Individual Test improvements:
     TODO: Contour gap check need only include human-drawn contours
+    TODO: Eliminate TBI targets from the contour interpolation check
 
 
 
@@ -205,7 +197,10 @@ __credits__ = ['']
 
 import sys
 import os
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 import logging
 from collections import namedtuple
 from library.api.api_utils import find_scope
@@ -241,7 +236,7 @@ def physics_review(do_physics_review=True, review_type='Physics'):
              -- Logs
     """
     # Initialize return variable
-    Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan',
+    Pd = namedtuple('Pd', ['error', 'db', 'machine_db', 'case', 'patient', 'exam', 'plan',
                            'beamset'])
     # Get current patient, case, exam
     rso = Pd(error=[],
@@ -249,6 +244,7 @@ def physics_review(do_physics_review=True, review_type='Physics'):
              case=find_scope(level='Case'),
              exam=find_scope(level='Examination'),
              db=find_scope(level='PatientDB'),
+             machine_db=find_scope(level='Machine'),
              plan=find_scope(level='Plan'),
              beamset=find_scope(level='BeamSet'))
     #
@@ -260,7 +256,7 @@ def physics_review(do_physics_review=True, review_type='Physics'):
 
     if not rso:
         # Initialize return variable
-        Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan',
+        Pd = namedtuple('Pd', ['error', 'db', 'machine_db', 'case', 'patient', 'exam', 'plan',
                                'beamset'])
         # Get current patient, case, exam
         rso = Pd(error=[],
@@ -268,6 +264,7 @@ def physics_review(do_physics_review=True, review_type='Physics'):
                  case=find_scope(level='Case'),
                  exam=find_scope(level='Examination'),
                  db=find_scope(level='PatientDB'),
+                 machine_db=find_scope(level='Machine'),
                  plan=find_scope(level='Plan'),
                  beamset=find_scope(level='BeamSet'))
     doc_only = False

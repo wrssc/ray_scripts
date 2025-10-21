@@ -28,7 +28,10 @@ __copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __credits__ = []
 
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 import re
 from library.api.api_utils import find_scope
 import DicomExport

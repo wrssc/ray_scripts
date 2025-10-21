@@ -15329,8 +15329,8 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>Pacemaker</name>
-        <TG263PrimaryName>Pacemaker</TG263PrimaryName>
+        <name>Block_Pacemaker</name>
+        <TG263PrimaryName>Block_Pacemaker</TG263PrimaryName>
         <Description>Pacemaker</Description>
         <NCIt></NCIt>
         <TargetType>Non_Anatomic</TargetType>
@@ -15338,11 +15338,11 @@
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Thorax</AnatomicGroup>
         <NCharacters>9</NCharacters>
-        <TG263ReverseOrderName>Pacemaker</TG263ReverseOrderName>
+        <TG263ReverseOrderName>Pacemaker_Block</TG263ReverseOrderName>
         <Export></Export>
         <FMAID></FMAID>
         <Color red="251" green="47" blue="132" Hex="#FB2F84">PinkPiano</Color>
-        <Alias></Alias>
+        <Alias>Pacemaker,pacemaker</Alias>
     </roi>
     <roi>
         <name>Pacemaker_PRVxx</name>
@@ -15362,7 +15362,7 @@
         <Alias>pacemaker_prv</Alias>
     </roi>
     <roi>
-        <name>Pacemaker_PRV10</name>
+        <name>Block_Pacemaker_PRV10</name>
         <TG263PrimaryName>Pacemaker_PRV10</TG263PrimaryName>
         <Description>Pacemaker expanded 10 mm as a planning risk volume</Description>
         <NCIt></NCIt>
@@ -15379,7 +15379,7 @@
         <Alias>pacemaker_prv10</Alias>
     </roi>
     <roi>
-        <name>Pacemaker_PRV50</name>
+        <name>Block_Pacemaker_PRV50</name>
         <TG263PrimaryName>Pacemaker_PRV50</TG263PrimaryName>
         <Description>Pacemaker expanded 50 mm as a planning risk volume</Description>
         <NCIt></NCIt>
@@ -15394,6 +15394,57 @@
         <FMAID></FMAID>
         <Color red="253" green="144" blue="203" Hex="#fd90cb">ShimmeringLove</Color>
         <Alias>pacemaker_prv50</Alias>
+    </roi>
+    <roi>
+        <name>ICD_PRV10</name>
+        <TG263PrimaryName>ICD_PRV10</TG263PrimaryName>
+        <Description>ICD expanded 10 mm as a planning risk volume</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>PRV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Thorax</AnatomicGroup>
+        <NCharacters>9</NCharacters>
+        <TG263ReverseOrderName>PRV10_ICD</TG263ReverseOrderName>
+        <Export>True</Export>
+        <FMAID></FMAID>
+        <Color red="253" green="144" blue="203" Hex="#fd90cb">ShimmeringLove</Color>
+        <Alias>icd_prv10</Alias>
+    </roi>
+    <roi>
+        <name>ICD_PRV25</name>
+        <TG263PrimaryName>ICD_PRV25</TG263PrimaryName>
+        <Description>ICD expanded 25 mm as a planning risk volume</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>PRV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Thorax</AnatomicGroup>
+        <NCharacters>9</NCharacters>
+        <TG263ReverseOrderName>PRV25_ICD</TG263ReverseOrderName>
+        <Export>True</Export>
+        <FMAID></FMAID>
+        <Color red="253" green="144" blue="203" Hex="#fd90cb">ShimmeringLove</Color>
+        <Alias>icd_prv25</Alias>
+    </roi>
+    <roi>
+        <name>ICD_PRV50</name>
+        <TG263PrimaryName>ICD_PRV50</TG263PrimaryName>
+        <Description>ICD expanded 50 mm as a planning risk volume</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>PRV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Thorax</AnatomicGroup>
+        <NCharacters>9</NCharacters>
+        <TG263ReverseOrderName>PRV50_ICD</TG263ReverseOrderName>
+        <Export>True</Export>
+        <FMAID></FMAID>
+        <Color red="253" green="144" blue="203" Hex="#fd90cb">ShimmeringLove</Color>
+        <Alias>icd_prv50</Alias>
     </roi>
     <roi>
         <name>Pericardium</name>

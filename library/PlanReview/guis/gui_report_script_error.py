@@ -1,4 +1,7 @@
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 from PlanReview.utils import get_user_name
 from PlanReview.utils.email_results import email_report, save_report, capture_screen
 

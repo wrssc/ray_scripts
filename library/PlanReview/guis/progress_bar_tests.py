@@ -1,4 +1,7 @@
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 
 
 def display_progress_bar(title_text='Progress on tests', progress_bar_text='Running tests...'):

@@ -59,11 +59,14 @@ import numpy as np
 import pandas as pd
 import xml.etree.ElementTree as Et
 import clr
+clr.AddReference("System.Drawing")
 import System.Drawing
 import sys
+from typing import List, Optional, Sequence
 from os import path, listdir
 from api.api_structures import delete_geometry
 
+# TODO: Reexamine this. Seems very odd we need hard coded system paths
 rab_git = "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts"
 sys.path.append(
     "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW")
@@ -79,7 +82,6 @@ INSTITUTION_FOLDER = r'UW'
 BEAMSET_FOLDER = r'beamset_templates'
 PATH_BEAMSETS = path.join(PROTOCOL_FOLDER, INSTITUTION_FOLDER, BEAMSET_FOLDER)
 
-clr.AddReference("System.Drawing")
 
 from GeneralOperations import logcrit as logcrit
 import UserInterface
@@ -1701,82 +1703,112 @@ def check_derivation(case, **kwargs):
     return True
 
 
-def create_prv(patient, case, examination, source_roi, df_TG263):
+def create_prv(
+    patient,
+    case,
+    examination,
+    source_roi: str,
+    df_TG263: pd.DataFrame,
+    name_prefixes: Sequence[str] = ("", "Block_"),
+) -> List[str]:
     """
-    :param case: RS Case Object
-    :param examination: RS Examination
-    :param source_roi: name of the structure to find a match to
-    :param df_TG263: dataframe for the TG-263 database (loaded with iter_standard_rois)
+    Create PRV structures from TG-263 rows that match:
+      ^(?:<prefixes>)?<source_roi>_PRV<mm>$
+
+    Args:
+        patient: RS Patient object.
+        case: RS Case object.
+        examination: RS Examination object.
+        source_roi: Base ROI name to expand (e.g., "Bladder", "Pacemaker").
+        df_TG263: DataFrame with at least columns: name, RGBColor, RTROIInterpretedType, ExcludeExport.
+        name_prefixes: Allowed name prefixes for PRV entries. Include "" to allow no prefix.
+
+    Returns:
+        Messages describing any issues.
     """
-    # df_source_roi = df_TG263[df_TG263.name == source_roi]
-    regex_prv = r"^" + source_roi + r"_PRV\d{2}$"
-    df_prv = df_TG263[df_TG263.name.str.match(regex_prv) == True]
-    msg = []
-    # If one or more PRVxx structure is found, loop over all rows in the matching
-    # DataFrame
-    if not df_prv.empty:
-        for i, r in df_prv.iterrows():
-            parsed_name = df_prv.loc[[i]].name.str.extract(
-                r"([a-zA-z_]+)([0-9]+)", re.IGNORECASE, expand=True
-            )
-            expansion_mm = int(parsed_name[1])
-            expansion_cm = expansion_mm / 10.0
-            prv_name = df_prv.loc[[i]].name.values[0]
-            if df_prv.loc[[i]].RGBColor.values[0] is not None:
-                prv_rgb = [int(x) for x in df_prv.loc[[i]].RGBColor.values[0]]
-            else:
-                prv_rgb = None
-            if df_prv.loc[[i]].RTROIInterpretedType.values[0] is not None:
-                prv_type = df_prv.loc[[i]].RTROIInterpretedType.values[0]
-            else:
-                prv_type = None
-            if df_prv.loc[[i]].ExcludeExport.values[0] is not None:
-                logging.debug(f"Export has a value {df_prv.loc[[i]].ExcludeExport.values[0]}, " +
-                              f"type {type(df_prv.loc[[i]].ExcludeExport.values[0])}")
-                export = df_prv.loc[[i]].ExcludeExport.values[0]
-            else:
-                logging.debug('No export value')
-                export = False
-
-            prv_exp_defs = {
-                "StructureName": prv_name,
-                "ExcludeFromExport": export,
-                "VisualizeStructure": False,
-                "StructColor": prv_rgb,
-                "OperationA": "Union",
-                "SourcesA": [source_roi],
-                "MarginTypeA": "Expand",
-                "ExpA": [expansion_cm] * 6,
-                "OperationB": "Union",
-                "SourcesB": [],
-                "MarginTypeB": "Expand",
-                "ExpB": [0] * 6,
-                "OperationResult": "None",
-                "MarginTypeR": "Expand",
-                "ExpR": [0] * 6,
-                "StructType": prv_type,
-            }
-            if any(exists_roi(case=case, rois=prv_name)):
-                roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
-                    prv_name
-                ]
-            else:
-                roi_geom = create_roi(
-                    case=case,
-                    examination=examination,
-                    roi_name=prv_name,
-                    delete_existing=True,
-                )
-
-            if roi_geom is not None:
-                make_boolean_structure(
-                    patient=patient, case=case, examination=examination, **prv_exp_defs
-                )
-            else:
-                msg.append(f"Unable to create {prv_name}")
+    # Build a single case-insensitive regex covering all prefixes safely.
+    # Example for source_roi="Pacemaker", prefixes ["", "Block_"]:
+    # ^(?:(?:Block_))?Pacemaker_PRV(\d{1,3})$
+    # Build escape strings from the prefixes to prevent user-entered characters from being interpreted as reg-ex
+    escaped_prefixes = [re.escape(p) for p in name_prefixes]
+    # If "" present, make prefix group optional.
+    if "" in name_prefixes:
+        non_empty = [p for p in escaped_prefixes if p]
+        prefix_pat = rf"(?:(?:{'|'.join(non_empty)}) )?" if non_empty else ""
+        # Remove accidental space if list was empty or only ""
+        prefix_pat = prefix_pat.replace(" )", ")")
     else:
+        prefix_pat = rf"(?:{'|'.join(escaped_prefixes)})"
+
+    # Es
+    src_pat = re.escape(source_roi)
+    regex_prv = rf"^{prefix_pat}{src_pat}_PRV(\d{{1,3}})$"
+
+    # Vectorized match and extraction,
+    mask = df_TG263["name"].str.match(regex_prv, case=False, na=False)
+    df_prv = df_TG263.loc[mask].copy()
+
+    msg: List[str] = []
+    if df_prv.empty:
         msg.append(f"{source_roi} does not need a planning risk volume")
+        return msg
+
+    # Extract integer margin in mm from capture group 1
+    df_prv["PRV_mm"] = (
+        df_prv["name"].str.extract(regex_prv, flags=re.IGNORECASE)[0].astype(int)
+    )
+
+    for _, r in df_prv.iterrows():
+        expansion_mm: int = int(r["PRV_mm"])
+        expansion_cm: float = expansion_mm / 10.0
+        prv_name: str = r["name"]
+
+        prv_rgb: Optional[List[int]] = (
+             [int(x) for x in r["RGBColor"]] if all(pd.notna(r.get("RGBColor"))) else None
+         )
+        prv_type: Optional[str] = (
+            str(r["RTROIInterpretedType"]) if pd.notna(r.get("RTROIInterpretedType")) else None
+        )
+
+        export = bool(r["ExcludeExport"]) if pd.notna(r.get("ExcludeExport")) else False
+        if pd.notna(r.get("ExcludeExport")):
+            logging.debug(f"ExcludeExport={r['ExcludeExport']} ({type(r['ExcludeExport'])})")
+        else:
+            logging.debug("No ExcludeExport value; defaulting to False")
+
+        prv_exp_defs = {
+            "StructureName": prv_name,
+            "ExcludeFromExport": export,
+            "VisualizeStructure": False,
+            "StructColor": prv_rgb,
+            "OperationA": "Union",
+            "SourcesA": [source_roi],           # expand the actual source structure
+            "MarginTypeA": "Expand",
+            "ExpA": [expansion_cm] * 6,
+            "OperationB": "Union",
+            "SourcesB": [],
+            "MarginTypeB": "Expand",
+            "ExpB": [0.0] * 6,
+            "OperationResult": "None",
+            "MarginTypeR": "Expand",
+            "ExpR": [0.0] * 6,
+            "StructType": prv_type,
+        }
+
+        if any(exists_roi(case=case, rois=prv_name)):
+            roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[prv_name]
+        else:
+            roi_geom = create_roi(
+                case=case, examination=examination, roi_name=prv_name, delete_existing=True
+            )
+
+        if roi_geom is not None:
+            make_boolean_structure(patient=patient, case=case, examination=examination, **prv_exp_defs)
+        else:
+            msg.append(f"Unable to create {prv_name}")
+
     return msg
+
 
 
 def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
@@ -2757,7 +2789,8 @@ def make_externalclean(
             suffix=suffix,
         )
     if not roi_geom.HasContours():
-        supports = find_types(case=case, roi_type="Support")
+        supports = find_types(case=case, roi_type="Fixation")
+        supports += find_types(case=case, roi_type="Support")
         if supports:
             ext_defs = {
                 "StructureName": structure_name,
@@ -2810,7 +2843,7 @@ def make_externalclean(
         RemoveSmallContours=True,
         AreaThreshold=0.1,
         ReduceMaxNumberOfPointsInContours=True,
-        MaxNumberOfPoints=3000,
+        MaxNumberOfPoints=2500,
         CreateCopyOfRoi=False,
         ResolveOverlappingContours=False,
     )
@@ -2874,6 +2907,7 @@ def trim_supports(patient, case, exam):
     # Inputs: RS Objects: patient, case, exam
     # returns: error: None if successful
     supports = find_types(case=case, roi_type='Support')
+    supports += find_types(case=case, roi_type='Fixation')
     allowed = ['TrueBeamCouch', 'TomoCouch']
     support_name = [s for s in supports if s in allowed]
     #
@@ -3389,7 +3423,10 @@ def find_order(protocol, order_name):
         return None
 
 
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 import os
 
 
@@ -3701,7 +3738,7 @@ def dialog_number_of_targets():
             "3": "Priority 1 goals present: Use Underdosing",
             "4": "Targets overlap sensitive structures: Use UniformDoses",
             "5": "Use InnerAir to avoid high-fluence due to cavities",
-            # '6': "Select plan type"
+            '6': "Select plan type"
         },
         title="Planning Structures and Goal Selection",
         datatype={
@@ -3709,19 +3746,19 @@ def dialog_number_of_targets():
             "3": "check",
             "4": "check",
             "5": "check",
-            # '6': "combo"},
+            '6': "combo",
         },
         initial={
             "1": "0",
             "2": "0",
             "5": ["yes"],
-            # '6': ["Concurrent"]
+            '6': ["Concurrent"]
         },
         options={
             "3": ["yes"],
             "4": ["yes"],
             "5": ["yes"],
-            # '6': ["Concurrent",
+            '6': ["Concurrent", "Multiple Separate Targets", ]# "Sequential Primary+Boost(s)"],
             #       "Sequential Primary+Boost(s)",
             #       "Multiple Separate Targets"],
         },
@@ -3733,12 +3770,12 @@ def dialog_number_of_targets():
     # Parse number of targets
     planning_structures.number_of_targets = int(dialog1_response["1"])
     planning_structures.first_target_number = int(dialog1_response["2"])
-    # if dialog1_response['6'] == "Concurrent":
-    #     planning_structures.plan_type = "Concurrent"
-    # elif dialog1_response['6'] == "Sequential Primary+Boost(s)":
-    #     planning_structures.plan_type = "Sequential"
-    # else:
-    #     planning_structures.plan_type = "Multi"
+    if dialog1_response['6'] == "Concurrent":
+        planning_structures.plan_type = "Concurrent"
+    elif dialog1_response['6'] == "Sequential Primary+Boost(s)":
+        planning_structures.plan_type = "Sequential"
+    else:
+        planning_structures.plan_type = "Multi"
     # User selected that Underdose is required
     if "yes" in dialog1_response["3"]:
         planning_structures.use_under_dose = True
@@ -3996,13 +4033,19 @@ def planning_structures(
     generate_underdose = planning_structure_selections.use_under_dose
     generate_uniformdose = planning_structure_selections.use_uniform_dose
     generate_inner_air = planning_structure_selections.use_inner_air
+    if hasattr(planning_structure_selections, 'plan_type') and \
+            planning_structure_selections.plan_type in ["Concurrent", "Sequential", "Multi"]:
+        plan_type = planning_structure_selections.plan_type
+    else:
+        plan_type = "Concurrent"
     logging.debug(
         f"Planning structures will use "
         f"{planning_structure_selections.number_of_targets} targets, "
         f"UnderDose (Priority 1 Goals) "
         f"{planning_structure_selections.use_under_dose}, "
         f"UniformDose {planning_structure_selections.use_uniform_dose},"
-        f" Inner volumes of air {planning_structure_selections.use_inner_air}"
+        f" Inner volumes of air {planning_structure_selections.use_inner_air},"
+        f" plan type {plan_type}"
     )
 
     # Determine if targets using the skin are in place
@@ -4464,7 +4507,7 @@ def planning_structures(
         for i, t in enumerate(input_source_list):
             logging.debug(f"Creating target {target_dict['PTVList'][i]} using {t}")
             ptv_sources.append(t)
-            if i == 0:
+            if i == 0 or plan_type == "Multi":
                 ptv_definitions = {
                     "StructureName": target_dict['PTVList'][i],
                     "ExcludeFromExport": True,
@@ -4509,7 +4552,9 @@ def planning_structures(
                 patient=patient, case=case, examination=examination, **ptv_definitions
             )
             newly_generated_rois.append(ptv_definitions.get("StructureName"))
-            subtract_targets.append(target_dict['PTVList'][i])
+            if plan_type != "Multi":
+                # Add the current target to the list of targets to be subtracted from the next target
+                subtract_targets.append(target_dict['PTVList'][i])
 
     # Make the InnerAir structure
     if generate_inner_air:
@@ -4648,14 +4693,14 @@ def planning_structures(
             )
             md_eval_subtract.append(t)
             newly_generated_rois.append(PTVEval_defs.get("StructureName"))
-
-        for index, target in enumerate(target_dict['PTVList']):
-            logging.debug(
+        if plan_type != "Multi":
+            for index, target in enumerate(target_dict['PTVList']):
+                logging.debug(
                 f"Creating evaluation target {str(index + 1)}: "
                 f"{target_dict['PTVEvalList'][index]}"
-            )
-            # Set the Sources Structure for Evals
-            PTVEval_defs = {
+                )
+                # Set the Sources Structure for Evals
+                PTVEval_defs = {
                 "StructureName": target_dict['PTVEvalList'][index],
                 "ExcludeFromExport": False,
                 "VisualizeStructure": False,
@@ -4673,12 +4718,12 @@ def planning_structures(
                 "ExpR": [0] * 6,
                 "StructType": "Ptv",
             }
-            make_boolean_structure(
-                patient=patient, case=case, examination=examination, **PTVEval_defs
-            )
-            newly_generated_rois.append(PTVEval_defs.get("StructureName"))
-            # Append the current target to the list of targets to subtract in the next iteration
-            eval_subtract.append(target)
+                make_boolean_structure(
+                    patient=patient, case=case, examination=examination, **PTVEval_defs
+                )
+                newly_generated_rois.append(PTVEval_defs.get("StructureName"))
+                # Append the current target to the list of targets to subtract in the next iteration
+                eval_subtract.append(target)
 
     # Generate the OTV's
     # Build a region called z_derived_not_exp_underdose that
@@ -4733,7 +4778,7 @@ def planning_structures(
                 "ExpR": [0] * 6,
                 "StructType": "Ptv",
             }
-            if index == 0:
+            if index == 0 or plan_type == "Multi":
                 OTV_defs["SourcesB"] = []
                 OTV_defs["OperationResult"] = "None"
                 OTV_defs["ExpB"] = [0] * 6
@@ -4745,7 +4790,9 @@ def planning_structures(
             make_boolean_structure(
                 patient=patient, case=case, examination=examination, **OTV_defs
             )
-            otv_subtract.append(target_dict['PTVList'][index])
+            if plan_type != "Multi":
+                # Add the current target to the list of targets to be subtracted from the next target
+                otv_subtract.append(target_dict['PTVList'][index])
             newly_generated_rois.append(OTV_defs.get("StructureName"))
 
         # make the sOTVu structures now
@@ -4909,8 +4956,9 @@ def planning_structures(
                 patient=patient, case=case, examination=examination, **target_ring_defs
             )
             newly_generated_rois.append(target_ring_defs.get("StructureName"))
-            # Append the current target to the list of targets to subtract in the next iteration
-            ring_avoid_subtract.append(target_ring_defs.get("StructureName"))
+            if plan_type != "Concurrent":
+                # Append the current target to the list of targets to subtract in the next iteration
+                ring_avoid_subtract.append(target_ring_defs.get("StructureName"))
 
     else:
         # Ring_HD

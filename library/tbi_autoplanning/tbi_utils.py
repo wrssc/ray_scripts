@@ -1,0 +1,403 @@
+# Define a function to extract the number from the string using a regex
+from dataclasses import dataclass, replace
+import logging
+import connect
+from typing import TYPE_CHECKING, Tuple, Optional
+
+if TYPE_CHECKING:
+    try:
+        from connect.connect_cpython import PyScriptObject
+    except ImportError:
+        PyScriptObject = object
+else:
+    PyScriptObject = object
+
+import library.GeneralOperations as GeneralOperations
+from library.StructureOperations import make_externalclean, check_roi
+
+from .tbi_definitions import EXTERNAL_NAME, HFS_VMAT_PLAN_NAME, HFS_VMAT_BEAMSET_NAME, \
+    FFS_VMAT_PLAN_NAME, FFS_VMAT_BEAMSET_NAME, HFS_TOMO_PLAN_NAME, HFS_TOMO_BEAMSET_NAME, FFS_TOMO_PLAN_NAME, \
+    FFS_TOMO_BEAMSET_NAME
+
+
+@dataclass
+class Pd:
+    error: list
+    db: object  # PyScriptObject
+    case: object  # PyScriptObject
+    patient: object  # PyScriptObject
+    exam: object  # PyScriptObject
+    plan: object  # PyScriptObject
+    beamset: object  # PyScriptObject
+
+
+def register_images(pd_hfs: Pd, pd_ffs: Pd, hfs_scan_name: str, ffs_scan_name: str, testing: bool) -> None:
+    """
+    Register HFS and FFS images, performing rigid registration if not already approved.
+
+    Args:
+        pd_hfs (Pd): Patient data for head-first supine.
+        pd_ffs (Pd): Patient data for feet-first supine.
+        hfs_scan_name (str): Name of the HFS scan.
+        ffs_scan_name (str): Name of the FFS scan.
+        testing (bool): If True, skip registration and only clean externals.
+
+    Returns:
+        None
+    """
+    if not testing:
+        # Make external clean on both
+        ext_clean = make_externalclean(
+            patient=pd_hfs.patient,
+            case=pd_hfs.case,
+            examination=pd_hfs.exam,
+            structure_name=EXTERNAL_NAME,
+            suffix=None,
+            delete=False,
+        )
+        # If this breaks on a clean scan, we will want to see if this exam has contours
+        ext_clean = make_externalclean(
+            patient=pd_ffs.patient,
+            case=pd_ffs.case,
+            examination=pd_ffs.exam,
+            structure_name=EXTERNAL_NAME,
+            suffix=None,
+            delete=False,
+        )
+
+    approved = check_registration(pdata_hfs=pd_hfs, pdata_ffs=pd_ffs, allow_missing=True)
+
+    if not approved:
+        pd_ffs.case.ComputeGrayLevelBasedRigidRegistration(
+            FloatingExaminationName=hfs_scan_name,
+            ReferenceExaminationName=ffs_scan_name,
+            UseOnlyTranslations=False,
+            HighWeightOnBones=False,
+            InitializeImages=True,
+            FocusRoisNames=[],
+            RegistrationName=None)
+
+        # Refine on bones
+        pd_ffs.case.ComputeGrayLevelBasedRigidRegistration(
+            FloatingExaminationName=hfs_scan_name,
+            ReferenceExaminationName=ffs_scan_name,
+            UseOnlyTranslations=False,
+            HighWeightOnBones=True,
+            InitializeImages=False,
+            FocusRoisNames=[],
+            RegistrationName=None)
+    else:
+        logging.info(f'Approved registration found between {pd_ffs.exam.Name} and {pd_hfs.exam.Name}.')
+
+
+def update_plan_and_beamset(pd: Pd, beamset_name: str, plan_name: Optional[str] = None) -> Pd:
+    """
+    Update the plan and beamset for the given patient data.
+
+    Args:
+        pd (Pd): Patient data dataclass.
+        beamset_name (str): Name of the beamset to update.
+        plan_name (Optional[str], optional): Name of the plan to update. Defaults to None.
+
+    Returns:
+        Pd: Updated patient data with new plan and beamset.
+    """
+    case = pd.case
+    if not plan_name:
+        plan = [p for p in case.TreatmentPlans if any(bs.DicomPlanLabel == beamset_name for bs in p.BeamSets)]
+        plan = plan[0]
+        beamset = [bs for bs in plan.BeamSets if bs.DicomPlanLabel == beamset_name][0]
+    else:
+        plan = [p for p in case.TreatmentPlans if p.Name == plan_name]
+        plan = plan[0]
+        beamset = [bs for bs in plan.BeamSets if bs.DicomPlanLabel == beamset_name][0]
+    if not plan or not beamset:
+        raise RuntimeError(f'Plan with beamset {beamset_name} not found')
+    pd = replace(pd, plan=plan, beamset=beamset)
+    return pd
+
+
+def set_current_plan_beamset(pd: Pd) -> None:
+    """
+    Set the current plan and beamset for the given patient data.
+
+    Args:
+        pd (Pd): Patient data dataclass.
+
+    Returns:
+        None
+    """
+    if pd.plan and pd.beamset:
+        pd.patient.Save()
+        pd.plan.SetCurrent()
+        pd.beamset.SetCurrent()
+
+
+def reset_primary_secondary(exam1: object, exam2: object) -> None:
+    """
+    Resets exam1 as primary and exam2 as secondary.
+
+    Args:
+        exam1 (object): The exam to set as primary.
+        exam2 (object): The exam to set as secondary.
+
+    Returns:
+        None
+    """
+    exam1.SetPrimary()
+    exam2.SetSecondary()
+
+
+def initialize_patient_data(hfs_exam: object, ffs_exam: object, vmat: bool = False, tomo: bool = False) -> Tuple[
+    Pd, Pd]:
+    """
+    Initialize patient data structures for HFS and FFS exams.
+
+    Args:
+        hfs_exam (object): The HFS exam object.
+        ffs_exam (object): The FFS exam object.
+        vmat (bool, optional): Whether to initialize for VMAT. Defaults to False.
+        tomo (bool, optional): Whether to initialize for Tomo. Defaults to False.
+
+    Returns:
+        Tuple[Pd, Pd]: Tuple of (pd_hfs, pd_ffs) patient data dataclasses.
+    """
+    case = GeneralOperations.find_scope(level='Case')
+    hfs_plan = None
+    hfs_beamset = None
+    ffs_plan = None
+    ffs_beamset = None
+    if vmat:
+        hfs_plan_name = HFS_VMAT_PLAN_NAME
+        hfs_beamset_name = HFS_VMAT_BEAMSET_NAME
+        ffs_plan_name = FFS_VMAT_PLAN_NAME
+        ffs_beamset_name = FFS_VMAT_BEAMSET_NAME
+    if tomo:
+        hfs_plan_name = HFS_TOMO_PLAN_NAME
+        hfs_beamset_name = HFS_TOMO_BEAMSET_NAME
+        ffs_plan_name = FFS_TOMO_PLAN_NAME
+        ffs_beamset_name = FFS_TOMO_BEAMSET_NAME
+    if tomo or vmat:
+        try:
+            ffs_plan = case.TreatmentPlans[ffs_plan_name]
+            ffs_beamset = ffs_plan.BeamSets[ffs_beamset_name]
+        except Exception as e:
+            logging.info(f'Could not find FFS plan {ffs_plan_name} in {case.CaseName}: {e}')
+        try:
+            hfs_plan = case.TreatmentPlans[hfs_plan_name]
+            hfs_beamset = hfs_plan.BeamSets[hfs_beamset_name]
+        except Exception as e:
+            logging.info(f'Could not find HFS plan {hfs_plan_name} in {case.CaseName}: {e}')
+
+    pd_hfs = Pd(error=[],
+                patient=GeneralOperations.find_scope(level='Patient'),
+                case=GeneralOperations.find_scope(level='Case'),
+                exam=hfs_exam,
+                db=GeneralOperations.find_scope(level='PatientDB'),
+                plan=hfs_plan,
+                beamset=hfs_beamset)
+
+    pd_ffs = Pd(error=[],
+                patient=GeneralOperations.find_scope(level='Patient'),
+                case=GeneralOperations.find_scope(level='Case'),
+                exam=ffs_exam,
+                db=GeneralOperations.find_scope(level='PatientDB'),
+                plan=ffs_plan,
+                beamset=ffs_beamset)
+
+    return pd_hfs, pd_ffs
+
+
+def rename_exams(case: object) -> Tuple[str, object, str, object]:
+    """
+    Rename exams in the case to 'HFS' and 'FFS' as appropriate, and return their names and objects.
+
+    Args:
+        case (object): The RayStation case object.
+
+    Returns:
+        Tuple[str, object, str, object]: (hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam)
+    """
+    hfs_scan_name = ""
+    hfs_exam = None
+    ffs_scan_name = ""
+    ffs_exam = None
+    num_exams = 0
+    for e in case.Examinations:
+        if e.PatientPosition == 'HFS':
+            hfs_exam = e
+            e.Name = 'HFS'
+            hfs_scan_name = e.Name
+            logging.info('Scan {} is patient orientation {}'.format(e.Name, e.PatientPosition))
+
+        elif e.PatientPosition == 'FFS':
+            ffs_exam = e
+            e.Name = 'FFS'
+            ffs_scan_name = e.Name
+            logging.info('Scan {} is patient orientation {}'.format(e.Name, e.PatientPosition))
+        else:
+            raise RuntimeError('unknown exam orientation')
+        num_exams += 1
+    if not hfs_scan_name or not hfs_exam:
+        raise RuntimeError('Could not find an HFS examination')
+    if not ffs_scan_name or not ffs_exam:
+        raise RuntimeError('Could not find an FFS examination')
+    if not all([hfs_scan_name, ffs_scan_name]):
+        raise RuntimeError('This script requires a head first and feet first scan')
+    if num_exams > 2:
+        raise RuntimeError('This script assumes two exams. One in the HFS '
+                           'position and the other in FFS position. '
+                           f'The number of exams in this case is {num_exams} '
+                           f'and could lead to ambiguity. Exiting')
+    return hfs_scan_name, hfs_exam, ffs_scan_name, ffs_exam
+
+
+def determine_prefix(exam: object) -> str:
+    """
+    Return 'hfs' or 'ffs' depending on exam orientation.
+
+    Args:
+        exam (object): The RayStation exam object.
+
+    Returns:
+        str: 'hfs' if head-first supine, 'ffs' if feet-first supine.
+    """
+    if exam.PatientPosition == 'HFS':
+        return 'hfs'
+    elif exam.PatientPosition == 'FFS':
+        return 'ffs'
+
+
+def single_registration(registrations: object) -> bool:
+    """
+    Check if there is a single registration in the case.
+    :return: True if there is a single registration, False otherwise
+    """
+    if registrations is None:
+        logging.info('No registrations found in the case')
+        return False
+    if len(registrations) == 1:
+        logging.info('Single registration found in the case')
+        return True
+    elif len(registrations) > 1:
+        logging.info(f'Multiple registrations found in the case: {len(registrations)}')
+        return False
+
+
+def frame_of_reference_registration(pdata_hfs):
+    """
+    Check if there is a FrameOfReferenceRegistration in the case.
+    :return: True if there is a FrameOfReferenceRegistration, False otherwise
+    """
+    if single_registration(pdata_hfs.case.FrameOfReferenceRegistrations):
+        return pdata_hfs.case.FrameOfReferenceRegistrations[0]
+    return None
+
+
+def rigid_registration(pdata_hfs):
+    """
+    Check if there is a RigidRegistration in the case.
+    :return: True if there is a RigidRegistration, False otherwise
+    """
+    if single_registration(pdata_hfs.case.RigidRegistrations):
+        return pdata_hfs.case.RigidRegistrations[0]
+    return None
+
+
+def structure_registration(pdata_hfs):
+    """
+    Check if there is a StructureRegistration in the case.
+    :return: True if there is a StructureRegistration, False otherwise
+    """
+    if single_registration(pdata_hfs.case.StructureRegistrations):
+        return pdata_hfs.case.StructureRegistrations[0]
+    return None
+
+
+def no_registrations(pdata):
+    """ Check that there are no registrations in the case """
+    if not frame_of_reference_registration(pdata) and \
+            not rigid_registration(pdata) and not structure_registration(pdata):
+        return True
+    return False
+
+
+def check_registration(pdata_hfs, pdata_ffs, allow_missing: bool = False) -> bool:
+    def _incorrect_registration_direction(expected_from, expected_to):
+        """
+        Check if the registration direction is correct.
+        :param expected_from: expected FromExamination name
+        :param expected_to: expected ToExamination name
+        Returns: True if the registration direction matches expected
+        """
+        sr_check = structure_registration(pdata_hfs)
+
+        if hasattr(sr_check, 'FromExamination') and \
+                hasattr(sr_check, 'ToExamination'):
+            if sr_check.FromExamination.Name == expected_to and \
+                    sr_check.ToExamination.Name == expected_from:
+                return True
+        return False
+
+    def _registration_approved():
+        """
+        Check if the registration is approved.
+        :return: True if the registration is approved, False otherwise
+        """
+        if hasattr(registration, 'Review') and hasattr(registration.Review, 'ApprovalStatus'):
+            return registration.Review.ApprovalStatus == 'Approved'
+
+    if no_registrations(pdata_hfs) and not allow_missing:
+        raise RuntimeError('No registrations found, this script requires a registration '
+                           'from HFS to FFS.\n'
+                           f'Please run the Generate Structures script first.')
+    # Check if there is merely a rigid registration, if so raise an error
+    # since we cannot use it for dose calculation
+    if rigid_registration(pdata_hfs):
+        raise RuntimeError('There is a rigid registration in the case, this script requires a '
+                           'FrameOfReferenceRegistration for dose calculation, please delete it an run'
+                           ' the FFS Structures function first')
+    # Get the frame of reference registration
+    registration = frame_of_reference_registration(pdata_hfs)
+    if not registration and not allow_missing:
+        raise RuntimeError('No FrameOfReferenceRegistration found, this script requires a '
+                           'registration from HFS to FFS, please run the Generate Structures function first')
+    # Check the direction of the registration
+    hfs_exam_name = pdata_hfs.exam.Name
+    ffs_exam_name = pdata_ffs.exam.Name
+    # Backwards, potential API bug, FROM:FFS -> TO:HFS when the GUI shows FROM:HFS -> TO:FFS
+    incorrect_registration = _incorrect_registration_direction(expected_from=ffs_exam_name,
+                                                               expected_to=hfs_exam_name)
+    if incorrect_registration:
+        str_reg = structure_registration(pdata_hfs)
+        # Floating == To, and Reference == From
+        floating = str_reg.ToExamination.Name
+        reference = str_reg.FromExamination.Name
+        raise RuntimeError(f'\nThe registration direction is incorrect,'
+                           f'\nexpected From: {hfs_exam_name} \u2192 To: {ffs_exam_name},'
+                           f'\nbut got From: {reference} \u2192 To: {floating}.'
+                           f'\nPlease run the Generate Structures function first')
+    # Return True if the registration is approved
+    return _registration_approved()
+
+
+def get_center(rs_obj: Pd, roi_name: str) -> dict:
+    """
+    Get the center coordinates of a given ROI for the provided patient data.
+
+    Args:
+        rs_obj (Pd): Patient data dataclass.
+        roi_name (str): Name of the ROI.
+
+    Returns:
+        dict: Dictionary with 'x', 'y', 'z' coordinates of the ROI center, or None if not found.
+    """
+    [roi_check] = check_roi(rs_obj.case, rs_obj.exam, rois=roi_name)
+    if not roi_check:
+        return None
+    bb_roi = rs_obj.case.PatientModel.StructureSets[rs_obj.exam.Name] \
+        .RoiGeometries[roi_name].GetBoundingBox()
+    c = {'x': bb_roi[0].x + (bb_roi[1].x - bb_roi[0].x) / 2,
+         'y': bb_roi[0].y + (bb_roi[1].y - bb_roi[0].y) / 2,
+         'z': bb_roi[0].z + (bb_roi[1].z - bb_roi[0].z) / 2}
+    return c

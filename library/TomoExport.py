@@ -37,17 +37,17 @@
 
 __author__ = 'Adam Bayliss and Patrick Hill'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '07-Nov-2019'
+__date__ = '07-Nov-2025'
 __version__ = '1.0.0'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
-__raystation__ = '8b.SP2'
+__raystation__ = '2024 SP3'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
 __help__ = ''
 __credits__ = []
 
@@ -108,26 +108,30 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
         if rs_test_only:
             success = True
         else:
-            success = DicomExport.send(case=case,
-                                       destination='RayGateway',
-                                       exam=exam,
-                                       beamset=parent_beamset,
-                                       ct=True,
-                                       structures=True,
-                                       plan=True,
-                                       plan_dose=True,
-                                       beam_dose=False,
-                                       ignore_warnings=True,
-                                       ignore_errors=False,
-                                       rename=None,
-                                       filters=None,
-                                       machine=None,
-                                       table=None,
-                                       round_jaws=False,
-                                       prescription=False,
-                                       block_accessory=False,
-                                       block_tray_id=False,
-                                       bar=True)
+            try:
+                success = DicomExport.send(case=case,
+                                           destination='RayGateway',
+                                           exam=exam,
+                                           beamset=parent_beamset,
+                                           ct=True,
+                                           structures=True,
+                                           plan=True,
+                                           plan_dose=True,
+                                           beam_dose=False,
+                                           ignore_warnings=True,
+                                           ignore_errors=False,
+                                           rename=None,
+                                           machine=None,
+                                           table=None,
+                                           round_jaws=False,
+                                           aria_compatibility_mode=False,
+                                           block_accessory=False,
+                                           block_tray_id=False,
+                                           bar=True)
+            except Exception as e:
+                logging.error('Error sending {}_{} to iDMS: {}'.format(
+                    parent_plan.Name, parent_beamset.DicomPlanLabel, e))
+                sys.exit('Unsuccessful sending of parent plan')
 
         logging.debug('Status of sending parent plan {}_{}: {}'.format(
             parent_plan.Name, parent_beamset.DicomPlanLabel, success))
@@ -137,7 +141,7 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
             status.next_step(text='Parent plan {}_{} was successfully sent to iDMS.'.format(
                 parent_plan.Name, parent_beamset.DicomPlanLabel))
         else:
-            status.aborted('Unsuccessful export of parent plan to iDMS. Report error to script admin')
+            status.aborted()
             sys.exit('Unsuccessful sending of parent plan')
 
     export_names = ''
@@ -235,16 +239,6 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
 
             status.next_step(text='Transfer plan dose computed, setting up dose comparison.')
 
-            # This appears to confuse RayStation. Perhaps when the API is a little better integrated with the UI?
-            # ui = connect.get_current('ui')
-            # try:
-            #     ui.TitleBar.MenuItem['Plan Evaluation'].Click()
-            #     ui.TitleBar.MenuItem['Plan Evaluation'].Popup.MenuItem['Plan Evaluation'].Click()
-            #     ui.TabControl_ToolBar.TabItem._Approval.Select()
-            #     ui.ToolPanel.TabItem['Scripting'].Select()
-            # except:
-            #     logging.debug('Failed to operate the user interface through script again. Proceeding')
-
             connect.await_user_input(
                 'Compare the transfer beamset: {} and parent beamset {}'
                 .format(daughter_beamset.DicomPlanLabel, parent_beamset_name)
@@ -295,18 +289,18 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
                                            ignore_warnings=True,
                                            ignore_errors=False,
                                            rename=None,
-                                           filters=None,
                                            machine=None,
                                            table=None,
                                            round_jaws=False,
-                                           prescription=False,
+                                           aria_prescription_filters=False,
                                            block_accessory=False,
                                            block_tray_id=False,
                                            bar=True)
-            status.next_step('Sent transfer plan to iDMS')
+            if success and len(parent_plan.BeamSets) > 1:
+                status.next_step(text=f'Plan {parent_plan.Name} beamset {daughter_beamset.DicomPlanLabel} '
+                                      f'was successfully sent to iDMS. Exporting next beamset.')
+
+            # status.next_step('Sent transfer plan to iDMS')
 
     if success:
         status.finish(text='DICOM export was successful. You can now close this dialog.')
-
-# if __name__ == '__main__':
-#    main()

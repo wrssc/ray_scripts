@@ -50,7 +50,7 @@ import UserInterface
 from OptimizationOperations import optimize_plan, iter_optimization_config_etree
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../structure_definition'))
-from AddSupportStructures import deploy_couch_model
+from structure_definition.AddSupportStructures import deploy_couch_model
 
 InstitutionInputsSupportStructuresExamination = "Supine Patient"
 InstitutionInputsSupportStructureTemplate = "UW Support"
@@ -134,7 +134,6 @@ def find_order(protocol, order_name):
     # If more than one instance of the same order name is found,
     # or if no match is found, return none
     orders = order_dict(protocol)
-    logging.debug("orders {}".format(orders))
     matched_orders = []
     for k, o in orders.items():
         if k == order_name:
@@ -330,7 +329,6 @@ def find_validation_status(order):
             'final_dose': True,
             'copy_final_plan': True
         }
-    logging.debug(f"Validation Information: {validation_info}")
     return validation_info
 
 
@@ -444,7 +442,6 @@ def load_plan(case, plan_name):
     try:
         info = case.QueryPlanInfo(Filter={'Name': plan_name})
     except Exception as e:
-        logging.debug(f'Plan loading not possible: {e}')
         info = None
     if info:
         return case.TreatmentPlans[plan_name]
@@ -542,7 +539,6 @@ def set_overrides(rso):
         pattern = re.compile("^.*_Override_.*$")
         if pattern.match(r.Name):
             override_rois.append(r.Name)
-    logging.debug('Structures to override {}'.format(override_rois))
     rs_material = m = rs_m_match = None
     if override_rois:
         for o in override_rois:
@@ -750,7 +746,6 @@ def load_supports(rso, supports, quiet=False):
 
     # Compute the structures not yet named
     remain = list(set(supports) - set(loaded))
-    logging.debug('Supports:{} were loaded. {} remain'.format(loaded, remain))
     couch = None
     for s in remain:
         if rso.exam.PatientPosition == 'HFS':
@@ -777,6 +772,9 @@ def load_supports(rso, supports, quiet=False):
                 lockMode='Read')
             if s == COUCH_SOURCE_ROI_NAMES['TrueBeam'] or \
                     s == COUCH_SOURCE_ROI_NAMES['TomoTherapy']:
+                logging.debug(f"Attempting to load the couch from template: {rs_template},"
+                              f" template exam: {InstitutionInputsSupportStructuresExamination},"
+                              f" roi: {s} on exam {rso.exam.Name}")
                 rso.case.PatientModel.CreateStructuresFromTemplate(
                     SourceTemplate=rs_template,
                     SourceExaminationName=InstitutionInputsSupportStructuresExamination,
@@ -817,7 +815,6 @@ def convert_translation_map(translation_map, unit):
     return the translation map
     """
     tm = {}
-    logging.debug('before conversion {}'.format(translation_map))
     gy = r'Gy'
     cgy = r'cGy'
     if unit != gy and unit != cgy:
@@ -1031,14 +1028,15 @@ def load_planning_structures(case, filename, path, workflow_name, translation_ma
 def load_configuration_optimize_beamset(
         filename: str, path: str, rso: NamedTuple, name: Optional[str] = None,
         technique: Optional[str] = None, output_data_dir: Optional[str] = None,
-        bypass_user_prompts: bool = False, optimize: bool = True) -> Union[bool, str]:
+        bypass_user_prompts: bool = False, optimize: bool = True, lock_dose_grid: bool = False
+) -> Union[bool, str]:
     """Optimize the plan according to the specified configuration.
 
     Args:
         filename (str): Name of the protocol file being used.
         path (str): Path to the protocol.
         rso (NamedTuple): Tuple containing script objects for patient, case, etc.
-        name (Optional[str]): Name from the beamset element.
+        name (Optional[str]): name of the optimization_config
         technique (Optional[str]): Technique from the beamset element.
         output_data_dir (Optional[str]): Directory for output data.
         bypass_user_prompts (bool): Flag to bypass user prompts. Default is False.
@@ -1087,6 +1085,7 @@ def load_configuration_optimize_beamset(
         "initial_int_it": df_wf.initial_int_it.values[0],
         "second_max_it": df_wf.warmstart_max_it.values[0],
         "second_int_it": df_wf.warmstart_int_it.values[0],
+        "lock_dose_grid": df_wf.lock_dose_grid.values[0],
         "vary_grid": df_wf.vary_grid.values[0],
         "dose_dim1": df_wf.dose_dim1.values[0],
         "dose_dim2": df_wf.dose_dim2.values[0],

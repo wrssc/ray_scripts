@@ -75,7 +75,7 @@
     make_unsubtracted_dose_structures: makes unsubtracted dose structures.
     make_dose_structures: makes dose structures.
     reset_primary_secondary: resets the primary and secondary scan for a given patient.
-    update_dose_grid: updates the dose grid for a given beamset.
+    rescale_dose_grid_to_all_scans: updates the dose grid for a given beamset.
     register_images: registers two CT scans.
     load_normal_mbs: loads the normal MBS settings.
     make_tbi_planning_structs: makes the planning structures for a TBI.
@@ -133,7 +133,10 @@ import AutoPlanOperations
 import StructureOperations
 from collections import namedtuple
 import numpy as np
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
 from AutoPlan import autoplan
@@ -1017,7 +1020,7 @@ def update_dose_grid(pdata):
     dg = pdata.plan.GetDoseGrid()
     bb = [{k: dg.Corner[k] + dg.VoxelSize[k] * dg.NrVoxels[k] for k in dg.Corner.keys()},
           dg.Corner]
-    types = ['Ptv', 'Support', 'External']
+    types = ['Ptv', 'Support', 'Fixation', 'External']
     #
     # Loop over all structure sets looking for support, external or target types
     # For all found, compute a bounding box and expand the current dose grid if necessary.

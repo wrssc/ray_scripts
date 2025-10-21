@@ -1,4 +1,7 @@
-import PySimpleGUI as Sg
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 from typing import Any, Dict, NamedTuple
 from PlanReview.review_definitions import ICON_CHECKER
 from PlanReview.utils import (find_username_by_userid, get_user_name, find_groupname_by_userid,

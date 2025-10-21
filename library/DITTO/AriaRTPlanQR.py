@@ -29,7 +29,10 @@ except:
 import pydicom
 import pynetdicom
 import tempfile
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 import sys
 import pathlib
 import socket

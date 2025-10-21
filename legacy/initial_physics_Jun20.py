@@ -118,7 +118,10 @@ import numpy as np
 from math import isclose
 from collections import namedtuple, OrderedDict
 from System import Environment
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 import re
 from dateutil import parser
 import connect
@@ -1285,7 +1288,7 @@ def check_slice_thickness(pd, parent_key):
         rso.beamset: RS beamset ScriptObject
         parent_key: beamset parent key
     Returns:
-        messages: [[str1, ...,],...]: [[parent_key, child_key, messgae display, Pass/Fail/Alert]]
+        messages: [[str1, ...,],...]: [[parent_key, child_key, message display, Pass/Fail/Alert]]
 
     Test Patient:
         Pass: Script_Testing^FinalDose: ZZUWQA_ScTest_06Jan2021: Case: VMAT: Plan: Pros_VMA
@@ -1293,29 +1296,44 @@ def check_slice_thickness(pd, parent_key):
     """
     child_key = 'Slice thickness Comparison'
     message_str = ""
+    match_results = []
+
     for k, v in GRID_PREFERENCES.items():
-        # Check to see if plan obeys a naming convention we have flagged
-        if any([n in pd.beamset.DicomPlanLabel for n in v['PLAN_NAMES']]):
+        matched_names = [n for n in v['PLAN_NAMES'] if n in pd.beamset.DicomPlanLabel]
+        if matched_names:
             nominal_slice_thickness = v['SLICE_THICKNESS']
             for s in pd.exam.Series:
                 slice_positions = np.array(s.ImageStack.SlicePositions)
                 slice_thickness = np.diff(slice_positions)
                 if np.isclose(slice_thickness, nominal_slice_thickness).all() \
                         or all(slice_thickness < nominal_slice_thickness):
-                    message_str = 'Slice spacing {:.3f} ≤ {:.3f} cm appropriate for plan type {}'.format(
-                        slice_thickness.max(), nominal_slice_thickness, v['PLAN_NAMES'])
-                    pass_result = "Pass"
+                    match_results.append((
+                        "Pass",
+                        'Slice spacing {:.3f} ≤ {:.3f} cm appropriate for plan type(s): {}'.format(
+                            slice_thickness.max(), nominal_slice_thickness, ', '.join(matched_names))
+                    ))
                 else:
-                    message_str = 'Slice spacing {:.3f} > {:.3f} cm TOO LARGE for plan type {}'.format(
-                        slice_thickness.max(), nominal_slice_thickness, v['PLAN_NAMES'])
-                    pass_result = "Fail"
-    if not message_str:
+                    match_results.append((
+                        "Fail",
+                        'Slice spacing {:.3f} > {:.3f} cm TOO LARGE for plan type(s): {}'.format(
+                            slice_thickness.max(), nominal_slice_thickness, ', '.join(matched_names))
+                    ))
+
+    if match_results:
+        # Choose the most severe result if multiple (Fail > Pass)
+        if any(r[0] == "Fail" for r in match_results):
+            pass_result = "Fail"
+        else:
+            pass_result = "Pass"
+        message_str = " | ".join([msg for _, msg in match_results])
+    else:
         for s in pd.exam.Series:
             slice_positions = np.array(s.ImageStack.SlicePositions)
             slice_thickness = np.diff(slice_positions)
         message_str = 'Plan type unknown, check slice spacing {:.3f} cm carefully'.format(
             slice_thickness.max())
         pass_result = "Alert"
+
     messages = build_tree_element(parent_key=parent_key,
                                   child_key=child_key,
                                   pass_result=pass_result,

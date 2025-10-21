@@ -37,6 +37,83 @@ def get_roi_geometries(case, exam_name, roi_names):
     return matching_geometries
 
 
+def get_data_collection_diameter_cm(rso):
+    """
+    Retrieve the scanner’s Data Collection Diameter from DICOM tag (0018,0090),
+    falling back to the image bounding box if the tag is absent.
+
+    Args:
+        rso: NamedTuple of RayStation script objects, including `.exam`.
+
+    Returns:
+        float: data collection diameter in centimeters.
+    """
+    try:
+        # Attempt to read the DICOM tag directly
+        tag = rso.exam.GetStoredDicomTagValueForVerification(
+            Group=0x0018, Element=0x0090)
+        raw_mm = tag['Data Collection Diameter']
+    except Exception:
+        # Fallback: derive from the image stack’s bounding box (mm)
+        bb = rso.exam.Series[0].ImageStack.GetBoundingBox()
+        raw_mm = bb[1].x - bb[0].x
+
+    # Convert from millimeters to centimeters
+    return float(raw_mm) / 10.0
+
+
+def make_cylinder_fov(rso, name, diameter_cm):
+    """
+    Create a cylindrical ROI of a specified diameter on the current exam.
+
+    Args:
+        rso: NamedTuple containing RayStation script objects,
+             including `.case.PatientModel` and `.exam`.
+        name (str): Desired name for the ROI.
+        diameter_cm (float): Cylinder diameter in centimeters.
+
+    Returns:
+        bool: True if the ROI was successfully created; False otherwise.
+    """
+    # Define cylinder axis (through slice stack)
+    axis = {"x": 0, "y": 0, "z": 1}
+
+    # Compute scan‐volume bounding box and Z-extent
+    bb = rso.exam.Series[0].ImageStack.GetBoundingBox()
+    z_extent = bb[1]['z'] - bb[0]['z']
+
+    # Compute geometric center
+    center = {
+        'x': (bb[0]['x'] + bb[1]['x']) / 2.0,  # x_min + (x_max - x_min)/2
+        'y': (bb[0]['y'] + bb[1]['y']) / 2.0,
+        'z': (bb[0]['z'] + bb[1]['z']) / 2.0
+    }
+
+    try:
+        roi = rso.case.PatientModel.CreateRoi(
+            Name=name,
+            Color="192, 192, 192",
+            Type='Undefined',
+            TissueName=None,
+            RbeCellTypeName=None,
+            RoiMaterial=None,
+        )
+        roi.CreateCylinderGeometry(
+            Radius=diameter_cm / 2.0,
+            Axis=axis,
+            Length=z_extent,
+            Examination=rso.exam,
+            Center=center,
+            Representation="Voxels",
+            VoxelSize=1
+        )
+        logging.debug(f"Created cylinder FOV ROI '{name}' with {diameter_cm:.1f} cm")
+        return True
+    except Exception as e:
+        logging.error(f"Failed to create cylinder FOV '{name}': {e}")
+        return False
+
+
 def make_fov(rso, fov_name, inner_fov_name):
     # FOV parameters
     # Get the reconstruction diameter which is the actual FOV
@@ -86,6 +163,19 @@ def make_fov(rso, fov_name, inner_fov_name):
 
 
 def make_wall(rso, name, outer_name, inner_name, exp):
+    """
+    Create a wall ROI by subtracting an inner ROI from an outer ROI with specified margins.
+    Args:
+        rso: NamedTuple of RayStation script objects, including `.case.PatientModel`.
+        name (str): Desired name for the wall ROI.
+        outer_name (str): Name of the outer ROI.
+        inner_name (str): Name of the inner ROI.
+        exp (list): List of margins to contract the inner ROI in the order
+                    [Superior, Inferior, Anterior, Posterior, Right, Left].
+
+    Returns:
+        None
+    """
     fov_wall = rso.case.PatientModel.CreateRoi(
         Name=name,
         Color="192, 192, 192",
@@ -129,6 +219,18 @@ def make_wall(rso, name, outer_name, inner_name, exp):
 
 
 def subtract_sources(rso, name, roi_A, roi_B):
+    """
+    Create a new ROI by subtracting one source ROI from another.
+    Args:
+        rso: NamedTuple of RayStation script objects, including `.case.PatientModel`.
+        name (str): Desired name for the new ROI.
+        roi_A (str): Name of the first source ROI.
+        roi_B (str): Name of the second source ROI to be subtracted.
+
+    Returns:
+        str: The name of the newly created ROI, or None if the operation fails.
+
+    """
     name = rso.case.PatientModel.GetUniqueRoiName(DesiredName=name)
     wall_intersection = rso.case.PatientModel.CreateRoi(
         Name=name,
@@ -206,6 +308,43 @@ def intersect_sources(rso, name, sources):
         Examination=rso.exam, Algorithm="Auto"
     )
     rso.case.PatientModel.RegionsOfInterest[name].DeleteExpression()
+
+
+def combine_slices(slices: np.ndarray, threshold: float = 0.5) -> str:
+    """
+    Combine slices into contiguous ranges if their difference is below the given threshold.
+
+    Args:
+        slices (np.ndarray): A 1D numpy array of slice positions (float or int) in increasing order.
+        threshold (float): The maximum allowed difference between consecutive slices
+                           to combine them into a range.
+
+    Returns:
+        str: A string representation of the combined slices, with contiguous ranges
+             formatted as "start to end" and individual slices displayed as-is.
+    """
+    if slices.size == 0:
+        return "No slices found"
+
+    # Compute differences between consecutive slices
+    diffs = np.diff(slices)
+
+    # Identify where the difference exceeds the threshold
+    breaks = np.where(diffs > threshold)[0]
+
+    # Determine start and end indices of each range
+    start_indices = np.insert(breaks + 1, 0, 0)  # Start at index 0, then after each break
+    end_indices = np.append(breaks, slices.size - 1)  # End before each break, and at the final element
+
+    # Build combined ranges
+    combined_ranges = []
+    for start, end in zip(start_indices, end_indices):
+        if start == end:
+            combined_ranges.append(f"{slices[start]:.2f}")
+        else:
+            combined_ranges.append(f"[{slices[start]:.2f} to {slices[end]:.2f}]")
+
+    return ", ".join(combined_ranges)
 
 
 def get_external(rso):
@@ -300,7 +439,9 @@ def check_fov_overlap_external(rso, **kwargs):
             pm.RegionsOfInterest[s].DeleteRoi()
         if suspect_slices.size > 0:
             pass_result = FAIL
-            message_str = 'Potential FOV issues found on slices {}'.format(suspect_slices)
+            # Combine slices into ranges
+            combined_slices = combine_slices(suspect_slices, threshold=0.5)
+            message_str = 'Potential FOV issues found on slices {}'.format(combined_slices)
         else:
             pass_result = PASS
             message_str = 'No Potential Overlap with FOV Found'

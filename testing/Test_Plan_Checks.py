@@ -52,7 +52,10 @@ import sys
 import os
 import io
 import logging
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 import re
 import tkinter as tk
 from docx import Document

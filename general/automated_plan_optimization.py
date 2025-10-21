@@ -81,11 +81,14 @@ __help__ = None
 __copyright__ = 'Copyright (C) 2024, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
-
 #
 import logging
 import sys
-import PySimpleGUI as sg
+
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 
 # import connect
 # import UserInterface
@@ -412,11 +415,11 @@ def main():
     optimization_inputs = optimization_gui(beamset, optimization_inputs)
 
     (status, message) = optimize_plan(patient=patient,
-                                                             case=case,
-                                                             exam=exam,
-                                                             plan=plan,
-                                                             beamset=beamset,
-                                                             **optimization_inputs)
+                                      case=case,
+                                      exam=exam,
+                                      plan=plan,
+                                      beamset=beamset,
+                                      **optimization_inputs)
 
     if status:
         logging.info("Optimization report: {}".format(message))

@@ -43,9 +43,11 @@ __date__ = "2024-05-14"
 __version__ = "1.3.0"
 __status__ = "Production"
 __deprecated__ = False
-__reviewer__ = "Adam Bayliss"
-__reviewed__ = "27Jun2022"
-__raystation__ = "2024A"
+
+__reviewer__ = "Dustin Jacqmin"
+__reviewed__ = "2025-04-25"
+__raystation__ = "2024A SP3"
+
 __maintainer__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
 __license__ = "GPLv3"

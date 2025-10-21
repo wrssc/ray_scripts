@@ -566,7 +566,7 @@ def add_objective(obj, exam, case, plan, beamset,
             RoiName=roi,
             IsConstraint=mco_constraint,
             RestrictAllBeamsIndividually=False,
-            RestrictToBeam=None,
+            RestrictToBeams=[],
             IsRobust=robust,
             RestrictToBeamSet=restrict_beamset,
             UseRbeDose=False)
@@ -1183,7 +1183,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
         logging.debug('Order has goalsets')
         logging.debug('Adding goalset {} to plan'.format(s.find('name').text))
         for g in tpo.goalsets[s.find('name').text].findall('roi'):
-            Goals.add_goal(g, connect.get_current('Plan'))
+            Goals.add_goal(g, plan=connect.get_current('Plan'), beamset=connect.get_current('BeamSet'))
 
     for seq in goal_locations:
         for g in seq:
@@ -1304,7 +1304,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                         g.find('name').text))
 
             # Regardless, add the goal now
-            Goals.add_goal(g, connect.get_current('Plan'))
+            Goals.add_goal(g, plan=connect.get_current('Plan'), beamset=connect.get_current('BeamSet'))
 
     if run_status:
         status.next_step(text="Adding Objectives.", num=4)

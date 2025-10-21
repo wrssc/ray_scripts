@@ -1,6 +1,4 @@
-""" Implanted Medical Device Metrics
-
-"""
+"""Implanted Medical Device Metrics"""
 
 __author__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
@@ -18,13 +16,16 @@ __help__ = None
 __copyright__ = "Copyright (C) 2023, University of Wisconsin Board of Regents"
 
 from connect import get_current
-import PySimpleGUI as sg
+try:
+    import FreeSimpleGUI as sg
+except ImportError:
+    import PySimpleGUI as sg
 import sys
 from pathlib import Path
 
 ditto_path = Path(__file__).parent.parent / "library"
 sys.path.insert(1, str(ditto_path))
-import ImplantedDeviceOperations as ido
+import ImplantedDeviceOperations_MLC as ido
 
 
 def main():

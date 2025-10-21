@@ -25,6 +25,8 @@
     1.0.2 Always bypass the diff checking on the tomo DQA plans. For long treatment fields
           this was taking a really long time and causing the association to time out.
 
+    1.0.3 Update to 2024A
+
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later
@@ -40,18 +42,18 @@
 
 __author__ = 'Adam Bayliss and Patrick Hill'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '25-Sep-2020'
-__version__ = '1.0.1'
+__date__ = '01-Jul-2025'
+__version__ = '1.0.3'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
-__raystation__ = '8b.SP2'
+__raystation__ = '2024A SP1'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
-__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
+__copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
+__help__ = ''
 __credits__ = []
 
 import sys
@@ -61,14 +63,14 @@ import logging
 import UserInterface
 import DicomExport
 
+TomoParams = namedtuple('TomoParams', ['gantry_period', 'time', 'couch_speed', 'total_travel'])
 
-TomoParams = namedtuple('TomoParams',['gantry_period', 'time', 'couch_speed', 'total_travel'])
 
 def compute_couch_travel_helical(beam):
     # Take first and last segment, compute distance
     number_of_segments = len(beam.Segments)
     first_segment = beam.Segments[0]
-    last_segment = beam.Segments[number_of_segments-1]
+    last_segment = beam.Segments[number_of_segments - 1]
     couch_travel = abs(last_segment.CouchYOffset - first_segment.CouchYOffset)
     return couch_travel
 
@@ -80,14 +82,16 @@ def compute_pitch_direct(beam):
     pitch = round(y_travel_per_projection, 3)
     return pitch
 
+
 def compute_couch_travel_direct(beam):
     # Take first and last segment, compute distance
     number_of_segments = len(beam.Segments)
     first_segment = beam.Segments[0]
-    last_segment = beam.Segments[number_of_segments-1]
+    last_segment = beam.Segments[number_of_segments - 1]
     pitch = compute_pitch_direct(beam)
     couch_travel = pitch + abs(last_segment.CouchYOffset - first_segment.CouchYOffset)
     return couch_travel
+
 
 def compute_tomo_params(beam):
     # Rs Beam object, return a named tuple
@@ -105,11 +109,13 @@ def compute_tomo_params(beam):
     couch_speed = total_travel / time
     return TomoParams(gantry_period=gantry_period, time=time, couch_speed=couch_speed, total_travel=total_travel)
 
+
 def convert_couch_speed_to_mm(str_input):
     # Convert incoming str_input to a couch speed in mm/sec and return a string
     float_input = float(str_input)
-    convert_input = float_input * 10 # cm-> mm
+    convert_input = float_input * 10  # cm-> mm
     return convert_input
+
 
 def main():
     # Get current patient, case, exam, plan, and beamset
@@ -149,26 +155,14 @@ def main():
 
     #
     # Initialize the dialog
-    required = ['0','00']
-    types = {'0':'combo', '00': 'check'}
+    required = ['0', '00']
+    types = {'0': 'combo', '00': 'check'}
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
-    options = {'0':matched_qa_plans.keys(),'00': DicomExport.destinations()}
+    options = {'0': matched_qa_plans.keys(), '00': DicomExport.destinations()}
     initial = {}
     inputs = {}
     inputs['0'] = 'Select the DQA Plan to export'
     inputs['00'] = 'Check one or more DICOM destinations to export to:'
-    # if current_technique == 'TomoHelical':
-    #     inputs['b'] = 'Enter the Gantry period as [ss.ff]:'
-    #     types ['b'] = 'text'
-    # elif current_technique =='TomoDirect':
-    #     i = 0
-    #     key_list = []
-    #     for b in beamset.Beams:
-    #         key_list.append(b.Name)
-    #         inputs[b.Name] = 'Enter the couch speed of beam: ' + b.Name + ' in [cm/sec]:'
-    #         types[b.Name] = 'text'
-    #         required.append(b.Name)
-    #         i += 1
     # Build the dialog
     dialog = UserInterface.InputDialog(inputs=inputs,
                                        datatype=types,
@@ -180,16 +174,16 @@ def main():
     if response == {}:
         sys.exit('DICOM export was cancelled')
     # Link root to selected protocol ElementTree
-    bypass_export_check =True
+    bypass_export_check = True
     selected_qa_plan = matched_qa_plans[response['0']]
     daughter_beamset = selected_qa_plan.BeamSet
     current_technique = daughter_beamset.DeliveryTechnique
     logging.info("Selected Beamset:QAPlan {}:{}"
-                 .format(beamset.DicomPlanLabel,daughter_beamset.DicomPlanLabel))
+                 .format(beamset.DicomPlanLabel, daughter_beamset.DicomPlanLabel))
 
     beam_data = {}
     for b in daughter_beamset.Beams:
-        TomoResult=compute_tomo_params(b)
+        TomoResult = compute_tomo_params(b)
         beam_data[b.Name] = TomoResult
 
         logging.debug('Beam {} has GP: {}, CS:{}, Time:{}'.format(
@@ -201,22 +195,21 @@ def main():
         logging.info("Gantry period filter to be used. Gantry Period (ss.ff) = {} ".format(
             formatted_response))
         success = DicomExport.send(case=case,
-                               destination=response['00'],
-                               qa_plan=selected_qa_plan,
-                               exam=False,
-                               beamset=False,
-                               ct=False,
-                               structures=False,
-                               plan=False,
-                               plan_dose=False,
-                               beam_dose=False,
-                               ignore_warnings=False,
-                               ignore_errors=False,
-                               bypass_export_check = bypass_export_check,
-                               rename=None,
-                               gantry_period=formatted_response,
-                               filters=['tomo_dqa'],
-                               bar=False)
+                                   destination=response['00'],
+                                   qa_plan=selected_qa_plan,
+                                   exam=False,
+                                   beamset=beamset,
+                                   ct=False,
+                                   structures=False,
+                                   plan=False,
+                                   plan_dose=False,
+                                   beam_dose=False,
+                                   ignore_warnings=False,
+                                   ignore_errors=False,
+                                   bypass_export_check=bypass_export_check,
+                                   rename=None,
+                                   gantry_period=formatted_response,
+                                   bar=False)
     elif current_technique == 'TomoDirect':
         formatted_response = {}
         for k in beam_data.keys():
@@ -227,23 +220,21 @@ def main():
             logging.info("Couch speed filter to be used. Couch speed for beam:{} is {} (mm/s)"
                          .format(k, formatted_response[k]))
         success = DicomExport.send(case=case,
-                               destination=response['00'],
-                               qa_plan=selected_qa_plan,
-                               exam=False,
-                               beamset=False,
-                               ct=False,
-                               structures=False,
-                               plan=False,
-                               plan_dose=False,
-                               beam_dose=False,
-                               ignore_warnings=False,
-                               ignore_errors=False,
-                               bypass_export_check = bypass_export_check,
-                               rename=None,
-                               couch_speed=formatted_response,
-                               filters=['tomo_dqa'],
-                               bar=False)
-
+                                   destination=response['00'],
+                                   qa_plan=selected_qa_plan,
+                                   exam=False,
+                                   beamset=False,
+                                   ct=False,
+                                   structures=False,
+                                   plan=False,
+                                   plan_dose=False,
+                                   beam_dose=False,
+                                   ignore_warnings=False,
+                                   ignore_errors=False,
+                                   bypass_export_check=bypass_export_check,
+                                   rename=None,
+                                   couch_speed=formatted_response,
+                                   bar=False)
 
     # Finish up
     if success:

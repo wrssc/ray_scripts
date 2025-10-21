@@ -31,7 +31,7 @@ OUTPUT_DIR = os.path.join(RAYSCRIPTS_DIR, "logs")
 PROTECTED_DIR = os.path.join(RAYSCRIPTS_DIR, "Protect")
 # From ARIA User Admin in the ARIA Web Portal Export all users to a
 # non-GitSync directory
-STAFF_XML_PATH = os.path.join(PROTECTED_DIR, "VAUsersandGroupsExport_03Sep2024.xml")
+STAFF_XML_PATH = os.path.join(PROTECTED_DIR, "VAUsersandGroupsExport_17Oct2025.xml")
 
 # Data gathering directory for collecting data for the review script
 DATA_GATHERING_DIR = os.path.join(RAYSCRIPTS_DIR, "Reports", "DataGathering")
@@ -2012,13 +2012,27 @@ BOLUS_NAMES = ["bolus"]
 # def - check the front edges of the couch and suspended headboard
 NO_FLY_NAME = "NoFlyZone_PRV"
 PACEMAKER_NAME = "Pacemaker"
-PACEMAKER_PRV_NAME = "Pacemaker_PRV50"
+PACEMAKER_PRV_NAME = "Block_Pacemaker_PRV50"
 PACEMAKER_SEARCH_DISTANCE = 10.  # cm distance over which to look for the 2 Gy dose level
 PACEMAKER_DISTANCE_TOLERANCE = 2.  # cm distance from which we want the 2 Gy line to be away from
 # the pacer
-SUPPORT_TOLERANCE = 3.0  # cm, the minimum clearance distance between external and any support at isocenter
-TRUEBEAM_MAX_DIAMETER = 80.0  # cm, the "pin" diameter of the TrueBeam
+SUPPORT_TOLERANCE_COLLISION = 2.0  # cm, the minimum clearance distance between external and any support at isocenter
+SUPPORT_TOLERANCE_ALERT = 4.5 # cm, the alert clearance distance between external and any support at isocenter
+TRUEBEAM_MAX_DIAMETER = 80.0  # cm, the "pin" diameter of the TrueBeam [confirmed with couch height measurement]
+TRUEBEAM_COVER_DIAMETER = 76.3 # cm, the cover diameter of the TrueBeam
+TRUEBEAM_PLATE_DIAMETER = 50.0 # cm, the plate diameter of the TrueBeam
+TRUEBEAM_HEAD_LENGTH = 84.2  # cm, the length of the TrueBeam head from the plate to top
+TRUEBEAM_ELECTRON_MAX_DIAMETER = 3 # cm, the max diameter for electrons on the TrueBeam
+TRUEBEAM_A06_CONE_SIZE = 16.24  # cm, the physical size of the 6x6 cone on the TrueBeam
+TRUEBEAM_A10_CONE_SIZE = 20.04  # cm, the physical size of the 10x10 cone on the TrueBeam
+TRUEBEAM_A15_CONE_SIZE = 24.79  # cm, the physical size of the 15x15 cone on the TrueBeam
+TRUEBEAM_A20_CONE_SIZE = 29.54  # cm, the physical size of the 20x20 cone on the TrueBeam
+TRUEBEAM_A25_CONE_SIZE = 34.29  # cm, the physical size of the 25x25 cone on the TrueBeam
+
+
 HDA_MAX_DIAMETER = 85.0  # cm, the cover diameter of the Tomo HDA
+HDA_ALERT_DIAMETER = 78.0  # cm, the alert diameter of the Tomo HDA
+HDA_COUCH_THROW = 130 # cm, the throw of the Tomo HDA couch from isocenter to foot of couch
 #
 # PLANNING DEFAULTS
 DOSE_FRACTION_PAIRS = [(4, 2000), (8, 800)]  # Often mixed up fractionations
@@ -2082,48 +2096,60 @@ GRID_PREFERENCES = {
         'DOSE_GRID': 0.15,  # 1.5 mm
         'FRACTION_SIZE_LIMIT': 801,  # cGy
         'SLICE_THICKNESS': 0.2,  # 2.0 mm
+        'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT']},
     },
     'SBRT_FINE': {
         'PLAN_NAMES': PLAN_NAMES['SPINE_SBRT'] + PLAN_NAMES['HEAD_NECK_SBRT'],
         'DOSE_GRID': 0.15,  # 1.5 mm
         'FRACTION_SIZE_LIMIT': 801,  # cGy
         'SLICE_THICKNESS': 0.1,  # 2.0 mm
+        'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT']},
     },
     'SRS': {
         'PLAN_NAMES': PLAN_NAMES['BRAIN_FSRT'] + PLAN_NAMES['SRS'],
         'DOSE_GRID': 0.1,  # 1.0 mm
         'FRACTION_SIZE_LIMIT': 1500,  # cGy
         'SLICE_THICKNESS': 0.1,  # 1.0 mm
+        'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT']},
     },
     'TBI': {
         'PLAN_NAMES': PLAN_NAMES['TBI'],
         'DOSE_GRID': 0.5,  # 5 mm
         'FRACTION_SIZE_LIMIT': None,  # Don't check
         'SLICE_THICKNESS': 0.4,  # 4 mm
+        'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT']},
     },
     'VMAT': {
         'PLAN_NAMES': PLAN_NAMES['VMAT'],
         'DOSE_GRID': 0.3,  # 3 mm
         'FRACTION_SIZE_LIMIT': 800,  # cGy
         'SLICE_THICKNESS': 0.3,  # 3 mm
+        'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT']},
     },
     'THI': {
         'PLAN_NAMES': PLAN_NAMES['THI'],
         'DOSE_GRID': 0.3,  # 3 mm
         'FRACTION_SIZE_LIMIT': 800,  # cGy
         'SLICE_THICKNESS': 0.3,  # 3 mm
+        'TOLERANCE_TABLE_GUIDE': {},
     },
     '3D': {
         'PLAN_NAMES': PLAN_NAMES['3D'],
         'DOSE_GRID': 0.4,  # 3 mm
         'FRACTION_SIZE_LIMIT': 800,  # cGy
         'SLICE_THICKNESS': 0.4,  # 4 mm
+        'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT'],
+                                  'PHOTON': ['Daily 2D', 'Weekly kV', 'Clinical setup'],
+                                  'ELECTRON': ['Weekly kV', 'Clinical setup']},
     },
     '2D': {
         'PLAN_NAMES': PLAN_NAMES['2D'],
         'DOSE_GRID': 0.4,  # 3 mm
         'FRACTION_SIZE_LIMIT': 800,  # cGy
         'SLICE_THICKNESS': 0.4,  # 4 mm
+        'TOLERANCE_TABLE_GUIDE': {'PHOTON-dailyCBCT': ['Daily CBCT'],
+                                  'PHOTON': ['Daily 2D', 'Weekly kV', 'Clinical setup'],
+                                  'ELECTRON': ['Weekly kV', 'Clinical setup']},
     },
 }
 
@@ -2153,14 +2179,13 @@ MCS_TOLERANCES = {'MCS': {'MEAN': 0.369,
 TOMO_DATA = {'MACHINES': ['HDA0488'],
              'PLAN_TR_SUFFIX': r'_Tr',
              'LATERAL_ISO_MARGIN': 2.,  # cm
-             'SUPPORTS': ['TomoCouch', 'S-frame']
+             'SUPPORTS': ['TomoCouch', 'QFix_Board_Only']
              }
 
 TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                  'SUPPORTS': ['TrueBeamCouch', 'CivcoBaseShell_Cork', 'CivcoInclineShell_Wax',
-                              'Sframe_F1_TBCouch_HN', 'Sframe_H2_TBCouch_Brain',
-                              'ProneBreastBoard', 'QFix_Brain_TBCouch_H1andH2','QFix_H&N_TBCouch_F2andF3',
-                              'Black Board External Final', 'Baseplate_Override_PMMA'],
+                              'ProneBreastBoard', 'QFix_Brain_TBCouch_H1andH2', 'QFix_H&N_TBCouch_F2andF3',
+                              'Baseplate_Override_PMMA'],
                  'EDW_LIMITS': {'MU_LIMIT': 20.,
                                 'Y2-OUT': 10.,  # Y2=OUT: -10 cm ≤ Y1 ≤ 10 cm
                                 'Y1-IN': 10.,  # Y1=IN : -10 cm ≤ Y2 ≤ 10 cm
@@ -2170,20 +2195,17 @@ TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                                 'X-MIN': 4.,  # X2 - X1 ≥ 4 cm
                                 }}
 COUCH_ROIS = ['TrueBeamCouch', 'TomoCouch', 'ProneBreastBoard', 'QFix_Brain_TBCouch_H1andH2',
-                'QFix_H&N_TBCouch_F2andF3', 'Black Board External Final']
+                'QFix_H&N_TBCouch_F2andF3', 'QFix_Board_Only']
 # MATERIALS:
 MATERIALS = {'TrueBeamCouch': 'Lung',
              'CivcoBaseShell_Cork': 'Cork',
              'CivcoInclineShell_Wax': 'Wax',
              'CivcoWingBoard_PMMA': 'PMMA',
-             'Sframe_H2_TBCouch_Brain': 'Lung',
-             'Sframe_F1_TBCouch_HN': 'Lung',
-             'Sframe': 'Lung',
              'TomoCouch': 'Lung',
              'Baseplate_Override_PMMA': 'PMMA',
              'QFix_Brain_TBCouch_H1andH2': 'Lung',
              'QFix_H&N_TBCouch_F2andF3': 'Lung',
-             'Black Board External Final': 'Lung',
+             'QFix_Board_Only': 'Lung',
              'ProneBreastBoard': 'Cartilage',
              'MT-T-45-S-CE221': 'PLA',
              'MT-T-45-M-CE221': 'PLA',

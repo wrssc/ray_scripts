@@ -76,12 +76,20 @@ import Beams
 import datetime
 import os
 import xml
-import PySimpleGUI as Sg
+
+try:
+    import FreeSimpleGUI as Sg
+except ImportError:
+    import PySimpleGUI as Sg
 
 from library.api.api_beamsets import get_source_to_surface_distance
 from library.api.api_utils import get_machine
 from library.api.api_beamsets import get_number_of_emc_histories
 from library.api.api_optimization_settings import edit_beam_optimization_settings
+from dataclasses import dataclass
+from typing import Optional, Dict
+import logging
+import math
 
 PROTOCOL_FOLDER = r'../protocols'
 INSTITUTION_FOLDER = r'UW'
@@ -104,6 +112,7 @@ class Beam(object):
         self.rotation_dir = None
         self.collimator_angle = None
         self.iso = {}
+        self.iso_number = None
         self.couch_angle = None
         self.jaw_limits = {}
         self.field_width = None
@@ -349,9 +358,9 @@ def find_multi_iso_parameters(case, exam, beamset, iso_pois,
         try:
             isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
                 PoiGeometries[p].Point
-        except Exception:
-            logging.warning('Aborting, could not locate center of {}'.format(p))
-            sys.exit('Failed to place isocenter at Point {}'.format(p))
+        except Exception as e:
+            logging.warning(f'Aborting, could not locate center of {p}: {e}')
+            sys.exit(f'Failed to place isocenter at Point {p}: {e}')
         if lateral_zero:
             center = {'x': 0.,
                       'y': isocenter_position.y,
@@ -375,8 +384,8 @@ def find_center(case, exam, target, use_poi):
     """Finds the center of target using either ROI or POI geometries.
 
     Args:
-        case (object): A patient case.
-        exam (object): An exam instance.
+        case (RS object): A patient case.
+        exam (RS object): An exam instance.
         target: Target to locate the center of.
         use_poi: Flag to determine if POI geometries should be used.
 
@@ -386,20 +395,13 @@ def find_center(case, exam, target, use_poi):
     Raises:
         SystemExit: If the center of target cannot be located.
     """
-    try:
-        if use_poi:
-            center_position = case.PatientModel.StructureSets[exam.Name]. \
-                PoiGeometries[target].Point
-        else:
-            center_position = case.PatientModel.StructureSets[exam.Name]. \
-                RoiGeometries[target].GetCenterOfRoi()
-        return center_position
-    except Exception:
-        warning = f'Aborting, could not locate center of {target} on exam {exam.Name}' if not \
-            use_poi else \
-            f'Aborting, could not locate center of {target}'
-        logging.warning(warning)
-        sys.exit(warning)
+    if use_poi:
+        center_position = case.PatientModel.StructureSets[exam.Name]. \
+            PoiGeometries[target].Point
+    else:
+        center_position = case.PatientModel.StructureSets[exam.Name]. \
+            RoiGeometries[target].GetCenterOfRoi()
+    return center_position
 
 
 def find_existing_isocenter(case, isocenter_name):
@@ -455,9 +457,12 @@ def find_isocenter_parameters(case: object,
     """
     # Locate isocenter position based on provided arguments
     if iso_target:
-        isocenter_position = find_center(case, exam, iso_target, False)
+        isocenter_position = find_center(case, exam, iso_target, use_poi=False)
     elif iso_poi:
-        isocenter_position = find_center(case, exam, iso_poi, True)
+        isocenter_position = find_center(case, exam, iso_poi, use_poi=True)
+        logging.info(f'Isocenter chosen based on {iso_poi}, with location:'
+                     f' x={isocenter_position.x}, y={isocenter_position.y},'
+                     f' z={isocenter_position.z}')
     elif existing_iso:
         isocenter_position = find_existing_isocenter(case, existing_iso)
 
@@ -500,7 +505,8 @@ def create_beamset(patient, case, exam, plan,
                    path=None,
                    order_name=None,
                    create_setup_beams=True,
-                   rename_existing=False):
+                   rename_existing=False,
+                   ):
     """
     This function creates a beamset for radiation treatment planning. It either opens a dialog with
     the user to gather information or uses the provided parameters. It follows certain coding
@@ -531,7 +537,14 @@ def create_beamset(patient, case, exam, plan,
         logging.warning('Cannot load beamset due to incorrect argument list')
 
     # Evaluate for an existing beamset. If rename_existing, add a suffix, otherwise fail
-    info = plan.QueryBeamSetInfo(Filter={'Name': '^{0}'.format(b.DicomName)})
+    logging.debug('Checking for existing beamset {}'.format(b.DicomName))
+    try:
+        info = [bs.DicomPlanLabel for bs in plan.BeamSets if b.DicomName in bs.DicomPlanLabel]
+        # info = plan.QueryBeamSetInfo(Filter={'Name': f'^{b.DicomName}'})
+    except Exception as e:
+        logging.warning(f'Failed to query beamset info: {e}')
+        info = None
+    logging.debug('Beamset info: {}'.format(info))
     if not info:
         beamset_exists = False
     else:
@@ -545,8 +558,10 @@ def create_beamset(patient, case, exam, plan,
             new_bs_name = b.DicomName
             while beamset_exists:
                 try:
-                    info = plan.QueryBeamSetInfo(Filter={'Name': '^{0}'.format(new_bs_name)})
-                    if info[0]['Name'] == new_bs_name:
+                    info = [bs.DicomPlanLabel for bs in plan.BeamSets if b.DicomName in bs.DicomPlanLabel]
+                    # info = plan.QueryBeamSetInfo(Filter={'Name': '^{0}'.format(new_bs_name)})
+                    logging.debug('Beamset info: {}'.format(info))
+                    if info and info[0] == new_bs_name:
                         # Ensure the maximum DicomPlanLabel length of 16 chars is not exceeded
                         if len(new_bs_name) > 14:
                             new_bs_name = b.DicomName[:14] + str(i).zfill(2)
@@ -561,23 +576,29 @@ def create_beamset(patient, case, exam, plan,
                     'Beamset {} exists! Replacing with {}'.format(b.DicomName, new_bs_name))
                 b.DicomName = new_bs_name
 
-    plan.AddNewBeamSet(
-        Name=b.DicomName,
-        ExaminationName=exam.Name,
-        MachineName=b.machine,
-        Modality=b.modality,
-        TreatmentTechnique=b.technique,
-        PatientPosition=patient_position_map(exam.PatientPosition),
-        NumberOfFractions=b.number_of_fractions,
-        CreateSetupBeams=create_setup_beams,
-        UseLocalizationPointAsSetupIsocenter=False,
-        Comment="",
-        RbeModelName=None,
-        EnableDynamicTrackingForVero=False,
-        NewDoseSpecificationPointNames=[],
-        NewDoseSpecificationPoints=[],
-        MotionSynchronizationTechniqueSettings=None,
-        ToleranceTableLabel=None)
+    # Create the beamset
+    logging.info('Creating beamset {}'.format(b.DicomName))
+    try:
+        plan.AddNewBeamSet(
+            Name=b.DicomName,
+            ExaminationName=exam.Name,
+            MachineName=b.machine,
+            Modality=b.modality,
+            TreatmentTechnique=b.technique,
+            PatientPosition=patient_position_map(exam.PatientPosition),
+            NumberOfFractions=b.number_of_fractions,
+            CreateSetupBeams=create_setup_beams,
+            UseLocalizationPointAsSetupIsocenter=False,
+            Comment="",
+            RbeModelName=None,
+            EnableDynamicTrackingForVero=False,
+            NewDoseSpecificationPointNames=[],
+            NewDoseSpecificationPoints=[],
+            MotionSynchronizationTechniqueSettings=None,
+            ToleranceTableLabel=None)
+    except Exception as e:
+        logging.error(f'Failed to create beamset: {e}')
+        return None
 
     beamset = plan.BeamSets[b.DicomName]
     patient.Save()
@@ -588,8 +609,8 @@ def create_beamset(patient, case, exam, plan,
                                                 DoseValue=b.total_dose,
                                                 RelativePrescriptionLevel=1)
         # beamset.ScaleToPrimaryPrescriptionDoseReference
-    except:
-        logging.warning('Unable to set prescription')
+    except Exception as e:
+        logging.warning(f'Unable to set prescription dose reference: {e}')
     return beamset
 
 
@@ -1236,9 +1257,9 @@ def rename_beams(site_name=None, input_technique=None, beamset_name=None):
                 if couch_angle not in table_angles:
                     table_angles.append(couch_angle)
             set_up = {
-                    0: ['CBCT', 'Set-up CBCT', 0.0, '5', 0],
-                    1: ['AP', 'Set-up Anterior', 0.0, '5', 0],
-                    2: ['RLAT', 'Set-up Right Lateral', 270.0, '5', 0],}
+                0: ['CBCT', 'Set-up CBCT', 0.0, '5', 0],
+                1: ['AP', 'Set-up Anterior', 0.0, '5', 0],
+                2: ['RLAT', 'Set-up Right Lateral', 270.0, '5', 0], }
             setup_index = 3
             for ta in table_angles:
                 if 359.9 >= ta >= 270.:
@@ -1253,7 +1274,7 @@ def rename_beams(site_name=None, input_technique=None, beamset_name=None):
             set_up = {0: ['SetUp AP', 'SetUp AP', 0.0, '5'],
                       1: ['SetUp RtLat', 'SetUp RtLat', 270.0, '5'],
                       2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
-                     3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
+                      3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                       }
             update_set_up(beamset=beamset, set_up=set_up)
 
@@ -1851,8 +1872,34 @@ class mlc_properties:
 
     # MLC methods:
     def stationary_leaf_gaps(self):
-        threshold = 1e-6
         # Find the MLC gaps that are closed (set to the minimum moving leaf opening) and return them
+        # threshold is the minimum difference in position considered motion, RS likes to nervously reposition
+        # the leaves by a small amount, so we need to filter out these small movements
+        threshold = 1e-1  # cm
+        n_leaves, _, n_cp = self.banks.shape
+        leaf_gaps = np.zeros_like(self.banks, dtype=bool)
+
+        for cp in range(n_cp):
+            for l in range(n_leaves):
+                # first filter out anything that isn’t at the minimum gap
+                gap = abs(self.banks[l, 0, cp] - self.banks[l, 1, cp])
+                if gap > (1 + threshold) * self.min_gap_moving:
+                    continue
+
+                # now check motion: only immediate neighbors
+                prev_cp = max(cp - 1, 0)
+                next_cp = min(cp + 1, n_cp - 1)
+
+                x1_move = abs(self.banks[l, 0, next_cp] - self.banks[l, 0, prev_cp])
+                x2_move = abs(self.banks[l, 1, next_cp] - self.banks[l, 1, prev_cp])
+
+                if x1_move <= threshold and x2_move <= threshold:
+                    leaf_gaps[l, :, cp] = True
+
+        return leaf_gaps
+
+    def old_stationary_leaf_gaps(self):
+        threshold = 1e-6
         # If stationary_only is True, return only leaf gaps that are closed to minimum and do not
         # move in the next
         # control point
@@ -2117,7 +2164,279 @@ def repair_leaf_gap(beam):
     return None
 
 
-def filter_leaves(beam):
+import time
+
+
+def srs_filter_leaves_per_segment(beam):
+    """
+    1) Find the most‐open jaw positions across all control points and
+       set every segment’s jaws to those extremes.
+    2) For any leaf‐pair whose gap == MinGap (static or dynamic), snap
+       it closed just behind the (now unified) jaws.
+
+    Returns:
+        None on success, or an error string if something prevented filtering.
+    """
+    t0 = time.perf_counter()
+
+    # --- 1) collect extremes over all CPs --------------------------------
+    jaw_lists = [seg.JawPositions for seg in beam.Segments]
+    x1_vals = [j[0] for j in jaw_lists]
+    x2_vals = [j[1] for j in jaw_lists]
+    y1_vals = [j[2] for j in jaw_lists]
+    y2_vals = [j[3] for j in jaw_lists]
+    x1_extreme = min(x1_vals);
+    x2_extreme = max(x2_vals)
+    y1_extreme = min(y1_vals);
+    y2_extreme = max(y2_vals)
+    t1 = time.perf_counter()
+
+    # --- 2) build mlc props & find closed gaps --------------------------
+    beam_mlc = mlc_properties(beam)
+    if not beam_mlc.has_segments or beam_mlc.mlc_retracted:
+        return "MLC filtering failed: no segments or MLC retracted"
+
+    min_gap = beam_mlc.min_gap_moving
+    offset = beam_mlc.leaf_jaw_overlap
+    closed = beam_mlc.stationary_leaf_gaps()  # [n_leaf,2,n_cp]
+    t2 = time.perf_counter()
+
+    # --- 3) pick one jaw side for the whole beam -------------------------
+    total_left = 0.0
+    total_right = 0.0
+    for cp_idx, seg in enumerate(beam.Segments):
+        lp0, lp1 = seg.LeafPositions
+        mids = 0.5 * (lp0 + lp1)
+        mask = closed[:, 0, cp_idx]
+        total_left += abs(mids[mask] - x1_extreme).sum()
+        total_right += abs(mids[mask] - x2_extreme).sum()
+
+    preferred = 'X1' if total_left <= total_right else 'X2'
+    t3 = time.perf_counter()
+
+    # --- 4) apply leaf snaps & set jaws, timing split --------------------
+    python_time = 0.0
+    rs_time_mlc = 0.0
+    rs_time_jaw = 0.0
+
+    # 4a) only process CPs that actually have a closed gap
+    to_update = [i for i in range(len(beam.Segments)) if closed[:, 0, i].any()]
+
+    for cp_idx in to_update:
+        seg = beam.Segments[cp_idx]
+        # Set jaw positions per segment
+        t_rs_jaw = time.perf_counter()
+        seg.JawPositions = [x1_extreme, x2_extreme, y1_extreme, y2_extreme]
+        rs_time_jaw += time.perf_counter() - t_rs_jaw
+
+        # --- Python-level leaf array updates ---
+        t_py = time.perf_counter()
+        lp0, lp1 = seg.LeafPositions
+        mask = closed[:, 0, cp_idx]
+        if preferred == 'X2':
+            lp0[mask] = x2_extreme + offset
+            lp1[mask] = x2_extreme + offset + min_gap
+        else:
+            lp0[mask] = x1_extreme - offset - min_gap
+            lp1[mask] = x1_extreme - offset
+        python_time += time.perf_counter() - t_py
+
+        # --- one RS write per changed segment ---
+        t_rs_mlc = time.perf_counter()
+        seg.LeafPositions = [lp0, lp1]
+        rs_time_mlc += time.perf_counter() - t_rs_mlc
+
+    t4 = time.perf_counter()
+
+    print(f"[srs_filter_leaves] Step 1 (jaw extremes) took {t1 - t0:.4f}s")
+    print(f"[srs_filter_leaves] Step 2 (compute closed gaps) took {t2 - t1:.4f}s")
+    print(f"[srs_filter_leaves] Step 3 (choose side = {preferred}) took {t3 - t2:.4f}s")
+    print(f"[srs_filter_leaves] Step 4 (python work) took {python_time:.4f}s")
+    print(f"[srs_filter_leaves] Step 4 (Jaw writes) took {rs_time_jaw:.4f}s")
+    print(f"[srs_filter_leaves] Step 4 (MLC writes)  took {rs_time_mlc:.4f}s")
+    print(f"[srs_filter_leaves] Total time: {(t4 - t0):.4f}s\n")
+
+    return None
+
+
+import numpy as np
+
+
+def _snapshot(beam):
+    """Grab a copy of every segment’s JawPositions and LeafPositions"""
+    jaws = [list(seg.JawPositions) for seg in beam.Segments]
+    leaves = [
+        [seg.LeafPositions[0].copy(), seg.LeafPositions[1].copy()]
+        for seg in beam.Segments
+    ]
+    return jaws, leaves
+
+
+import time
+import numpy as np
+
+def _snapshot(beam):
+    jaws   = [list(seg.JawPositions) for seg in beam.Segments]
+    leaves = [[seg.LeafPositions[0].copy(), seg.LeafPositions[1].copy()]
+              for seg in beam.Segments]
+    return jaws, leaves
+
+def _restore(beam, jaws, leaves):
+    for seg, j, lp in zip(beam.Segments, jaws, leaves):
+        seg.JawPositions  = list(j)
+        seg.LeafPositions = [lp[0].copy(), lp[1].copy()]
+
+import time
+import numpy as np
+
+def srs_filter_leaves_bulk(beam):
+    """
+    1) Find the most‐open jaw positions across all control points and
+       set every segment’s jaws to those extremes.
+    2) For any leaf‐pair whose gap == MinGap, snap it closed just behind
+       the (now unified) jaws.
+    3) Bundle each segment’s bank-A and bank-B into an interleaved 1-D array
+       [A0, B0, A1, B1, …] and push them in one bulk EditBeamLeafPositions call.
+    """
+    t0 = time.perf_counter()
+
+    # --- 1) collect jaw extremes ----------------------------------------
+    jaws      = [seg.JawPositions for seg in beam.Segments]
+    x1e, x2e  = min(j[0] for j in jaws), max(j[1] for j in jaws)
+    y1e, y2e  = min(j[2] for j in jaws), max(j[3] for j in jaws)
+    t1 = time.perf_counter()
+
+    # --- 2) build mlc props & closed‐gap mask --------------------------
+    mlc = mlc_properties(beam)
+    if not mlc.has_segments or mlc.mlc_retracted:
+        return "MLC filtering failed: no segments or MLC retracted"
+
+    off, mg  = mlc.leaf_jaw_overlap, mlc.min_gap_moving
+    closed   = mlc.stationary_leaf_gaps()   # shape = [n_leaf,2,n_cp]
+    t2 = time.perf_counter()
+
+    # --- 3) pick one jaw side for the whole beam ------------------------
+    left_sum = right_sum = 0.0
+    for i, seg in enumerate(beam.Segments):
+        lp0, lp1 = seg.LeafPositions
+        mids     = 0.5*(lp0 + lp1)
+        mask     = closed[:,0,i]
+        left_sum  += np.abs(mids[mask] - x1e).sum()
+        right_sum += np.abs(mids[mask] - x2e).sum()
+
+    preferred = 'X1' if left_sum <= right_sum else 'X2'
+    t3 = time.perf_counter()
+
+    # --- 4) build one interleaved array per segment ---------------------
+    leaf_positions_list = []
+    for i, seg in enumerate(beam.Segments):
+        lp0, lp1 = seg.LeafPositions
+        mask     = closed[:,0,i]
+
+        # snap closed pairs behind the chosen jaw
+        if preferred == 'X2':
+            lp0[mask] = x2e + off
+            lp1[mask] = x2e + off + mg
+        else:
+            lp0[mask] = x1e - off - mg
+            lp1[mask] = x1e - off
+
+        # interleave [A0,B0, A1,B1, …]
+        n_leaves = lp0.shape[0]
+        merged   = np.empty(2*n_leaves, dtype=lp0.dtype)
+        merged[0::2] = lp0
+        merged[1::2] = lp1
+
+        leaf_positions_list.append(merged)
+    t4 = time.perf_counter()
+
+    # inspect the first merged array
+    arr0 = leaf_positions_list[0]
+    print(f" debug merged[0]: ndim={arr0.ndim}, shape={arr0.shape}")
+
+    # --- 5) one bulk RS call to push *all* leaf positions -------------
+    t5 = time.perf_counter()
+    beam.EditBeamLeafPositions(LeafPositions=leaf_positions_list)
+    t6 = time.perf_counter()
+
+    # --- 6) finally, set jaws on every segment ------------------------
+    t7 = time.perf_counter()
+    jawpos = [x1e, x2e, y1e, y2e]
+    for seg in beam.Segments:
+        seg.JawPositions = jawpos
+    t8 = time.perf_counter()
+
+    # --- timing report -------------------------------------------------
+    print(f"Step 1 (jaw extremes)        : {t1-t0:.4f}s")
+    print(f"Step 2 (compute closed gaps) : {t2-t1:.4f}s")
+    print(f"Step 3 (choose side={preferred}): {t3-t2:.4f}s")
+    print(f"Step 4 (build interleaved)   : {t4-t3:.4f}s")
+    print(f"Step 5 (RS leaf bulk)        : {t6-t5:.4f}s")
+    print(f"Step 6 (RS jaw writes)       : {t8-t7:.4f}s")
+    print(f"Total                        : {t8-t0:.4f}s\n")
+
+    return None
+
+def srs_filter_leaves_compare(beam):
+    """Benchmark your old vs. new approach back‐to‐back."""
+    orig_jaws, orig_leaves = _snapshot(beam)
+
+    # per‐segment version (paste your existing code here)…
+    t0 = time.perf_counter()
+    err1 = srs_filter_leaves_per_segment(beam)
+    t1 = time.perf_counter()
+    per_seg_time = t1 - t0
+
+    _restore(beam, orig_jaws, orig_leaves)
+
+    # bulk version
+    t2 = time.perf_counter()
+    err2 = srs_filter_leaves_bulk(beam)
+    t3 = time.perf_counter()
+    bulk_time = t3 - t2
+
+    _restore(beam, orig_jaws, orig_leaves)
+
+    print(f"Per‐segment filter: {per_seg_time:.4f}s",
+          f"{'ERROR:'+err1 if err1 else 'OK'}")
+    print(f"Bulk filter:       {bulk_time:.4f}s",
+          f"{'ERROR:'+err2 if err2 else 'OK'}")
+
+    return None
+
+
+def srs_filter_leaves_compare(beam):
+    """Benchmark both methods back‐to‐back on the same beam."""
+    # 1) snapshot
+    orig_jaws, orig_leaves = _snapshot(beam)
+
+    # 2) per‐segment
+    # t0 = time.perf_counter()
+    # err1 = srs_filter_leaves_per_segment(beam)
+    # t1 = time.perf_counter()
+    # per_seg_time = t1 - t0
+
+    # 3) restore
+    # _restore(beam, orig_jaws, orig_leaves)
+
+    # 4) bulk
+    t2 = time.perf_counter()
+    err2 = srs_filter_leaves_bulk(beam)
+    t3 = time.perf_counter()
+    bulk_time = t3 - t2
+
+    # 5) restore again (if you want beam back to original)
+    # _restore(beam, orig_jaws, orig_leaves)
+
+    # print(f"Per-segment filter: {per_seg_time:.4f}s",
+    #       f"{'ERROR:' + err1 if err1 else 'OK'}")
+    print(f"Bulk filter:       {bulk_time:.4f}s",
+          f"{'ERROR:' + err2 if err2 else 'OK'}")
+
+    return None
+
+
+def filter_leaves(beam, check_field_size=True, set_back_jaws=True):
     """ Examine all leaves that are currently set to be at a minimum leaf gap. If those leaves
         are not moving from control point to control point, then place them such that they will
         be behind the jaw once the set-back is in place. Note that the actual calculation here is
@@ -2127,17 +2446,19 @@ def filter_leaves(beam):
     s0 = beam.Segments[0]
     a = s0.JawPositions[1] - s0.JawPositions[0]
     b = s0.JawPositions[3] - s0.JawPositions[2]
-    equivalent_square_field_size = 2 * a * b / (a + b)
-    if equivalent_square_field_size < 3.:
-        mlc_filter = True
-        mlc_filter = False
+    if check_field_size:
+        equivalent_square_field_size = 2 * a * b / (a + b)
+        if equivalent_square_field_size < 3.:
+            mlc_filter = False
+        else:
+            mlc_filter = True
     else:
-        mlc_filter = False
+        mlc_filter = True
 
     if not mlc_filter:
         error = "MLC filtering unnecessary, field size is larger than 3 cm^2"
         return error
-    # For some bizzare reason, the __init__ method of beam does not pull the data from
+    # For some bizarre reason, the __init__ method of beam does not pull the data from
     # the MLC MachineReference physics. So we are searching for the machine directly here.
     beam_mlc = mlc_properties(beam)
 
@@ -2935,6 +3256,61 @@ def set_dsp(plan, beam_set, percent_rx=100., method='MU'):
     # beam_set.ComputeDose(DoseAlgorithm=algorithm, ForceRecompute='TRUE')
 
 
+def delete_unused_dsps(plan):
+    """
+    Delete unused DSPs in the plan.
+    This function will iterate through all beamsets in the plan and check for DSPs that are not
+    used in any beam dose. If a DSP is not used, and it is not part of an approved beamset
+    it will be deleted.
+    Args:
+        plan: object of type Plan, which contains the beamsets to check for unused DSPs.
+
+    Returns: None
+
+    """
+    all_dsps = {}
+    used_dsps = {}
+    for beamset in plan.BeamSets:
+        all_dsps[beamset.DicomPlanLabel] = []
+        used_dsps[beamset.DicomPlanLabel] = []
+        if beamset_is_approved(beamset):
+            continue  # Skip approved beamsets
+        for dsp in beamset.DoseSpecificationPoints:
+            all_dsps[beamset.DicomPlanLabel].append(dsp.Name)
+        for bd in beamset.FractionDose.BeamDoses:
+            if hasattr(bd.UserSetBeamDoseSpecificationPoint, 'Name'):
+                used_dsps[beamset.DicomPlanLabel].append(bd.UserSetBeamDoseSpecificationPoint.Name)
+    # Match on name
+    unused_dsps = {}
+    for beamset_name, all_dsps in all_dsps.items():
+        used_dsps_in_set = used_dsps.get(beamset_name, [])
+        unused_dsps[beamset_name] = [dsp for dsp in all_dsps if dsp not in used_dsps_in_set]
+    for beamset_name, unused_dsps in unused_dsps.items():
+        # Delete unused DSPs
+        for unused in unused_dsps:
+            logging.debug('Deleting unused DSP {} in beamset {}'.format(unused, beamset_name))
+            plan.BeamSets[beamset_name].DeleteDoseSpecificationPoint(Name=unused)
+
+
+def change_dsp_visualization_diameter(plan):
+    for beamset in plan.BeamSets:
+        if beamset_is_approved(beamset):
+            continue
+        for dsp in beamset.DoseSpecificationPoints:
+            if hasattr(dsp, 'VisualizationDiameter'):
+                # Set the visualization diameter to 0.1 mm
+                dsp.VisualizationDiameter = 0.01
+
+
+def beamset_is_approved(beamset):
+    if hasattr(beamset.Review, "ApprovalStatus"):
+        if beamset.Review.ApprovalStatus == 'Approved':
+            return True
+        else:
+            return False
+    else:
+        return False
+
 def load_beams_xml(filename, beamset_name, path):
     """Load a beamset from the file located in the path in the filename:
     :param filename: The name of the xml file housing the beamset to be loaded
@@ -2984,6 +3360,11 @@ def load_beams_xml(filename, beamset_name, path):
                 beam.collimator_angle = None
             else:
                 beam.collimator_angle = float(b.find('CollimatorAngle').text)
+
+            if b.find('IsocenterNumber') is None:
+                beam.iso_number = None
+            else:
+                beam.iso_number = int(b.find('IsocenterNumber').text)
 
             if b.find('CouchAngle') is None:
                 beam.couch_angle = None
@@ -3216,59 +3597,94 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
         return True
 
 
-def emc_calc_params(beamset):
-    """
-    For each beam, go through the beam doses, and return the statistical uncertainty and the
-    MC histories used in beam dose. Return the maximum uncertainty and minimum MC histories.
-    :param beamset: RS beamset
-    :return: NormUnc (the maximum normalized uncertainty) and number of histories used in calc
-    """
-    max_uncertainty = 0
-    # Return electron monte carlo computational parameters
-    for bd in beamset.FractionDose.BeamDoses:
-        max_uncertainty = max(max_uncertainty, bd.DoseValues.RelativeStatisticalUncertainty)
-    min_histories = get_number_of_emc_histories(beamset)
 
-    return {'NormUnc': max_uncertainty, 'MinHist': min_histories}
-
-
+@dataclass
 class EmcTest:
-    # Class used in output of the EMC test, where bool will be T/F depending on clinical
-    # uncertainties met
-    # and hist will return the number of suggested histories if the calculation of dose needs to
-    # be rerun
-    def __init__(self):
-        self.bool = True
-        self.hist = None
+    """Result of EMC check."""
+    ok: bool
+    hist: Optional[int] = None
 
 
-def check_emc(beamset, stat_limit=0.01, histories=5e5):
+def emc_calc_params(beamset) -> Dict[str, Optional[float]]:
+    """Collect EMC params.
+
+    Args:
+        beamset: RS beamset.
+
+    Returns:
+        {"NormUnc": float|None, "MinHist": int|None}
     """
-    Checks the electron monte carlo accuracy to ensure statistical limit is met
-    :param beamset: RS beamset
-    :param stat_limit: limit on the maximum uncertainty normalized to the maximum dose
-    :param histories: number of e mc histories
-    :return: EmcTest: True if meeting both standard clinical goals, otherwise a new recommended
-    number of histories
-    """
-    eval_current_emc = emc_calc_params(beamset)
-    print(f'Current EMC: {eval_current_emc}, and stat limit: {stat_limit} and histories: {histories}')
-    if eval_current_emc['MinHist'] < histories or eval_current_emc['NormUnc'] > stat_limit:
-        EmcTest.bool = False
-        stat_limit_hist = int(
-            eval_current_emc['MinHist'] * (eval_current_emc['NormUnc'] / stat_limit) ** 2.)
-        EmcTest.hist = max(histories, stat_limit_hist)
-        logging.info(
-            'Electron MC check showed an uncertainty of {} recommend increasing histories from {} '
-            'to {}'
-            .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist'], EmcTest.hist))
-    else:
-        EmcTest.bool = True
-        logging.info(
-            'Electron MC check showed clinically-acceptable uncertainty {} and histories {}'
-            .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist']))
+    try:
+        rel_uncs = [bd.DoseValues.RelativeStatisticalUncertainty
+                    for bd in beamset.FractionDose.BeamDoses]
+        norm_unc = max(rel_uncs) if rel_uncs else None
+    except Exception as e:
+        logging.debug("Could not get NormUnc: %s", str(e))
+        norm_unc = None
 
-    return EmcTest
+    try:
+        min_hist = get_number_of_emc_histories(beamset)  # provided elsewhere
+    except Exception as e:
+        logging.debug("Could not get min hist: %s", str(e))
+        min_hist = None
+
+    return {"NormUnc": norm_unc, "MinHist": min_hist}
+
+
+def check_emc(beamset, stat_limit: float = 0.01, histories: int = int(5e5)) -> EmcTest:
+    """Validate Electron Monte Carlo settings.
+
+    Each test is evaluated only if its input is available:
+      - If MinHist is present, check MinHist >= histories.
+      - If NormUnc is present, check NormUnc <= stat_limit and recommend scaled histories:
+          H_reco = ceil(B * (NormUnc/stat_limit)^2),
+        where B = MinHist if present else `histories`.
+
+    Args:
+        beamset: RS beamset.
+        stat_limit: Max allowed normalized statistical uncertainty.
+        histories: Target minimum histories.
+
+    Returns:
+        EmcTest. ok=False if any evaluated check fails. hist is recommended histories if increase suggested.
+    """
+    params = emc_calc_params(beamset)
+    norm_unc: Optional[float] = params.get("NormUnc")
+    min_hist: Optional[int] = params.get("MinHist")
+
+    logging.info(
+        "EMC params: NormUnc=%s, MinHist=%s; limits: stat_limit=%.5g, histories=%d",
+        norm_unc, min_hist, stat_limit, histories,
+    )
+
+    fail = False
+    recommendation: Optional[int] = None
+
+    # 1) Histories threshold check if MinHist is available
+    if min_hist is not None:
+        if min_hist < histories:
+            fail = True
+            recommendation = histories if recommendation is None else max(recommendation, histories)
+
+    # 2) Uncertainty limit check if NormUnc is available
+    if norm_unc is not None:
+        if norm_unc > stat_limit:
+            fail = True
+            base = min_hist if min_hist is not None else histories
+            scaled = int(math.ceil(base * (norm_unc / stat_limit) ** 2))
+            recommendation = scaled if recommendation is None else max(recommendation, scaled)
+
+    if fail:
+        logging.info(
+            "EMC fails. Recommend histories -> %s",
+            recommendation if recommendation is not None else "(Unknown histories) decrease uncertainty",
+        )
+        return EmcTest(ok=False, hist=recommendation)
+
+    # If neither metric available, or available metrics pass
+    logging.info("EMC passes for available inputs.")
+    return EmcTest(ok=True, hist=None)
+
 
 
 def load_beamsets(beamset_type=None, beamset_modality=None):

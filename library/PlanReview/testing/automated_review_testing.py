@@ -15,7 +15,10 @@ def review_test_patient(rso, preplan_data, review_type='Physics'):
     """
     import connect
     import logging
-    import PySimpleGUI as Sg
+    try:
+        import FreeSimpleGUI as Sg
+    except ImportError:
+        import PySimpleGUI as Sg
 
     try:
         # Step 1: Open test patient and set current plan and beamset

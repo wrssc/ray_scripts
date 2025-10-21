@@ -214,7 +214,8 @@ def get_prescription_dose_levels(beamset):
     prescription_dose_references = get_prescription_dose_references(beamset)
     try:
         for pdr in prescription_dose_references:
-            dose_levels.append(pdr.DoseValue / 100)
+            if pdr.DoseValue/100 not in dose_levels:
+                dose_levels.append(pdr.DoseValue / 100)
     except AttributeError:
         return dose_levels
     return dose_levels
@@ -224,16 +225,24 @@ def change_visualization_targets(rso):
     # Capture the current list of ROI's to avoid saving over them in the future
     target_types = ['Ptv', 'Ctv', 'Gtv']
     for roi in rso.case.PatientModel.RegionsOfInterest:
-        if roi.Type in target_types:
-            roi_geom = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi.Name]
+        roi_representation = rso.case.PatientModel.RegionsOfInterest[roi.Name]
+        if roi_representation.Type in target_types:
+            roi_geom = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi_representation.Name]
             if roi_geom.HasContours():
                 try:
-                    rso.patient.Set2DvisualizationForRoi(RoiName=roi.Name,
-                                                         Mode='Filled')
+                    roi_visualization_status = roi_representation.RoiVisualizationSettings.VisualizationMode2D()
+                    trys = 0
+                    while roi_visualization_status != 'Filled' and trys < 5:
+                        rso.patient.Set2DvisualizationForRoi(RoiName=roi.Name,
+                                                             Mode='filled')
+                    if roi_visualization_status != 'Filled':
+                        logging.warning(f'Could not change visualization for {roi.Name} after 5 tries')
                 except Exception as ex:
+                    logging.warning(f'Could not change visualization for {roi.Name} due to {ex}')
                     try:
                         roi.RoiVisualizationSettings.VisualizationMode2D('Filled')
-                    except:
+                    except Exception as e:
+                        logging.warning(f'Could not change visualization individual settings for {roi.Name} due to {e}')
                         continue
 
 
@@ -243,7 +252,6 @@ def change_visualization_isodose(rso):
     max_dose = find_max_dose_in_plan(beamset=rso.beamset)
     reference_doses = get_prescription_dose_levels(rso.beamset)
     reference_doses = find_goal_dose_levels(plan=rso.plan, priority=2, doses=reference_doses)
-
     isodose_reconfig(case=rso.case,
                      ref_doses=reference_doses,
                      max_dose=max_dose)

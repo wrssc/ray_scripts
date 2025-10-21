@@ -7,11 +7,11 @@
     structures that will be used to populate the UW Template.  In future iterations we
     will be updating this script to load beam templates and create the actual plan.
 
-    How To Use: After insertion of S-frame this script is run to generate the blocking
+    How To Use: After insertion of QFix_Brain_TBCouch_H1andH2 this script is run to generate the blocking
                 structures for a whole brain plan
 
     TODO: Add timing measurements to the planning process
-    TODO: Eliminate S-frame use and extend dose grid based on BTV limits
+    TODO: Extend dose grid based on BTV limits
     TODO: Addclinical goals
 
     Validation Notes:
@@ -32,6 +32,7 @@
     1.1.0 Update to Python 3.6 and RS 10A SP1
     1.1.1 Update to Python 3.8 and RS 11B. Eliminated second dummy plan.
     1.1.2 Update to Python 3.11 and RS 2024A. Added bypass_dialogs to allow for automated execution
+    1.1.3 Added QFix_Brain_TBCouch_H1andH2 and replaced S-frame
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -49,7 +50,7 @@
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '30-Apr-2024'
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
@@ -68,8 +69,8 @@ import UserInterface
 import random
 import sys
 import BeamOperations
-import PlanOperations
 import StructureOperations
+from GeneralOperations import logcrit
 from library.api.api_beamsets import add_dose_prescription_to_roi
 
 
@@ -125,7 +126,7 @@ def main(bypass_dialogs=False):
     # if that changes the s-frame load will fail
     institution_inputs_support_structures_examination = "Supine Patient"
     institution_inputs_support_structure_template = "UW Support"
-    institution_inputs_source_roi_names = ['S-frame']
+    institution_inputs_source_roi_names = ['QFix_Brain_TBCouch_H1andH2']
     try:
         patient = connect.get_current('Patient')
         case = connect.get_current("Case")
@@ -146,7 +147,7 @@ def main(bypass_dialogs=False):
         'Eye_L',
         'Eye_R',
         'External',
-        'S-frame',
+        'QFix_Brain_TBCouch_H1andH2',
         'Avoid',
         'Avoid_Face',
         'Lens_R_PRV05',
@@ -525,16 +526,16 @@ def main(bypass_dialogs=False):
 
     # S - frame loading
     status.next_step(text="Roi contouring complete, loading patient immobilization.")
-    # Load the S-frame into the current scan based on the structure template input above.
+    # Load the QFix into the current scan based on the structure template input above.
     # This operation is not supported in RS7, however, when we convert to RS8, this should work
     try:
         if check_structure_exists(case=case, roi_list=rois, option='Check',
-                                  structure_name='S-frame',
+                                  structure_name='QFix_Brain_TBCouch_H1andH2',
                                   bypass_dialogs=bypass_dialogs):
-            logging.info('S-frame found, bugging user')
+            logging.info('QFix_Brain_TBCouch_H1andH2 found, bugging user')
             if not bypass_dialogs:
                 connect.await_user_input(
-                    'S-frame present. ' +
+                    'QFix_Brain_TBCouch_H1andH2 present. ' +
                     'Ensure placed correctly then continue script')
         else:
             support_template = patient_db.LoadTemplatePatientModel(
@@ -552,17 +553,17 @@ def main(bypass_dialogs=False):
             )
             if not bypass_dialogs:
                 connect.await_user_input(
-                    'S-frame automatically loaded. ' +
+                    'QFix_Brain_TBCouch_H1andH2 automatically loaded. ' +
                     'Ensure placed correctly then continue script')
 
         status.next_step(
-            text='S-frame has been loaded. Ensure its alignment and continue the script.')
+            text='QFix_Brain_TBCouch_H1andH2 has been loaded. Ensure its alignment and continue the script.')
     except Exception:
         logging.warning('Support structure failed to load and was not found')
-        status.next_step(text='S-frame failed to load and was not found. ' +
+        status.next_step(text='QFix_Brain_TBCouch_H1andH2 failed to load and was not found. ' +
                               'Load manually and continue script.')
         connect.await_user_input(
-            'S-frame failed to load and was not found. ' +
+            'QFix_Brain_TBCouch_H1andH2 failed to load and was not found. ' +
             'Ensure it is loaded and placed correctly then continue script')
 
     # Creating planning structures for treatment and protect
@@ -792,23 +793,6 @@ def main(bypass_dialogs=False):
                                          relative_dose_prescription_value=1,
                                          auto_scale_dose=True)
 
-            # TODO Eliminate try after RS 11
-            # try:
-            #     # RS 10
-            #     beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
-            #                                      DoseVolume=80,
-            #                                      PrescriptionType='DoseAtVolume',
-            #                                      DoseValue=total_dose,
-            #                                      RelativePrescriptionLevel=1,
-            #                                      AutoScaleDose=True)
-            # except AttributeError:
-            #     beamset.AddRoiPrescriptionDoseReference(RoiName='PTV_WB_xxxx',
-            #                                             DoseVolume=80,
-            #                                             PrescriptionType='DoseAtVolume',
-            #                                             DoseValue=total_dose,
-            #                                             RelativePrescriptionLevel=1)
-
-
             try:
                 isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
                     RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
@@ -834,6 +818,10 @@ def main(bypass_dialogs=False):
             beam_gant = [270, 90]
             beam_col = [0, 0]
             beam_couch = [0, 0]
+            logcrit('Dialog: {},\t'.format('Whole Brain Autoplan')
+                    + 'TemplateName: {},\t'.format('WBRT Auto Opposed Laterals')
+                    + 'Iso: {},\t'.format('PTV_WB_xxxx')
+                    + 'Energy: {},\t'.format(beam_ener[0]))
 
             for i, b in enumerate(beam_names):
                 beamset.CreatePhotonBeam(BeamQualityId=beam_ener[i],
@@ -911,6 +899,7 @@ def main(bypass_dialogs=False):
         RegionOfInterests=export_exclude_structs,
         PointsOfInterests=[])
     patient.Save()
+
 
 if __name__ == '__main__':
     main()
