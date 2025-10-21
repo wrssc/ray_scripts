@@ -88,6 +88,7 @@ from typing import List, Pattern, Any, Optional, Tuple, Sequence, Dict
 from decimal import Decimal, ROUND_HALF_UP, getcontext, ROUND_HALF_EVEN
 from copy import deepcopy
 from typing import Callable, Any, Dict
+from dataclasses import dataclass
 
 # Parse destination and filters XML files
 dest_xml = ET.parse(os.path.join(os.path.dirname(__file__), 'DicomDestinations.xml'))
@@ -430,6 +431,7 @@ def send(case,
          couch_speed=None,
          round_jaws=False,
          aria_compatibility_mode=False,
+         multi_rx_aria_mode=False,
          no_ref_point_location=False,
          block_accessory=False,
          block_tray_id=False,
@@ -804,6 +806,23 @@ def send(case,
                     ds_aria = deepcopy(ds)
                     expected_aria = deepcopy(expected)
                     message = apply_prescription_filter_aria(
+                        ds=ds_aria, beamset=beamset, expected=expected_aria,
+                        no_ref_point_location=no_ref_point_location)
+                    if 'ERROR' in message:
+                        raise InvalidOperationException(
+                            'Prescription filter failed for {}: {}'.format(get_rt_plan_label(ds_aria), message))
+                    elif message:
+                        logging.debug(f"\t{rt_plan_msg}: {message}")
+                    if no_ref_point_location:
+                        message = delete_reference_point_location(ds=ds_aria, beamset=beamset, expected=expected_aria)
+                        if message:
+                            logging.debug(f"\t{rt_plan_msg}: {message}")
+                # 15)  Multi-Rx ARIA mode
+                if multi_rx_aria_mode:
+                    # Create a copy for ARIA specific export
+                    ds_aria = deepcopy(ds)
+                    expected_aria = deepcopy(expected)
+                    message = apply_prescription_filter_aria_multipoint(
                         ds=ds_aria, beamset=beamset, expected=expected_aria,
                         no_ref_point_location=no_ref_point_location)
                     if 'ERROR' in message:
@@ -1495,7 +1514,7 @@ def apply_table_position_filter(ds, expected, beamset, table_position):
     messages = []
     for beam in ds.BeamSequence:
         # Identify the plan label for ds:
-        ds_dicom_plan_label = getattr(ds,'RTPlanLabel','')
+        ds_dicom_plan_label = getattr(ds, 'RTPlanLabel', '')
         for bs in beamset:
             if bs.DicomPlanLabel == ds_dicom_plan_label:
                 matched_beamset = bs
@@ -1510,7 +1529,8 @@ def apply_table_position_filter(ds, expected, beamset, table_position):
             lateral = table_position[tp_key].get('TableTopLateralPosition', 0.0)
         else:
             # As indexing becomes more robust, this should be replaced with a KeyError. For now, return 0, 1000, 0
-            raise KeyError(f'Beam {beam.BeamName}: No table position entry found for DicomPlanLabel="{ds_dicom_plan_label}"')
+            raise KeyError(
+                f'Beam {beam.BeamName}: No table position entry found for DicomPlanLabel="{ds_dicom_plan_label}"')
 
         for cp in getattr(beam, 'ControlPointSequence', []):
             changes = []
@@ -1776,7 +1796,7 @@ def generate_extended_va_xml(
     return xml_str
 
 
-def find_prescription_index_of_dicom_dose_reference(dose_reference_sequence, beamset) -> int:
+def find_prescription_index_of_dicom_dose_reference(dose_reference_sequence, beamset, skip_description=False) -> int:
     def _check_inputs():
         if not hasattr(dose_reference_sequence, 'DoseReferenceNumber'):
             raise ValueError("dose_reference_sequence must have DoseReferenceNumber attribute")
@@ -1801,7 +1821,7 @@ def find_prescription_index_of_dicom_dose_reference(dose_reference_sequence, bea
     # Make a dictionary of the conditions to match
     target_dose = Decimal(str(dose_reference_sequence.TargetPrescriptionDose))
     round_target_dose = target_dose.quantize(quantum, rounding=ROUND_HALF_UP)
-    drs_conditions = {'DESCRIPTION': dose_reference_sequence.DoseReferenceDescription,
+    drs_conditions = {'DESCRIPTION': dose_reference_sequence.DoseReferenceDescription if not skip_description else None,
                       'TARGET_DOSE': round_target_dose,
                       'UID': dose_reference_sequence.DoseReferenceUID,
                       'ROI_NUMBER': dose_reference_sequence.ReferencedROINumber
@@ -1816,7 +1836,7 @@ def find_prescription_index_of_dicom_dose_reference(dose_reference_sequence, bea
         pdr_target_dose = Decimal(str(pdr.DoseValue)) / Decimal('100')
         round_pdr_target_dose = pdr_target_dose.quantize(quantum, rounding=ROUND_HALF_UP)
         pdr_conditions = {
-            'DESCRIPTION': pdr.Description,
+            'DESCRIPTION': pdr.Description if not skip_description else None,
             'TARGET_DOSE': round_pdr_target_dose,
             'UID': pdr.DoseReferenceIdentifier.UID,
             'ROI_NUMBER': pdr.OnStructure.RoiNumber if hasattr(pdr, 'OnStructure')
@@ -1895,7 +1915,8 @@ def add_dose_reference_extension_tag(ds: Dataset, beamsets, expected) -> str:
         # Loop over the ds DoseReferenceSequence instead
         for drs in ds.DoseReferenceSequence:
             # Find the matching beamset prescription for this index
-            prescription_index = find_prescription_index_of_dicom_dose_reference(drs, matched_beamset)
+            prescription_index = find_prescription_index_of_dicom_dose_reference(drs, matched_beamset,
+                                                                                 skip_description=True)
             prescription_dose_reference = matched_beamset.Prescription.PrescriptionDoseReferences[prescription_index]
             number_of_fractions = Decimal(str(ds.FractionGroupSequence[0].NumberOfFractionsPlanned))
             total_dose_gy = Decimal(str(prescription_dose_reference.DoseValue)) / Decimal('100')  # Convert to Gy
@@ -2002,6 +2023,352 @@ def delete_reference_point_location(ds, beamset, expected) -> str:
 
 
 def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=True) -> str:
+    """
+    Build and insert the primary aria_compatibility_mode reference point, and redistribute beam doses, pretty much
+    just for ARIA. This is because, to get the reference point doses to add correctly, we need to modify
+    the beam dose specification points (making them locationless). Obviously, Mobius doesn't like that
+    ARIA sets the dose to the primary reference point using the values in (300A,0084) BeamDose, so those have to
+    add up to exactly the primary aria_compatibility_mode dose for the other dose levels to be correct.
+    DICOM tags used:
+    - (300A,0010) DoseReferenceSequence (SQ)
+    - (300A,0012) DoseReferenceNumber (IS) - 1 for primary and 2, 3, etc. for subsequent -> Check only
+    - (300A,0014) DoseReferenceStructureType (CS): COORDINATES for primary and SITE for secondary -> Check only
+    - (300A,0016) DoseReferenceDescription (LO) -> TODO: This seems to be wonky in RS and appears off in ARIA
+    - (300A,0018) DoseReferencePointCoordinates (DS) - Must be Kept if Primary -> Check only
+    - (300A,0013) DoseReferenceUID (UI) -> TODO
+    - (300A,0020) DoseReferenceType (CS): TARGET -> Check only
+    - (300A,0023) DeliveryMaximumDose (DS) ?
+    - (300A,0026) Target Prescription Dose (DS) - TODO: Needs to be exactly set to RS Values - Coming over with rounding errors
+    - (300A,002C) OrganAtRiskMaximumDose (DS)
+    - (300A, 0082) BeamDoseSpecificationPoint (DS) -
+    - Private tags for Varian/UF: (3267,1000…), (3267,0010…)
+
+    Args:
+        ds:                 full pydicom Dataset for the RTPlan
+        beamset:            beamset object (to grab DicomPlanLabel & Prescription data)
+        expected:           the _Edits tracker to record tag edits
+        no_ref_point_location: bool, whether to insert coordinates or SITE
+    Returns:
+        msg (str): Summary message, or ''.
+    """
+
+    @dataclass(frozen=True, slots=True)
+    class PrescriptionDoseReference:
+        description: str
+        dose_value: Decimal  # Stored as a Decimal for precision
+        uid: str
+        roi_number: Optional[int] = None
+
+    def _get_primary_prescription(beamset):
+        """Get the primary prescription dose reference from the beamset."""
+        if hasattr(beamset.Prescription, 'PrimaryPrescriptionDoseReference'):
+            return beamset.Prescription.PrimaryPrescriptionDoseReference
+        else:
+            logging.warning('No primary prescription dose reference found in beamset.')
+            return None
+
+    def _get_beamset_pdr(beamset):
+        primary_prescription = _get_primary_prescription(beamset)
+        if primary_prescription is None:
+            return None
+        return PrescriptionDoseReference(
+            description=primary_prescription.Description,
+            dose_value=Decimal(str(primary_prescription.DoseValue)) / Decimal('100'),  # Convert to Gy
+            uid=primary_prescription.DoseReferenceIdentifier.UID,
+            roi_number=primary_prescription.OnStructure.RoiNumber
+            if hasattr(primary_prescription, 'OnStructure') and hasattr(primary_prescription.OnStructure, 'RoiNumber')
+            else None
+        )
+
+    def _get_dicom_pdr(dose_reference_sequence):
+        if not hasattr(dose_reference_sequence, 'DoseReferenceNumber'):
+            raise ValueError("dose_reference_sequence must have DoseReferenceNumber attribute")
+        if not hasattr(dose_reference_sequence, 'DoseReferenceDescription'):
+            raise ValueError(
+                f'DoseReferenceDescription is empty for DoseReferenceNumber '
+                f'{dose_reference_sequence.DoseReferenceNumber}. '
+                'Cannot find matching info, it is likely the Final Dose script '
+                'was not run before this one. Please run the Final Dose script first or disable '
+                'filters and manually set reference point data.'
+            )
+        return PrescriptionDoseReference(
+            description=dose_reference_sequence.DoseReferenceDescription,
+            dose_value=Decimal(str(dose_reference_sequence.TargetPrescriptionDose)),
+            uid=dose_reference_sequence.DoseReferenceUID,
+            roi_number=dose_reference_sequence.ReferencedROINumber
+            if hasattr(dose_reference_sequence, 'ReferencedROINumber') else None
+        )
+
+    def _match_prescription_dose_references(dose_reference_sequence, beamset, skip_description=False) -> bool:
+        """
+        Check if the given dose reference sequence matches any prescription dose reference in the beamset.
+
+        Args:
+            dose_reference_sequence: DICOM Dose Reference Sequence item.
+            beamset: RayStation BeamSet object containing PrescriptionDoseReferences.
+            skip_description (bool): If True, skip matching by description.
+        Returns:
+            bool: True if a match is found, False otherwise.
+        """
+
+        dicom_pdr = _get_dicom_pdr(dose_reference_sequence)
+        beamset_pdr = _get_beamset_pdr(beamset)
+        if beamset_pdr is None:
+            logging.error("No primary prescription dose reference found in beamset.")
+            return False
+        print(f"Comparing DICOM PDR: {dicom_pdr} with BeamSet PDR: {beamset_pdr}")
+        dose_value_match = dicom_pdr.dose_value == beamset_pdr.dose_value
+        uid_match = dicom_pdr.uid == beamset_pdr.uid
+        roi_number_match = dicom_pdr.roi_number == beamset_pdr.roi_number
+        description_match = dicom_pdr.description == beamset_pdr.description if not skip_description else True
+        print(f"Dose Value Match: {dose_value_match}, UID Match: {uid_match}, "
+              f"ROI Number Match: {roi_number_match}, Description Match: {description_match}")
+        if dose_value_match and uid_match and roi_number_match and description_match:
+            print(f"Match found for DoseReferenceNumber {dose_reference_sequence.DoseReferenceNumber} "
+                  f"with primary PrescriptionDoseReference '{beamset_pdr.description}'")
+            logging.debug(f"Match found for DoseReferenceNumber {dose_reference_sequence.DoseReferenceNumber} "
+                          f"with primary PrescriptionDoseReference '{beamset_pdr.description}'")
+            return dicom_pdr, beamset_pdr
+        else:
+            logging.debug(f"No match for DoseReferenceNumber {dose_reference_sequence.DoseReferenceNumber}. "
+                          f"DICOM PDR: {dicom_pdr}, BeamSet PDR: {beamset_pdr}")
+            return None, None
+
+    def _fraction_group_sequence_valid(ds):
+        """Check if the FractionGroupSequence exists and has referenced beams."""
+        if 'FractionGroupSequence' not in ds:
+            logging.warning('No FractionGroupSequence found in RTPlan.')
+            return False
+        if len(ds.FractionGroupSequence[0].ReferencedBeamSequence) == 0:
+            logging.warning('No ReferencedBeamSequence found in FractionGroupSequence.')
+            return False
+        return True
+
+    def _mu_scaled_beam_doses(mu: List[Decimal],
+                              rx_primary: Decimal,
+                              n_fractions: Decimal,
+                              decimals: int = 8
+                              ) -> Tuple[List[Decimal], Decimal]:
+        """
+        Compute MU-weighted BeamDose values and apply a K-remainder
+        redistribution so the rounded triplet sums exactly to the
+        prescription per fraction.
+
+        Args
+        ----
+        mu : list of MU values, one per beam (setup beams already removed)
+        rx_primary : prescription per fraction for the primary point [Gy]
+        n_fractions : number of fractions planned
+        decimals : number of decimal places allowed (Varian = 3)
+
+        Returns
+        -------
+        doses : list of adjusted BeamDose values [Gy] (length = len(mu))
+        rx_primary : returned unchanged for convenience
+        """
+        precision_scale = Decimal(10) ** decimals  # e.g. 1000
+        quantum = Decimal(f"1e-{decimals}")  # e.g. 0.001
+        primary_fractional_dose = rx_primary / n_fractions
+
+        sum_total_mu = sum(mu)
+        # --- raw MU-weighted dose before rounding ----------------------------
+        unscaled = [primary_fractional_dose * m / sum_total_mu for m in mu]
+
+        # --- first pass: round to grid ---------------------------------------
+        q_doses = [d.quantize(quantum, ROUND_HALF_UP) for d in unscaled]
+
+        # --- remainder pass (K-remainder, identical to Varian’s ±0.001 loop) --
+        int_target = int((primary_fractional_dose * precision_scale).to_integral_value(ROUND_HALF_UP))
+        int_doses = [int((d * precision_scale).to_integral_value(ROUND_HALF_UP)) for d in q_doses]
+        K = int_target - sum(int_doses)  # number of quanta we still need
+
+        if K:  # distribute the leftover quanta
+            # sort indices by size of remainder *before* the first rounding
+            remainders = [u - q for u, q in zip(unscaled, q_doses)]
+            order = sorted(range(len(mu)),
+                           key=lambda r_index: remainders[r_index],
+                           reverse=(K > 0))
+            for k_index in order[:abs(K)]:
+                int_doses[k_index] += 1 if K > 0 else -1
+
+        scaled_doses = [Decimal(u) / precision_scale for u in int_doses]
+        logging.debug(f'Output doses: {scaled_doses}, with total dose: {sum(scaled_doses)},'
+                      f' and residual error: {primary_fractional_dose - sum(scaled_doses)}')
+        return scaled_doses, rx_primary
+
+    def _get_beamset_dose_uid(beamset):
+        """Get the DoseUID from the beamset's ModificationInfo if available."""
+        if hasattr(beamset, 'ModificationInfo'):
+            if hasattr(beamset.ModificationInfo, 'DicomUID'):
+                return beamset.ModificationInfo.DicomUID
+        return None
+
+    def _scale_beam_dose_to_mu(pydicom_dataset, beamset_prescription_dose_reference, expected_pydicom_dataset) \
+            -> tuple[bool, str]:
+        """Scale beam doses to match the primary prescription dose."""
+        message_scale = ""
+        total_dose = Decimal('0.0')
+        total_count = Decimal('0.0')
+        total_mu = Decimal('0.0')
+        # Loop through the beams in the FractionGroupSequence
+        referenced_beam_sequence = pydicom_dataset.FractionGroupSequence[0].ReferencedBeamSequence
+        for b in referenced_beam_sequence:
+            beam_name = get_referenced_beam_name(pydicom_dataset, b)
+            tdt = get_referenced_beam_attribute(pydicom_dataset, b, 'TreatmentDeliveryType')
+            if tdt == "SETUP" or tdt is None:
+                logging.debug(f"{beam_name} is a setup beam skipping")
+                continue
+            total_count += Decimal('1')
+            if hasattr(b, 'BeamDose'):
+                total_dose += Decimal(str(b.BeamDose))
+            if hasattr(b, 'BeamMeterset'):
+                total_mu += Decimal(str(b.BeamMeterset))
+        primary_dose = beamset_prescription_dose_reference.dose_value
+        # Rescale the primary dose
+        if total_mu >= 0:
+            mu_values = []
+            ref_beams = []
+            for b in referenced_beam_sequence:
+                if get_referenced_beam_attribute(pydicom_dataset, b, 'TreatmentDeliveryType') == "SETUP":
+                    continue
+                mu_values.append(Decimal(str(b.BeamMeterset)))
+                ref_beams.append(b)
+            doses, _ = _mu_scaled_beam_doses(mu_values,
+                                             primary_dose,
+                                             number_of_fractions,
+                                             decimals=8)
+
+            for b, dose in zip(ref_beams, doses):
+                # write exactly three decimals
+                b.add_new(index_beam_dose_per_beam, 'DS', f"{dose:.8f}")
+                expected_pydicom_dataset.add(b[index_beam_dose_per_beam], beam=b)
+        # Validate results
+        recalculated_total = Decimal('0.0')
+        for b in referenced_beam_sequence:
+            if get_referenced_beam_attribute(pydicom_dataset, b, 'TreatmentDeliveryType') == "SETUP":
+                continue
+            if hasattr(b, 'BeamDose'):
+                recalculated_total += Decimal(str(b.BeamDose))
+        if recalculated_total != primary_dose:
+            message_scale = f"After scaling, total beam dose {recalculated_total} does not match " \
+                            f"primary prescription dose {primary_dose}."
+            return False, message_scale
+        return True, message_scale
+
+
+    msgs = []
+    # TODO: move all tags to top so we can see which ones get used
+    index_ref_point_desc = 0x300a0016
+    index_dose_reference_uid = 0x300a0013
+    index_dose_del_max_dose = 0x300a0023
+    index_target_prescription_dose = 0x300a0026
+    index_target_maximum_dose = 0x300a0027
+    index_beam_dose_per_beam = 0x300a0084
+    index_dose_reference_number = 0x300a0012
+    index_private_creator = 0x32670010  # Private creator tag for Varian VISION 3267
+    index_private_data = 0x32671000  # Private data tag for Varian VISION 3267
+    getcontext().prec = 28  # high enough to avoid rounding issues
+
+    # If the beamset type is list, then we need to match the DicomPlanLabel attribute with the plan name
+    # of the ds passed to this function
+    if isinstance(beamset, list):
+        logging.debug(f'Applying aria_compatibility_mode filter to beamsets: {[b.DicomPlanLabel for b in beamset]}')
+    else:
+        logging.debug(f'Applying aria_compatibility_mode filter to beamset: {beamset.DicomPlanLabel}')
+    beamset = find_beamset_by_label(beamset, ds)
+    logging.debug(f'Found beamset: {beamset.DicomPlanLabel} to match with DicomPlanLabel: {get_rt_plan_label(ds)}')
+    msgs.append(f'Rx Filter for {beamset.DicomPlanLabel}: ')
+    if beamset is None:
+        logging.warning('No matching beamset found, cannot proceed with aria_compatibility_mode dose adjustment.')
+        return ''
+    # Index "0" is always the primary dose reference
+    primary_dicom_dose_reference = ds.DoseReferenceSequence[0]
+    # Check if the primary dose reference matches the beamset primary prescription
+    dicom_pdr, beamset_pdr = _match_prescription_dose_references(primary_dicom_dose_reference, beamset,
+                                                                 skip_description=True)
+    if not dicom_pdr or not beamset_pdr:
+        logging.warning('No matching primary prescription dose reference found, cannot proceed with '
+                        'aria_compatibility_mode dose adjustment.')
+        return ''
+    # Initialize the primary dose reference and delete the rest
+    dose_ref_num = Tag(index_dose_reference_number)  # DoseReferenceNumber
+    for drs in ds.DoseReferenceSequence:
+        # If this is the primary dose reference, keep it, otherwise delete all others
+        # Get the DoseReferenceNumber
+        if drs.get(dose_ref_num, None) is not None and drs.DoseReferenceNumber != 1:
+            # Delete non-primary dose references
+            ds.DoseReferenceSequence.remove(drs)
+            continue
+
+    # only proceed if aria_compatibility_mode data exists
+    # Check the ds for FractionGroupSequence and ReferencedBeamSequence
+    if not _fraction_group_sequence_valid(ds):
+        return ''
+    number_of_fractions = Decimal(str(ds.FractionGroupSequence[0].NumberOfFractionsPlanned))
+    deliv_tag = Tag(index_dose_del_max_dose)
+    targ_tag = Tag(index_target_maximum_dose)
+    rx_tag = Tag(index_target_prescription_dose)
+    ref_point_desc_tag = Tag(index_ref_point_desc)
+    dose_uid_tag = Tag(index_dose_reference_uid)
+
+    rx_str = primary_dicom_dose_reference.get(rx_tag, None)
+    if rx_str is None:
+        rx_dose = Decimal(str(beamset_pdr.dose_value)) / Decimal('100')  # Convert to Gy
+    else:
+        rx_dose = Decimal(str(beamset_pdr.dose_value))  # Already in Gy
+    new_val = format_dose_value(rx_dose, strip=False)
+
+    # Target Prescription Dose
+    if rx_tag in primary_dicom_dose_reference:
+        # overwrite the existing element’s value
+        primary_dicom_dose_reference[rx_tag].value = new_val
+    else:
+        # create it from scratch (VR “DS” for Decimal String)
+        primary_dicom_dose_reference.add_new(rx_tag, 'DS', new_val)
+        expected.add(primary_dicom_dose_reference[rx_tag])
+
+    # DeliveryMaximumDose
+    if deliv_tag in primary_dicom_dose_reference:
+        # overwrite the existing element’s value
+        primary_dicom_dose_reference[deliv_tag].value = new_val
+    else:
+        # create it from scratch (VR “DS” for Decimal String)
+        primary_dicom_dose_reference.add_new(deliv_tag, 'DS', new_val)
+        expected.add(primary_dicom_dose_reference[deliv_tag])
+
+    # TargetMaximumDose
+    if targ_tag in primary_dicom_dose_reference:
+        primary_dicom_dose_reference[targ_tag].value = new_val
+    else:
+        primary_dicom_dose_reference.add_new(targ_tag, 'DS', new_val)
+        expected.add(primary_dicom_dose_reference[targ_tag])
+    # Insert private reference tags for the Daily and Session Dose reference limits
+    # Retrieve the reference point name from the beamset
+    primary_dicom_dose_reference[ref_point_desc_tag].value = f"{beamset.DicomPlanLabel}"
+    expected.add(primary_dicom_dose_reference[ref_point_desc_tag])
+
+
+    # Adjust beam doses to sum to primary dose point (if dose was not specified, evenly distribute it)
+    dose_scaled_correctly, message = _scale_beam_dose_to_mu(ds, beamset_pdr, expected)
+    if not dose_scaled_correctly:
+        msgs.append(message)
+
+    add_dose_reference_extension_tag(ds, beamset, expected)
+    delete_reference_point_location(ds, beamset, expected)
+    # Lastly, update the DoseReferenceUID to match the beamset dose UID if available
+    beamset_dose_uid = _get_beamset_dose_uid(beamset)
+    if beamset_dose_uid is not None:
+        if dose_uid_tag in primary_dicom_dose_reference:
+            primary_dicom_dose_reference[dose_uid_tag].value = beamset_dose_uid
+            expected.add(primary_dicom_dose_reference[dose_uid_tag])
+        else:
+            primary_dicom_dose_reference.add_new(dose_uid_tag, 'UI', beamset_dose_uid)
+            expected.add(primary_dicom_dose_reference[dose_uid_tag])
+    return '; '.join(msgs)
+
+
+# Inactive but can be reactivated for future multi-point prescriptions
+def apply_prescription_filter_aria_multipoint(ds, beamset, expected, no_ref_point_location=True) -> str:
     """
     Build and insert the primary aria_compatibility_mode reference point, and redistribute beam doses, pretty much
     just for ARIA. This is because, to get the reference point doses to add correctly, we need to modify

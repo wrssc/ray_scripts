@@ -176,6 +176,18 @@ def export_background_dose(pd_ffs: Pd, pd_hfs: Pd) -> str:
         return datetime.datetime(net_time.Year, net_time.Month, net_time.Day, net_time.Hour, net_time.Minute,
                                  net_time.Second)
 
+    def check_for_multiple_patient_directories(repo_path, patient_id, search_string):
+        """
+        Checks for multiple directories containing the given patient ID.
+        """
+        logging.debug(f'Checking for multiple directories for patient {patient_id} in {repo_path} '
+                      f'using search string {search_string}')
+        matching_dirs = []
+        for root, dirs, _ in os.walk(repo_path):
+            for directory in dirs:
+                if patient_id in directory and search_string in directory:
+                    matching_dirs.append((root, directory))
+        return matching_dirs
     def find_patient_directory(repo_path, patient_id, expected_date):
         """
         Searches for a directory containing the given patient ID and expected date.
@@ -211,16 +223,26 @@ def export_background_dose(pd_ffs: Pd, pd_hfs: Pd) -> str:
 
         matching_patients = pd.db.QueryPatientsFromPath(Path=patient_data_path,
                                                         SearchCriterias={'PatientID': pd.patient.PatientID})
+        logging.debug('Found matching patients: ' + str(matching_patients))
         if not matching_patients:
             raise RuntimeError(f'Patient not found in {patient_data_path}, export not performed')
         if len(matching_patients) > 1:
             raise RuntimeError(f'Multiple patients found in {patient_data_path}, export not performed')
 
         studies = pd.db.QueryStudiesFromPath(Path=patient_data_path, SearchCriterias=matching_patients[0])
+        logging.debug('Found matching studies: ' + str(studies))
         series = [s for study in studies for s in
                   pd.db.QuerySeriesFromPath(Path=patient_data_path, SearchCriterias=study)]
+        logging.debug('Found matching series: ' + str(series))
+
 
         mod_datetime = convert_net_to_datetime(ffs_eval.ModificationInfo.ModificationTime)
+        # Encountering an error where the entry['SeriesDescription'] is None and not iterable
+        # Output all elements of the return to debug
+        # TODO: Filtering is not eliminating the series which do not contain series description
+        logging.debug(f'Available series in patient directory: {series}')
+        logging.debug(f'entries are {[entry for entry in series]}')
+
 
         return [entry for entry in series if (
                 entry['StudyInstanceUID'] == series_or_instances['StudyInstanceUID'] and
@@ -229,16 +251,22 @@ def export_background_dose(pd_ffs: Pd, pd_hfs: Pd) -> str:
                 check_datetime_match(mod_datetime, entry) and
                 entry['Modality'] == 'RTDOSE')]
 
-    def remove_directory_contents_with_prompt(dir_path):
+    def remove_directory_contents_with_prompt(matching_dirs: List) -> bool:
         """
         Prompts user before deleting all contents inside the given directory.
         """
-        if not os.path.exists(dir_path):
-            Sg.popup_error(f"The path {dir_path} does not exist.")
-            return False
+        roots = []
+        for root, directory in matching_dirs:
+           dir_path = os.path.join(root, directory)
+           if not os.path.exists(dir_path):
+               Sg.popup_error(f"The path {dir_path} does not exist.")
+               return False
+           if root not in roots:
+                roots.append(root)
 
         layout = [
-            [Sg.Text(f"Multiple exported dose files were found in:\n{dir_path}\nDo you want to remove all contents?")],
+            [Sg.Text(f"Multiple exported dose files were found in:\n{[r for r in roots]}\n"
+                     f"Do you want to remove all contents?")],
             [Sg.Button("Yes", key="-YES-"), Sg.Button("No", key="-NO-")]]
         window = Sg.Window("Confirm Deletion", layout, modal=True)
 
@@ -250,13 +278,17 @@ def export_background_dose(pd_ffs: Pd, pd_hfs: Pd) -> str:
             if event == "-YES-":
                 window.close()
                 break
-
-        for item in os.listdir(dir_path):
-            item_path = os.path.join(dir_path, item)
-            if os.path.isfile(item_path) or os.path.islink(item_path):
-                os.remove(item_path)
-            elif os.path.isdir(item_path):
-                shutil.rmtree(item_path)
+        for root, directory in matching_dirs:
+            dir_path = os.path.join(root, directory)
+            if os.listdir(dir_path):
+                for item in os.listdir(str(dir_path)):
+                    item_path = os.path.join(root, directory, item)
+                    if os.path.isfile(item_path) or os.path.islink(item_path):
+                        os.remove(item_path)
+                    elif os.path.isdir(item_path):
+                        shutil.rmtree(item_path)
+            if not os.listdir(dir_path):
+                shutil.rmtree(dir_path)
 
         Sg.popup("Contents removed successfully.")
         return True
@@ -267,11 +299,17 @@ def export_background_dose(pd_ffs: Pd, pd_hfs: Pd) -> str:
 
     mod_date = convert_net_to_datetime(ffs_dose_evaluation.ModificationInfo.ModificationTime).strftime("%Y%m%d")
     today_str = datetime.date.today().strftime("%Y%m%d")
+    # Check for existing patient directories
+    multiple_dirs = check_for_multiple_patient_directories(DICOM_PATH, pd_ffs.patient.PatientID, mod_date)
+    multiple_dirs += check_for_multiple_patient_directories(DICOM_PATH, pd_ffs.patient.PatientID, today_str)
+    if multiple_dirs:
+        remove_directory_contents_with_prompt(multiple_dirs)
     # Prompt user to export the evaluation dose
     connect.await_user_input(f'Export to Target: PACS-RayStation\n '
                              f'Evaluation Fx Dose {pd_ffs.beamset.DicomPlanLabel} (HFS)\n'
                              f'Make sure to deselect beam doses')
 
+    # This needs to be a list of paths to search
     patient_path = find_patient_directory(DICOM_PATH, pd_ffs.patient.PatientID, mod_date) or \
                    find_patient_directory(DICOM_PATH, pd_ffs.patient.PatientID, today_str)
 
@@ -280,7 +318,7 @@ def export_background_dose(pd_ffs: Pd, pd_hfs: Pd) -> str:
 
     series_to_import = get_series_to_import(pd_ffs, ffs_dose_on_examination, ffs_dose_evaluation, patient_path)
 
-    if len(series_to_import) > 1 and remove_directory_contents_with_prompt(patient_path):
+    if len(series_to_import) > 1:
         return f'Multiple exported dose files found. Please clear {patient_path} and restart export.'
     elif not series_to_import:
         return f'No dose export found in {patient_path} for {pd_ffs.beamset.DicomPlanLabel}, export not performed'

@@ -45,13 +45,13 @@ EXPORT_OPTIONS = {
     # Enabled in the script and defaulted to yes
     'ADJUST_ELECTRON_DOSERATE': ('Adjust Electron Dose Rate', RADIO_ON, ENABLED, ['Electrons']),
     'USE_PRDR_DOSERATE': ('Use PRDR Dose Rate', RADIO_ON, ENABLED, ['PRDR']),
-    'ARIA_COMPATIBILITY_MODE': ('Apply ARIA compatibility filters (excludes dose, modifies prescription)',
+    'ARIA_COMPATIBILITY_MODE': ('Apply ARIA compatibility filters (excludes dose, modifies prescription, removes ref point location)',
                                 RADIO_ON, ENABLED, []),
     'UPDATE_SETUP_BEAMS': ('Update Setup Beams', RADIO_ON, ENABLED, ['Photons', 'Electrons']),
     # Enabled in the script but defaulted to no
     'USE_GATED': ('Internal Target RPM Gated Treatment (NOT ALIGN RT)',
                   RADIO_OFF, ENABLED, ['Photons', 'Electrons']),
-    'NO_REF_POINT_LOCATION': ('Reference Point has no geometric location', RADIO_OFF, ENABLED, []),
+    'NO_REF_POINT_LOCATION': ('Reference Point has no geometric location in non-ARIA plans', RADIO_OFF, ENABLED, []),
     'USE_SRS_COORDS': ('Use SRS table calculation', RADIO_OFF, ENABLED, ['Photons', 'Electrons']),
     # Filters that are currently disabled in the script
     'COPY_ELECTRON_BLOCK_NAME_TO_ID': ('Copy Electron Block Name to ID', RADIO_ON, DISABLED, ['Electrons']),
@@ -62,6 +62,7 @@ EXPORT_OPTIONS = {
     'ROUND_JAWS': ('Round Jaws', RADIO_ON, DISABLED, ['Photons', 'Electrons']),
     'SET_PA_AUTOMATICALLY': ('Set PA Automatically', RADIO_ON, DISABLED, ['Photons']),
     'IGNORE_MACHINE': ('Ignore machine name', RADIO_OFF, DISABLED, []),
+    'MULTI_RX_ARIA_MODE': ('Enable multi-reference point export', RADIO_OFF, DISABLED, []),
 }
 
 
@@ -832,6 +833,7 @@ def main():
                                pa_threshold=response.get('SET_PA_AUTOMATICALLY', False),
                                round_jaws=response.get('ROUND_JAWS', False),
                                aria_compatibility_mode=response.get('ARIA_COMPATIBILITY_MODE', False),
+                               multi_rx_aria_mode=response.get('MULTI_RX_ARIA_MODE', False),
                                no_ref_point_location=response.get('NO_REF_POINT_LOCATION', False),
                                block_accessory=response.get('APPLY_BLOCK_ACCESSORY_TO_ELECTRON_FIELDS', False),
                                block_tray_id=response.get('COPY_ELECTRON_BLOCK_NAME_TO_ID', False),

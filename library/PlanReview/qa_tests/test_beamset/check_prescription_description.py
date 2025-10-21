@@ -61,23 +61,26 @@ def check_prescription_description(rso: NamedTuple) -> Tuple[str, str]:
 
     # Attempt to retrieve the dose references
 
-    try:
-        pdrs = beamset.Prescription.PrescriptionDoseReferences
-    except AttributeError:
-        return FAIL, f"No PrescriptionDoseReferences found on beamset {beamset_name}"
+    if hasattr(beamset.Prescription, 'PrimaryPrescriptionDoseReference'):
+        pdrs = [beamset.Prescription.PrimaryPrescriptionDoseReference]
+    elif hasattr(beamset.Prescription, 'PrescriptionDoseReference'):
+        pdrs = [beamset.Prescription.PrescriptionDoseReferences[0]]
+    else:
+        return FAIL, f"No PrescriptionDoseReference found on beamset {beamset_name}"
 
     correct = []
     incorrect = []
     unknown = []
     indx = 1
     for pdr in pdrs:
-
         # Case A: has an associated ROI, DSP or Site
         rx_type, rx_obj_name = determine_prescription_type(pdr)
         if rx_obj_name is not None:
 
-            # expected_desc = f"{rx_obj_name}:{beamset_name}"
-            expected_desc = f"{beamset_name}|D{indx}"
+            # Multiple prescriptions per beamset no longer supported
+            # expected_desc = f"{beamset_name}|D{indx}"
+            # Single prescription per beamset
+            expected_desc = f"{beamset_name}"
             actual_desc = getattr(pdr, "Description", None)
 
             if actual_desc == expected_desc:
