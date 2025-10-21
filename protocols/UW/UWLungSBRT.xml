@@ -1735,7 +1735,7 @@
             </roi>
             <roi>
                 <name>PTV_p</name>
-                <ref>RTOG0813</ref>
+                <ref>RTOG 0813</ref>
                 <type dir="ge" know="rtog_sbr_dgi_minor">CI</type>
                 <index>0.0</index>
                 <dose units="%" roi="PTV_p">50</dose>
