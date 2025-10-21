@@ -204,14 +204,14 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Rib</name>
+                <name>Chestwall</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">52.2</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Rib</name>
+                <name>Chestwall</name>
                 <type>Max</type>
                 <volume units="cc">5</volume>
                 <dose units="Gy">48.9</dose>
@@ -471,7 +471,6 @@
                 <dose units="Gy">51.3</dose>
                 <priority>3</priority>
             </roi>
-
             <roi>
                 <name>Bronchus_R</name>
                 <type>Max</type>
@@ -563,14 +562,14 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Rib</name>
+                <name>Chestwall</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">52.2</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Rib</name>
+                <name>Chestwall</name>
                 <type>Max</type>
                 <volume units="cc">5</volume>
                 <dose units="Gy">48.9</dose>
@@ -899,14 +898,14 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Rib</name>
+                <name>Chestwall</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">52.2</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Rib</name>
+                <name>Chestwall</name>
                 <type>Max</type>
                 <volume units="cc">5</volume>
                 <dose units="Gy">48.9</dose>
@@ -1385,7 +1384,7 @@
             </roi>
             <roi>
                 <name>PTV</name>
-                <type>Max</type>
+                <type dir="le">DX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV">110</dose>
                 <priority>2</priority>
@@ -1640,7 +1639,7 @@
             </roi>
             <roi>
                 <name>PTV</name>
-                <type>Max</type>
+                <type dir="le">DX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV">110</dose>
                 <priority>2</priority>
@@ -1895,7 +1894,7 @@
             </roi>
             <roi>
                 <name>PTV</name>
-                <type>Max</type>
+                <type dir="le">DX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV">110</dose>
                 <priority>2</priority>
@@ -2150,7 +2149,7 @@
             </roi>
             <roi>
                 <name>PTV</name>
-                <type>Max</type>
+                <type dir="le">DX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV">110</dose>
                 <priority>2</priority>
