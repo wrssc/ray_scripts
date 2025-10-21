@@ -1,5 +1,10 @@
 """
 Check each beam for clearance issues with support structures or external contours in tomotherapy and TrueBeam plans.
+
+
+TODO: Tomotherapy replace with actual couch travel in the plan + a margin
+TODO: Electron compatibility
+
 """
 __author__ = "Adam Bayliss"
 __contact__ = 'rabayliss@wisc.edu'
@@ -17,7 +22,6 @@ from typing import Dict, Tuple, List, Optional, Any
 import logging
 import numpy as np
 import math
-import pandas as pd
 from PlanReview.review_definitions import HDA_MAX_DIAMETER, HDA_ALERT_DIAMETER, HDA_COUCH_THROW, TRUEBEAM_COVER_DIAMETER
 from PlanReview.utils.contour_utilities import (get_voxel_coordinates_direct_optimized)
 
@@ -314,7 +318,6 @@ def filter_in_bore_clearing_points_tomo(points, fail_diameter, alert_diameter, c
         tuple: (np.array, np.array): numpy arrays containing only the points outside the diameter
         and inside the length_of_interest, and points not matching these conditions.
     """
-    # TODO: replace with actual couch travel in the plan + a margin
     if couch_travel is None:
         couch_travel = (-HDA_COUCH_THROW/2 , HDA_COUCH_THROW/2)  # Default couch travel range if not provided
     # Calculate the radial distance in the XY plane for each point
@@ -597,7 +600,6 @@ def get_head_collision_masks(
         offset_fail: float,
         offset_alert: float,
         gantry_angles: np.ndarray,
-        debug: bool = False
 ) -> Tuple[Dict[float, np.ndarray], Dict[float, np.ndarray]]:
     """
     Vectorized collision masks using dot & cross math, for all angles at once,
@@ -791,7 +793,7 @@ def detect_collisions(rso, roi_dict, clearance_dict, testing=False, downsample_l
                                 fail_ranges, beam_info['clockwise']
                             )
 
-                # Process alert collisions (similar logic)
+                # Process alert collisions (similar logic) TODO: functionalize
                 if alert_angles:
                     alert_angles_int = sorted({int(round(ang)) for ang in alert_angles})
 
@@ -929,14 +931,14 @@ def find_externals_and_supports(rso):
     return external, supports
 
 
-def extract_voxel_representation(rso, rois):
+def extract_voxel_representation(rso, rois)-> Dict[str, np.ndarray]:
     """
     Convert ROIs to voxel representation if necessary and return their voxel coordinates.
     Args:
         rso: NamedTuple of ScriptObjects in RayStation.
         rois: List of ROIs to convert to voxel representation.
     Returns:
-        tuple: Dictionary of ROI names and their voxel coordinates, and list of temporary ROIs to delete.
+        Dict: Dictionary of ROI names and their voxel coordinates, and list of temporary ROIs to delete.
 
     """
     rois_checked = {}
