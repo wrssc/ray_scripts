@@ -214,6 +214,20 @@
                 <volume units="%">15</volume>
                 <priority>1</priority>
             </roi>
+			<roi>
+                <name>Bladder</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>Bladder</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
             <roi>
                 <name>Colon_Sigmoid</name>
                 <type dir="lt">DX</type>
@@ -318,6 +332,20 @@
                 <volume units="%">15</volume>
                 <priority>3</priority>
             </roi>
+			<roi>
+                <name>Rectum</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>Rectum</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
             <roi>
                 <name>SeminalVes</name>
                 <type dir="lt">DX</type>
@@ -335,15 +363,15 @@
             <roi>
                 <name>Urethra</name>
                 <type dir="lt">DX</type>
-                <dose units="%" roi="PTV_p">100</dose>
-                <volume units="cc">0.1</volume>
-                <priority>3</priority>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
             </roi>
-            <roi>
+			<roi>
                 <name>Urethra</name>
                 <type dir="lt">DX</type>
-                <dose units="%" roi="PTV_p">100</dose>
-                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -353,10 +381,6 @@
                 <volume units="%">2</volume>
                 <priority>3</priority>
             </roi>
-            <goalset>
-                <name>QUANTEC</name>
-                <priority>5</priority>
-            </goalset>
         </goals>
         <objectives>
             <roi>
@@ -1214,6 +1238,20 @@
                 <volume units="%">50</volume>
                 <priority>1</priority>
             </roi>
+			<roi>
+                <name>Bladder</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>Bladder</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
             <roi>
                 <name>Bladder</name>
                 <type dir="lt">VX</type>
@@ -1338,6 +1376,20 @@
                 <volume units="%">85</volume>
                 <priority>1</priority>
             </roi>
+			<roi>
+                <name>Rectum</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>Rectum</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
             <roi>
                 <name>Rectum</name>
                 <type dir="lt">VX</type>
@@ -1366,6 +1418,13 @@
                 <volume units="cc">1</volume>
                 <priority>3</priority>
             </roi>
+			<roi>
+                <name>Urethra</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
             <roi>
                 <name>Urethra</name>
                 <type dir="lt">DX</type>
@@ -1373,11 +1432,11 @@
                 <volume units="cc">0.03</volume>
                 <priority>3</priority>
             </roi>
-            <roi>
+			<roi>
                 <name>Urethra</name>
                 <type dir="lt">DX</type>
-                <dose units="%" roi="PTV_sib">100</dose>
-                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1554,6 +1613,20 @@
                 <volume units="cc">0.03</volume>
                 <priority>1</priority>
             </roi>
+			<roi>
+                <name>Bladder-CTV</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>Bladder-CTV</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
             <roi>
                 <name>Bladder-CTV</name>
                 <type dir="lt">VX</type>
@@ -1630,6 +1703,20 @@
                 <dose units="Gy">46</dose>
                 <priority>3</priority>
             </roi>
+			<roi>
+                <name>Rectum</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>Rectum</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
             <roi>
                 <name>Rectum</name>
                 <type dir="lt">VX</type>
@@ -1661,29 +1748,15 @@
             <roi>
                 <name>Urethra</name>
                 <type dir="lt">DX</type>
-                <dose units="%" roi="PTV_p">100</dose>
-                <volume units="cc">0.1</volume>
-                <priority>3</priority>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
             </roi>
             <roi>
                 <name>Urethra</name>
                 <type dir="lt">DX</type>
-                <dose units="%" roi="PTV_p">100</dose>
-                <volume units="cc">0.1</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Urethra_PRV02</name>
-                <type dir="lt">DX</type>
-                <dose units="%" roi="PTV_p">100</dose>
-                <volume units="cc">0.1</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Urethra_PRV02</name>
-                <type dir="lt">VX</type>
-                <dose units="%" roi="PTV_p">100</dose>
-                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
                 <priority>3</priority>
             </roi>
         </goals>
@@ -1832,6 +1905,20 @@
                 <volume units="cc">0.03</volume>
                 <priority>1</priority>
             </roi>
+			<roi>
+                <name>Bladder-CTV</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>Bladder-CTV</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
             <roi>
                 <name>Bladder-CTV</name>
                 <type dir="lt">VX</type>
@@ -1908,6 +1995,20 @@
                 <dose units="Gy">46</dose>
                 <priority>3</priority>
             </roi>
+			<roi>
+                <name>Rectum</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>Rectum</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
             <roi>
                 <name>Rectum</name>
                 <type dir="lt">VX</type>
@@ -1946,29 +2047,15 @@
             <roi>
                 <name>Urethra</name>
                 <type dir="lt">DX</type>
-                <dose units="%" roi="PTV_p">100</dose>
-                <volume units="cc">0.1</volume>
-                <priority>3</priority>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
             </roi>
             <roi>
                 <name>Urethra</name>
                 <type dir="lt">DX</type>
-                <dose units="%" roi="PTV_p">100</dose>
-                <volume units="cc">0.1</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Urethra_PRV02</name>
-                <type dir="lt">DX</type>
-                <dose units="%" roi="PTV_p">100</dose>
-                <volume units="cc">0.1</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Urethra_PRV02</name>
-                <type dir="lt">VX</type>
-                <dose units="%" roi="PTV_p">100</dose>
-                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
                 <priority>3</priority>
             </roi>
         </goals>
@@ -2241,6 +2328,20 @@
                 <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
+			<roi>
+                <name>Bladder</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>Bladder</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
             <roi>
                 <name>Bladder</name>
                 <type dir="lt">VX</type>
@@ -2248,11 +2349,39 @@
                 <volume units="%">50</volume>
                 <priority>3</priority>
             </roi>
+			<roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">35</dose>
+                <volume units="%">60</volume>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Rectum</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>Rectum</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
             <roi>
                 <name>Rectum</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">60</dose>
                 <volume units="%">15</volume>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="%">35</volume>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -2269,32 +2398,18 @@
                 <volume units="cc">0.03</volume>
                 <priority>3</priority>
             </roi>
-            <roi>
+			<roi>
                 <name>Urethra</name>
                 <type dir="lt">DX</type>
-                <dose units="%" roi="PTV_p">100</dose>
-                <volume units="cc">0.1</volume>
-                <priority>3</priority>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
             </roi>
-            <roi>
+			<roi>
                 <name>Urethra</name>
-                <type dir="lt">VX</type>
-                <dose units="%" roi="PTV_p">100</dose>
-                <volume units="cc">0.1</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Urethra_PRV02</name>
                 <type dir="lt">DX</type>
-                <dose units="%" roi="PTV_p">100</dose>
-                <volume units="cc">0.1</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Urethra_PRV02</name>
-                <type dir="lt">VX</type>
-                <dose units="%" roi="PTV_p">100</dose>
-                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
                 <priority>3</priority>
             </roi>
             <roi>
