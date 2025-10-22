@@ -83,9 +83,10 @@ from pydicom.tag import Tag
 from pydicom.uid import ImplicitVRLittleEndian
 from pydicom.dataset import Dataset
 from pydicom.errors import InvalidDicomError
+from pydicom.valuerep import DSfloat, DSdecimal
 from collections import OrderedDict
 from typing import List, Pattern, Any, Optional, Tuple, Sequence, Dict
-from decimal import Decimal, ROUND_HALF_UP, getcontext, ROUND_HALF_EVEN
+from decimal import Decimal, ROUND_HALF_UP, getcontext, InvalidOperation
 from copy import deepcopy
 from typing import Callable, Any, Dict
 from dataclasses import dataclass
@@ -1224,18 +1225,22 @@ def adjust_setup_field(ds, expected):
             # Change the Meter rate and nominal beam energy
             # cps = beam.ControlPointSequence[0]
             for cp in beam.ControlPointSequence:
-                if 'DoseRateSet' in cp and cp.DoseRateSet != 100:
-                    cp.DoseRateSet = 100
-                    expected.add(cp[0x300a0115], beam=beam, cp=cp)  # Dose Rate Set
-                    dose_rate_updated = True
-                elif 'DoseRateSet' not in cp:
-                    cp.add_new(0x300a0115, 'DS', 100)
-                    expected.add(cp[0x300a0115], beam=beam, cp=cp)  # Dose Rate Set
-                    dose_rate_updated = True
-                if 'NominalBeamEnergy' in cp and cp.NominalBeamEnergy != 6:
-                    cp.NominalBeamEnergy = 6
-                    expected.add(cp[0x300a0114], beam=beam, cp=cp)  # Nominal Beam Energy updated
-                    nominal_energy_updated = True
+                dose_rate_updated=set_tag_if_changed(cp, 0x300A0115, 'DS', 100,
+                                                     expected, beam=beam, cp=cp)
+                nominal_energy_updated=set_tag_if_changed(cp, 0x300A0114, 'DS', 6,
+                                                          expected, beam=beam, cp=cp)
+                # if 'DoseRateSet' in cp and cp.DoseRateSet != 100:
+                #     cp.DoseRateSet = 100
+                #     expected.add(cp[0x300a0115], beam=beam, cp=cp)  # Dose Rate Set
+                #     dose_rate_updated = True
+                # elif 'DoseRateSet' not in cp:
+                #     cp.add_new(0x300a0115, 'DS', 100)
+                #     expected.add(cp[0x300a0115], beam=beam, cp=cp)  # Dose Rate Set
+                #     dose_rate_updated = True
+                # if 'NominalBeamEnergy' in cp and cp.NominalBeamEnergy != 6:
+                #     cp.NominalBeamEnergy = 6
+                #     expected.add(cp[0x300a0114], beam=beam, cp=cp)  # Nominal Beam Energy updated
+                #     nominal_energy_updated = True
             if dose_rate_updated or nominal_energy_updated:
                 msg = f'Beam {beam.BeamName}: '
                 if dose_rate_updated:
@@ -1261,12 +1266,18 @@ def apply_machine_filter(ds, machine, expected):
     """
     messages = []
     for beam in ds.BeamSequence:
-        if hasattr(beam, 'TreatmentMachineName') and beam.TreatmentMachineName != machine:
-            beam.TreatmentMachineName = machine
-            expected.add(beam[0x300a00b2], beam=beam)
+        machine_filter_applied = set_tag_if_changed(
+            beam, 0x300a00b2, 'SH', machine, expected, beam=beam)
+        if machine_filter_applied:
             messages.append(f'Beam {beam.BeamName}: Machine filter applied: {machine}')
         else:
             messages.append(f'Beam {beam.BeamName}: Machine filter not applied: {machine}')
+        # if hasattr(beam, 'TreatmentMachineName') and beam.TreatmentMachineName != machine:
+        #     beam.TreatmentMachineName = machine
+        #     expected.add(beam[0x300a00b2], beam=beam)
+        #     messages.append(f'Beam {beam.BeamName}: Machine filter applied: {machine}')
+        # else:
+        #     messages.append(f'Beam {beam.BeamName}: Machine filter not applied: {machine}')
     return '; '.join(messages)
 
 
@@ -1411,12 +1422,14 @@ def apply_prdr_filter(ds, beamset, expected):
     for beam in ds.BeamSequence:
         if getattr(beam, 'RadiationType', '') == 'PHOTON' and hasattr(beam, 'ControlPointSequence'):
             for cp in beam.ControlPointSequence:
-                if 'DoseRateSet' in cp and cp.DoseRateSet != 100:
-                    cp.DoseRateSet = 100
-                    expected.add(cp[0x300a0115], beam=beam, cp=cp)
-                elif 'DoseRateSet' not in cp:
-                    cp.add_new(0x300a0115, 'DS', 100)
-                    expected.add(cp[0x300a0115], beam=beam, cp=cp)
+                set_tag_if_changed(cp, 0x300A0115, 'DS', 100,
+                                      expected, beam=beam, cp=cp)
+                # if 'DoseRateSet' in cp and cp.DoseRateSet != 100:
+                #    cp.DoseRateSet = 100
+                #    expected.add(cp[0x300a0115], beam=beam, cp=cp)
+                # elif 'DoseRateSet' not in cp:
+                #    cp.add_new(0x300a0115, 'DS', 100)
+                #    expected.add(cp[0x300a0115], beam=beam, cp=cp)
             messages.append(f'Beam {beam.BeamName}: PRDR dose rate set to 100 MU/min')
     return '; '.join(messages)
 
@@ -1482,15 +1495,18 @@ def adjust_electron_dose_rate(ds, expected):
     for beam in ds.BeamSequence:
         if getattr(beam, 'RadiationType', '') == 'ELECTRON' and hasattr(beam, 'ControlPointSequence'):
             for cp in beam.ControlPointSequence:
-                if 'DoseRateSet' in cp:
-                    if cp.DoseRateSet != 1000:
-                        cp.DoseRateSet = 1000
-                        expected.add(cp[0x300a0115], beam=beam, cp=cp)
-                        messages.append(f'Beam {beam.BeamName}: Dose rate updated to 1000 MU/min')
-                else:
-                    cp.add_new(0x300a0115, 'DS', 1000)
-                    expected.add(cp[0x300a0115], beam=beam, cp=cp)
-                    messages.append(f'Beam {beam.BeamName}: Dose rate added as 1000 MU/min')
+                set_tag_if_changed(cp, 0x300A0115, 'DS', 1000,
+                                      expected, beam=beam, cp=cp)
+                messages.append(f'Beam {beam.BeamName}: set dose rate set to 1000')
+                # if 'DoseRateSet' in cp:
+                #     if cp.DoseRateSet != 1000:
+                #         cp.DoseRateSet = 1000
+                #         expected.add(cp[0x300a0115], beam=beam, cp=cp)
+                #         messages.append(f'Beam {beam.BeamName}: Dose rate updated to 1000 MU/min')
+                # else:
+                #     cp.add_new(0x300a0115, 'DS', 1000)
+                #     expected.add(cp[0x300a0115], beam=beam, cp=cp)
+                #     messages.append(f'Beam {beam.BeamName}: Dose rate added as 1000 MU/min')
     return '; '.join(messages)
 
 
@@ -1534,21 +1550,24 @@ def apply_table_position_filter(ds, expected, beamset, table_position):
 
         for cp in getattr(beam, 'ControlPointSequence', []):
             changes = []
-            if ('TableTopVerticalPosition' in cp and
-                    cp.TableTopVerticalPosition != vertical):
-                cp.TableTopVerticalPosition = vertical
-                expected.add(cp[0x300a012a], beam=beam, cp=cp)
-                changes.append(f"Vert->{vertical}")
-            if ('TableTopLongitudinalPosition' in cp and
-                    cp.TableTopLongitudinalPosition != longitudinal):
-                cp.TableTopLongitudinalPosition = longitudinal
-                expected.add(cp[0x300a0129], beam=beam, cp=cp)
-                changes.append(f"Long->{longitudinal}")
-            if ('TableTopLateralPosition' in cp and
-                    cp.TableTopLateralPosition != lateral):
-                cp.TableTopLateralPosition = lateral
-                expected.add(cp[0x300a0128], beam=beam, cp=cp)
-                changes.append(f"Lat->{lateral}")
+            set_tag_if_changed(cp, 0x300A012A, 'DS', vertical, expected, beam=beam, cp=cp)
+            changes.append(f"Vert->{vertical}")
+            set_tag_if_changed(cp, 0x300A0129, 'DS', longitudinal, expected, beam=beam, cp=cp)
+            changes.append(f"Long->{longitudinal}")
+            set_tag_if_changed(cp, 0x300A0128, 'DS', lateral, expected, beam=beam, cp=cp)
+            changes.append(f"Lat->{lateral}")
+            # if ('TableTopVerticalPosition' in cp and
+            #         cp.TableTopVerticalPosition != vertical):
+            #     cp.TableTopVerticalPosition = vertical
+            #     expected.add(cp[0x300a012a], beam=beam, cp=cp)
+            # if ('TableTopLongitudinalPosition' in cp and
+            #         cp.TableTopLongitudinalPosition != longitudinal):
+            #     cp.TableTopLongitudinalPosition = longitudinal
+            #     expected.add(cp[0x300a0129], beam=beam, cp=cp)
+            # if ('TableTopLateralPosition' in cp and
+            #         cp.TableTopLateralPosition != lateral):
+            #     cp.TableTopLateralPosition = lateral
+            #     expected.add(cp[0x300a0128], beam=beam, cp=cp)
             if changes:
                 messages.append(f'Beam {beam.BeamName}: ' + ', '.join(changes))
     return '; '.join(messages)
@@ -1624,24 +1643,35 @@ def apply_energy_filter(ds, expected, energy_list):
                     mapped = energy_list[cp.NominalBeamEnergy]
                     e_val = float(re.sub(r'\D+', '', mapped))
                     mode_id = re.sub(r'\d+', '', mapped)
-                    if cp.NominalBeamEnergy != e_val:
-                        cp.NominalBeamEnergy = e_val
-                        expected.add(cp[0x300a0114], beam=beam, cp=cp)
+                    energy_changed = set_tag_if_changed(cp, 0x300A0114, 'DS', e_val, expected, beam, cp)
+                    if energy_changed:
                         messages.append(f'Beam {beam.BeamName}: Energy→{e_val}')
+
+                    # if cp.NominalBeamEnergy != e_val:
+                    #     cp.NominalBeamEnergy = e_val
+                    #     expected.add(cp[0x300a0114], beam=beam, cp=cp)
+                    #     messages.append(f'Beam {beam.BeamName}: Energy→{e_val}')
                     want_nonstd = bool(mode_id)
                     current_nonstd = getattr(beam, 'FluenceMode', '') == 'NON_STANDARD'
                     if want_nonstd and not current_nonstd:
                         beam.FluenceMode = 'NON_STANDARD'
-                        expected.add(beam[0x30020051], beam=beam, cp=cp)
-                        messages.append(f'Beam {beam.BeamName}: FluenceMode→NON_STANDARD')
+                        fluence_changed = set_tag_if_changed(beam, 0x30020051, 'CS', 'NON_STANDARD', expected, beam)
+                        # expected.add(beam[0x30020051], beam=beam, cp=cp)
+                        if fluence_changed:
+                            messages.append(f'Beam {beam.BeamName}: FluenceMode→NON_STANDARD')
                     elif not want_nonstd and current_nonstd:
                         beam.FluenceMode = 'STANDARD'
-                        expected.add(beam[0x30020051], beam=beam, cp=cp)
-                        messages.append(f'Beam {beam.BeamName}: FluenceMode→STANDARD')
+                        fluence_changed = set_tag_if_changed(beam, 0x30020051, 'CS', 'STANDARD', expected, beam)
+                        if fluence_changed:
+                            messages.append('Beam {beam.BeamName}: FluenceMode→STANDARD')
+                        # expected.add(beam[0x30020051], beam=beam, cp=cp)
                     if mode_id and getattr(beam, 'FluenceModeID', None) != mode_id:
                         beam.FluenceModeID = mode_id
-                        expected.add(beam[0x30020052], beam=beam, cp=cp)
-                        messages.append(f'Beam {beam.BeamName}: FluenceModeID→{mode_id}')
+                        mode_id_changed = set_tag_if_changed(beam, 0x30020052, 'SH', mode_id, expected, beam)
+                        if mode_id_changed:
+                            messages.append(f'Beam {beam.BeamName}: FluenceModeID→{mode_id}')
+                        # expected.add(beam[0x30020052], beam=beam, cp=cp)
+                        # messages.append(f'Beam {beam.BeamName}: FluenceModeID→{mode_id}')
     return '; '.join(messages)
 
 
@@ -1661,8 +1691,9 @@ def apply_couch_speed_filter(ds, expected, couch_speed):
         if speed is not None:
             tag = pydicom.tag.Tag(0x300d, 0x1080)
             val = f"{round(speed, 6):.6f} "
-            beam.add_new(tag, 'DS', val)
-            expected.add(beam[tag], beam=beam)
+            set_tag_if_changed(beam, 0x300D1080, 'DS', val, expected)
+            # beam.add_new(tag, 'DS', val)
+            # expected.add(beam[tag], beam=beam)
             messages.append(f'Beam {beam.BeamName}: CouchSpeed→{val.strip()}')
     return '; '.join(messages)
 
@@ -1681,9 +1712,10 @@ def apply_gantry_period_filter(ds, expected, gantry_period):
     tag = pydicom.tag.Tag(0x300d, 0x1040)
     for beam in ds.BeamSequence:
         val = f"{gantry_period} "
-        beam.add_new(tag, 'DS', val)
-        expected.add(beam[tag], beam=beam)
-        messages.append(f'Beam {beam.BeamName}: GantryPeriod→{val.strip()}')
+        set_tag_if_changed(beam, 0x300D1040, 'DS', val, expected)
+        # beam.add_new(tag, 'DS', val)
+        # expected.add(beam[tag], beam=beam)
+        messages.append(f'Beam {beam.BeamName}: GantryPeriod->{val.strip()}')
     return '; '.join(messages)
 
 
@@ -1926,10 +1958,12 @@ def add_dose_reference_extension_tag(ds: Dataset, beamsets, expected) -> str:
         return dose_references
 
     # Register private creator
-    private_creator_tag = Tag(0x3253, 0x0010)
+    # private_creator_tag = Tag(0x3253, 0x0010)
     private_creator_value = "Varian Medical Systems VISION 3253"
-    ds.add_new(private_creator_tag, 'LO', private_creator_value)
-    expected.add(ds[private_creator_tag])
+    _ = set_tag_if_changed(
+        ds, Tag(0x3253, 0x0010), 'LO', private_creator_value, expected)
+    # ds.add_new(private_creator_tag, 'LO', private_creator_value)
+    # expected.add(ds[private_creator_tag])
 
     # Get the referenced beamset
     beamset = find_beamset_by_label(beamsets, ds)
@@ -1947,10 +1981,15 @@ def add_dose_reference_extension_tag(ds: Dataset, beamsets, expected) -> str:
     # Encode the xml string as bytes
     xml_encode = xml_string.encode('utf-8')
     private_data_tag = Tag(0x3253, 0x1000)
-    ds.add_new(private_data_tag, 'UN', xml_encode)
-    expected.add(ds[private_data_tag])
-    ds.add_new(Tag(0x3253, 0x1002), 'UN', b'ExtendedIF')
-    expected.add(ds[Tag(0x3253, 0x1002)])
+    _ = set_tag_if_changed(
+        ds, Tag(0x3253, 0x1000), 'UN', xml_encode, expected)
+    # ds.add_new(private_data_tag, 'UN', xml_encode)
+    # expected.add(ds[private_data_tag])
+    # Also add the other required private tags
+    _ = set_tag_if_changed(
+        ds, Tag(0x3253, 0x1002), 'UN', b'ExtendedIF', expected)
+    # ds.add_new(Tag(0x3253, 0x1002), 'UN', b'ExtendedIF')
+    # expected.add(ds[Tag(0x3253, 0x1002)])
     # ds.add_new(Tag(0x3253, 0x1001), 'UN', b'2858')
     # expected.add(ds[Tag(0x3253, 0x1001)])
 
@@ -1966,43 +2005,54 @@ def get_rs_prescription(beamset):
 
 def delete_reference_point_location(ds, beamset, expected) -> str:
     def _delete_point_location(drs, e) -> str:
-        m = ""
-        index_dose_reference_structure_type = 0x300a0014  # DoseReferenceStructureType in DoseReferenceSequence
-        drs_type_tag = Tag(index_dose_reference_structure_type)
-        dose_reference_structure_type = drs.get(drs_type_tag, None)
-        if dose_reference_structure_type is not None:
-            if dose_reference_structure_type != 'SITE':
-                drs[drs_type_tag].value = 'SITE'
-                e.add(drs[drs_type_tag])
-        else:
-            m = "No DoseReferenceSequence found to modify DoseReferenceStructureType"
-        return m
+        tag = Tag(0x300a0014)
+        elem = drs.get(tag)
+        if elem is None:
+            return "No DoseReferenceStructureType found to modify"
+        if elem.value != 'SITE':
+            drs[tag].value = 'SITE'
+            e.add(drs[tag])
+        return ""
+        # index_dose_reference_structure_type = 0x300a0014  # DoseReferenceStructureType in DoseReferenceSequence
+        # structure_type_changed = set_tag_if_changed(
+        #     drs, 0x300a0014, 'CS', 'SITE', e, beam=None, cp=None)
+        # drs_type_tag = Tag(index_dose_reference_structure_type)
+        # dose_reference_structure_type = drs.get(drs_type_tag, None)
+        # if dose_reference_structure_type is not None:
+        #     if dose_reference_structure_type != 'SITE':
+        #         drs[drs_type_tag].value = 'SITE'
+        #         e.add(drs[drs_type_tag])
+        # else:
+        #     m = "No DoseReferenceSequence found to modify DoseReferenceStructureType"
+        # return m
 
     def _delete_roi_number(drs, e):
         m = ""
-        index_referenced_roi_number = 0x30060084  # Referenced ROI Number in DoseReferenceSequence
-        drs_roi_num_tag = Tag(index_referenced_roi_number)
+        # index_referenced_roi_number = 0x30060084  # Referenced ROI Number in DoseReferenceSequence
+        drs_roi_num_tag = Tag(0x30060084)  # Referenced ROI Number in DoseReferenceSequence
         roi_number = drs.get(drs_roi_num_tag, None)
         if roi_number is not None:
             del drs[drs_roi_num_tag]
-            # e.add(drs_roi_num_tag)
         else:
             m = "No ReferencedROINumber found to delete"
         return m
 
-    def _delete_location_tags_from_beams(frac):
+    def _delete_location_tags_from_beams(frac, e):
         location_tags = {
-            'BeamDoseSpecificationPoint': 0x300a0082,  # BeamDoseSpecificationPoint
-            'BeamDosePointDepth': 0x300a0088,  # BeamDosePointDepth
-            'RadiologicalDepth': 0x300a0089,  # RadiologicalDepth
-            'BeamDoseType': 0x300a0090,  # BeamDoseType
+            'BeamDoseSpecificationPoint': 0x300a0082,  # BeamDoseSpecificationPoint, VR DS
+            'BeamDosePointDepth': 0x300a0088,  # BeamDosePointDepth, VR DS
+            'RadiologicalDepth': 0x300a0089,  # RadiologicalDepth, VR DS
+            'BeamDoseType': 0x300a0090,  # BeamDoseType,
         }
         beams = frac.ReferencedBeamSequence
         for b in beams:
-            for address, hex_add in location_tags.items():
-                if hasattr(b, address):
-                    tag = Tag(hex_add)
-                    del b[tag]
+            #for address, hex_add in location_tags.items():
+            for t in (Tag(0x300a0082), Tag(0x300a0088), Tag(0x300a0089), Tag(0x300a0090)):
+                if t in b:
+                    del b[t]
+                # if hasattr(b, address):
+                #     tag = Tag(hex_add)
+                #     del b[tag]
 
     msgs = []
     if isinstance(beamset, list):
@@ -2013,13 +2063,15 @@ def delete_reference_point_location(ds, beamset, expected) -> str:
     logging.debug(f'Found beamset: {beamset.DicomPlanLabel} to match with DicomPlanLabel: {get_rt_plan_label(ds)}')
     # Loop over all DoseReferenceSequence items
     for dose_reference_sequence in ds.DoseReferenceSequence:
-        msgs.append(_delete_point_location(dose_reference_sequence, expected))
-        msgs.append(_delete_roi_number(dose_reference_sequence, expected))
+        _delete_point_location(dose_reference_sequence, expected)
+        _delete_roi_number(dose_reference_sequence, expected)
+        # msgs.append(_delete_point_location(dose_reference_sequence, expected))
+        # msgs.append(_delete_roi_number(dose_reference_sequence, expected))
     # Loop over all beams and delete location tags
     frac = ds.FractionGroupSequence[0]
-    _delete_location_tags_from_beams(frac)
+    _delete_location_tags_from_beams(frac, expected)
 
-    return "; ".join(msgs)
+    # return "; ".join(msgs)
 
 
 def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=True) -> str:
@@ -2099,7 +2151,7 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
             if hasattr(dose_reference_sequence, 'ReferencedROINumber') else None
         )
 
-    def _match_prescription_dose_references(dose_reference_sequence, beamset, skip_description=False) -> bool:
+    def _match_prescription_dose_references(dose_reference_sequence, beamset, skip_description=False) -> Tuple:
         """
         Check if the given dose reference sequence matches any prescription dose reference in the beamset.
 
@@ -2116,7 +2168,6 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
         if beamset_pdr is None:
             logging.error("No primary prescription dose reference found in beamset.")
             return False
-        print(f"Comparing DICOM PDR: {dicom_pdr} with BeamSet PDR: {beamset_pdr}")
         dose_value_match = dicom_pdr.dose_value == beamset_pdr.dose_value
         uid_match = dicom_pdr.uid == beamset_pdr.uid
         roi_number_match = dicom_pdr.roi_number == beamset_pdr.roi_number
@@ -2124,8 +2175,6 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
         print(f"Dose Value Match: {dose_value_match}, UID Match: {uid_match}, "
               f"ROI Number Match: {roi_number_match}, Description Match: {description_match}")
         if dose_value_match and uid_match and roi_number_match and description_match:
-            print(f"Match found for DoseReferenceNumber {dose_reference_sequence.DoseReferenceNumber} "
-                  f"with primary PrescriptionDoseReference '{beamset_pdr.description}'")
             logging.debug(f"Match found for DoseReferenceNumber {dose_reference_sequence.DoseReferenceNumber} "
                           f"with primary PrescriptionDoseReference '{beamset_pdr.description}'")
             return dicom_pdr, beamset_pdr
@@ -2240,8 +2289,9 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
 
             for b, dose in zip(ref_beams, doses):
                 # write exactly three decimals
-                b.add_new(index_beam_dose_per_beam, 'DS', f"{dose:.8f}")
-                expected_pydicom_dataset.add(b[index_beam_dose_per_beam], beam=b)
+                set_tag_if_changed(b, 0x300A0084, 'DS', f"{dose:.8f}", expected_pydicom_dataset)
+                # b.add_new(index_beam_dose_per_beam, 'DS', f"{dose:.8f}")
+                # expected_pydicom_dataset.add(b[index_beam_dose_per_beam], beam=b)
         # Validate results
         recalculated_total = Decimal('0.0')
         for b in referenced_beam_sequence:
@@ -2255,18 +2305,34 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
             return False, message_scale
         return True, message_scale
 
+    # def update_primary_dose_reference_description(primary_dicom_dose_reference):
+    #     """Update the DoseReferenceDescription to match the beamset DicomPlanLabel."""
+    #     description_tag = Tag(index_ref_point_desc)
+    #     new_description = f"{beamset.DicomPlanLabel}"
+    #     current_description = primary_dicom_dose_reference.get(description_tag, None)
+    #     if current_description is not None and current_description != new_description:
+    #         current_description.value = new_description
+    #         expected.add(current_description)
+    #     elif current_description is None:
+    #         # Create the tag if it doesn't exist
+    #         logging.debug(f'Creating DoseReferenceDescription tag with value: {new_description}')
+    #         primary_dicom_dose_reference.add_new(description_tag, 'LO', new_description)
+    #         expected.add(primary_dicom_dose_reference[description_tag])
+    #         expected.add(primary_dicom_dose_reference[description_tag])
+
 
     msgs = []
     # TODO: move all tags to top so we can see which ones get used
-    index_ref_point_desc = 0x300a0016
-    index_dose_reference_uid = 0x300a0013
-    index_dose_del_max_dose = 0x300a0023
-    index_target_prescription_dose = 0x300a0026
-    index_target_maximum_dose = 0x300a0027
-    index_beam_dose_per_beam = 0x300a0084
-    index_dose_reference_number = 0x300a0012
-    index_private_creator = 0x32670010  # Private creator tag for Varian VISION 3267
-    index_private_data = 0x32671000  # Private data tag for Varian VISION 3267
+    # index_ref_point_desc = 0x300a0016
+    # index_dose_reference_uid = 0x300a0013
+    # index_dose_del_max_dose = 0x300a0023
+    # index_target_prescription_dose = 0x300a0026
+    # index_target_maximum_dose = 0x300a0027
+    # index_beam_dose_per_beam = 0x300a0084
+    # index_dose_reference_number = 0x300a0012
+    # index_dose_reference_sequence = 0x300a0010
+    # index_private_creator = 0x32670010  # Private creator tag for Varian VISION 3267
+    # index_private_data = 0x32671000  # Private data tag for Varian VISION 3267
     getcontext().prec = 28  # high enough to avoid rounding issues
 
     # If the beamset type is list, then we need to match the DicomPlanLabel attribute with the plan name
@@ -2291,26 +2357,27 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
                         'aria_compatibility_mode dose adjustment.')
         return ''
     # Initialize the primary dose reference and delete the rest
-    dose_ref_num = Tag(index_dose_reference_number)  # DoseReferenceNumber
-    for drs in ds.DoseReferenceSequence:
-        # If this is the primary dose reference, keep it, otherwise delete all others
-        # Get the DoseReferenceNumber
-        if drs.get(dose_ref_num, None) is not None and drs.DoseReferenceNumber != 1:
-            # Delete non-primary dose references
-            ds.DoseReferenceSequence.remove(drs)
-            continue
+    # dose_ref_num = Tag(index_dose_reference_number)  # DoseReferenceNumber
+    dose_ref_seq = Tag(0x300a0010)
+    removed = 0
+    kept = []
+    for item in ds.DoseReferenceSequence:
+        if getattr(item, 'DoseReferenceNumber', None) != 1:
+            removed += 1
+        else:
+            kept.append(item)
+    if removed:
+        ds.DoseReferenceSequence = pydicom.Sequence(kept)
+        expected.remove(dose_ref_seq, note=f"sequence items removed: {removed}")
 
     # only proceed if aria_compatibility_mode data exists
     # Check the ds for FractionGroupSequence and ReferencedBeamSequence
     if not _fraction_group_sequence_valid(ds):
         return ''
     number_of_fractions = Decimal(str(ds.FractionGroupSequence[0].NumberOfFractionsPlanned))
-    deliv_tag = Tag(index_dose_del_max_dose)
-    targ_tag = Tag(index_target_maximum_dose)
-    rx_tag = Tag(index_target_prescription_dose)
-    ref_point_desc_tag = Tag(index_ref_point_desc)
-    dose_uid_tag = Tag(index_dose_reference_uid)
+    rx_tag = Tag(0x300a0026)
 
+    # Target Prescription Dose
     rx_str = primary_dicom_dose_reference.get(rx_tag, None)
     if rx_str is None:
         rx_dose = Decimal(str(beamset_pdr.dose_value)) / Decimal('100')  # Convert to Gy
@@ -2318,34 +2385,42 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
         rx_dose = Decimal(str(beamset_pdr.dose_value))  # Already in Gy
     new_val = format_dose_value(rx_dose, strip=False)
 
-    # Target Prescription Dose
-    if rx_tag in primary_dicom_dose_reference:
-        # overwrite the existing element’s value
-        primary_dicom_dose_reference[rx_tag].value = new_val
-    else:
-        # create it from scratch (VR “DS” for Decimal String)
-        primary_dicom_dose_reference.add_new(rx_tag, 'DS', new_val)
-        expected.add(primary_dicom_dose_reference[rx_tag])
+    target_prescription_dose_changed = set_tag_if_changed(
+        primary_dicom_dose_reference, 0x300a0026, 'DS', new_val, expected)
+    # if rx_tag in primary_dicom_dose_reference:
+    #     # overwrite the existing element’s value
+    #     primary_dicom_dose_reference[rx_tag].value = new_val
+    # else:
+    #     # create it from scratch (VR “DS” for Decimal String)
+    #     primary_dicom_dose_reference.add_new(rx_tag, 'DS', new_val)
+    #     expected.add(primary_dicom_dose_reference[rx_tag])
 
     # DeliveryMaximumDose
-    if deliv_tag in primary_dicom_dose_reference:
-        # overwrite the existing element’s value
-        primary_dicom_dose_reference[deliv_tag].value = new_val
-    else:
-        # create it from scratch (VR “DS” for Decimal String)
-        primary_dicom_dose_reference.add_new(deliv_tag, 'DS', new_val)
-        expected.add(primary_dicom_dose_reference[deliv_tag])
+    deliv_tag_changed = set_tag_if_changed(
+        primary_dicom_dose_reference, 0x300a0023, 'DS', new_val, expected)
+
+    # if deliv_tag in primary_dicom_dose_reference:
+    #     # overwrite the existing element’s value
+    #     primary_dicom_dose_reference[deliv_tag].value = new_val
+    #     expected.add(primary_dicom_dose_reference[deliv_tag])
+    # else:
+    #     # create it from scratch (VR “DS” for Decimal String)
+    #     primary_dicom_dose_reference.add_new(deliv_tag, 'DS', new_val)
+    #     expected.add(primary_dicom_dose_reference[deliv_tag])
 
     # TargetMaximumDose
-    if targ_tag in primary_dicom_dose_reference:
-        primary_dicom_dose_reference[targ_tag].value = new_val
-    else:
-        primary_dicom_dose_reference.add_new(targ_tag, 'DS', new_val)
-        expected.add(primary_dicom_dose_reference[targ_tag])
+    targ_tag_changed = set_tag_if_changed(
+        primary_dicom_dose_reference, 0x300a0027, 'DS', new_val, expected)
+    # if targ_tag in primary_dicom_dose_reference:
+    #     primary_dicom_dose_reference[targ_tag].value = new_val
+    #     expected.add(primary_dicom_dose_reference[targ_tag])
+    # else:
+    #     primary_dicom_dose_reference.add_new(targ_tag, 'DS', new_val)
+    #     expected.add(primary_dicom_dose_reference[targ_tag])
     # Insert private reference tags for the Daily and Session Dose reference limits
     # Retrieve the reference point name from the beamset
-    primary_dicom_dose_reference[ref_point_desc_tag].value = f"{beamset.DicomPlanLabel}"
-    expected.add(primary_dicom_dose_reference[ref_point_desc_tag])
+    # primary_dicom_dose_reference[ref_point_desc_tag].value = f"{beamset.DicomPlanLabel}"
+    # expected.add(primary_dicom_dose_reference[ref_point_desc_tag])
 
 
     # Adjust beam doses to sum to primary dose point (if dose was not specified, evenly distribute it)
@@ -2357,13 +2432,15 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
     delete_reference_point_location(ds, beamset, expected)
     # Lastly, update the DoseReferenceUID to match the beamset dose UID if available
     beamset_dose_uid = _get_beamset_dose_uid(beamset)
-    if beamset_dose_uid is not None:
-        if dose_uid_tag in primary_dicom_dose_reference:
-            primary_dicom_dose_reference[dose_uid_tag].value = beamset_dose_uid
-            expected.add(primary_dicom_dose_reference[dose_uid_tag])
-        else:
-            primary_dicom_dose_reference.add_new(dose_uid_tag, 'UI', beamset_dose_uid)
-            expected.add(primary_dicom_dose_reference[dose_uid_tag])
+    dose_uid_tag_changed = set_tag_if_changed(
+        primary_dicom_dose_reference, 0x300a0013, 'UI', beamset_dose_uid, expected)
+    # if beamset_dose_uid is not None:
+    #     if dose_uid_tag in primary_dicom_dose_reference:
+    #         primary_dicom_dose_reference[dose_uid_tag].value = beamset_dose_uid
+    #         expected.add(primary_dicom_dose_reference[dose_uid_tag])
+    #     else:
+    #         primary_dicom_dose_reference.add_new(dose_uid_tag, 'UI', beamset_dose_uid)
+    #         expected.add(primary_dicom_dose_reference[dose_uid_tag])
     return '; '.join(msgs)
 
 
@@ -2651,14 +2728,25 @@ def apply_rpm_gating_filter(ds, expected) -> str:
         message (str): A summary message of the applied filter.
     """
     rpm_added = False
+    seq_tag = Tag(0x300a0410)  # MotionSynchronizationSequence
+    mode_tag = 0x00189170  # RespiratoryMotionCompensationTechnique (CS)
+    src_tag = 0x00189171  # RespiratorySignalSource (CS)
+
     for pss in ds.PatientSetupSequence:
-        if not hasattr(pss, 'MotionSynchronizationSequence'):
+        if seq_tag not in pss:
             motn = pydicom.Dataset()
-            motn.add_new(0x00189170, 'CS', 'GATING')
-            motn.add_new(0x00189171, 'CS', 'EXTERNAL_MARKER')
-            pss.add_new(0x300a0410, 'SQ', pydicom.Sequence([motn]))
-            expected.add(pss[0x300a0410])
+            # create without recording inner tags
+            motn.add_new(mode_tag, 'CS', 'GATING')
+            motn.add_new(src_tag, 'CS', 'EXTERNAL_MARKER')
+            pss.add_new(seq_tag, 'SQ', pydicom.Sequence([motn]))
+            expected.add(pss[seq_tag])  # only parent recorded
             rpm_added = True
+        else:
+            # ensure required values inside existing sequence
+            motn = pss[seq_tag][0]
+            set_tag_if_changed(motn, mode_tag, 'CS', 'GATING', expected)
+            set_tag_if_changed(motn, src_tag, 'CS', 'EXTERNAL_MARKER', expected)
+
     if rpm_added:
         return f'RPM gating filter applied to {len(ds.PatientSetupSequence)} PatientSetupSequence items.'
     return ''
@@ -2681,6 +2769,46 @@ def get_rt_plan_label(ds):
     element = ds.get(tag)
     return element.value if element is not None else None
 
+
+def set_tag_if_changed(
+    ds: pydicom.dataset.Dataset,
+    tag: int,
+    vr: str,
+    new_value: Any,
+    expected,
+    beam: Optional[pydicom.dataset.Dataset] = None,
+    cp: Optional[pydicom.dataset.Dataset] = None,
+) -> bool:
+    """
+    Set ds[tag] to new_value if it differs from the current value. Record the edit.
+
+    Args:
+        ds: DICOM dataset to modify.
+        tag: DICOM tag as int or Tag.
+        vr: Value Representation, e.g. 'LO', 'DS', 'UI'.
+        new_value: Value to write.
+        expected: _Edits tracker; must support .add(element, beam=None, cp=None).
+        beam: Optional beam dataset for logging context.
+        cp: Optional control point dataset for logging context.
+
+    Returns:
+        bool: True if a change was written, else False.
+    """
+    t = Tag(tag)
+    elem = ds.get(t)
+    if elem is None:
+        logging.debug(f'Creating new tag {t} with value {new_value}')
+        ds.add_new(t, vr, new_value)
+        expected.add(ds[t], beam=beam, cp=cp)
+        return True
+    if elem.value != new_value:
+        logging.debug(f'Updating tag {t} {elem.value} -> {new_value}')
+        elem.value = new_value
+        expected.add(ds[t], beam=beam, cp=cp)
+        return True
+    else:
+        logging.debug(f'Tag {t} unchanged with value {new_value}')
+    return False
 
 def destinations():
     """destination_list = DicomExport.destinations()"""
@@ -2720,48 +2848,107 @@ def destination_info(destination):
 
 
 def compare(ds, dso):
-    """edits = DicomExport.compare(dataset1, dataset2)"""
+    """Return an _Edits object describing differences between two DICOM datasets.
+
+    Precision-aware for DS/IS everywhere in the tree:
+    flags changes when the stored string differs (e.g., 50 vs 50.0000000000),
+    even if the numeric value is equal.
+
+    Args:
+        ds: Modified pydicom Dataset.
+        dso: Original pydicom Dataset.
+
+    Returns:
+        _Edits: Collected edits (adds/changes) plus parent-tag removals.
+    """
+    def _str_form(elem) -> str:
+        v = elem.value
+        if isinstance(v, (DSfloat, DSdecimal)):
+            s = getattr(v, "original_string", None)
+            return s if s is not None else str(v)
+        return str(v)
+
+    def _values_differ(e_new, e_old) -> bool:
+        # Different VR -> changed
+        if e_new.VR != e_old.VR:
+            return True
+        # DS/IS precision-aware compare using stored string
+        if e_new.VR in {'DS', 'IS'}:
+            return _str_form(e_new) != _str_form(e_old)
+        # Default semantic compare
+        return e_new.value != e_old.value
 
     edits = _Edits()
+
+    # Forward pass: additions and modifications
     for k0 in ds.keys():
         if k0 not in dso:
             edits.add(ds[k0])
+            continue
 
-        elif ds[k0].VR == 'SQ':
+        if ds[k0].VR == 'SQ':
+            # Depth 1
             for i0 in range(len(ds[k0].value)):
+                if i0 >= len(dso[k0].value):
+                    # Extra sequence item(s) -> record at parent level as an addition
+                    edits.add(ds[k0])
+                    break
                 for k1 in ds[k0].value[i0].keys():
                     if k1 not in dso[k0].value[i0]:
                         edits.add(ds[k0].value[i0][k1])
+                        continue
 
-                    elif ds[k0].value[i0][k1].VR == 'SQ':
+                    if ds[k0].value[i0][k1].VR == 'SQ':
+                        # Depth 2
                         for i1 in range(len(ds[k0].value[i0][k1].value)):
+                            if i1 >= len(dso[k0].value[i0][k1].value):
+                                edits.add(ds[k0].value[i0][k1])
+                                break
                             for k2 in ds[k0].value[i0][k1].value[i1].keys():
                                 if k2 not in dso[k0].value[i0][k1].value[i1]:
                                     edits.add(ds[k0].value[i0][k1].value[i1][k2])
+                                    continue
 
-                                elif ds[k0].value[i0][k1].value[i1][k2].VR == 'SQ':
+                                if ds[k0].value[i0][k1].value[i1][k2].VR == 'SQ':
+                                    # Depth 3
                                     for i2 in range(len(ds[k0].value[i0][k1].value[i1][k2].value)):
+                                        if i2 >= len(dso[k0].value[i0][k1].value[i1][k2].value):
+                                            edits.add(ds[k0].value[i0][k1].value[i1][k2])
+                                            break
                                         for k3 in ds[k0].value[i0][k1].value[i1][k2].value[i2].keys():
-                                            if k3 not in dso[k0].value[i0][k1]. \
-                                                    value[i1][k2].value[i2]:
+                                            if k3 not in dso[k0].value[i0][k1].value[i1][k2].value[i2]:
                                                 edits.add(ds[k0].value[i0][k1].value[i1][k2].value[i2][k3])
-
                                             elif ds[k0].value[i0][k1].value[i1][k2].value[i2][k3].VR == 'SQ':
                                                 raise KeyError('Unsupported number of nested sequences')
-
-                                            elif ds[k0].value[i0][k1].value[i1][k2].value[i2][k3].value != \
-                                                    dso[k0].value[i0][k1].value[i1][k2].value[i2][k3].value:
+                                            elif _values_differ(
+                                                ds[k0].value[i0][k1].value[i1][k2].value[i2][k3],
+                                                dso[k0].value[i0][k1].value[i1][k2].value[i2][k3]
+                                            ):
                                                 edits.add(ds[k0].value[i0][k1].value[i1][k2].value[i2][k3])
 
-                                elif ds[k0].value[i0][k1].value[i1][k2].value != \
-                                        dso[k0].value[i0][k1].value[i1][k2].value:
+                                elif _values_differ(
+                                    ds[k0].value[i0][k1].value[i1][k2],
+                                    dso[k0].value[i0][k1].value[i1][k2]
+                                ):
                                     edits.add(ds[k0].value[i0][k1].value[i1][k2])
 
-                    elif ds[k0].value[i0][k1].value != dso[k0].value[i0][k1].value:
+                    elif _values_differ(ds[k0].value[i0][k1], dso[k0].value[i0][k1]):
                         edits.add(ds[k0].value[i0][k1])
+            continue  # done with this SQ element
 
-        elif ds[k0].value != dso[k0].value:
+        # Non-sequence element at top level
+        if _values_differ(ds[k0], dso[k0]):
             edits.add(ds[k0])
+
+    # Reverse pass: deletions (present in original, missing in new)
+    for k0 in dso.keys():
+        if k0 not in ds:
+            edits.remove(dso[k0], note="element removed")
+        elif dso[k0].VR == 'SQ':
+            len_ds = len(ds[k0].value)
+            len_dso = len(dso[k0].value)
+            if len_ds < len_dso:
+                edits.remove(dso[k0], note=f"sequence items removed: {len_dso - len_ds}")
 
     return edits
 
@@ -2771,55 +2958,52 @@ class _Edits:
 
     def __init__(self):
         """edits = _Edits()"""
-        self.elements = []
-        self.tags = []
+        self.elements : list[pydicom.dataelem.DataElement] = []
+        self.tags : list[str] = []
+
+    def _fmt_tag(self, obj) -> str:
+        # Accepts DataElement, Tag, or int
+        if hasattr(obj, "tag"):
+            t = obj.tag
+        else:
+            t = pydicom.tag.Tag(obj)
+        return f"0x{t.group:04x}{t.element:04x}"
 
     def add(self, element, beam=None, cp=None):
-        """edits.add(ds.TagName)"""
-
-        tag = "0x{0:04x}{1:04x}".format(element.tag.group, element.tag.element)
+        tag = self._fmt_tag(element)
         self.elements.append(element)
         self.tags.append(tag)
-        if element.VR == 'SQ':
-            string_value = 'SEQUENCE'
-
+        if getattr(element, "VR", None) == "SQ":
+            string_value = "SEQUENCE"
         else:
-            string_value = str(element.value)
-
+            string_value = str(getattr(element, "value", ""))
         if beam is not None and cp is not None:
-            if 'BeamNumber' in beam:
-                logging.debug('Element {} on beam {}, CP {} is now {}'.format(tag,
-                                                                              beam.BeamNumber,
-                                                                              cp.ControlPointIndex,
-                                                                              string_value))
-            elif 'ReferencedBeamNumber' in beam:
-                logging.debug('Element {} on beam {}, CP {} is now {}'.format(tag,
-                                                                              beam.ReferencedBeamNumber,
-                                                                              cp.ControlPointIndex,
-                                                                              string_value))
+            bn = getattr(beam, "BeamNumber", getattr(beam, "ReferencedBeamNumber", "?"))
+            logging.debug(
+                f"Element {tag} on beam {bn}, CP {getattr(cp, 'ControlPointIndex', '?')} is now {string_value}")
         elif beam is not None:
-            if 'BeamNumber' in beam:
-                logging.debug('Element {} on beam {} is now {}'.format(tag,
-                                                                       beam.BeamNumber,
-                                                                       string_value))
-            elif 'ReferencedBeamNumber' in beam:
-                logging.debug('Element {} on beam {} is now {}'.format(tag,
-                                                                       beam.ReferencedBeamNumber,
-                                                                       string_value))
+            bn = getattr(beam, "BeamNumber", getattr(beam, "ReferencedBeamNumber", "?"))
+            logging.debug(f"Element {tag} on beam {bn} is now {string_value}")
         else:
-            logging.debug('Element {} is now {}'.format(tag, string_value))
+            logging.debug(f"Element {tag} is now {string_value}")
 
-    def length(self):
+    def remove(self, tag_like, note: str | None = None):
+        """Record a deletion. Accepts DataElement, Tag, or (group,element) int."""
+        tag = self._fmt_tag(tag_like)
+        self.tags.append(f"DEL:{tag}")
+        if note:
+            logging.debug(f"Deleted {tag} ({note})")
+        else:
+            logging.debug(f"Deleted {tag}")
+
+    def length(self) -> int:
         return len(self.elements)
 
-    def matches(self, edits):
-        """boolean = edits.matches(other_edits)"""
-
+    def matches(self, edits) -> bool:
         self.tags.sort()
         edits.tags.sort()
         if len(self.tags) == len(edits.tags) and self.tags == edits.tags:
             return True
-        else:
-            logging.warning('Expected modification tags: ' + ', '.join(self.tags))
-            logging.warning('Observed modification tags: ' + ', '.join(edits.tags))
-            return False
+        logging.warning("Expected modification tags: " + ", ".join(self.tags))
+        logging.warning("Observed modification tags: " + ", ".join(edits.tags))
+        return False
