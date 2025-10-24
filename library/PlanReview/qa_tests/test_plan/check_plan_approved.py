@@ -37,8 +37,11 @@ def check_plan_approved(rso, **kwargs):
                           f"on {approval_status.plan_approval_time}"
             pass_result = FAIL
     else:
-        message_str = "Plan: {} is not approved".format(
-            rso.plan.Name)
+        if approval_status.beamset_approved:
+            message_str = f"Plan: {rso.plan.Name} is mutable but beamset: {rso.beamset.DicomPlanLabel} is approved"
+            pass_result = ALERT
+            return pass_result, message_str
+        message_str = f"Plan: {rso.plan.Name} is not approved"
         if physics_review:
             pass_result = FAIL
         else:

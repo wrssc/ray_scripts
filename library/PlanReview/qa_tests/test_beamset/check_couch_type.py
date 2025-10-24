@@ -36,16 +36,17 @@ def check_couch_type(rso: NamedTuple) -> Tuple[str, str]:
     """
     # Abbreviate geometries
     rg = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries
-    roi_list = [r.OfRoi.Name for r in rg]
+    # TODO: see which supports have been applied to the plan
+    roi_list = [r.OfRoi.Name for r in rg if r.OfRoi.Type == 'Support' or r.OfRoi.Type == 'Fixation']
     beam = rso.beamset.Beams[0]
     current_machine = get_machine(machine_name=beam.MachineReference.MachineName)
     wrong_supports = []
     correct_supports = []
     if current_machine.Name in TRUEBEAM_DATA['MACHINES']:
-        wrong_supports = [s for s in TOMO_DATA['SUPPORTS'] if s in roi_list]
+        wrong_supports = [s for s in roi_list if s not in TRUEBEAM_DATA['SUPPORTS']]
         correct_supports = [s for s in TRUEBEAM_DATA['SUPPORTS'] if s in roi_list]
     elif current_machine.Name in TOMO_DATA['MACHINES']:
-        wrong_supports = [s for s in TRUEBEAM_DATA['SUPPORTS'] if s in roi_list]
+        wrong_supports = [s for s in roi_list if s not in TOMO_DATA['SUPPORTS']]
         correct_supports = [s for s in TOMO_DATA['SUPPORTS'] if s in roi_list]
     if wrong_supports:
         message_str = 'Support Structure(s) {} are INCORRECT for  machine {}'.format(

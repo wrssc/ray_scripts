@@ -1,5 +1,8 @@
 from typing import NamedTuple, Optional, Tuple, Any
+
+from OldPlanReview.ReviewDefinitions import TOMO_DATA
 from PlanReview.review_definitions import PASS, FAIL, ALERT, GRID_PREFERENCES
+from PlanReview.utils import get_machine
 from PlanReview.utils.constants import (KEY_IMAGING_FREQ)
 
 
@@ -52,6 +55,11 @@ def check_tolerance_table(rso: NamedTuple, **kwargs: dict) -> Tuple[str, str]:
 
     if not imaging_frequency:
         return FAIL, "Imaging frequency is not specified in the input values."
+
+    beam = rso.beamset.Beams[0]
+    current_machine = get_machine(machine_name=beam.MachineReference.MachineName)
+    if current_machine.Name in TOMO_DATA['MACHINES']:
+        return PASS, "Tolerance table check is not applicable for Tomo machines."
 
     if not tolerance_table_is_set(rso.beamset):
         return FAIL, f"Tolerance table is not set for the beamset, {rso.beamset.DicomPlanLabel}."

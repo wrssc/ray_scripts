@@ -2179,7 +2179,7 @@ MCS_TOLERANCES = {'MCS': {'MEAN': 0.369,
 TOMO_DATA = {'MACHINES': ['HDA0488'],
              'PLAN_TR_SUFFIX': r'_Tr',
              'LATERAL_ISO_MARGIN': 2.,  # cm
-             'SUPPORTS': ['TomoCouch', 'QFix_Board_Only']
+             'SUPPORTS': ['TomoCouch', 'QFix_Board_Only', 'Baseplate_Override_PMMA']
              }
 
 TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
@@ -2195,7 +2195,7 @@ TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                                 'X-MIN': 4.,  # X2 - X1 ≥ 4 cm
                                 }}
 COUCH_ROIS = ['TrueBeamCouch', 'TomoCouch', 'ProneBreastBoard', 'QFix_Brain_TBCouch_H1andH2',
-                'QFix_H&N_TBCouch_F2andF3', 'QFix_Board_Only']
+                'QFix_H&N_TBCouch_F2andF3', 'QFix_Board_Only', ]
 # MATERIALS:
 MATERIALS = {'TrueBeamCouch': 'Lung',
              'CivcoBaseShell_Cork': 'Cork',

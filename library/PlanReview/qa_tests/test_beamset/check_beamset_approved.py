@@ -35,12 +35,13 @@ def check_beamset_approved(rso: NamedTuple, **kwargs: Optional[bool]) -> Tuple[s
         Pass: Script_Testing^FinalDose: ZZUWQA_ScTest_06Jan2021: Case: THI: Plan: Anal_THI
         Fail: Script_Testing^FinalDose: ZZUWQA_ScTest_06Jan2021: Case: VMAT: Plan: Pros_VMA also Validation/ZZUWQA_20Jan2021: MultiBeamset Script_Testing
     """
-
+    import logging
     do_physics_review = kwargs.get('do_physics_review', False)
 
     approval_status = get_approval_info(rso.plan, rso.beamset)
+    logging.debug(approval_status)
     if approval_status.beamset_approved:
-        if not approval_status.plan_reviewer:
+        if not approval_status.beamset_reviewer and not approval_status.plan_reviewer:
             message_str = f"Beamset: {rso.beamset.DicomPlanLabel} does not have valid approval data"
             pass_result = ALERT
             return pass_result, message_str
@@ -57,8 +58,7 @@ def check_beamset_approved(rso: NamedTuple, **kwargs: Optional[bool]) -> Tuple[s
             pass_result = FAIL
 
     else:
-        message_str = "Beamset: {} is not approved.".format(
-            rso.plan.Name)
+        message_str = f"Beamset: {rso.plan.Name} is not approved."
         if do_physics_review:
             pass_result = FAIL
         else:
