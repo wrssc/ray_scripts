@@ -1517,7 +1517,7 @@ def apply_table_position_filter(ds, expected, beamset, table_position):
             changes.append(f"Vert->{vertical}")
             set_tag_if_changed(cp, 0x300A0129, 'DS', longitudinal, expected, beam=beam, cp=cp)
             changes.append(f"Long->{longitudinal}")
-            set_tag_if_changed(cp, 0x300A0128, 'DS', lateral, expected, beam=beam, cp=cp)
+            set_tag_if_changed(cp, 0x300A012A, 'DS', lateral, expected, beam=beam, cp=cp)
             changes.append(f"Lat->{lateral}")
             if changes:
                 messages.append(f'Beam {beam.BeamName}: ' + ', '.join(changes))
