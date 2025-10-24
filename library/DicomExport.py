@@ -1513,7 +1513,7 @@ def apply_table_position_filter(ds, expected, beamset, table_position):
 
         for cp in getattr(beam, 'ControlPointSequence', []):
             changes = []
-            set_tag_if_changed(cp, 0x300A012A, 'DS', vertical, expected, beam=beam, cp=cp)
+            set_tag_if_changed(cp, 0x300A0128, 'DS', vertical, expected, beam=beam, cp=cp)
             changes.append(f"Vert->{vertical}")
             set_tag_if_changed(cp, 0x300A0129, 'DS', longitudinal, expected, beam=beam, cp=cp)
             changes.append(f"Long->{longitudinal}")
@@ -2844,9 +2844,7 @@ class _Edits:
         # Log the tag differences
         logging.warning("Modification tags do not match:"
                         f" expected {len(self.tags)}, observed {len(edits.tags)}"
-                        f"The following tags differ:"
-                        f" {set(self.tags).symmetric_difference(set(edits.tags))}"
                         )
-        # logging.warning("Expected modification tags: " + ", ".join(self.tags))
-        # logging.warning("Observed modification tags: " + ", ".join(edits.tags))
+        logging.warning("Expected modification tags: " + ", ".join(self.tags))
+        logging.warning("Observed modification tags: " + ", ".join(edits.tags))
         return False
