@@ -295,7 +295,7 @@ def process_rois_for_export(plan, case):
         "_EZ_", "^ring",
         "_PTV[0-9]", "^Ring",
         "^Normal", "^OAR_PTV",
-        "^IGRT", "^InnerAir",
+        "^InnerAir",
         "z_derived", "Uniform",
         "^UnderDose", "Air",
         "FieldOfView", "^PTV[0-9]_Eval", "_junction_",
@@ -311,7 +311,7 @@ def process_rois_for_export(plan, case):
     #   * any ROIs labeled Fiducials
     #   * External_PRV10 object used in TBI
 
-    include_patterns = [r'(?i)\b\w*block\w*\b', r'(?i)\b\w*fiducial\w*\b',
+    include_patterns = [r'(?i)\b\w*block\w*\b', r'(?i)\b\w*fiducial\w*\b', r'^BONE_IGRT$',
                         r'(?i)\b\w*External_FB\w*\b', r'(?i)\b\w*External_DIBH\w*\b',
                         r'(?i)\b\w*External_PRV10\w*\b', r'(?i)\b\w*Ext_AlignRT_SU\w*\b']
     for r in case.PatientModel.RegionsOfInterest:
