@@ -764,7 +764,7 @@ def send(case,
 
                 # 7) Table position filter
                 if table is not None:
-                    message = apply_table_position_filter(ds=ds, expected=expected, beamset=beamset,
+                    message = apply_table_position_filter(ds=ds, expected=expected, beamsets=beamset,
                                                           table_position=table)
                     logging.debug(f"\t{rt_plan_msg}: {message}")
 
@@ -1473,55 +1473,57 @@ def adjust_electron_dose_rate(ds, expected):
     return '; '.join(messages)
 
 
-def apply_table_position_filter(ds, expected, beamset, table_position):
-    """
-    Apply table positions to all beams.
-    Args:
-        ds (pydicom.Dataset): the DICOM RTPlan dataset
-        expected (_Edits): tracker for edits
-        beamset : RayStation beamset object (for immobilization device)
-        table_position (dict(dict)):
-        {BeamSet.DicomPlanLabel:
-            {   'TableTopVerticalPosition': float,
-                'TableTopLongitudinalPosition': float,
-                'TableTopLateralPosition': float
-                }
-        }
-    Returns:
-        str: concatenated log messages
-    """
-    messages = []
-    for beam in ds.BeamSequence:
-        # Identify the plan label for ds:
-        ds_dicom_plan_label = getattr(ds, 'RTPlanLabel', '')
-        for bs in beamset:
-            if bs.DicomPlanLabel == ds_dicom_plan_label:
-                matched_beamset = bs
-                break
-        else:
-            matched_beamset = None
-        bs = matched_beamset
-        if bs is not None and bs.DicomPlanLabel in table_position.keys():
-            tp_key = bs.DicomPlanLabel
-            vertical = table_position[tp_key].get('TableTopVerticalPosition', 0.0)
-            longitudinal = table_position[tp_key].get('TableTopLongitudinalPosition', 1000.0)
-            lateral = table_position[tp_key].get('TableTopLateralPosition', 0.0)
-        else:
-            # As indexing becomes more robust, this should be replaced with a KeyError. For now, return 0, 1000, 0
-            raise KeyError(
-                f'Beam {beam.BeamName}: No table position entry found for DicomPlanLabel="{ds_dicom_plan_label}"')
+def apply_table_position_filter(ds, beamsets, table_position, expected, log_unchanged: bool = False) -> str:
+    """Set couch positions on every control point but log once per beam.
 
-        for cp in getattr(beam, 'ControlPointSequence', []):
-            changes = []
-            set_tag_if_changed(cp, 0x300A0128, 'DS', vertical, expected, beam=beam, cp=cp)
-            changes.append(f"Vert->{vertical}")
-            set_tag_if_changed(cp, 0x300A0129, 'DS', longitudinal, expected, beam=beam, cp=cp)
-            changes.append(f"Long->{longitudinal}")
-            set_tag_if_changed(cp, 0x300A012A, 'DS', lateral, expected, beam=beam, cp=cp)
-            changes.append(f"Lat->{lateral}")
-            if changes:
-                messages.append(f'Beam {beam.BeamName}: ' + ', '.join(changes))
-    return '; '.join(messages)
+    Args:
+      ds: pydicom Dataset (RTPLAN).
+      beamsets: iterable of RayStation BeamSet.
+      table_position: dict keyed by DicomPlanLabel with
+        'TableTopVerticalPosition', 'TableTopLongitudinalPosition', 'TableTopLateralPosition'.
+      expected: edits tracker passed through to set_tag_if_changed.
+      log_unchanged: include a per-beam line even if nothing changed.
+
+    Returns:
+      Semicolon-separated status messages, one per beam that changed unless log_unchanged=True.
+    """
+    bs_by_label = {getattr(bs, "DicomPlanLabel", ""): bs for bs in beamsets}
+    messages: List[str] = []
+
+    ds_dicom_plan_label = getattr(ds, "RTPlanLabel", "")
+    bs = bs_by_label.get(ds_dicom_plan_label)
+
+    if bs is None or bs.DicomPlanLabel not in table_position:
+        raise KeyError(
+            f'No table position entry for DicomPlanLabel="{ds_dicom_plan_label}"'
+        )
+
+    tp = table_position[bs.DicomPlanLabel]
+    vertical = tp.get("TableTopVerticalPosition", 0.0)
+    longitudinal = tp.get("TableTopLongitudinalPosition", 1000.0)
+    lateral = tp.get("TableTopLateralPosition", 0.0)
+
+    # Preformat values once for logging
+    change_summary = f"Vert->{vertical}, Long->{longitudinal}, Lat->{lateral}"
+
+    for beam in getattr(ds, "BeamSequence", []):
+        cps = getattr(beam, "ControlPointSequence", [])
+        any_changed = False
+
+        for cp in cps:
+            # Ensure set_tag_if_changed returns a truthy value when a write occurs.
+            c1 = bool(set_tag_if_changed(cp, 0x300A0128, "DS", vertical, expected, beam=beam, cp=cp))
+            c2 = bool(set_tag_if_changed(cp, 0x300A0129, "DS", longitudinal, expected, beam=beam, cp=cp))
+            c3 = bool(set_tag_if_changed(cp, 0x300A012A, "DS", lateral, expected, beam=beam, cp=cp))
+            any_changed = any_changed or c1 or c2 or c3
+
+        if any_changed or log_unchanged:
+            msg = f"Beam {getattr(beam, 'BeamName', '?')}: {change_summary}"
+            if not any_changed:
+                msg += " (no change)"
+            messages.append(msg)
+
+    return "; ".join(messages)
 
 
 def apply_round_jaws_filter(ds, expected):
@@ -2010,25 +2012,51 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
         uid: str
         roi_number: Optional[int] = None
 
-    def _get_primary_prescription(beamset):
+    def _to_decimal(value) -> Decimal:
+        """Lossless Decimal constructor for int/str/Decimal. Floats go through str()."""
+        if isinstance(value, Decimal):
+            return value
+        if isinstance(value, (int,)):
+            return Decimal(value)
+        return Decimal(str(value))
+
+    def _dose_gy_to_cgy_int(dose_gy: Decimal) -> int:
+        """Convert Gy -> integer cGy with Varian/ARIA rounding (half up)."""
+        return int((dose_gy * Decimal('100')).to_integral_value(ROUND_HALF_UP))
+
+    def _dose_values_equal_gy(a_gy: Decimal, b_gy: Decimal) -> bool:
+        """Compare dose values by integer cGy to kill float artifacts."""
+        return _dose_gy_to_cgy_int(a_gy) == _dose_gy_to_cgy_int(b_gy)
+
+    def _get_primary_prescription(bset):
         """Get the primary prescription dose reference from the beamset."""
-        if hasattr(beamset.Prescription, 'PrimaryPrescriptionDoseReference'):
-            return beamset.Prescription.PrimaryPrescriptionDoseReference
+        if hasattr(bset.Prescription, 'PrimaryPrescriptionDoseReference'):
+            return bset.Prescription.PrimaryPrescriptionDoseReference
         else:
             logging.warning('No primary prescription dose reference found in beamset.')
             return None
 
-    def _get_beamset_pdr(beamset):
-        primary_prescription = _get_primary_prescription(beamset)
+    def _get_beamset_pdr(bset):
+        primary_prescription = _get_primary_prescription(bset)
         if primary_prescription is None:
             return None
+        # RayStation stores PrimaryPrescription.DoseValue in cGy. Treat as integer cGy.
+        dose_cgy = _to_decimal(primary_prescription.DoseValue)  # accept int or float
+        # If a float slipped in, snap to integer cGy first, then to Gy
+        dose_cgy_int = int(dose_cgy.to_integral_value(ROUND_HALF_UP))
+        dose_gy = Decimal(dose_cgy_int) / Decimal('100')
+
+        roi_number = primary_prescription.OnStructure.RoiNumber \
+            if hasattr(primary_prescription, 'OnStructure') and hasattr(primary_prescription.OnStructure,
+                                                                          'RoiNumber') else None
+        uid = primary_prescription.DoseReferenceIdentifier.UID
+
+
         return PrescriptionDoseReference(
             description=primary_prescription.Description,
-            dose_value=Decimal(str(primary_prescription.DoseValue)) / Decimal('100'),  # Convert to Gy
-            uid=primary_prescription.DoseReferenceIdentifier.UID,
-            roi_number=primary_prescription.OnStructure.RoiNumber
-            if hasattr(primary_prescription, 'OnStructure') and hasattr(primary_prescription.OnStructure, 'RoiNumber')
-            else None
+            dose_value=dose_gy,# Decimal(str(primary_prescription.DoseValue)) / Decimal('100'),  # Convert to Gy
+            uid=uid,
+            roi_number=roi_number,
         )
 
     def _get_dicom_pdr(dose_reference_sequence):
@@ -2042,52 +2070,52 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
                 'was not run before this one. Please run the Final Dose script first or disable '
                 'filters and manually set reference point data.'
             )
+        # (300A,0026) TargetPrescriptionDose is DS (string). Preserve exact text -> Decimal via str().
+        dose_gy = _to_decimal(getattr(dose_reference_sequence, 'TargetPrescriptionDose'))
+
         return PrescriptionDoseReference(
             description=dose_reference_sequence.DoseReferenceDescription,
-            dose_value=Decimal(str(dose_reference_sequence.TargetPrescriptionDose)),
+            dose_value=dose_gy,
             uid=dose_reference_sequence.DoseReferenceUID,
             roi_number=dose_reference_sequence.ReferencedROINumber
             if hasattr(dose_reference_sequence, 'ReferencedROINumber') else None
         )
 
-    def _match_prescription_dose_references(dose_reference_sequence, beamset, skip_description=False) -> Tuple:
+    def _match_prescription_dose_references(dose_reference_sequence, bset, skip_description=False) -> Tuple:
         """
         Check if the given dose reference sequence matches any prescription dose reference in the beamset.
 
         Args:
             dose_reference_sequence: DICOM Dose Reference Sequence item.
-            beamset: RayStation BeamSet object containing PrescriptionDoseReferences.
+            bset: RayStation BeamSet object containing PrescriptionDoseReferences.
             skip_description (bool): If True, skip matching by description.
         Returns:
             bool: True if a match is found, False otherwise.
         """
-
-        dicom_pdr = _get_dicom_pdr(dose_reference_sequence)
-        beamset_pdr = _get_beamset_pdr(beamset)
-        if beamset_pdr is None:
+        dcm_pdr = _get_dicom_pdr(dose_reference_sequence)
+        bset_pdr = _get_beamset_pdr(bset)
+        if bset_pdr is None:
             logging.error("No primary prescription dose reference found in beamset.")
-            return False
-        dose_value_match = dicom_pdr.dose_value == beamset_pdr.dose_value
-        uid_match = dicom_pdr.uid == beamset_pdr.uid
-        roi_number_match = dicom_pdr.roi_number == beamset_pdr.roi_number
-        description_match = dicom_pdr.description == beamset_pdr.description if not skip_description else True
-        print(f"Dose Value Match: {dose_value_match}, UID Match: {uid_match}, "
-              f"ROI Number Match: {roi_number_match}, Description Match: {description_match}")
+            return None, None
+        dose_value_match = _dose_values_equal_gy(dcm_pdr.dose_value, bset_pdr.dose_value)
+        uid_match = dcm_pdr.uid == bset_pdr.uid
+        roi_number_match = dcm_pdr.roi_number == bset_pdr.roi_number
+        description_match = True if skip_description else dcm_pdr.description == bset_pdr.description
         if dose_value_match and uid_match and roi_number_match and description_match:
             logging.debug(f"Match found for DoseReferenceNumber {dose_reference_sequence.DoseReferenceNumber} "
-                          f"with primary PrescriptionDoseReference '{beamset_pdr.description}'")
-            return dicom_pdr, beamset_pdr
+                          f"with primary PrescriptionDoseReference '{bset_pdr.description}'")
+            return dcm_pdr, bset_pdr
         else:
             logging.debug(f"No match for DoseReferenceNumber {dose_reference_sequence.DoseReferenceNumber}. "
-                          f"DICOM PDR: {dicom_pdr}, BeamSet PDR: {beamset_pdr}")
+                          f"DICOM PDR: {dcm_pdr}, BeamSet PDR: {bset_pdr}")
             return None, None
 
-    def _fraction_group_sequence_valid(ds):
+    def _fraction_group_sequence_valid(dseq):
         """Check if the FractionGroupSequence exists and has referenced beams."""
-        if 'FractionGroupSequence' not in ds:
+        if 'FractionGroupSequence' not in dseq:
             logging.warning('No FractionGroupSequence found in RTPlan.')
             return False
-        if len(ds.FractionGroupSequence[0].ReferencedBeamSequence) == 0:
+        if len(dseq.FractionGroupSequence[0].ReferencedBeamSequence) == 0:
             logging.warning('No ReferencedBeamSequence found in FractionGroupSequence.')
             return False
         return True
@@ -2144,11 +2172,11 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
                       f' and residual error: {primary_fractional_dose - sum(scaled_doses)}')
         return scaled_doses, rx_primary
 
-    def _get_beamset_dose_uid(beamset):
+    def _get_beamset_dose_uid(bset):
         """Get the DoseUID from the beamset's ModificationInfo if available."""
-        if hasattr(beamset, 'ModificationInfo'):
-            if hasattr(beamset.ModificationInfo, 'DicomUID'):
-                return beamset.ModificationInfo.DicomUID
+        if hasattr(bset, 'ModificationInfo'):
+            if hasattr(bset.ModificationInfo, 'DicomUID'):
+                return bset.ModificationInfo.DicomUID
         return None
 
     def _scale_beam_dose_to_mu(pydicom_dataset, beamset_prescription_dose_reference, expected_pydicom_dataset) \
@@ -2204,7 +2232,6 @@ def apply_prescription_filter_aria(ds, beamset, expected, no_ref_point_location=
 
 
     msgs = []
-    # TODO: move all tags to top so we can see which ones get used
     getcontext().prec = 28  # high enough to avoid rounding issues
 
     # If the beamset type is list, then we need to match the DicomPlanLabel attribute with the plan name
@@ -2293,7 +2320,7 @@ def apply_prescription_filter_aria_multipoint(ds, beamset, expected, no_ref_poin
     - (300A,0010) DoseReferenceSequence (SQ)
     - (300A,0012) DoseReferenceNumber (IS) - 1 for primary and 2, 3, etc. for subsequent -> Check only
     - (300A,0014) DoseReferenceStructureType (CS): COORDINATES for primary and SITE for secondary -> Check only
-    - (300A,0016) DoseReferenceDescription (LO) -> TODO: This seems to be wonky in RS and appears off in ARIA
+    - (300A,0016) DoseReferenceDescription (LO) -> Change to beamset name, ideally also what is in RS description
     - (300A,0018) DoseReferencePointCoordinates (DS) - Must be Kept if Primary -> Check only
     - (300A,0013) DoseReferenceUID (UI) -> TODO
     - (300A,0020) DoseReferenceType (CS): TARGET -> Check only
