@@ -220,24 +220,30 @@ def get_prescription_dose_levels(beamset):
 def change_visualization_targets(rso):
     target_types = ['Ptv', 'Ctv', 'Gtv']
     for roi in rso.case.PatientModel.RegionsOfInterest:
+        # Bug workaround: sometimes the RoiVisualizationSettings object is not accessible via
+        # the rso.case.PatientModel.RegionsOfInterest object, so we re-fetch it
         roi_representation = rso.case.PatientModel.RegionsOfInterest[roi.Name]
         if roi_representation.Type in target_types:
             roi_geom = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi_representation.Name]
             if roi_geom.HasContours():
+                # Get the current visualization status
+                roi_visualization_status = roi_representation.RoiVisualizationSettings.VisualizationMode2D
                 try:
-                    roi_visualization_status = roi_representation.RoiVisualizationSettings.VisualizationMode2D()
                     trys = 0
                     while roi_visualization_status != 'Filled' and trys < 5:
-                        rso.patient.Set2DvisualizationForRoi(RoiName=roi.Name,
+                        rso.patient.Set2DvisualizationForRoi(RoiName=roi_representation.Name,
                                                              Mode='filled')
+                        roi_visualization_status = roi_representation.RoiVisualizationSettings.VisualizationMode2D
+                        trys += 1
                     if roi_visualization_status != 'Filled':
-                        logging.warning(f'Could not change visualization for {roi.Name} after 5 tries')
+                        logging.warning(f'Could not change visualization for {roi_representation.Name} after 5 tries')
                 except Exception as ex:
-                    logging.warning(f'Could not change visualization for {roi.Name} due to {ex}')
+                    logging.warning(f'Could not change visualization for {roi_representation.Name} due to {ex}')
                     try:
-                        roi.RoiVisualizationSettings.VisualizationMode2D('Filled')
+                        roi_representation.RoiVisualizationSettings.VisualizationMode2D='Filled'
                     except Exception as e:
-                        logging.warning(f'Could not change visualization individual settings for {roi.Name} due to {e}')
+                        logging.warning(f'Could not change visualization settings on RegionsOfInterest object: '
+                                        f'{roi_representation.Name} error: {e}')
                         continue
 
 
