@@ -222,6 +222,23 @@ def get_prescription_dose_levels(beamset):
 
 
 def change_visualization_targets(rso):
+    def _set_filled_two_methods(roi_rep, patient):
+        roi_status = str(roi_rep.RoiVisualizationSettings.VisualizationMode2D)
+        if roi_status != 'Filled':
+            try:
+                roi_rep.RoiVisualizationSettings.VisualizationMode2D = 'Filled'
+                roi_status = str(roi_rep.RoiVisualizationSettings.VisualizationMode2D)
+            except Exception as e:
+                logging.warning(f'Could not change visualization settings on RegionsOfInterest object: '
+                                f'{roi_rep.Name} error: {e}')
+                roi_status = str(roi_rep.RoiVisualizationSettings.VisualizationMode2D)
+        if roi_status != 'Filled':
+            try:
+                patient.Set2DvisualizationForRoi(RoiName=roi_rep.Name,
+                                                         Mode='Filled')
+            except Exception as e:
+                logging.warning(f'Could not change visualization via Set2DvisualizationForRoi for '
+                                f'{roi_rep.Name} error: {e}')
     target_types = ['Ptv', 'Ctv', 'Gtv']
     for roi in rso.case.PatientModel.RegionsOfInterest:
         # Bug workaround: sometimes the RoiVisualizationSettings object is not accessible via
@@ -230,25 +247,17 @@ def change_visualization_targets(rso):
         if roi_representation.Type in target_types:
             roi_geom = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi_representation.Name]
             if roi_geom.HasContours():
-                # Get the current visualization status
-                roi_visualization_status = roi_representation.RoiVisualizationSettings.VisualizationMode2D
-                try:
-                    trys = 0
-                    while roi_visualization_status != 'Filled' and trys < 5:
-                        rso.patient.Set2DvisualizationForRoi(RoiName=roi_representation.Name,
-                                                             Mode='filled')
-                        roi_visualization_status = roi_representation.RoiVisualizationSettings.VisualizationMode2D
-                        trys += 1
-                    if roi_visualization_status != 'Filled':
-                        logging.warning(f'Could not change visualization for {roi_representation.Name} after 5 tries')
-                except Exception as ex:
-                    logging.warning(f'Could not change visualization for {roi_representation.Name} due to {ex}')
-                    try:
-                        roi_representation.RoiVisualizationSettings.VisualizationMode2D='Filled'
-                    except Exception as e:
-                        logging.warning(f'Could not change visualization settings on RegionsOfInterest object: '
-                                        f'{roi_representation.Name} error: {e}')
-                        continue
+                roi_visualization_status = str(roi_representation.RoiVisualizationSettings.VisualizationMode2D)
+                trys = 0
+                while roi_visualization_status != 'Filled' and trys < 10:
+                    _set_filled_two_methods(roi_representation, rso.patient)
+                    # roi_representation.RoiVisualizationSettings.VisualizationMode2D = 'Filled'
+                    # rso.patient.Set2DvisualizationForRoi(RoiName=roi_representation.Name,
+                    #                                      Mode='Filled')
+                    roi_visualization_status = str(roi_representation.RoiVisualizationSettings.VisualizationMode2D)
+                    logging.debug(f'Processing ROI visualization status: {roi_visualization_status} for roi: '
+                                  f'{roi_representation.Name} attempt {trys}')
+                    trys += 1
 
 
 def change_visualization_isodose(rso):
