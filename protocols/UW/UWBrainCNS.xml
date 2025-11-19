@@ -1395,6 +1395,13 @@
                 <dose units="%" roi="PTV_p">115</dose>
                 <priority>2</priority>
             </roi>
+			<roi>
+                <name>Brain-PTV</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="%" roi="PTV_p">105</dose>
+                <priority>3</priority>
+            </roi>
             <roi>
                 <name>Brainstem</name>
                 <type>Max</type>
