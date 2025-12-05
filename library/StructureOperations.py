@@ -1104,6 +1104,29 @@ def find_types(case, roi_type=None):
             found_roi.append(r.Name)
     return found_roi
 
+def has_type(case, roi_name, roi_type):
+    """
+    Check if the roi has the specified type
+    :param case: RS case
+    :param roi_name: string containing the name of the roi
+    :param roi_type: string from any of the following choices:
+                 Avoidance, Bolus, BrachyAccessory, BrachyChannel, BrachyChannelShield,
+                 BrachySourceApplicator, Cavity, ContrastAgent, Control, Ctv,
+                 DoseRegion, External, FieldOfView, Fixation, Gtv,
+                 IrradiatedVolume, Marker, Organ, Ptv, Registration, Support,
+                 TreatedVolume, Undefined,
+    :return: True if roi has the specified type, False otherwise
+    """
+    if not all(exists_roi(case=case, rois=roi_name)):
+        logging.warning(f'Structure {roi_name} not found on case {case}')
+        return False
+    rs_roi = case.PatientModel.RegionsOfInterest[roi_name]
+    current_dicom_type = rs_roi.Type
+    if current_dicom_type == roi_type:
+        return True
+    else:
+        return False
+
 
 def translate_roi(case, exam, roi, shifts):
     """
@@ -2736,7 +2759,9 @@ def make_externalclean(
     :param delete: deletes existing External if present
     :return: the RoiGeometries object of the cleaned external
     """
+
     if delete:
+        # Delete any existing External structure
         externals = find_types(case=case, roi_type="External")
         if externals:
             current_external = externals[0]

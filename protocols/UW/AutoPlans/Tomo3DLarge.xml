@@ -303,6 +303,7 @@
         <reduce_oar>False</reduce_oar>
         <segment_weight>False</segment_weight>
         <block_prompt>True</block_prompt>
+        <fixation_support_prompt>True</fixation_support_prompt>
     </optimization_config>
    <!--
     <beamset>

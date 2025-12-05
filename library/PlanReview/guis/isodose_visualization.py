@@ -247,9 +247,6 @@ def change_visualization_targets(rso):
                 trys = 0
                 while roi_visualization_status != 'Filled' and trys < 10:
                     _set_filled_two_methods(roi_representation, rso.patient)
-                    # roi_representation.RoiVisualizationSettings.VisualizationMode2D = 'Filled'
-                    # rso.patient.Set2DvisualizationForRoi(RoiName=roi_representation.Name,
-                    #                                      Mode='Filled')
                     roi_visualization_status = str(roi_representation.RoiVisualizationSettings.VisualizationMode2D)
                     logging.debug(f'Processing ROI visualization status: {roi_visualization_status} for roi: '
                                   f'{roi_representation.Name} attempt {trys}')

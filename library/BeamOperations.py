@@ -2286,8 +2286,34 @@ def _restore(beam, jaws, leaves):
         seg.JawPositions  = list(j)
         seg.LeafPositions = [lp[0].copy(), lp[1].copy()]
 
-import time
-import numpy as np
+
+def block_structures_on_beams(case, beamset, beam_names, structures_names):
+    """
+    Block structures on beams in a plan
+    :param beamset: RayStation beamset object
+    :param beam_names: list of beam names to block structures on
+    :param structures_names: list of structure names to be blocked
+    :param plan: RayStation plan object
+    :return: None
+    """
+    from library.StructureOperations import has_type
+    for b in beamset.Beams:
+        if b.Name in beam_names:
+            for s in structures_names:
+                if not has_type(case, s, 'Organ'):
+                    logging.warning(f'Structure {s} is not a ROI. Skipping blocking on beam {b.Name}.')
+                    connect.await_user_input(f'Structure {s} does not have type "Organ". Set the type and try again.')
+                    if not has_type(case, s, 'Organ'):
+                        continue
+                try:
+                    b.SetTreatOrProtectRoi(RoiName=s,
+                                           TopMargin=0.0,
+                                           BottomMargin=0.0,
+                                           LeftMargin=0.0,
+                                           RightMargin=0.0)
+                except Exception as e:
+                    logging.warning(f'Could not block structure {s} on beam {b.Name}: {e}')
+    return None
 
 def srs_filter_leaves_bulk(beam):
     """

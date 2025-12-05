@@ -49,6 +49,7 @@ import BeamOperations
 import UserInterface
 from OptimizationOperations import optimize_plan, iter_optimization_config_etree
 
+
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../structure_definition'))
 from structure_definition.AddSupportStructures import deploy_couch_model
 
@@ -1102,6 +1103,7 @@ def load_configuration_optimize_beamset(
         'patient_db': rso.db,
         'mod_target': df_wf.mod_target.values[0],
         'block_prompt': df_wf.block_prompt.values[0],
+        'fixation_support_prompt': df_wf.fixation_support_prompt.values[0],
         'robust': df_wf.robust.values[0],
         'robust_sup': df_wf.robust_sup.values[0],
         'robust_inf': df_wf.robust_inf.values[0],
@@ -1117,15 +1119,32 @@ def load_configuration_optimize_beamset(
     # Set any blocking via a user prompt
     block_prompt = df_wf.block_prompt.values[0]
     if block_prompt and not bypass_user_prompts:
+        # blocked_rois = select_blocking(case=rso.case)
+        # if blocked_rois:
+        #     logging.debug(f"Blocking ROIs selected: {blocked_rois}")
+        #     OptimizationParameters['blocked_rois'] = blocked_rois
+        ui = connect.get_current('ui')
         try:
-            ui = connect.get_current('ui')
-            ui.TitleBar.MenuItem['Plan optimization'].Button_Plan_optimization.Click()
-            ui.TabControl_Modules.TabItem['Plan optimization'].Button_Plan_optimization.Click()
+            ui.TitleBar.Navigation.MenuItem['Plan optimization'].Click()
+            ui.TitleBar.Navigation.MenuItem['Plan optimization'].Popup.MenuItem['Plan optimization'].Click()
             ui.Workspace.TabControl['Objectives/constraints'].TabItem['Protect'].Select()
         except:
             logging.debug("Could not click on the patient protection window")
         connect.await_user_input(
             'Navigate to the Plan design page and set any blocking.')
+    # Support structure prompt: TODO: When supported in RayStation, prompt user with support structures
+    fixation_support_prompt = df_wf.fixation_support_prompt.values[0]
+    connect.await_user_input(f'Fixation support prompt is {fixation_support_prompt}')
+    if fixation_support_prompt and not bypass_user_prompts:
+        try:
+            ui = connect.get_current('ui')
+            ui.TitleBar.Navigation.MenuItem['Plan optimization'].Click()
+            ui.TitleBar.Navigation.MenuItem['Plan optimization'].Popup.MenuItem['Plan optimization'].Click()
+            ui.Workspace.TabControl['Objectives/constraints'].TabItem['Fixation & support'].Select()
+        except Exception as e:
+            logging.debug(f"Could not click on the support structures window: {e}")
+        connect.await_user_input(
+            'Navigate to Plan optimization/Fixation & support tab and set any fixation/support structures.')
     # Optimize the plan
     if optimize:
         optimization_report = optimize_plan(patient=rso.patient,

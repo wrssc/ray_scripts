@@ -237,6 +237,8 @@ def iter_optimization_config_etree(etree):
         o_c['use_treat_settings'] = get_boolean_text(o, 'use_treat_settings', default=True)
         # Prompt for structure blocking/protection
         o_c['block_prompt'] = get_boolean_text(o, "block_prompt")
+        # Prompt for fixation and support setting
+        o_c['fixation_support_prompt'] = get_boolean_text(o, "fixation_support_prompt")
         # Robustness optimization
         o_c['robust'] = get_boolean_text(o, "robust")
         if o_c['robust']:
