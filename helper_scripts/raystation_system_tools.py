@@ -160,6 +160,15 @@ def start_logging():
 def stop_logging():
     pass
 
+def load_image(filename):
+    protocol_folder = r'../protocols'
+    institution_folder = r'UW/Images/RayStationSystemTools'
+    tab1_image_path = os.path.join(os.path.dirname(__file__),
+                     protocol_folder,
+                     institution_folder,
+                     filename)
+    return Image.open(tab1_image_path)
+
 # Create a Notebook widget
 notebook = ttk.Notebook(root)
 notebook.grid(row=0, column=0, columnspan=3, padx=10, pady=10)
@@ -196,8 +205,8 @@ tab1_entry_button.grid(row=6,column=0, padx=20, pady=5, sticky='W')
 
 #  Load the image
 # tab1_image_path = r'H:\Home\Projects\RayStation_System_Tools\2024A\Task_Manager_Marked_Up.png'
-tab1_image_path = str(script_directory) + '\\' + 'Task_Manager_Marked_Up.png'
-tab1_original_image = Image.open(tab1_image_path)
+# tab1_image_path = str(script_directory) + '\\' + 'Task_Manager_Marked_Up.png'
+tab1_original_image = load_image('Task_Manager_Marked_Up.png')
 
 # Convert to Tkinter PhotoImage
 # tab1_tk_image = ImageTk.PhotoImage(tab1_original_image)
@@ -229,8 +238,9 @@ inst_label.grid(row=0, column=0, padx=20, pady=20, sticky='W')
 
 #  Load the image
 # tab2_image_path = r'H:\Home\Projects\RayStation_System_Tools\2024A\Patient_Open_Error_Message_Marked_Up.png'  # Make sure 'example.png' is in the same directory or provide the full path
-tab2_image_path = str(script_directory) + '\\' + 'Patient_Open_Error_Message_Marked_Up.png'  # Make sure 'example.png' is in the same directory or provide the full path
-tab2_original_image = Image.open(tab2_image_path)
+# tab2_image_path = str(script_directory) + '\\' + 'Patient_Open_Error_Message_Marked_Up.png'  # Make sure 'example.png' is in the same directory or provide the full path
+# tab2_original_image = Image.open(tab2_image_path)
+tab2_original_image = load_image('Patient_Open_Error_Message_Marked_Up.png')
 
 # Convert to Tkinter PhotoImage
 # tab2_tk_image = ImageTk.PhotoImage(tab2_original_image, size=200)
