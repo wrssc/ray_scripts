@@ -68,7 +68,8 @@ import sys
 import os
 import re
 import logging
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 import library.StructureOperations as StructureOperations
 import library.Objectives as Objectives
 import library.BeamOperations as BeamOperations

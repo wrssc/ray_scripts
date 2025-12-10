@@ -5,6 +5,7 @@ from library.api.api_utils import detect_api_version
 
 
 class APIDispatcher:
+
     def __init__(self):
         self.version, self.subversion = detect_api_version()
         self.function_map = {}

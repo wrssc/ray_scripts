@@ -43,7 +43,8 @@ import logging
 from collections import OrderedDict, namedtuple
 from typing import NamedTuple, Union, Optional
 
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 import StructureOperations
 import BeamOperations
 import UserInterface

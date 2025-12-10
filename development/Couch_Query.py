@@ -23,7 +23,8 @@ import sys
 import os
 import csv
 import logging
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 
 def main():
     # configs

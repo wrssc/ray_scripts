@@ -17,7 +17,8 @@ This script will add a DSP such that the doses for all beams will sum to the RX 
 import clr
 import math
 import numpy as np
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 import logging
 
 clr.AddReference('System')

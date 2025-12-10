@@ -50,7 +50,8 @@ import logging
 from collections import OrderedDict
 from io import BytesIO
 
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 import GeneralOperations
 import StructureOperations
 import BeamOperations

@@ -55,7 +55,8 @@ __credits__ = []
 
 
 def main():
-    import connect
+    from library.api.api_rs import import_raystation_api
+    connect = import_raystation_api()
     import UserInterface
     import sys
     from api.api_ui import ui_click_qa_preparation

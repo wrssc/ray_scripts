@@ -124,7 +124,8 @@ except ImportError:
     import PySimpleGUI as sg
 import re
 from dateutil import parser
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
 import GeneralOperations

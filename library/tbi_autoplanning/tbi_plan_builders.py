@@ -1,6 +1,7 @@
 # Make a new plan and FFS transfer
 import logging
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 import library.AutoPlanOperations as AutoPlanOperations
 from .tbi_utils import determine_prefix
 from .tbi_definitions import (

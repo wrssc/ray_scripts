@@ -33,10 +33,12 @@ def get_rigid_registrations_v15(case):
 # Register these functions with the dispatcher
 dispatcher.register('delete_geometry', 12, delete_geometry_v12)
 dispatcher.register('delete_geometry', 15, delete_geometry_v15)
+dispatcher.register('delete_geometry', 17, delete_geometry_v15)
 
 # Register the function to get registrations
 dispatcher.register('get_rigid_registrations', 12, get_rigid_registrations_v12)
 dispatcher.register('get_rigid_registrations', 15, get_rigid_registrations_v15)
+dispatcher.register('get_rigid_registrations', 17, get_rigid_registrations_v15)
 
 
 

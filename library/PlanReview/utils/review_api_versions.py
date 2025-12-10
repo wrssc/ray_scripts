@@ -5,6 +5,21 @@ from .review_dispatcher import APIDispatcher
 dispatcher = APIDispatcher()  # Create an instance of the dispatcher
 
 
+# Import raystation API version specific functions
+def import_raystation_api_v12():
+    # Version 12 specific code
+    import connect
+    return connect
+
+def import_raystation_api_v15():
+    # Version 15 specific code
+    import connect
+    return connect
+
+def import_raystation_api_v17():
+    # Version 17 specific code
+    import raystation
+    return raystation
 #
 # Unique ID calls
 def get_unique_id_beamset_v12(beamset):
@@ -90,30 +105,51 @@ def get_acceptance_level_from_planning_goal_v15(goal):
 
 
 # REGISTER THESE FUNCTIONS WITH THE DISPATCHER
+dispatcher.register('import_raystation_api', 12, import_raystation_api_v12)
+dispatcher.register('import_raystation_api', 15, import_raystation_api_v15)
+dispatcher.register('import_raystation_api', 17, import_raystation_api_v17)
+
 dispatcher.register('get_unique_id_beamset', 12, get_unique_id_beamset_v12)
 dispatcher.register('get_unique_id_beamset', 15, get_unique_id_beamset_v15)
+dispatcher.register('get_unique_id_beamset', 17, get_unique_id_beamset_v15)
 
 dispatcher.register('get_unique_id_plan', 12, get_unique_id_plan_v12)
 dispatcher.register('get_unique_id_plan', 15, get_unique_id_plan_v15)
+dispatcher.register('get_unique_id_plan', 17, get_unique_id_plan_v15)
 
 dispatcher.register('get_plan_reviewer_name', 12, get_plan_reviewer_name_v12)
 dispatcher.register('get_plan_reviewer_name', 15, get_plan_reviewer_name_v15)
+dispatcher.register('get_plan_reviewer_name', 17, get_plan_reviewer_name_v15)
 
 dispatcher.register('get_beamset_reviewer_name', 12, get_beamset_reviewer_name_v12)
 dispatcher.register('get_beamset_reviewer_name', 15, get_beamset_reviewer_name_v15)
+dispatcher.register('get_beamset_reviewer_name', 17, get_beamset_reviewer_name_v15)
 
 dispatcher.register('get_prescription_dose_references', 12, get_prescription_dose_references_v12)
 dispatcher.register('get_prescription_dose_references', 15, get_prescription_dose_references_v15)
+dispatcher.register('get_prescription_dose_references', 17, get_prescription_dose_references_v15)
 
 dispatcher.register('get_number_of_emc_histories', 12, get_number_of_emc_histories_v12)
 dispatcher.register('get_number_of_emc_histories', 15, get_number_of_emc_histories_v15)
+dispatcher.register('get_number_of_emc_histories', 17, get_number_of_emc_histories_v15)
 
 dispatcher.register('ui_click_plan_optimization', 12, ui_click_plan_optimization_v12)
 dispatcher.register('ui_click_plan_optimization', 15, ui_click_plan_optimization_v15)
+dispatcher.register('ui_click_plan_optimization', 17, ui_click_plan_optimization_v15)
 
 dispatcher.register('get_acceptance_level_from_planning_goal', 12, get_acceptance_level_from_planning_goal_v12)
 dispatcher.register('get_acceptance_level_from_planning_goal', 15, get_acceptance_level_from_planning_goal_v15)
+dispatcher.register('get_acceptance_level_from_planning_goal', 17, get_acceptance_level_from_planning_goal_v15)
 
+
+@dispatcher.dispatch('import_raystation_api')
+def import_raystation_api():
+    """Return the RayStation scripting API module for the current environment.
+        This is dispatched by APIDispatcher based on RayStation version.
+        """
+    raise RuntimeError(
+        "APIDispatcher did not resolve an implementation for import_raystation_api."
+    )
 
 @dispatcher.dispatch('get_unique_id_beamset')
 def get_unique_id_beamset(beamset):

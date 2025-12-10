@@ -1,6 +1,7 @@
 import pandas as pd
 from typing import Optional, Dict, Any
-from connect import get_current
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 import logging
 # TODO:
 #      - ensure all goals types are working. Currently average dose is getting set to max

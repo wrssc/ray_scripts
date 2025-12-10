@@ -15,7 +15,8 @@ __license__ = "GPLv3"
 __help__ = None
 __copyright__ = "Copyright (C) 2023, University of Wisconsin Board of Regents"
 
-from connect import get_current
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 try:
     import FreeSimpleGUI as sg
 except ImportError:

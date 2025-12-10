@@ -19,6 +19,7 @@ def final_dose_check_v15(site, technique, rso, beamset_name):
 # Register these functions with the dispatcher
 dispatcher.register('final_dose', 12, final_dose_check_v12)
 dispatcher.register('final_dose', 15, final_dose_check_v15)
+dispatcher.register('final_dose', 17, final_dose_check_v15)
 
 
 @dispatcher.dispatch('final_dose')

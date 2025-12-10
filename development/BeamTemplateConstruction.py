@@ -60,7 +60,8 @@ def main():
     # Import packages
     import sys
     import os
-    import connect
+    from library.api.api_rs import import_raystation_api
+    connect = import_raystation_api()
     import csv
     import UserInterface
     from collections import namedtuple

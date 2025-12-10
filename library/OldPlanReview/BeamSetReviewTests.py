@@ -5,7 +5,8 @@ from dateutil import parser
 from collections import namedtuple
 from math import isclose
 import re
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 from ReviewDefinitions import *
 import ExamTests
 from api.api_beamsets import get_unique_id_beamset

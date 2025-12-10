@@ -44,6 +44,7 @@ def add_optimization_function_v15(plan_optimization, function_type, roi_name,
 
 dispatcher.register('add_optimization_function', 12, add_optimization_function_v12)
 dispatcher.register('add_optimization_function', 15, add_optimization_function_v15)
+dispatcher.register('add_optimization_function', 17, add_optimization_function_v15)
 
 
 @dispatcher.dispatch('add_optimization_function')

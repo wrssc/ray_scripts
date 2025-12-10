@@ -6,7 +6,8 @@ from PlanReview.review_definitions import (
     ICON_SCALE_ISODOSE, ICON_SMALL_SCALE_ISODOSE, ICON_SMALL_MATERIAL, ICON_MATERIAL,
     ICON_SMALL_WINDOW_LEVEL, ICON_WINDOW_LEVEL, ICON_PAUSE, ICON_SMALL_PAUSE)
 from .isodose_visualization import change_visualization_isodose
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 
 window_level_dict = {
     'Bone': (450, 1600),

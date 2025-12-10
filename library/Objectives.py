@@ -44,7 +44,8 @@ import math
 import UserInterface
 import StructureOperations
 import Goals
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 from GeneralOperations import logcrit as logcrit
 from api.api_objectives import add_optimization_function
 

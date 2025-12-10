@@ -3,7 +3,8 @@
     This class displays a TPO input dialog to the user. See CreateTPO for more
     information. The following example illustrates how to use this function:
 
-    import connect
+    from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
     import UserInterface
     tpo = UserInterface.TpoDialog()
     tpo.load_protocols(os.path.join(os.path.dirname(__file__), '../../protocols/'))

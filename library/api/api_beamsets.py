@@ -170,31 +170,40 @@ def create_electron_qa_plan_v15(beamset, phantom_name, phantom_id, qa_plan_name,
 # Register these functions with the dispatcher
 dispatcher.register('get_unique_id_beamset', 12, get_unique_id_beamset_v12)
 dispatcher.register('get_unique_id_beamset', 15, get_unique_id_beamset_v15)
+dispatcher.register('get_unique_id_beamset', 17, get_unique_id_beamset_v15)
 
 dispatcher.register('get_unique_id_plan', 12, get_unique_id_plan_v12)
 dispatcher.register('get_unique_id_plan', 15, get_unique_id_plan_v15)
+dispatcher.register('get_unique_id_plan', 17, get_unique_id_plan_v15)
 
 dispatcher.register('set_treat_or_protect_roi_all_beams', 12, set_treat_or_protect_roi_all_beams_v12)
 dispatcher.register('set_treat_or_protect_roi_all_beams', 15, set_treat_or_protect_roi_all_beams_v15)
+dispatcher.register('set_treat_or_protect_roi_all_beams', 17, set_treat_or_protect_roi_all_beams_v15)
 
 dispatcher.register('set_treat_or_protect_margins', 12, set_treat_or_protect_margins_v12)
 dispatcher.register('set_treat_or_protect_margins', 15, set_treat_or_protect_margins_v15)
+dispatcher.register('set_treat_or_protect_margins', 17, set_treat_or_protect_margins_v15)
 
 dispatcher.register('get_source_to_surface_distance', 12, get_source_to_surface_distance_v12)
 dispatcher.register('get_source_to_surface_distance', 15, get_source_to_surface_distance_v15)
+dispatcher.register('get_source_to_surface_distance', 17, get_source_to_surface_distance_v15)
 
 dispatcher.register('add_dose_prescription_to_roi', 11, add_dose_prescription_to_roi_v11)
 dispatcher.register('add_dose_prescription_to_roi', 12, add_dose_prescription_to_roi_v12)
 dispatcher.register('add_dose_prescription_to_roi', 15, add_dose_prescription_to_roi_v15)
+dispatcher.register('add_dose_prescription_to_roi', 17, add_dose_prescription_to_roi_v15)
 
 dispatcher.register('get_number_of_emc_histories', 12, get_number_of_emc_histories_v12)
 dispatcher.register('get_number_of_emc_histories', 15, get_number_of_emc_histories_v15)
+dispatcher.register('get_number_of_emc_histories', 17, get_number_of_emc_histories_v15)
 
 dispatcher.register('adjust_emc_calculation', 12, adjust_emc_calculation_v12)
 dispatcher.register('adjust_emc_calculation', 15, adjust_emc_calculation_v15)
+dispatcher.register('adjust_emc_calculation', 17, adjust_emc_calculation_v15)
 
 dispatcher.register('create_electron_qa_plan', 12, create_electron_qa_plan_v12)
 dispatcher.register('create_electron_qa_plan', 15, create_electron_qa_plan_v15)
+dispatcher.register('create_electron_qa_plan', 17, create_electron_qa_plan_v15)
 
 
 @dispatcher.dispatch('get_unique_id_beamset')

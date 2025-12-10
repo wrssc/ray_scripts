@@ -1,7 +1,8 @@
 import re
 import pandas as pd
 import numpy as np
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 from collections import namedtuple
 import matplotlib.pyplot as plt
 import time

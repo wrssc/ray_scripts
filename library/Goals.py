@@ -6,7 +6,8 @@
     evaluation goal object (default). The following code illustrates how to use this
     function.
 
-    import connect
+    from library.api.api_rs import import_raystation_api
+    connect = import_raystation_api()
     import Goals
     plan = connect.get_current('Plan')
     for f in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions:
@@ -16,7 +17,8 @@
     example illustrates how it is used.
 
     import xml.etree.ElementTree
-    import connect
+    from library.api.api_rs import import_raystation_api
+    connect = import_raystation_api()
     import Goals
     tree = xml.etree.ElementTree.parse('example_protocol.xml')
     for g in tree.findall('//goals/roi'):

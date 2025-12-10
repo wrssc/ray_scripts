@@ -35,11 +35,8 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __credits__ = []
 
-import connect
 import logging
-import sys
 from collections import namedtuple
-import UserInterface
 import StructureOperations as so
 from GeneralOperations import find_scope
 from PlanReview.utils.review_api_versions import get_prescription_dose_references

@@ -50,7 +50,8 @@ try:
     import FreeSimpleGUI as Sg
 except ImportError:
     import PySimpleGUI as Sg
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 from api.api_utils import find_scope
 from collections import namedtuple
 # noinspection PyUnresolvedReferences

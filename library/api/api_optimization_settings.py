@@ -65,6 +65,7 @@ def edit_beam_optimization_settings_v15(beam_settings, jaw_motion,
 
 dispatcher.register('edit_beam_optimization_settings', 12, edit_beam_optimization_settings_v12)
 dispatcher.register('edit_beam_optimization_settings', 15, edit_beam_optimization_settings_v15)
+dispatcher.register('edit_beam_optimization_settings', 17, edit_beam_optimization_settings_v15)
 
 
 @dispatcher.dispatch('edit_beam_optimization_settings')

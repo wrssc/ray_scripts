@@ -83,16 +83,14 @@ __credits__ = ['']
 
 #
 import logging
-import sys
 
 try:
     import FreeSimpleGUI as sg
 except ImportError:
     import PySimpleGUI as sg
 
-# import connect
-# import UserInterface
-# import library.OptimizationOperations
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 from library.api.api_utils import find_scope
 from library.OptimizationOperations import optimize_plan
 
@@ -344,7 +342,8 @@ def optimization_gui(beamset, optimization_inputs):
     window.close()
     # Process results
     if not opt_values:
-        sys.exit('Dialog cancelled')
+        window.close()
+        raise RuntimeError("Optimization Dialog cancelled by user")
     optimization_inputs['initial_max_it'] = int(opt_values[k_cold_max])
     optimization_inputs['initial_int_it'] = int(opt_values[k_cold_int])
     optimization_inputs['second_max_it'] = int(opt_values[k_warm_max])

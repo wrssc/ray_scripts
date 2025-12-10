@@ -43,7 +43,8 @@ __copyright__ = 'Copyright (C) 2017-2018, University of Wisconsin Board of Regen
 
 # Import packages
 import sys
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 import UserInterface
 import logging
 import time

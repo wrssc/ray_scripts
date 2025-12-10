@@ -60,7 +60,8 @@ def main():
     try:
 
         # Import RayStation packages
-        import connect
+        from library.api.api_rs import import_raystation_api
+        connect = import_raystation_api()
         import UserInterface
 
         # Connect to RayStation DB

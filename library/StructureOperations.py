@@ -53,7 +53,6 @@ __help__ = ""
 __copyright__ = "Copyright (C) 2018, University of Wisconsin Board of Regents"
 
 import logging
-import connect
 import re
 import numpy as np
 import pandas as pd
@@ -65,6 +64,8 @@ import sys
 from typing import List, Optional, Sequence
 from os import path, listdir
 from api.api_structures import delete_geometry
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 
 # TODO: Reexamine this. Seems very odd we need hard coded system paths
 rab_git = "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts"

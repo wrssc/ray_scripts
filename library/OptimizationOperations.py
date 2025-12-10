@@ -102,7 +102,8 @@ __credits__ = ['']
 #
 
 import logging
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 import UserInterface
 import datetime
 import sys

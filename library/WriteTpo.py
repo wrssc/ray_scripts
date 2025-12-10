@@ -7,7 +7,8 @@
     how to use this package:
 
     import WriteTpo
-    import connect
+    from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
     WriteTpo.pdf(patient=connect.get_current('Patient')
                  exam=connect.get_current('Exam'),
                  plan=connect.get_current('Plan'))

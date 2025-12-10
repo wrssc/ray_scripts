@@ -19,7 +19,8 @@ def new_read_log_file(patient_id):
     Returns:
         file_contents: lines of file
     """
-    import connect
+    from library.api.api_rs import import_raystation_api
+    connect = import_raystation_api()
     log_file = f"{patient_id}.txt"
     log_input_file = os.path.join(LOG_DIR, patient_id, log_file)
     dev_log_file = f"{patient_id}.txt"

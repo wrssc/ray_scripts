@@ -1,4 +1,3 @@
-import connect
 import logging
 
 
@@ -16,6 +15,10 @@ def is_attrib(obj, attr_name):
 
 
 def detect_api_version():
+    try:
+        import raystation as connect
+    except ImportError:
+        import connect
     ui = connect.get_current('ui')
     if is_attrib(ui, 'GetApplicationVersion'):
         _version = ui.GetApplicationVersion().split('.')

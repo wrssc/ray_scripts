@@ -38,7 +38,8 @@ def main():
     import sys
     import csv
     import os
-    import connect
+    from library.api.api_rs import import_raystation_api
+    connect = import_raystation_api()
     from OptimizationOperations import optimize_plan
     from collections import namedtuple
     import UserInterface

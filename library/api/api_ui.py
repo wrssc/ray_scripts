@@ -96,13 +96,19 @@ dispatcher.register('ui_click_qa_preparation', 12, ui_click_qa_preparation_v12)
 dispatcher.register('get_toolpanel_options_map', 12, get_toolpanel_options_map_v12)
 dispatcher.register('click_apply_clinic_defaults', 12, click_apply_clinic_defaults_v12)
 
-# Temporarily map V12 to V15 until the V15 functions are determined necessary
+# Map V15 functions are determined necessary
 dispatcher.register('ui_click_plan_optimization', 15, ui_click_plan_optimization_v15)
 dispatcher.register('ui_click_plan_design', 15, ui_click_plan_design_v15)
 dispatcher.register('ui_click_qa_preparation', 15, ui_click_qa_preparation_v15)
 dispatcher.register('get_toolpanel_options_map', 15, get_toolpanel_options_map_v15)
 dispatcher.register('click_apply_clinic_defaults', 15, click_apply_clinic_defaults_v15)
 
+# Map V17 functions temporarily to V15 implementations
+dispatcher.register('ui_click_plan_optimization', 17, ui_click_plan_optimization_v15)
+dispatcher.register('ui_click_plan_design', 17, ui_click_plan_design_v15)
+dispatcher.register('ui_click_qa_preparation', 17, ui_click_qa_preparation_v15)
+dispatcher.register('get_toolpanel_options_map', 17, get_toolpanel_options_map_v15)
+dispatcher.register('click_apply_clinic_defaults', 17, click_apply_clinic_defaults_v15)
 
 @dispatcher.dispatch('ui_click_plan_optimization')
 def ui_click_plan_optimization(ui):

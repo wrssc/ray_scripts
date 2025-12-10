@@ -37,7 +37,8 @@ __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/xxxxx'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 
 case = connect.get_current("Case")
 plan_name = 'HFS_DICOM_Export'

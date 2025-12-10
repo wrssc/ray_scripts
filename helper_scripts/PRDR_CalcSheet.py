@@ -65,7 +65,8 @@ except ImportError:
 import pandas as pd
 from collections import namedtuple
 
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 import UserInterface
 import StructureOperations as so
 import GeneralOperations

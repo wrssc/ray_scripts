@@ -64,6 +64,7 @@ def create_dqa_plan_v15(beamset, phantom_name, qa_plan_name, phantom_id, iso, do
 # Register these functions with the dispatcher
 dispatcher.register('create_dqa_plan', 12, create_dqa_plan_v12)
 dispatcher.register('create_dqa_plan', 15, create_dqa_plan_v15)
+dispatcher.register('create_dqa_plan', 17, create_dqa_plan_v15)
 
 
 @dispatcher.dispatch('create_dqa_plan')

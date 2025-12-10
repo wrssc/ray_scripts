@@ -53,7 +53,8 @@ __credits__ = []
 
 import sys
 import logging
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 import UserInterface
 import DicomExport
 import PlanOperations

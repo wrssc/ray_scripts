@@ -182,7 +182,8 @@ class Tomo_Couch_Valid:
 
 
 def tomo_couch_check(case, exam, beamset, tomo_couch_name='TomoCouch', limit=2.0, shift=False):
-    import connect
+    from library.api.api_rs import import_raystation_api
+    connect = import_raystation_api()
     """
     Test of the couch centering relative to isocenter
     :param case: RS Case

@@ -63,7 +63,8 @@ __copyright__ = 'Copyright (C) 2024, University of Wisconsin Board of Regents'
 __help__ = ''
 __credits__ = []
 
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 import logging
 import UserInterface
 import random

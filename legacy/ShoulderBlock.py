@@ -39,7 +39,8 @@ __credits__ = []
 import sys
 import os
 import logging
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 import numpy as np
 import UserInterface
 import BeamOperations

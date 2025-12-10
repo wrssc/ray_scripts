@@ -1,7 +1,8 @@
 # Define a function to extract the number from the string using a regex
 from dataclasses import dataclass, replace
 import logging
-import connect
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 from typing import TYPE_CHECKING, Tuple, Optional
 
 if TYPE_CHECKING:

@@ -17,6 +17,7 @@ def get_rigid_registrations_v15(case):
 # Register these functions with the dispatcher
 dispatcher.register('get_rigid_registrations', 12, get_rigid_registrations_v12)
 dispatcher.register('get_rigid_registrations', 15, get_rigid_registrations_v15)
+dispatcher.register('get_rigid_registrations', 17, get_rigid_registrations_v15)
 
 
 @dispatcher.dispatch('get_rigid_registrations')

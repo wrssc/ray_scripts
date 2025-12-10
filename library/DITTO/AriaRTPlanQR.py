@@ -5,22 +5,24 @@ Aria.
 """
 
 # RayStation Header
-from connect import *  # type: ignore #pylint: disable=import-error
+
+from library.api.api_rs import import_raystation_api
+connect = import_raystation_api()
 
 try:
-    patient = get_current("Patient")  # type: ignore #pylint: disable=undefined-variable
+    patient = connect.get_current("Patient")  # type: ignore #pylint: disable=undefined-variable
 except:
     pass
 
 plan = None
 try:
-    plan = get_current("Plan")  # type: ignore #pylint: disable=undefined-variable
+    plan = connect.get_current("Plan")  # type: ignore #pylint: disable=undefined-variable
 except:
     pass
 
 case = None
 try:
-    case = get_current("Case")  # type: ignore #pylint: disable=undefined-variable
+    case = connect.get_current("Case")
 except:
     pass
 
