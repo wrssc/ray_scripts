@@ -483,14 +483,16 @@ def autoplan(autoplan_parameters, **kwargs):
             # '<name>_Override_TissueTypes are being overridden'),
             7: ('Set the sim-fiducial point',
                 'Make sure the localization point matches BBs'),
-            8: (
+            8: ('Support Structure Loading',
+                'Ensure the support structures are properly placed'),
+            9: (
                 'Select any blocking/bolus',
                 'Ensure the Entrance/Exit is selected for blocked structures'),
-            9: ('Support Structure Loading',
-                'Ensure the support structures are properly placed'),
-            10: ('Load Planning Structures', 'Loading rings, normals, otvs etc'),
-            11: ('Loading goals', 'Load goals from the TPO you selected'),
-            12: ('Optimize Plan', 'Optimizing plan. Copy and finish')
+            10: ('Review fixation support usage',
+                 'Review fixation and support structures are added and used in the beamset'),
+            11: ('Load Planning Structures', 'Loading rings, normals, otvs etc'),
+            12: ('Loading goals', 'Load goals from the TPO you selected'),
+            13: ('Optimize Plan', 'Optimizing plan. Copy and finish')
         }
         steps = []
         instruct = []
@@ -944,15 +946,55 @@ def autoplan(autoplan_parameters, **kwargs):
         AutoPlanOperations.place_fiducial(rso=rso, poi_name='SimFiducials')
     else:
         logging.debug('SimFiducial placement skipped for test')
+    # --------------------          Support structure placement          --------------------
+    if not ignore_status:
+        auto_status.next_step(text=script_steps[status_index][1])
+        status_index += 1
+    try:
+        strip_roi_support = beamset_etree.find('roi_support').text
+    except AttributeError:
+        sys.exit('No support structures specified beamset template')
+    if strip_roi_support:
+        strip_roi_support = strip_roi_support.replace(" ", "")
+        strip_roi_support = strip_roi_support.strip()
+        beamset_defs.support_roi = strip_roi_support.split(",")
+    if user_prompts and strip_roi_support:
+        ui = connect.get_current('ui')
+        try:
+            ui.TitleBar.Navigation.MenuItem['Patient modeling'].Click()
+            ui.TitleBar.Navigation.MenuItem['Patient modeling'].Popup.MenuItem['Structure definition'].Click()
+        except Exception as e:
+            logging.debug(f"Could not click on the patient modeling window: {e}")
+        # remove_existing_supports(case=rso.case, beamset=rso.beamset)
+        # existing_supports = StructureOperations.find_types(
+        #     rso.case, roi_type='Fixation')
+        # existing_supports += StructureOperations.find_types(
+        #     rso.case, roi_type='Support')
+        AutoPlanOperations.load_supports(rso=rso, supports=beamset_defs.support_roi, quiet=user_prompts)
+        include_supports_in_beamset(beamset=rso.beamset, supports=beamset_defs.support_roi)
+        current_level_window = rso.exam.Series[0].LevelWindow
+        try:
+            rso.exam.Series[0].LevelWindow = {'x': -600, 'y': 1600}
+        except Exception as e:
+            logging.debug(f'Could not set level/window to Lung: {e}')
+        connect.await_user_input(f'Review support structure placement then continue of: {beamset_defs.support_roi}')
+        try:
+            rso.exam.Series[0].LevelWindow = current_level_window
+        except Exception as e:
+            logging.debug(f'Could not reset level/window: {e}')
+    else:
+        logging.info(f'Loading support {beamset_defs.support_roi} '
+                     f'skipped for testing')
     #
+    # ---------------------          Blocking/Bolus placement          --------------------
     # Set any blocking or bolus
     if not ignore_status:
         auto_status.next_step(text=script_steps[status_index][1])
         status_index += 1
     try:
         ui = connect.get_current('ui')
-        ui.TitleBar.MenuItem['Plan optimization'].Button_Plan_optimization.Click()
-        ui.TabControl_Modules.TabItem['Plan optimization'].Button_Plan_optimization.Click()
+        ui.TitleBar.Navigation.MenuItem['Plan optimization'].Click()
+        ui.TitleBar.Navigation.MenuItem['Plan optimization'].Popup.MenuItem['Plan optimization'].Click()
         ui.Workspace.TabControl['Objectives/constraints'].TabItem['Protect'].Select()
     except:
         logging.debug("Could not click on the patient protection window")
@@ -973,40 +1015,17 @@ def autoplan(autoplan_parameters, **kwargs):
     if not ignore_status:
         auto_status.next_step(text=script_steps[status_index][1])
         status_index += 1
-    try:
-        strip_roi_support = beamset_etree.find('roi_support').text
-    except AttributeError:
-        sys.exit('No support structures specified beamset template')
-    if strip_roi_support:
-        strip_roi_support = strip_roi_support.replace(" ", "")
-        strip_roi_support = strip_roi_support.strip()
-        beamset_defs.support_roi = strip_roi_support.split(",")
-    logging.debug(f'Beamset support structures: {beamset_defs.support_roi}, '
-                  f'user prompts: {user_prompts}, '
-                  f'strip_roi_support: {strip_roi_support}')
-    if user_prompts and strip_roi_support:
-        remove_existing_supports(case=rso.case, beamset=rso.beamset)
-        # existing_supports = StructureOperations.find_types(
-        #     rso.case, roi_type='Fixation')
-        # existing_supports += StructureOperations.find_types(
-        #     rso.case, roi_type='Support')
-        AutoPlanOperations.load_supports(rso=rso, supports=beamset_defs.support_roi, quiet=user_prompts)
-        include_supports_in_beamset(beamset=rso.beamset, supports=beamset_defs.support_roi)
-        # for support in beamset_defs.support_roi:
-        #    try:
-        #        logging.debug(f'Loaded support structure {support} and assigned to beamset'
-        #                      f' {rso.beamset.DicomPlanLabel}')
-        #        rso.beamset.IncludeRoiInRadiationSet(RoiName=support)
-        #    except Exception as e:
-        #        if "The ROI is already included in the beam set" in str(e):
-        #            logging.debug(f'Support structure {support} already included in '
-        #                          f'radiation set {rso.beamset.DicomPlanLabel}')
-        #            pass
-        #        else:
-        #            logging.warning(f'Error loading support structure {support}: {e}')
-    else:
-        logging.info(f'Loading support {beamset_defs.support_roi} '
-                     f'skipped for testing')
+
+    if user_prompts:
+        try:
+            ui = connect.get_current('ui')
+            ui.TitleBar.Navigation.MenuItem['Plan optimization'].Click()
+            ui.TitleBar.Navigation.MenuItem['Plan optimization'].Popup.MenuItem['Plan optimization'].Click()
+            ui.Workspace.TabControl['Objectives/constraints'].TabItem['Fixation & support'].Select()
+        except:
+            logging.debug("Could not click on the fixation and support window")
+        connect.await_user_input(
+            'Review fixation and support structure usage in the beamset, then continue.')
     # time_user complete
     ap_report['time_user'][1] = timer()
 

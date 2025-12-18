@@ -333,7 +333,7 @@ def calculate_single_dose_per_fraction(total_dose, num_fractions):
     or None if the input is invalid.
     """
     try:
-        dose_per_fraction = round(float(total_dose) / float(num_fractions), 2)
+        dose_per_fraction = round(float(total_dose) / float(num_fractions), 6)
         return f'{dose_per_fraction:.3f}'
     except ValueError:
         return None

@@ -35,8 +35,8 @@
     this program. If not, see <http://www.gnu.org/licenses/>.
     """
 
-__author__ = 'Mark Geurts'
-__contact__ = 'mark.w.geurts@gmail.com'
+__author__ = 'Mark Geurts and Adam Bayliss'
+__contact__ = 'rabayliss@wisc.edu'
 __version__ = '1.0.0'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrssc/ray_scripts/wiki/Protocol-XMLs'
@@ -421,13 +421,14 @@ def add_goal(goal, plan, beamset, roi=None, targets=None, exam=None, case=None):
         elif goal.find('association').text == 'Beamset':
             beamset_association = beamset
             plan_association = False
+        else:
+            raise ValueError('Unknown association type {}'.format(goal.find('association').text))
     else:
-        beamset_association = beamset
-        plan_association = False
+        beamset_association = None
+        plan_association = True
 
 
-    logging.debug('Adding {} constraint {}, {}, {}, {}, priority {}'.
-                  format(roi, criteria, goal_type, acceptance, parameter, priority))
+    logging.debug(f'Adding {roi} constraint {criteria}, {goal_type}, {acceptance}, {parameter}, priority {priority}')
 
     try:
         if parameter is None:

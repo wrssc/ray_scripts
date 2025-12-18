@@ -338,7 +338,7 @@ def close_panels(ui, options_map, panel=None):
 def helper_image():
     # Display a helpful image for the next step
     protocol_folder = r'../protocols'
-    institution_folder = r'UW'
+    institution_folder = r'UW/Images/RenderingSettings'
     help_screenshot = r'Electron_Rendering.jpg'
     f = os.path.join(os.path.dirname(__file__),
                      protocol_folder,

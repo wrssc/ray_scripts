@@ -2720,6 +2720,7 @@
         <reduce_oar>False</reduce_oar>
         <segment_weight>False</segment_weight>
         <block_prompt>False</block_prompt>
+        <fixation_support_prompt>True</fixation_support_prompt>
         <robust sup="0.7" inf="0.7" ant="0" post="0" right="0" left="0" position_uncertainty="IndependentIsocenters">
             False
         </robust>
