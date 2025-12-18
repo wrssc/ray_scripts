@@ -22,7 +22,7 @@
         <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
-        <name>Brain SBRT [5Fx or fewer]</name>
+        <name>Brain SBRT [5Fx]</name>
         <prefix>Brai_</prefix>
         <prescription number="0" sequence="Primary">
             <roi>
@@ -42,14 +42,6 @@
             </imaging_frequency>
         </prescription>
         <goals>
-            <goalset>
-                <name>QUANTEC-SBRT</name>
-                <priority>5</priority>
-            </goalset>
-            <goalset>
-                <name>HyTEC-5Fx</name>
-                <priority>5</priority>
-            </goalset>
             <roi>
                 <name>PTV_p</name>
                 <type dir="ge">VX</type>
@@ -475,8 +467,6 @@
                 <index>0.286</index>
                 <priority>2</priority>
             </roi>
-
-
             <roi>
                 <name>Normal_1cm</name>
                 <type>Max</type>
@@ -1670,4 +1660,722 @@
             </roi>
         </objectives>
     </objectiveset>
+	    <order>
+        <name>Brain SBRT [3Fx]</name>
+        <prefix>Brai_</prefix>
+        <prescription number="0" sequence="Primary">
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">30</dose>
+            </roi>
+            <fractions>5</fractions>
+             <treatment_frequency>
+                <option default="false">Daily</option>
+                <option default="true">2 to 3 times per week</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p2</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p2">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p2</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p2">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p2</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p2">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p2</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p2">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p3</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p3">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p3</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p3">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p3</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p3">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p3</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p3">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p4</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p4">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p4</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p4">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p4</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p4">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p4</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p4">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p5</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p5">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p5</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p5">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p5</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p5">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p5</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p5">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p6</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p6">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p6</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p6">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p6</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p6">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p6</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p6">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p7</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p7">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p7</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p7">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p7</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p7">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p7</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p7">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p8</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p8">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p8</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p8">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p8</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p8">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p8</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p8">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+           <roi>
+                <name>PTV_p9</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p9">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p9</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p9">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p9</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p9">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p9</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p9">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+           <roi>
+                <name>PTV_p10</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p10">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p10</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p10">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p10</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p10">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p10</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p10">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+
+           <roi>
+                <name>PTV_p11</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p11">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p11</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p11">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p11</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p11">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p11</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p11">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+
+            <roi>
+                <name>PTV_p12</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p12">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p12</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p12">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p12</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p12">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p12</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p12">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+
+            <roi>
+                <name>PTV_p13</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p13">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p13</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p13">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p13</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p13">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p13</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p13">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+
+            <roi>
+                <name>PTV_p14</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p14">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p14</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p14">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p14</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p14">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p14</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p14">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+
+            <roi>
+                <name>PTV_p15</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p15">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p15</name>
+                <type dir="gt">DX</type>
+                <dose units="%" roi="PTV_p15">90</dose>
+                <volume units="%">99</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p15</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p15">100</dose>
+                <index>0.83</index>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p15</name>
+                <type dir="gt">CI</type>
+                <dose units="%" roi="PTV_p15">50</dose>
+                <index>0.286</index>
+                <priority>2</priority>
+            </roi>
+
+
+            <roi>
+                <name>Normal_1cm</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">40</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain-PTV</name>
+                <type>VX</type>
+                <dose units="Gy">23.1</dose>
+                <volume units="cc">20</volume>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>Brain-PTV</name>
+                <type>VX</type>
+                <dose units="Gy">18</dose>
+                <volume units="cc">30.2</volume>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>Brain-PTV</name>
+                <type>VX</type>
+                <dose units="Gy">23.1</dose>
+                <volume units="cc">10</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brainstem</name>
+                <type>Max</type>
+                <dose units="Gy">23.1</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Brainstem</name>
+                <type>Max</type>
+                <dose units="Gy">18</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brainstem_PRV03</name>
+                <type>VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">23.1</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <dose units="Gy">23.1</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <dose units="Gy">20.3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">23.1</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticChiasm</name>
+                <type>Max</type>
+                <dose units="Gy">20</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticChiasm</name>
+                <type>Max</type>
+                <dose units="Gy">17.4</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticChiasm_PRV03</name>
+                <type>VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_L</name>
+                <type>Max</type>
+                <dose units="Gy">20</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_L</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_L_PRV03</name>
+                <type>VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_R</name>
+                <type>Max</type>
+                <dose units="Gy">20</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_R</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_R_PRV03</name>
+                <type>VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <dose units="Gy">7</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L_PRV07</name>
+                <type>Max</type>
+                <dose units="Gy">7</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <dose units="Gy">7</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R_PRV07</name>
+                <type>Max</type>
+                <dose units="Gy">7</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Eye_L</name>
+                <type>Max</type>
+                <dose units="Gy">10</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Eye_L</name>
+                <type>Max</type>
+                <dose units="Gy">9</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Eye_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Eye_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">4</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Eye_R</name>
+                <type>Max</type>
+                <dose units="Gy">10</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Eye_R</name>
+                <type>Max</type>
+                <dose units="Gy">9</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Eye_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Eye_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">4</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Skin_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">27</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Skin_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">25</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Max</type>
+                <dose units="Gy">20</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">17.1</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">13.5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Max</type>
+                <dose units="Gy">20</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">17.1</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">13.5</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Cochlea_R_PRV05</name>
+                <type>VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">22.5</dose>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Cochlea_L_PRV05</name>
+                <type>VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">22.5</dose>
+                <priority>3</priority>
+            </roi>
+        </goals>
+    </order>
 </protocol>
