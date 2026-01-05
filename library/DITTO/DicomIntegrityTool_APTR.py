@@ -45,7 +45,7 @@ def report_failing_test_func(aptr_dicom_tree_pair, mrn="0000000", plan_name="Pla
             json_object = json.dumps(report_dict, indent=4)
 
             root = Path(
-                r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\RayStation\DITTO_logs"
+                r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\Clinical\RayStation\DITTO_logs"
             )
             filename = f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_{mrn}_{plan_name}.json"
             with open(root / filename, "w") as file:
