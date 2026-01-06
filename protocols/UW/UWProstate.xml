@@ -1345,7 +1345,7 @@
                 <name>Rectum</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">60</dose>
-                <volume units="%">1</volume>
+                <volume units="%">3</volume>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1402,6 +1402,13 @@
                 <type dir="lt">VX</type>
                 <dose units="Gy">57</dose>
                 <volume units="%">10</volume>
+                <priority>3</priority>
+            </roi>
+			<roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">60</dose>
+                <volume units="%">1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
