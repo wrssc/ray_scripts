@@ -44,7 +44,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 # Import packages
 import sys
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import UserInterface
 import logging
 import time
@@ -53,10 +53,10 @@ import time
 def main():
 
     # Get current patient, case, and machine DB
-    machine_db = connect.get_current('MachineDB')
+    machine_db = rs.get_current('MachineDB')
     try:
-        patient = connect.get_current('Patient')
-        case = connect.get_current('Case')
+        patient = rs.get_current('Patient')
+        case = rs.get_current('Case')
         patient.Save()
 
     except Exception:
@@ -75,9 +75,9 @@ def main():
                           'overridden to water.')
     time.sleep(1)
 
-    examination = connect.get_current('Examination')
+    examination = rs.get_current('Examination')
     if examination.EquipmentInfo.ImagingSystemReference is None:
-        connect.await_user_input('The CT imaging system is not set. Set it now, then continue the script.')
+        rs.await_user_input('The CT imaging system is not set. Set it now, then continue the script.')
         patient.Save()
 
     else:
@@ -340,7 +340,7 @@ def main():
                     # Prompt user to set DLG offset
                     counter += 1
                     logging.debug('Prompting user to update {} {} MV DLG offset to {} mm'.format(m, e, i))
-                    connect.await_user_input('Set Mobius3D {} {} MV DLG offset to {} mm, and set dose calculation ' +
+                    rs.await_user_input('Set Mobius3D {} {} MV DLG offset to {} mm, and set dose calculation ' +
                                              'resolution to {} mm'.format(m, e, i, res))
 
                     # Loop through gaps

@@ -177,7 +177,7 @@ def main():
     for obj_type in ('Patient', 'Case', 'Plan', 'BeamSet'):
         try:
             # Add the object to globals
-            globals()[obj_type.lower()] = connect.get_current(obj_type)
+            globals()[obj_type.lower()] = rs.get_current(obj_type)
         except Exception:
             # If GUI backend is PySide6, show QMessageBox; else print warning
             msg = f"This script requires a {obj_type} to be loaded"

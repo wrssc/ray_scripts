@@ -1,7 +1,7 @@
 # Import necessary modules and functions
 import logging
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 try:
     import FreeSimpleGUI as Sg
 except ImportError:

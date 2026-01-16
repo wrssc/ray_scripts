@@ -120,17 +120,17 @@ def convert_couch_speed_to_mm(str_input):
 def main():
     # Get current patient, case, exam, plan, and beamset
     try:
-        patient = connect.get_current('Patient')
-        case = connect.get_current('Case')
-        exam = connect.get_current('Examination')
+        patient = rs.get_current('Patient')
+        case = rs.get_current('Case')
+        exam = rs.get_current('Examination')
 
     except Exception:
         UserInterface.WarningBox('This script requires a patient to be loaded')
         sys.exit('This script requires a patient to be loaded')
 
     try:
-        plan = connect.get_current('Plan')
-        beamset = connect.get_current('BeamSet')
+        plan = rs.get_current('Plan')
+        beamset = rs.get_current('BeamSet')
 
     except Exception:
         logging.debug('A plan and/or beamset is not loaded; plan export options will be disabled')

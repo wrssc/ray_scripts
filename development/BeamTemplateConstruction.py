@@ -28,7 +28,7 @@
 
     Usage:
         The user will need to have a patient open in the orientation they want to use for the templates.  
-        (The script uses get_current method from the RayStation console to find the current examination).
+        (The script uses rs.get_current method from the RayStation console to find the current examination).
     
         Launch the script from the RayStation window. Select the csv file to build the templates
         Wait until the script completes. Under each beamset from the constructed plans 
@@ -61,24 +61,24 @@ def main():
     import sys
     import os
     from library.api.api_rs import import_raystation_api
-    connect = import_raystation_api()
+    rs = import_raystation_api()
     import csv
     import UserInterface
     from collections import namedtuple
 
     # Set the current scope of RayStation to the open patient.
     try:
-         patient = connect.get_current("Patient")
+         patient = rs.get_current("Patient")
     except SystemError:
          raise IOError("No Patient loaded. Load patient case and plan.")
 
     try:
-         case = connect.get_current("Case")
+         case = rs.get_current("Case")
     except SystemError:
          raise IOError("No Case loaded. Load patient case and plan.")
 
     try:
-         examination = connect.get_current("Examination")
+         examination = rs.get_current("Examination")
     except SystemError:
          raise IOError("No Examination loaded. Load patient case and plan.")
 

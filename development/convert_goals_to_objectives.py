@@ -1,7 +1,7 @@
 import pandas as pd
 from typing import Optional, Dict, Any
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import logging
 # TODO:
 #      - ensure all goals types are working. Currently average dose is getting set to max
@@ -23,7 +23,7 @@ def evaluation_functions_to_dataframe(plan) -> pd.DataFrame:
     ----------
     plan :
         The RayStation `Plan` object, typically obtained via
-        ``connect.get_current('Plan')``.
+        ``rs.get_current('Plan')``.
 
     Returns
     -------
@@ -164,8 +164,8 @@ def push_goals_to_mco(
     * Unhandled goal types raise ``NotImplementedError`` - add mappings
       in ``_goal_to_mco_function`` as needed.
     """
-    plan = plan or get_current("Plan")
-    beamset = beamset or get_current("BeamSet")
+    plan = plan or rs.get_current("Plan")
+    beamset = beamset or rs.get_current("BeamSet")
 
     opt_idx = _find_optimization_index(plan, beamset)
     po = plan.PlanOptimizations[opt_idx]
@@ -205,7 +205,7 @@ def push_goals_to_mco(
 
 # def initialize_mco(plan_optimization, )
 #
-# from connect import get_current
-# plan = get_current('Plan')
+# from connect import rs.get_current
+# plan = rs.get_current('Plan')
 # df = evaluation_functions_to_dataframe(plan)
 # df.to_csv(r'U:\Physics\Reports\evaluation_functions.csv', index=False)

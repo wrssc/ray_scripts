@@ -8,10 +8,10 @@
 
     import WriteTpo
     from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
-    WriteTpo.pdf(patient=connect.get_current('Patient')
-                 exam=connect.get_current('Exam'),
-                 plan=connect.get_current('Plan'))
+rs = import_raystation_api()
+    WriteTpo.pdf(patient=rs.get_current('Patient')
+                 exam=rs.get_current('Exam'),
+                 plan=rs.get_current('Plan'))
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software

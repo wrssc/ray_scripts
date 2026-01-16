@@ -90,7 +90,7 @@ except ImportError:
     import PySimpleGUI as sg
 
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 from library.api.api_utils import find_scope
 from library.OptimizationOperations import optimize_plan
 

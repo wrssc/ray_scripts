@@ -1,0 +1,28 @@
+{
+  "directory": "helper_scripts",
+  "description": "Test manifest with multiple tests",
+  "tests": [
+    {
+      "script_path": "helper_scripts/CompareContours.py",
+      "test_type": "modification",
+      "test_patient": {
+        "patient_id": "ZZUWQA_ScTest_Test1",
+        "patient_last_name": "ScTest",
+        "patient_first_name": "Test",
+        "plan_name": "Plan1",
+        "beamset_name": "Beamset1"
+      }
+    },
+    {
+      "script_path": "helper_scripts/Visual_Settings.py",
+      "test_type": "modification",
+      "test_patient": {
+        "patient_id": "ZZUWQA_ScTest_Test2",
+        "patient_last_name": "ScTest",
+        "patient_first_name": "Test",
+        "plan_name": "Plan2",
+        "beamset_name": "Beamset2"
+      }
+    }
+  ]
+}

@@ -39,7 +39,7 @@ import sys
 import os
 import logging
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import numpy as np
 import UserInterface
 import BeamOperations
@@ -129,7 +129,7 @@ def main():
     status.next_step('Placing left shoulder blocking point')
 
     try:
-        ui = connect.get_current('ui')
+        ui = rs.get_current('ui')
         ui.TitleBar.MenuItem['Patient Modeling'].Button_Patient_Modeling.Click()
     except:
         logging.debug("Could not click on the plan Design MenuItem")
@@ -141,7 +141,7 @@ def main():
     ])))
 
     if any(StructureOperations.exists_poi(case=case, pois=shoulder_poi_left)):
-        connect.await_user_input(('Ensure the point {} is at the left acromial-clavicular joint' +
+        rs.await_user_input(('Ensure the point {} is at the left acromial-clavicular joint' +
                                   ' and continue script.').format(shoulder_poi_left))
     else:
         case.PatientModel.CreatePoi(Examination=exam,
@@ -151,7 +151,7 @@ def main():
                                     Color='Green',
                                     VisualizationDiameter=2,
                                     Type='Control')
-        connect.await_user_input(('Place the point {} at the left acromial-clavicular joint' +
+        rs.await_user_input(('Place the point {} at the left acromial-clavicular joint' +
                                   ' and continue script.'.format(shoulder_poi_left)))
 
     shoulder_left_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[shoulder_poi_left]
@@ -162,7 +162,7 @@ def main():
 
     status.next_step('Placing right shoulder blocking point')
     if any(StructureOperations.exists_poi(case=case, pois=shoulder_poi_right)):
-        connect.await_user_input(('Ensure the point {} is at the right acromial-clavicular joint' +
+        rs.await_user_input(('Ensure the point {} is at the right acromial-clavicular joint' +
                                   ' and continue script.').format(shoulder_poi_right))
     else:
         case.PatientModel.CreatePoi(Examination=exam,
@@ -172,7 +172,7 @@ def main():
                                     Color='Yellow',
                                     VisualizationDiameter=2,
                                     Type='Control')
-        connect.await_user_input(('Place the point {} at the right acromial-clavicular joint' +
+        rs.await_user_input(('Place the point {} at the right acromial-clavicular joint' +
                                   ' and continue script.'.format(shoulder_poi_right)))
 
     shoulder_right_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[shoulder_poi_right]

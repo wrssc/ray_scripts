@@ -9,13 +9,13 @@ def import_raystation_api_v12():
 
 def import_raystation_api_v15():
     # Version 15 specific code
-    import connect
-    return connect
+    import connect as rs
+    return rs
 
 def import_raystation_api_v17():
     # Version 17 specific code
-    import raystation
-    return raystation
+    import raystation as rs
+    return rs
 
 # Register these functions with the dispatcher
 dispatcher.register('import_raystation_api', 12, import_raystation_api_v12)

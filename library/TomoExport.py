@@ -54,7 +54,7 @@ __credits__ = []
 import sys
 import logging
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import UserInterface
 import DicomExport
 import PlanOperations
@@ -156,7 +156,7 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
             'Please go to the iDMS workstation and approve plan(s): \n{} '.format(export_names) +
             'while transfer plans are made.')
         # Uncomment if users struggle with iDMS approval.
-        # connect.await_user_input(
+        # rs.await_user_input(
         #     'Please go to the iDMS workstation and approve plan(s): \n{} '.format(
         #         export_names) +
         #     'and continue this script, while I make a transfer plan.')
@@ -227,9 +227,9 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
                 sys.exit('Retrieved wrong beamset for {}, alert script Admin immediately!'.format(b.DicomPlanLabel))
 
             daughter_plan.SetCurrent()
-            connect.get_current('Plan')
+            rs.get_current('Plan')
             daughter_beamset.SetCurrent()
-            connect.get_current('BeamSet')
+            rs.get_current('BeamSet')
             daughter_beamset.ComputeDose(
                 ComputeBeamDoses=True,
                 DoseAlgorithm="CCDose",
@@ -240,7 +240,7 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
 
             status.next_step(text='Transfer plan dose computed, setting up dose comparison.')
 
-            connect.await_user_input(
+            rs.await_user_input(
                 'Compare the transfer beamset: {} and parent beamset {}'
                 .format(daughter_beamset.DicomPlanLabel, parent_beamset_name)
                 + ' dose distributions and continue, if acceptable approve this beamset.')
@@ -269,9 +269,9 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
                 sys.exit('Retrieved wrong beamset for {}, alert script Admin immediately!'.format(b.DicomPlanLabel))
 
             daughter_plan.SetCurrent()
-            connect.get_current('Plan')
+            rs.get_current('Plan')
             daughter_beamset.SetCurrent()
-            connect.get_current('BeamSet')
+            rs.get_current('BeamSet')
             status.next_step('Exporting {}'.format(daughter_beamset.DicomPlanLabel))
             if rs_test_only:
                 success = True

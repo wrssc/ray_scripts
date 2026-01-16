@@ -69,7 +69,7 @@ import os
 import re
 import logging
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import library.StructureOperations as StructureOperations
 import library.Objectives as Objectives
 import library.BeamOperations as BeamOperations
@@ -327,7 +327,7 @@ def multi_autoplan(multi_plan_parameters):
             m['rso'] = autoplan(autoplan_parameters=a)
         # If optimization is required, prompt user to continue
         if m['optimize']:
-            connect.await_user_input('Completed optimization of current beamset. Please review and continue')
+            rs.await_user_input('Completed optimization of current beamset. Please review and continue')
     return multi_plan_parameters
 
 
@@ -791,7 +791,7 @@ def autoplan(autoplan_parameters, **kwargs):
     # ok, now make the beamset current
     rso.patient.Save()
     rs_beam_set.SetCurrent()
-    rso = rso._replace(beamset=connect.get_current('BeamSet'))
+    rso = rso._replace(beamset=rs.get_current('BeamSet'))
     if background:
         rso.plan.UpdateDependency(
             DependentBeamSetName=rso.beamset.DicomPlanLabel,
@@ -931,7 +931,7 @@ def autoplan(autoplan_parameters, **kwargs):
         auto_status.next_step(text=script_steps[status_index][1])
         status_index += 1
     if user_prompts:
-        connect.await_user_input(
+        rs.await_user_input(
             'Set any required material overrides and continue the script.')
     # TODO: The following line of code can be activated in RS 11
     # AutoPlanOperations.set_overrides(rso)
@@ -951,7 +951,7 @@ def autoplan(autoplan_parameters, **kwargs):
         auto_status.next_step(text=script_steps[status_index][1])
         status_index += 1
     try:
-        ui = connect.get_current('ui')
+        ui = rs.get_current('ui')
         ui.TitleBar.MenuItem['Plan optimization'].Button_Plan_optimization.Click()
         ui.TabControl_Modules.TabItem['Plan optimization'].Button_Plan_optimization.Click()
         ui.Workspace.TabControl['Objectives/constraints'].TabItem['Protect'].Select()
@@ -960,13 +960,13 @@ def autoplan(autoplan_parameters, **kwargs):
     if not user_prompts:
         logging.info('Blocking page skipped for testing')
     else:
-        connect.await_user_input(
+        rs.await_user_input(
             'Navigate to the Plan design page, set any blocking or bolus.')
     #
     if not user_prompts:
         logging.info('Custom goal additions skipped for debugging.')
     else:
-        connect.await_user_input('Add any custom goals from the TPO.')
+        rs.await_user_input('Add any custom goals from the TPO.')
     # TODO: Need this step to be done prior to isocenter placement to ensure no collisions
     #
     # Add support structures here
@@ -1078,7 +1078,7 @@ def autoplan(autoplan_parameters, **kwargs):
             f'check skipped for testing')
     else:
         if not validation['status'] and user_prompts:
-            connect.await_user_input(
+            rs.await_user_input(
                 f'This template was authored by {validation["author"]}'
                 f'and is being tested. '
                 f'Continue optimization or stop the script execution.\n'

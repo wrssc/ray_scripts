@@ -51,7 +51,7 @@ try:
 except ImportError:
     import PySimpleGUI as Sg
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 from api.api_utils import find_scope
 from collections import namedtuple
 # noinspection PyUnresolvedReferences
@@ -113,7 +113,7 @@ def automated_tests():
         if event in (Sg.WIN_CLOSED, 'Cancel'):
             break
         elif event == 'Pause Script':
-            connect.await_user_input('Review Paused. Resume Script to Continue')
+            rs.await_user_input('Review Paused. Resume Script to Continue')
         elif event == 'Repeat Tests':
             tree_data, tree_children = perform_automated_checks(
                 rso, do_physics_review=False, display_progress=True, values=None,

@@ -163,7 +163,7 @@ def main():
         # Check to make sure the user moved the poi
         while fiducial_position == external_center:
             # Prompt the user to place the poi at the slice intersection
-            connect.await_user_input(
+            rs.await_user_input(
                 f"Zoom in on fiducial {n + 1}."
                 + f" Place crosshairs {point_name} at its geometric center."
                 + " Select 'Set to slice intersection '"
@@ -252,7 +252,7 @@ def main():
         if msg is not None:
             logging.debug(msg)
         # Prompt the user to manipulate the contour
-        connect.await_user_input(
+        rs.await_user_input(
             "Use the 3D tools to rotate and translate the fiducial contour"
         )
         patient.SetRoiVisibility(RoiName=fiducial_name, IsVisible=False)

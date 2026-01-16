@@ -113,7 +113,7 @@ def set_all_current(patient_data):
     # Initialize return variable
     Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
     patient_data['Case'].SetCurrent()
-    connect.get_current('Case')
+    rs.get_current('Case')
     # Get current patient, case, exam
     pd = Pd(error=[],
             patient=GeneralOperations.find_scope(level='Patient'),

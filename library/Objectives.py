@@ -45,7 +45,7 @@ import UserInterface
 import StructureOperations
 import Goals
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 from GeneralOperations import logcrit as logcrit
 from api.api_objectives import add_optimization_function
 
@@ -681,7 +681,7 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
     elif i == len(prot_vol) - 1:
         message = f'Target volume {vol:.2f} > RTOG volume limits {prot_vol[i]:.2f}' \
                   + ' returning goals for highest available volume'
-        connect.await_user_input(message)
+        rs.await_user_input(message)
         logging.warning(message)
         return index[i]
     # Interpolate on i and i - 1
@@ -1106,7 +1106,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
             missing_message = 'Missing structures, continue script or cancel \n' + mc_list
             if run_status:
                 status.next_step(text=missing_message, num=1)
-            connect.await_user_input(missing_message)
+            rs.await_user_input(missing_message)
             # Add a line here to check again for missing contours and write out the list
             for r in case.PatientModel.RegionsOfInterest:
                 rois.append(r.Name)
@@ -1184,7 +1184,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
         logging.debug('Order has goalsets')
         logging.debug('Adding goalset {} to plan'.format(s.find('name').text))
         for g in tpo.goalsets[s.find('name').text].findall('roi'):
-            Goals.add_goal(g, plan=connect.get_current('Plan'), beamset=connect.get_current('BeamSet'))
+            Goals.add_goal(g, plan=rs.get_current('Plan'), beamset=rs.get_current('BeamSet'))
 
     for seq in goal_locations:
         for g in seq:
@@ -1305,7 +1305,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                         g.find('name').text))
 
             # Regardless, add the goal now
-            Goals.add_goal(g, plan=connect.get_current('Plan'), beamset=connect.get_current('BeamSet'))
+            Goals.add_goal(g, plan=rs.get_current('Plan'), beamset=rs.get_current('BeamSet'))
 
     if run_status:
         status.next_step(text="Adding Objectives.", num=4)

@@ -48,7 +48,7 @@ def main():
     # Find the optimization index corresponding to this beamset
     opt_index = find_optimization_index(plan=plan, beamset=beamset)
     plan_optimization = plan.PlanOptimizations[opt_index]
-    connect.await_user_input(
+    rs.await_user_input(
         'Note, beams will be reset. Cancel script if this is not intended')
     message = BeamOperations.lock_jaws_to_current(plan_optimization)
     log_message = message.split("\n")

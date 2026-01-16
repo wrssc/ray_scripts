@@ -19,7 +19,7 @@ def detect_api_version():
         import raystation as connect
     except ImportError:
         import connect
-    ui = connect.get_current('ui')
+    ui = rs.get_current('ui')
     if is_attrib(ui, 'GetApplicationVersion'):
         _version = ui.GetApplicationVersion().split('.')
         version = int(_version[0]) if int(_version[1]) != 99 else int(_version[0]) + 1

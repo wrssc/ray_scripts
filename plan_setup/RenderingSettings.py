@@ -379,7 +379,7 @@ def main():
     ui_click_plan_design(ui)
     # Check if this an electron plan
     if 'Electrons' not in beamset.Modality:
-        connect.await_user_input('This script requires an electron beamset to be selected')
+        rs.await_user_input('This script requires an electron beamset to be selected')
         beamset = find_scope(level='BeamSet')
         if 'Electrons' not in beamset.Modality:
             sys.exit('No electron plan selected')
@@ -484,7 +484,7 @@ def main():
     # Prompt user to move the view
     ui_manager.select_tabitem('Scripting')
     helper_image()
-    connect.await_user_input('Align the view')
+    rs.await_user_input('Align the view')
     #
     # Tool Panel: Beam Options
     ui_manager.open_panels(options_map, panel_key='Beam')
@@ -496,10 +496,10 @@ def main():
     ui_manager.click_ui_element(lambda: ui.ToolPanel.BeamOptions.CheckBox['Transparent external ROI'])
 
     ui_manager.select_tabitem('Scripting')
-    connect.await_user_input('Right-Click 3D> Show Beam Parts> Applicator/Isocenter: OFF')
+    rs.await_user_input('Right-Click 3D> Show Beam Parts> Applicator/Isocenter: OFF')
     ui_manager.close_panels(options_map)
     ui_manager.open_panels(options_map, panel_key='Patient')
-    connect.await_user_input('Adjust the 3D light position to maximize surface features')
+    rs.await_user_input('Adjust the 3D light position to maximize surface features')
     root = Tk()
     root.withdraw()
     messagebox.showinfo(title='Rendering Script Complete',

@@ -7,7 +7,7 @@ from PlanReview.review_definitions import (
     ICON_SMALL_WINDOW_LEVEL, ICON_WINDOW_LEVEL, ICON_PAUSE, ICON_SMALL_PAUSE)
 from .isodose_visualization import change_visualization_isodose
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 
 window_level_dict = {
     'Bone': (450, 1600),
@@ -99,7 +99,7 @@ def bottom_event(gui_state_manager, event, values):
     elif event == '-COMBO_WL-':
         on_window_level_combo(gui_state_manager.rso, values['-COMBO_WL-'])
     elif event == '-PAUSE-':
-        connect.await_user_input('Review Paused. Resume Script Execution to Continue')
+        rs.await_user_input('Review Paused. Resume Script Execution to Continue')
 
 
 def on_isodose_scale_click(rso):
@@ -149,7 +149,7 @@ def click_patient_modeling(ui):
 
 
 def on_toggle_material_click():
-    ui = connect.get_current('ui')
+    ui = rs.get_current('ui')
     # Determine if we have one 2d view or more
     tab_item, current_view = find_tab_item_and_material_dropdown(ui)
     if current_view is None:

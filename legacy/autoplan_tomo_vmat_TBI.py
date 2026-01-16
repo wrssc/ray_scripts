@@ -126,7 +126,7 @@ __credits__ = []
 import math
 import logging
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import sys
 import os
 import GeneralOperations
@@ -213,7 +213,7 @@ def check_external(roi_list):
         return True
     else:
         logging.debug('No external contour designated')
-        connect.await_user_input(
+        rs.await_user_input(
             'No External contour type designated. Give a contour'
             'an External type and continue '
             'script.')
@@ -230,7 +230,7 @@ def check_structure_exists(case, structure_name, roi_list, option):
             logging.warning("check_structure_exists: " +
                             structure_name + 'found - deleting and creating')
         elif option == 'Check':
-            connect.await_user_input(
+            rs.await_user_input(
                 f'Contour {structure_name} Exists - Verify its accuracy'
                 ' and continue script')
         return True
@@ -1099,7 +1099,7 @@ def verify_registration_approval(pd_ffs, ffs_scan_name, hfs_scan_name):
         return approved
     else:
         if registrations:
-            connect.await_user_input('An existing FFS to HFS registration has been'
+            rs.await_user_input('An existing FFS to HFS registration has been'
                                      ' found.\n Approve it to avoid an overwrite')
             approved = check_registration_approval(pd_ffs, ffs_scan_name, hfs_scan_name)
     return approved
@@ -1170,7 +1170,7 @@ def load_normal_mbs(pd_hfs, pd_ffs):
             CreateNewRois=True,
             Examination=pd_hfs.exam,
             UseAtlasBasedInitialization=True)
-        connect.await_user_input('Review placement of MBS structures')
+        rs.await_user_input('Review placement of MBS structures')
 
     if adapt_list:
         pd_hfs.case.PatientModel.AdaptMbsMeshes(
@@ -1197,7 +1197,7 @@ def load_normal_mbs(pd_hfs, pd_ffs):
             RoiNames=adapt_list,
             CustomStatistics=None,
             CustomSettings=None)
-    connect.await_user_input('Check the MBS loaded structures on both exams.')
+    rs.await_user_input('Check the MBS loaded structures on both exams.')
 
 
 def make_derived_rois(pd_hfs, pd_ffs):
@@ -1471,11 +1471,11 @@ def tomo_calc_ffs_iso(pd_ffs, target):
     point_exists, point_defined = check_fiducials(pd_ffs, fiducial_name=fiducial_point_name)
     if not point_exists:
         AutoPlanOperations.place_fiducial(rso=pd_ffs, poi_name='SimFiducials')
-        connect.await_user_input(
+        rs.await_user_input(
             'Place SimFiducial point in FFS, then toggle to HFS and place it there too')
         point_exists, point_defined = check_fiducials(pd_ffs, fiducial_name=fiducial_point_name)
     elif not point_defined:
-        connect.await_user_input(
+        rs.await_user_input(
             'Place SimFiducial point in FFS, then toggle to HFS and place it there too')
 
     pm = pd_ffs.case.PatientModel
@@ -1629,7 +1629,7 @@ def tbi_gui(bypass=False):
     """
 
     if bypass:
-        connect.await_user_input('System is in testing mode. No clinical use')
+        rs.await_user_input('System is in testing mode. No clinical use')
         logging.warning("System in testing mode. No clinical use")
         return {
             '-NFX-': 4,
@@ -1778,7 +1778,7 @@ def main():
         # # Also create a bounding box on both images about the junction point and set the ROI there
         register_images(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name)
 
-        connect.await_user_input(
+        rs.await_user_input(
             'Check the fusion alignment of the boney anatomy in the hips. Then continue script.')
         reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
         load_normal_mbs(pd_hfs, pd_ffs)

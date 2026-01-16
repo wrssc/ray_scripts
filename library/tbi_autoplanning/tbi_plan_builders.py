@@ -1,7 +1,7 @@
 # Make a new plan and FFS transfer
 import logging
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import library.AutoPlanOperations as AutoPlanOperations
 from .tbi_utils import determine_prefix
 from .tbi_definitions import (
@@ -40,7 +40,7 @@ def tomo_calc_iso(patient_data: object, target: str) -> str:
             rso=patient_data, poi_name='SimFiducials')
 
         # Prompt the user to place the fiducial point in both FFS and HFS
-        connect.await_user_input(
+        rs.await_user_input(
             'Place SimFiducial point in FFS, then toggle to HFS and place it '
             'there too')
         point_exists, point_defined = check_fiducials(
@@ -48,7 +48,7 @@ def tomo_calc_iso(patient_data: object, target: str) -> str:
     elif not point_defined:
         # If fiducial point exists but is not defined, prompt the user to
         # define it
-        connect.await_user_input(
+        rs.await_user_input(
             'Place SimFiducial point in FFS, then toggle to HFS and place it '
             'there too')
 
@@ -229,17 +229,17 @@ def get_vmat_plan_defs(rso: object, hfs_pois: list, ffs_pois: list, nfx: int, rx
                     'OTV_iso':('OTV_iso1',800,'cGy')
             """
         if site == 'HFS_':
-            prefix = 'hfs'
+            patient_orientation = 'hfs'
             translation_map = {HFS_TARGET_EVAL_NAME: (f'{HFS_TARGET_EVAL_NAME}', rx, r'cGy')}
         else:
-            prefix = 'ffs'
+            patient_orientation = 'ffs'
             translation_map = {FFS_TARGET_EVAL_NAME: (f'{FFS_TARGET_EVAL_NAME}', rx, r'cGy')}
         for j in j_range:
             # Set the sup_value and inf_value keys for each point
             sup_key = f'Sup_{j}'
             inf_key = f'Inf_{j}'
-            sup_value = (f'{prefix}_iso{offset + i}{offset + i + 1}_junction_{j}', rx, r'cGy')
-            inf_value = (f'{prefix}_iso{offset + i + 1}{offset + i + 2}_junction_{j}', rx, r'cGy')
+            sup_value = (f'{patient_orientation}_iso{offset + i}{offset + i + 1}_junction_{j}', rx, r'cGy')
+            inf_value = (f'{patient_orientation}_iso{offset + i + 1}{offset + i + 2}_junction_{j}', rx, r'cGy')
 
             # Assign the sup_value and inf_value to the translation_map
             if i == 0 or i == total_points - 1:

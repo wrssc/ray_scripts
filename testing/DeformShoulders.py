@@ -61,7 +61,7 @@ def convert_poi(poi1):
 def make_shoulder_poi(rso, params):
     if any(StructureOperations.exists_poi(case=rso.case,
                                           pois=params['Name'])):
-        connect.await_user_input(f'Point {params["Name"]} already exists. Continue?')
+        rs.await_user_input(f'Point {params["Name"]} already exists. Continue?')
     else:
         rso.case.PatientModel.CreatePoi(Examination=rso.exam,
                                         Point={},
@@ -70,7 +70,7 @@ def make_shoulder_poi(rso, params):
                                         Color='Green',
                                         VisualizationDiameter=2,
                                         Type='Control')
-    connect.await_user_input(
+    rs.await_user_input(
         f'Ensure the point {params["Name"]} is at the {params["Laterality"]} acromial-clavicular joint'
         f' and continue script.')
 
@@ -99,7 +99,7 @@ def create_shoulder_deformation(rso, use_poi_from_user=True, quiet=False):
         status.next_step('Placing left shoulder blocking point')
 
     try:
-        ui = connect.get_current('ui')
+        ui = rs.get_current('ui')
         ui.TitleBar.MenuItem['Patient Modeling'].Button_Patient_Modeling.Click()
     except:
         logging.debug("Could not click on the plan Design MenuItem")
@@ -126,7 +126,7 @@ def create_shoulder_deformation(rso, use_poi_from_user=True, quiet=False):
     ])))
 
     if any(StructureOperations.exists_poi(case=case, pois=shoulder_poi_left)):
-        connect.await_user_input(
+        rs.await_user_input(
             'Ensure the point {} is at the left acromial-clavicular joint'.format(
                 shoulder_poi_left) +
             ' and continue script.')
@@ -138,7 +138,7 @@ def create_shoulder_deformation(rso, use_poi_from_user=True, quiet=False):
                                     Color='Green',
                                     VisualizationDiameter=2,
                                     Type='Control')
-        connect.await_user_input(
+        rs.await_user_input(
             'Place the point {} at the left acromial-clavicular joint'.format(shoulder_poi_left) +
             ' and continue script.')
 
@@ -152,7 +152,7 @@ def create_shoulder_deformation(rso, use_poi_from_user=True, quiet=False):
 
     status.next_step('Placing right shoulder blocking point')
     if any(StructureOperations.exists_poi(case=case, pois=shoulder_poi_right)):
-        connect.await_user_input(
+        rs.await_user_input(
             'Ensure the point {} is at the right acromial-clavicular joint'.format(
                 shoulder_poi_right) +
             ' and continue script.')
@@ -164,7 +164,7 @@ def create_shoulder_deformation(rso, use_poi_from_user=True, quiet=False):
                                     Color='Yellow',
                                     VisualizationDiameter=2,
                                     Type='Control')
-        connect.await_user_input(
+        rs.await_user_input(
             'Place the point {} at the right acromial-clavicular joint'.format(shoulder_poi_right) +
             ' and continue script.')
 
@@ -180,7 +180,7 @@ def create_shoulder_deformation(rso, use_poi_from_user=True, quiet=False):
     # box_x = 15
     # box_y = 30
     # box_z = 20
-    # with CompositeAction('Create the right box')
+    # with rs.CompositeAction('Create the right box')
     #   right_box_name = find uniqie
     #   retval_2 = case.PatientModel.CreateRoi(Name="Right_Box",
     #                             Color='Magenta',
@@ -197,7 +197,7 @@ def create_shoulder_deformation(rso, use_poi_from_user=True, quiet=False):
     # Repeat for left
     # Generate deformation region
     #
-    # with CompositeAction('ROI algebra (Shoulder_Deformation_Region, Image set: MidTreatment Synth CT)'):
+    # with rs.CompositeAction('ROI algebra (Shoulder_Deformation_Region, Image set: MidTreatment Synth CT)'):
     #  retval_6.CreateAlgebraGeometry(Examination=examination, Algorithm="Auto", ExpressionA={ 'Operation': "Intersection", 'SourceRoiNames': ["ExternalClean", "Left_Box"], 'MarginSettings': { 'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0, 'Posterior': 0, 'Right': 0, 'Left': 0 } }, ExpressionB={ 'Operation': "Intersection", 'SourceRoiNames': ["ExternalClean", "Right_Box"], 'MarginSettings': { 'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0, 'Posterior': 0, 'Right': 0, 'Left': 0 } }, ResultOperation="Union", ResultMarginSettings={ 'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0, 'Posterior': 0, 'Right': 0, 'Left': 0 })
     #  retval_6.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
     #  retval_6.DeleteExpression()

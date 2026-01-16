@@ -14,7 +14,7 @@ def review_test_patient(rso, preplan_data, review_type='Physics'):
     Returns: None
     """
     from library.api.api_rs import import_raystation_api
-    connect = import_raystation_api()
+    rs = import_raystation_api()
     import logging
     try:
         import FreeSimpleGUI as Sg

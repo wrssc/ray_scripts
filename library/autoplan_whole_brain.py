@@ -16,6 +16,7 @@
 
     Validation Notes:
     Test Patient: MR# ZZUWQA_ScTest_30Dec2020, Name: Script_Testing^Automated Plan - Whole Brain
+    Test Patient (2025): MR# ZZUWQA_ScVal_29Apr2024, Name: Script_Testing^Automated Plan Whole Brain
 
     Version Notes: 1.0.0 Original
     1.0.1 Hot Fix to apparent error in version 7 (related to connect being used instead of a
@@ -33,6 +34,8 @@
     1.1.1 Update to Python 3.8 and RS 11B. Eliminated second dummy plan.
     1.1.2 Update to Python 3.11 and RS 2024A. Added bypass_dialogs to allow for automated execution
     1.1.3 Added QFix_Brain_TBCouch_H1andH2 and replaced S-frame
+    1.1.4 Disabled jaw rounding since it is standard behavior now in RS > 12 commissioned TrueBeams
+          Added entry of site name and input technique to bypass dialog in rename_beams
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -49,22 +52,22 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '30-Apr-2024'
-__version__ = '1.1.3'
+__date__ = '15-Jan-2025'
+__version__ = '1.1.4'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
-__raystation__ = '2024A'
+__raystation__ = '12, 15, 17'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2024, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2026, University of Wisconsin Board of Regents'
 __help__ = ''
 __credits__ = []
 
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import logging
 import UserInterface
 import random
@@ -81,7 +84,7 @@ def check_external(roi_list):
         return True
     else:
         logging.debug('No external contour designated')
-        connect.await_user_input(
+        rs.await_user_input(
             'No External contour type designated. Give a contour an External type and continue script.')
         if any(roi.OfRoi.Type == 'External' for roi in roi_list):
             logging.debug('No external contour designated after prompt recommend exit')
@@ -95,7 +98,7 @@ def check_structure_exists(case, structure_name, roi_list, option,bypass_dialogs
             logging.warning("check_structure_exists: " +
                             structure_name + 'found - deleting and creating')
         elif option == 'Check' and not bypass_dialogs:
-            connect.await_user_input(
+            rs.await_user_input(
                 'Contour {} Exists - Verify its accuracy and continue script'.format(
                     structure_name))
         return True
@@ -129,10 +132,10 @@ def main(bypass_dialogs=False):
     institution_inputs_support_structure_template = "UW Support"
     institution_inputs_source_roi_names = ['QFix_Brain_TBCouch_H1andH2']
     try:
-        patient = connect.get_current('Patient')
-        case = connect.get_current("Case")
-        examination = connect.get_current("Examination")
-        patient_db = connect.get_current('PatientDB')
+        patient = rs.get_current('Patient')
+        case = rs.get_current("Case")
+        examination = rs.get_current("Examination")
+        patient_db = rs.get_current('PatientDB')
     except:
         UserInterface.WarningBox('This script requires a patient, case, and exam to be loaded')
         sys.exit('This script requires a patient, case, and exam to be loaded')
@@ -169,7 +172,7 @@ def main(bypass_dialogs=False):
         'BTV']
     # Try navigating to the points tab
     try:
-        ui = connect.get_current('ui')
+        ui = rs.get_current('ui')
         ui.TitleBar.MenuItem['Patient modeling'].Button_Patient_modeling.Click()
         ui.TabControl_ToolBar.TabItem['POI tools'].Select()
         ui.ToolPanel.TabItem['POIs'].Select()
@@ -182,7 +185,7 @@ def main(bypass_dialogs=False):
         logging.warning("POI SimFiducials Exists")
         status.next_step(text="SimFiducials Point found, ensure that it is placed properly")
         if not bypass_dialogs:
-            connect.await_user_input(
+            rs.await_user_input(
              'Ensure Correct placement of the SimFiducials Point and continue script.')
     else:
         poi_status = StructureOperations.create_poi(
@@ -194,7 +197,7 @@ def main(bypass_dialogs=False):
         else:
             status.next_step(text="SimFiducials POI created, ensure that it is placed properly")
             if not bypass_dialogs:
-                connect.await_user_input(
+                rs.await_user_input(
                     'Ensure Correct placement of the SimFiducials Point and continue script.')
 
     # Generate the target based on an MBS brain contour
@@ -241,7 +244,7 @@ def main(bypass_dialogs=False):
     case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].OrganData.OrganType = "Target"
 
     try:
-        ui = connect.get_current('ui')
+        ui = rs.get_current('ui')
         ui.TitleBar.MenuItem['Patient modeling'].Button_Patient_modeling.Click()
         ui.TabControl_ToolBar.TabItem['ROI tools'].Select()
         ui.ToolPanel.TabItem['ROIs'].Select()
@@ -249,7 +252,7 @@ def main(bypass_dialogs=False):
         logging.debug("Could not click on the patient modeling window")
 
     if not bypass_dialogs:
-        connect.await_user_input(
+        rs.await_user_input(
             'Ensure the PTV_WB_xxxx encompasses the brain and C1 and continue playing the script')
 
     # Get some user data
@@ -335,7 +338,7 @@ def main(bypass_dialogs=False):
                 'ConvergenceCheck': False}])
     if any(roi.OfRoi.Name == 'Eye_L' for roi in rois):
         if not bypass_dialogs:
-            connect.await_user_input('Eye_L Contour Exists - Verify its accuracy and continue script')
+            rs.await_user_input('Eye_L Contour Exists - Verify its accuracy and continue script')
     else:
         case.PatientModel.MBSAutoInitializer(
             MbsRois=[{'CaseType': "HeadNeck",
@@ -363,7 +366,7 @@ def main(bypass_dialogs=False):
                 'ConvergenceCheck': False}])
     if any(roi.OfRoi.Name == 'Eye_R' for roi in rois):
         if not bypass_dialogs:
-            connect.await_user_input('Eye_R Contour Exists - Verify its accuracy and continue script')
+            rs.await_user_input('Eye_R Contour Exists - Verify its accuracy and continue script')
     else:
         case.PatientModel.MBSAutoInitializer(
             MbsRois=[{'CaseType': "HeadNeck",
@@ -399,7 +402,7 @@ def main(bypass_dialogs=False):
                                     TissueName=None,
                                     RbeCellTypeName=None,
                                     RoiMaterial=None)
-        connect.await_user_input('Draw the LEFT Lens then continue playing the script')
+        rs.await_user_input('Draw the LEFT Lens then continue playing the script')
 
     if not check_structure_exists(case=case, structure_name='Lens_R', roi_list=rois,
                                   option='Check',
@@ -410,7 +413,7 @@ def main(bypass_dialogs=False):
                                     TissueName=None,
                                     RbeCellTypeName=None,
                                     RoiMaterial=None)
-        connect.await_user_input('Draw the RIGHT Lens then continue playing the script')
+        rs.await_user_input('Draw the RIGHT Lens then continue playing the script')
 
     if not check_structure_exists(case=case, structure_name='External', roi_list=rois,
                                   option='Check',
@@ -535,7 +538,7 @@ def main(bypass_dialogs=False):
                                   bypass_dialogs=bypass_dialogs):
             logging.info('QFix_Brain_TBCouch_H1andH2 found, bugging user')
             if not bypass_dialogs:
-                connect.await_user_input(
+                rs.await_user_input(
                     'QFix_Brain_TBCouch_H1andH2 present. ' +
                     'Ensure placed correctly then continue script')
         else:
@@ -553,7 +556,7 @@ def main(bypass_dialogs=False):
                 InitializationOption='AlignImageCenters'
             )
             if not bypass_dialogs:
-                connect.await_user_input(
+                rs.await_user_input(
                     'QFix_Brain_TBCouch_H1andH2 automatically loaded. ' +
                     'Ensure placed correctly then continue script')
 
@@ -563,7 +566,7 @@ def main(bypass_dialogs=False):
         logging.warning('Support structure failed to load and was not found')
         status.next_step(text='QFix_Brain_TBCouch_H1andH2 failed to load and was not found. ' +
                               'Load manually and continue script.')
-        connect.await_user_input(
+        rs.await_user_input(
             'QFix_Brain_TBCouch_H1andH2 failed to load and was not found. ' +
             'Ensure it is loaded and placed correctly then continue script')
 
@@ -729,7 +732,7 @@ def main(bypass_dialogs=False):
 
     if make_plan:
         try:
-            ui = connect.get_current('ui')
+            ui = rs.get_current('ui')
             ui.TitleBar.Navigation.MenuItem['Plan design'].Button_Plan_design.Click()
         except:
             logging.debug("Could not click on the plan Design MenuItem")
@@ -758,7 +761,7 @@ def main(bypass_dialogs=False):
 
             plan = case.TreatmentPlans[p]
             plan.SetCurrent()
-            connect.get_current('Plan')
+            rs.get_current('Plan')
             # Creating a common call to a create beamset wrapper
             # will help the next time the function calls are changed
             # by RaySearch
@@ -860,7 +863,7 @@ def main(bypass_dialogs=False):
         plan_information = case.QueryPlanInfo(Filter={'Name': plan_name_regex})
         case.LoadPlan(PlanInfo=plan_information[0])
         try:
-            ui = connect.get_current('ui')
+            ui = rs.get_current('ui')
             ui.TitleBar.MenuItem['Plan evaluation'].Button_Plan_evaluation.Click()
         except:
             logging.debug("Could not click on the plan evaluation MenuItem")
@@ -876,19 +879,19 @@ def main(bypass_dialogs=False):
     patient.Save()
     plan = case.TreatmentPlans[plan_name]
     plan.SetCurrent()
-    connect.get_current('Plan')
+    rs.get_current('Plan')
     beamset = plan.BeamSets[plan_name]
     patient.Save()
     beamset.SetCurrent()
-    connect.get_current('BeamSet')
-    BeamOperations.rename_beams()
+    rs.get_current('BeamSet')
+    BeamOperations.rename_beams(site_name="Brai", input_technique='Static MLC -- 3D')
     # Set the DSP for the plan
     BeamOperations.set_dsp(plan=plan, beam_set=beamset)
     # Round MU
     BeamOperations.round_mu(beamset)
     # Round jaws to nearest mm
-    logging.debug('Checking for jaw rounding')
-    BeamOperations.round_jaws(beamset=beamset)
+    # logging.debug('Checking for jaw rounding')
+    # BeamOperations.round_jaws(beamset=beamset)
     # Compute the dose
     beamset.ComputeDose(
         ComputeBeamDoses=True,

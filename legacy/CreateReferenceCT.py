@@ -61,18 +61,18 @@ def main():
 
         # Import RayStation packages
         from library.api.api_rs import import_raystation_api
-        connect = import_raystation_api()
+        rs = import_raystation_api()
         import UserInterface
 
         # Connect to RayStation DB
         logging.debug('Attempting to connect to RsyStation DB')
-        machine_db = connect.get_current('MachineDB')
-        patient_db = connect.get_current('PatientDB')
+        machine_db = rs.get_current('MachineDB')
+        patient_db = rs.get_current('PatientDB')
 
         # If an existing patient is loaded, warn the user before saving
         try:
-            patient = connect.get_current('Patient')
-            case = connect.get_current('Case')
+            patient = rs.get_current('Patient')
+            case = rs.get_current('Case')
             box = UserInterface.WarningeBox('An existing patient is loaded, and will be saved and closed')
             patient.Save()
 
@@ -245,9 +245,9 @@ def main():
                                              SeriesFilter={},
                                              ImportFilters=[])
 
-            patient = connect.get_current('Patient')
-            case = connect.get_current('Case')
-            examination = connect.get_current('Examination')
+            patient = rs.get_current('Patient')
+            case = rs.get_current('Case')
+            examination = rs.get_current('Examination')
             logging.info('Import successful, patient name: {}, MRN: {}'.format(patient.Name, patient.PatientID))
 
             # Set imaging equipment

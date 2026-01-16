@@ -24,13 +24,13 @@ import os
 import csv
 import logging
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 
 def main():
     # configs
     roi_name = 'S-frame'
     shift_to_couch_edge = 21.17
-    db = connect.get_current('PatientDB')
+    db = rs.get_current('PatientDB')
     male_patients = db.QueryPatientInfo(Filter={'Gender':'Male'})
     female_patients = db.QueryPatientInfo(Filter={'Gender':'Female'})
     all_patients = male_patients + female_patients

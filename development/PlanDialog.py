@@ -30,7 +30,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import sys
 import os
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import UserInterface
 import logging
 import time
@@ -142,12 +142,12 @@ def main():
     status.next_step(text='You will now be prompted to approve the structure set. Once completed, continue the script.')
 
     if changes > 0:
-        ui = connect.get_current('ui')
+        ui = rs.get_current('ui')
         ui.TitleBar.MenuItem['Patient Modeling'].Click()
         ui.TitleBar.MenuItem['Patient Modeling'].Popup.MenuItem['Structure Definition'].Click()
         ui.TabControl_ToolBar.Approval.Select()
         ui.ToolPanel.TabItem._Scripting.Select()
-        connect.await_user_input('Approve the structure set now, then continue the script')
+        rs.await_user_input('Approve the structure set now, then continue the script')
 
     # Create new plan (ICDa-z Protocol)
     status.next_step(text='A new plan will now be created and populated with the TPO template clinical goals...')
@@ -207,7 +207,7 @@ def main():
                     machine = t.attrib['machine']
 
                 else:
-                    machine_db = connect.get_current('MachineDB')
+                    machine_db = rs.get_current('MachineDB')
                     machines = machine_db.QueryCommissionedMachineInfo(Filter={})
                     for _i, m in enumerate(machines):
                         if m['IsCommissioned']:
@@ -397,12 +397,12 @@ def main():
 
     if c > 0:
         patient.Save()
-        ui = connect.get_current('ui')
+        ui = rs.get_current('ui')
         ui.TitleBar.MenuItem['Plan Optimization'].Click()
         ui.TitleBar.MenuItem['Plan Optimization'].Popup.MenuItem['Plan Optimization'].Click()
         ui.Workspace.TabControl['DVH'].TabItem['Clinical Goals'].Select()
         ui.ToolPanel.TabItem._Scripting.Select()
-        connect.await_user_input('Customize the clinical goals now, then continue the script')
+        rs.await_user_input('Customize the clinical goals now, then continue the script')
 
     status.next_step(text='All remaining non-TPO planning goals are now being added...')
     patient.Save()

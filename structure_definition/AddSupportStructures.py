@@ -44,7 +44,9 @@ __license__ = "GPLv3"
 __help__ = None
 __copyright__ = "Copyright (C) 2021, University of Wisconsin Board of Regents"
 
-from connect import CompositeAction, get_current, await_user_input
+from library.api.api_rs import import_raystation_api
+rs = import_raystation_api()
+# from rs import CompositeAction, get_current, await_user_input
 from StructureOperations import exists_roi, find_types
 import numpy as np
 from sys import exit
@@ -215,7 +217,7 @@ def verify_localization_point(case, exam):
                 "localization point. Please correct this to ensure the correct point "
                 "is used for localization."
             )
-            await_user_input(message)
+            rs.await_user_input(message)
             return None
 
     # Case 2: True and False
@@ -265,7 +267,7 @@ def verify_localization_point(case, exam):
             Color="Green",
             Type="LocalizationPoint",
         )
-        await_user_input(
+        rs.await_user_input(
             "Ensure correct placement of the SimFiducials point and continue script."
         )
         message = "Created a localization point called 'SimFiducials'."
@@ -560,7 +562,7 @@ def add_structures_from_template(
         also want to clear
     """
     # Load the source template for the couch structure:
-    patient_db = get_current("PatientDB")
+    patient_db = rs.get_current("PatientDB")
     try:
         support_template = patient_db.LoadTemplatePatientModel(
             templateName=support_structure_template, lockMode="Read"
@@ -579,7 +581,7 @@ def add_structures_from_template(
 
     # Check to see if structures already exist. If so, warn the user that they
     # will be cleared.
-    examination = get_current("Examination")
+    examination = rs.get_current("Examination")
     rois_that_exist = exists_roi(
         case=case, rois=source_roi_names + derived_roi_names, return_exists=True
     )
@@ -982,8 +984,8 @@ def deploy_couch_model(
         exit()
 
     # This script is designed to be used for HFS, HFP, FFS, FFP patients:
-    examination = get_current("Examination")
-    patient = get_current("Patient")
+    examination = rs.get_current("Examination")
+    patient = rs.get_current("Patient")
 
     if examination.PatientPosition not in ["HFS", "HFP", "FFS", "FFP"]:
         logging.error(
@@ -996,7 +998,7 @@ def deploy_couch_model(
         sg.popup_error(message, title="Patient Orientation Error")
         exit()
 
-    with CompositeAction("Add Couch Model"):
+    with rs.CompositeAction("Add Couch Model"):
 
         add_structures_from_template(
             case=case,
@@ -1005,7 +1007,7 @@ def deploy_couch_model(
             source_roi_names=source_roi_names,
         )
 
-    with CompositeAction("Shift Couch Model"):
+    with rs.CompositeAction("Shift Couch Model"):
 
         couch = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
             source_roi_names[0]
@@ -1088,7 +1090,7 @@ def deploy_couch_model(
         or (couch_roi_name == "TomoCouch")
         or (couch_roi_name == "ProneTrueBeamCouch")
     ):
-        with CompositeAction("Fill Couch Model Longitudinally"):
+        with rs.CompositeAction("Fill Couch Model Longitudinally"):
 
             expand_geometry_to_inferior_boundary(
                 examination=examination, geometry=couch
@@ -1105,7 +1107,7 @@ def deploy_couch_model(
         "Please use the Translate and Rotate tools to adjust the "
         f"{couch_roi_name}, as needed."
     )
-    await_user_input(message)
+    rs.await_user_input(message)
 
     patient.SetRoiVisibility(RoiName=couch.OfRoi.Name, IsVisible=False)
 
@@ -1140,7 +1142,7 @@ def deploy_couch_model(
         or (couch_roi_name == "TomoCouch")
         or (couch_roi_name == "ProneTrueBeamCouch")
     ):
-        with CompositeAction("Fill Couch Model Longitudinally Again"):
+        with rs.CompositeAction("Fill Couch Model Longitudinally Again"):
 
             expand_geometry_to_inferior_boundary(
                 examination=examination, geometry=couch
@@ -1156,7 +1158,7 @@ def deploy_couch_model(
             display_duration_in_ms=DISPLAY_DURATION_IN_MS,
         )
 
-    get_current("Patient").Save()
+    rs.get_current("Patient").Save()
     return couch
 
 
@@ -1186,8 +1188,8 @@ def deploy_civco_breastboard_model(
 
     """
     # This script is designed to be used for HFS patients:
-    examination = get_current("Examination")
-    patient = get_current("Patient")
+    examination = rs.get_current("Examination")
+    patient = rs.get_current("Patient")
 
     if examination.PatientPosition != "HFS":
         message = (
@@ -1212,7 +1214,7 @@ def deploy_civco_breastboard_model(
     assert len(roi_external_list) == 1, "Found more than one structure of type External"
     roi_external = case.PatientModel.RegionsOfInterest[roi_external_list[0]]
 
-    with CompositeAction("Add Breastboard components"):
+    with rs.CompositeAction("Add Breastboard components"):
 
         if use_wingboard:
             add_structures_from_template(
@@ -1234,9 +1236,9 @@ def deploy_civco_breastboard_model(
         message = "Civco Breastboard structures added to examination."
         logging.info(message)
 
-    get_current("Patient").Save()
+    rs.get_current("Patient").Save()
 
-    with CompositeAction("Move ROIs to Initial Position"):
+    with rs.CompositeAction("Move ROIs to Initial Position"):
 
         # Grab ROIs and create groups
         ss = case.PatientModel.StructureSets[examination.Name]
@@ -1327,10 +1329,10 @@ def deploy_civco_breastboard_model(
         "Please use the Translate and Rotate tools to adjust the "
         f"{base_body.OfRoi.Name}, as needed."
     )
-    await_user_input(message)
+    rs.await_user_input(message)
 
     patient.SetRoiVisibility(RoiName=base_body.OfRoi.Name, IsVisible=False)
-    get_current("Patient").Save()
+    rs.get_current("Patient").Save()
 
     incline_body_center_final = base_body.GetCenterOfRoi()
 
@@ -1342,7 +1344,7 @@ def deploy_civco_breastboard_model(
         ]
     )
 
-    with CompositeAction("Apply Manual Corrections"):
+    with rs.CompositeAction("Apply Manual Corrections"):
 
         # First, reset the base_body position
         transform_structure(
@@ -1371,7 +1373,7 @@ def deploy_civco_breastboard_model(
         )
         logging.info(message)
 
-    with CompositeAction("Incline and Shift Wingboard"):
+    with rs.CompositeAction("Incline and Shift Wingboard"):
 
         # This group of ROIs participates in rotation during incline
         incline_shifts_rois = [incline_body, incline_nfz]
@@ -1457,7 +1459,7 @@ def deploy_civco_breastboard_model(
         message = f"The board was inclined to {incline_angle}."
         logging.info(message)
 
-    get_current("Patient").Save()
+    rs.get_current("Patient").Save()
 
     # Make shiftable ROIs visible
     patient.SetRoiVisibility(RoiName=incline_body.OfRoi.Name, IsVisible=True)
@@ -1477,7 +1479,7 @@ def deploy_civco_breastboard_model(
             f"{incline_body.OfRoi.Name}, as needed."
         )
 
-    await_user_input(message)
+    rs.await_user_input(message)
 
     # Make invisible again
     patient.SetRoiVisibility(RoiName=incline_body.OfRoi.Name, IsVisible=False)
@@ -1485,7 +1487,7 @@ def deploy_civco_breastboard_model(
     if use_wingboard:
         patient.SetRoiVisibility(RoiName=wingboard_body.OfRoi.Name, IsVisible=False)
 
-    with CompositeAction("Address overlaps"):
+    with rs.CompositeAction("Address overlaps"):
 
         """
         There will inevitably be overlap between the External, wingboard,
@@ -1619,7 +1621,7 @@ def deploy_civco_breastboard_model(
             message = f"The couch structure had been lowered {shift_couch_y} cm."
             logging.info(message)
 
-    with CompositeAction("Clean External"):
+    with rs.CompositeAction("Clean External"):
         ss.SimplifyContours(
             RoiNames=[roi_external.Name],
             RemoveHoles3D=True,
@@ -1627,7 +1629,7 @@ def deploy_civco_breastboard_model(
             AreaThreshold=1.0,
         )
 
-    with CompositeAction("Create Final ROIS (if needed)"):
+    with rs.CompositeAction("Create Final ROIS (if needed)"):
 
         # Create final ROIs
         if not exists_roi(case, "NoFlyZone_PRV")[0]:
@@ -1643,7 +1645,7 @@ def deploy_civco_breastboard_model(
         patient.SetRoiVisibility(RoiName=incline_shell.OfRoi.Name, IsVisible=False)
         patient.SetRoiVisibility(RoiName=nfz_expanded.OfRoi.Name, IsVisible=False)
 
-    with CompositeAction("Expand No-fly Zone"):
+    with rs.CompositeAction("Expand No-fly Zone"):
         # Expand NoFlyZone
         MarginSettings = {
             "Type": "Expand",
@@ -1668,7 +1670,7 @@ def deploy_civco_breastboard_model(
             },
         )
 
-    with CompositeAction("Create Derived Geometries"):
+    with rs.CompositeAction("Create Derived Geometries"):
 
         zipped_parameters = zip(
             [base_shell, incline_shell],
@@ -1721,7 +1723,7 @@ def deploy_civco_breastboard_model(
     creation of custom materials prevents electron dose calculations in version
     10 of RayStation. We may reintroduce this override technique in version 11.
 
-    with CompositeAction("Apply Custom Material Density Override"):
+    with rs.CompositeAction("Apply Custom Material Density Override"):
 
         # Check if CIVCOBOARD_MATERIAL_NAME already exists
         material_names = [x.Name for x in case.PatientModel.Materials]
@@ -1765,9 +1767,9 @@ def deploy_civco_breastboard_model(
         logging.info(message)
     """
 
-    with CompositeAction("Set Incline Board to Wax/Cork combo"):
+    with rs.CompositeAction("Set Incline Board to Wax/Cork combo"):
 
-        patient_db = get_current("PatientDB")
+        patient_db = rs.get_current("PatientDB")
 
         # Find the Wax material
         try:
@@ -1836,7 +1838,7 @@ def deploy_civco_breastboard_model(
         message = "The base shell and incline shell have been overridden."
         logging.info(message)
 
-    with CompositeAction("Delete Extra Structures"):
+    with rs.CompositeAction("Delete Extra Structures"):
 
         base_body.OfRoi.DeleteRoi()
         base_nfz.OfRoi.DeleteRoi()
@@ -1883,8 +1885,8 @@ def main():
     """The main function for this file"""
 
     logging.debug("Beginning execution of AddSupportStructures.py in main()")
-    case = get_current("Case")
-    examination = get_current("Examination")
+    case = rs.get_current("Case")
+    examination = rs.get_current("Examination")
     values = get_support_structures_GUI(examination)
 
     if values is None:

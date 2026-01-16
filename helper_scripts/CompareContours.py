@@ -39,7 +39,7 @@ import logging
 import sys
 from collections import namedtuple
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import UserInterface
 import StructureOperations
 import GeneralOperations

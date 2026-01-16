@@ -12,7 +12,7 @@ Author: You
 """
 
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import os
 import json
 import numpy as np
@@ -529,35 +529,35 @@ def main():
     the file back into DataFrames.
     """
     try:
-        patient = connect.get_current("Patient")
+        patient = rs.get_current("Patient")
     except:
         patient = None
     try:
-        case = connect.get_current("Case")
+        case = rs.get_current("Case")
     except:
         case = None
     try:
-        plan = connect.get_current("Plan")
+        plan = rs.get_current("Plan")
     except:
         plan = None
     try:
-        beam_set = connect.get_current("BeamSet")
+        beam_set = rs.get_current("BeamSet")
     except:
         beam_set = None
     try:
-        examination = connect.get_current("Examination")
+        examination = rs.get_current("Examination")
     except:
         examination = None
     try:
-        machine_db = connect.get_current("MachineDB")
+        machine_db = rs.get_current("MachineDB")
     except:
         machine_db = None
     try:
-        patient_db = connect.get_current("PatientDB")
+        patient_db = rs.get_current("PatientDB")
     except:
         patient_db = None
     try:
-        ui = connect.get_current("ui")
+        ui = rs.get_current("ui")
     except:
         ui = None
 

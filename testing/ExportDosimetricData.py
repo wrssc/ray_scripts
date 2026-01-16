@@ -101,7 +101,7 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
                     'Exam': None,
                     'Plan': None,
                     'Beamset': None}
-    db = connect.get_current("PatientDB")
+    db = rs.get_current("PatientDB")
     # Find the patient in the database
     patient_info = db.QueryPatientInfo(
         Filter={
@@ -265,7 +265,7 @@ def get_clinical_goal(plan, roi_name=None):
 def main():
     #
     # Load the current RS database
-    ## db = connect.get_current("PatientDB")
+    ## db = rs.get_current("PatientDB")
     # Prompt the user to open a file
     browser = UserInterface.CommonDialog()
     file_csv = browser.open_file('Select a plan list file', 'CSV Files (*.csv)|*.csv')

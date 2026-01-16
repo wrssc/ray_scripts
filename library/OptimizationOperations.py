@@ -103,7 +103,7 @@ __credits__ = ['']
 
 import logging
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import UserInterface
 import datetime
 import sys
@@ -553,7 +553,7 @@ def reduce_oar_dose(plan_optimization):
             composite_objectives.append(index)
     # If composite objectives are found warn the user
     if composite_objectives:
-        connect.await_user_input("ReduceOAR with composite optimization is not supported " +
+        rs.await_user_input("ReduceOAR with composite optimization is not supported " +
                                  "by RaySearch as of RS 11")
         logging.warning("reduce_oar_dose: " +
                         "RunReduceOARDoseOptimization not executed due to the presence of" +
@@ -998,13 +998,13 @@ def reload_patient(patient_db, patient_info, case, plan, beamset):
     patient = patient_db.LoadPatient(PatientInfo=patient_info)
     case = patient.Cases[case_name]
     case.SetCurrent()
-    connect.get_current('Case')
+    rs.get_current('Case')
     plan = case.TreatmentPlans[plan_name]
     plan.SetCurrent()
-    connect.get_current('Plan')
+    rs.get_current('Plan')
     beamset = plan.BeamSets[beamset_name]
     beamset.SetCurrent()
-    connect.get_current('BeamSet')
+    rs.get_current('BeamSet')
     return patient, case, plan, beamset
 
 
@@ -1188,7 +1188,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     if exam.EquipmentInfo.ImagingSystemReference:
         logging.debug('Examination has an assigned CT to density table')
     else:
-        connect.await_user_input(
+        rs.await_user_input(
             'Set CT imaging system for this examination and continue the script')
 
     # TODO: Make this a beamset setting in the xml protocols
@@ -1948,7 +1948,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                 if cooptimization:
                     logging.warning("Co-optimized segment weight-based optimization is" +
                                     " not supported by RaySearch as of RS 11")
-                    connect.await_user_input(
+                    rs.await_user_input(
                         "Segment-weight optimization with composite optimization is not supported "
                         "" +
                         "by RaySearch at this time")
@@ -1963,7 +1963,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                         plan.PlanOptimizations[rs_opt_key].RunOptimization()
                     except Exception as e:
                         if "Maximum leaf out of carriage" in str(e):
-                            connect.await_user_input(
+                            rs.await_user_input(
                                 f"An issue with MLC optimization has occurred"
                                 f"Reduce the jaw limits in beam optimization settings."
                                 f"Error: {e}")

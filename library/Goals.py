@@ -7,9 +7,9 @@
     function.
 
     from library.api.api_rs import import_raystation_api
-    connect = import_raystation_api()
+    rs = import_raystation_api()
     import Goals
-    plan = connect.get_current('Plan')
+    plan = rs.get_current('Plan')
     for f in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions:
         print Goals.print_goal(f)
 
@@ -18,12 +18,12 @@
 
     import xml.etree.ElementTree
     from library.api.api_rs import import_raystation_api
-    connect = import_raystation_api()
+    rs = import_raystation_api()
     import Goals
     tree = xml.etree.ElementTree.parse('example_protocol.xml')
     for g in tree.findall('//goals/roi'):
         print 'Adding goal ' + Goals.print_goal(g, 'xml')
-        Goals.add_goal(g, connect.get_current('Plan'))
+        Goals.add_goal(g, rs.get_current('Plan'))
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software

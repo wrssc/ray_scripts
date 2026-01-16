@@ -18,7 +18,7 @@ import clr
 import math
 import numpy as np
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import logging
 
 clr.AddReference('System')
@@ -64,8 +64,8 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
 
     xpos = None
     tolerance = 5.0e-2
-    # beam_set = get_current('BeamSet')
-    # plan = connect.get_current('Plan')
+    # beam_set = rs.get_current('BeamSet')
+    # plan = rs.get_current('Plan')
 
     xmax = plan.TreatmentCourse.TotalDose.InDoseGrid.NrVoxels.x
     ymax = plan.TreatmentCourse.TotalDose.InDoseGrid.NrVoxels.y
@@ -148,8 +148,8 @@ def set_dsp(plan, beam_set):
 
 
 def main():
-    beam_set = connect.get_current('BeamSet')
-    plan = connect.get_current('Plan')
+    beam_set = rs.get_current('BeamSet')
+    plan = rs.get_current('Plan')
     set_dsp(plan=plan, beam_set=beam_set)
 
 

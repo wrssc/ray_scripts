@@ -68,7 +68,7 @@ import logging
 import sys
 import clr
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import UserInterface
 import StructureOperations
 import PlanOperations
@@ -243,7 +243,7 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
     dialog_beamset = BeamSet()
     # TODO: Uncomment in version 9 to load the available machine inputs from current commissioned
     #  list
-    machine_db = connect.get_current('MachineDB')
+    machine_db = rs.get_current('MachineDB')
     # try:
     #    machines = machine_db.QueryCommissionedMachineInfo(Filter={'IsLinac': True})
     #    machine_list = []
@@ -1095,11 +1095,11 @@ def rename_beams(site_name=None, input_technique=None, beamset_name=None):
         'TomoHelical']
 
     try:
-        patient = connect.get_current('Patient')
-        case = connect.get_current('Case')
-        exam = connect.get_current('Examination')
-        plan = connect.get_current('Plan')
-        beamset = connect.get_current("BeamSet")
+        patient = rs.get_current('Patient')
+        case = rs.get_current('Case')
+        exam = rs.get_current('Examination')
+        plan = rs.get_current('Plan')
+        beamset = rs.get_current("BeamSet")
 
     except Exception:
         UserInterface.WarningBox('This script requires a Beam Set to be loaded')
@@ -2694,7 +2694,7 @@ def check_y_jaw_positions(jaw_positions, beam):
 
     error = ''
     current_machine_name = beam.MachineReference.MachineName
-    machine_db = connect.get_current('MachineDB')
+    machine_db = rs.get_current('MachineDB')
     current_machine = machine_db.GetTreatmentMachine(machineName=current_machine_name,
                                                      lockMode=None)
     # Maximum jaw overtravel (minimum) position
@@ -2906,6 +2906,12 @@ def round_jaws(beamset):
         note X1=l_jaw (left), X2=r_jaw (right), Y1=t_jaw (top), Y2=b_jaw (bottom)
     :param beamset: RS beamset
     :return: success: boolean indicating adjustments were successful
+    TODO: Encountering
+        stationary_leaf_gaps
+        n_leaves, _, n_cp = self.banks.shape
+        ^^^^^^^^^^^^^^^^^
+        ValueError: not enough values to unpack (expected 3, got 2)
+
     """
     for b in beamset.Beams:
         error = filter_leaves(b)

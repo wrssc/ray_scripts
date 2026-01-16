@@ -5,7 +5,7 @@ import os
 import shutil
 import sys
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 
 try:
     import FreeSimpleGUI as Sg
@@ -306,7 +306,7 @@ def export_background_dose(pd_ffs: Pd, pd_hfs: Pd) -> str:
     if multiple_dirs:
         remove_directory_contents_with_prompt(multiple_dirs)
     # Prompt user to export the evaluation dose
-    connect.await_user_input(f'Export to Target: PACS-RayStation\n '
+    rs.await_user_input(f'Export to Target: PACS-RayStation\n '
                              f'Evaluation Fx Dose {pd_ffs.beamset.DicomPlanLabel} (HFS)\n'
                              f'Make sure to deselect beam doses')
 

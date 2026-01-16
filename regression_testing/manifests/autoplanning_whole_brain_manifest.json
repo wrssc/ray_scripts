@@ -1,0 +1,38 @@
+{
+  "directory": "general",
+  "description": "Autoplanning Whole Brain",
+  "tests": [
+    {
+      "script_path": "library/autoplan_whole_brain.py",
+      "test_type": "generation",
+      "test_patient": {
+        "patient_id": "ZZUWQA_ScVal_29Apr2024",
+        "patient_last_name": "Script_Testing",
+        "patient_first_name": "Automated Plan Whole Brain",
+        "case_name": "Case 1",
+        "exam_name": "CT 1"
+      },
+      "setup": {
+        "bypass_dialogs": true,
+        "make_plan": true,
+        "plan_name": "Brai_3DC_R0A0",
+        "number_of_fractions": 10,
+        "total_dose_cgy": 3000,
+        "treatment_machine": "TrueBeam"
+      },
+      "expected": {
+        "plan_created": true,
+        "beamset_created": true,
+        "plan_name": "Brai_3DC_R0A0",
+        "beamset_name": "Brai_3DC_R0A0",
+        "dose_computed": true
+      },
+      "checks": [
+      { "type": "mu_total", "expected": 326.4 , "tol": 0.5 },
+      { "type": "iso_position_mm", "expected": [-0.13, -32.89, 21.67], "tol": 0.5 },
+      { "type": "jaw_sizes_mm", "beam": "Beam1", "expected": [100.0, 100.0], "tol": 0.5 },
+      { "type": "dvh_metric", "roi": "PTV", "metric": "D95_cGy", "expected": 3000.0, "tol": 30.0 }
+    ]
+    }
+  ]
+}

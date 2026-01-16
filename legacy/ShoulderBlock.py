@@ -40,7 +40,7 @@ import sys
 import os
 import logging
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import numpy as np
 import UserInterface
 import BeamOperations
@@ -52,27 +52,27 @@ def main():
     # Get current patient, case, exam, and plan
     # note that the interpreter handles a missing plan as an Exception
     try:
-        patient = connect.get_current("Patient")
+        patient = rs.get_current("Patient")
     except SystemError:
         raise IOError("No Patient loaded. Load patient case and plan.")
 
     try:
-        case = connect.get_current("Case")
+        case = rs.get_current("Case")
     except SystemError:
         raise IOError("No Case loaded. Load patient case and plan.")
 
     try:
-        exam = connect.get_current("Examination")
+        exam = rs.get_current("Examination")
     except SystemError:
         raise IOError("No examination loaded. Load patient ct and plan.")
 
     try:
-        plan = connect.get_current("Plan")
+        plan = rs.get_current("Plan")
     except Exception:
         raise IOError("No plan loaded. Load patient and plan.")
 
     try:
-        beamset = connect.get_current("BeamSet")
+        beamset = rs.get_current("BeamSet")
     except Exception:
         raise IOError("No plan loaded. Load patient and plan.")
         sys.exit('This script requires a Beam Set to be loaded')
@@ -144,7 +144,7 @@ def main():
     status.next_step('Placing left shoulder blocking point')
 
     try:
-        ui = connect.get_current('ui')
+        ui = rs.get_current('ui')
         ui.TitleBar.MenuItem['Patient Modeling'].Button_Patient_Modeling.Click()
     except:
         logging.debug("Could not click on the plan Design MenuItem")
@@ -156,7 +156,7 @@ def main():
     ])))
 
     if any(StructureOperations.exists_poi(case=case, pois=shoulder_poi_left)):
-        connect.await_user_input(
+        rs.await_user_input(
             'Ensure the point {} is at the left acromial-clavicular joint'.format(
                 shoulder_poi_left) +
             ' and continue script.')
@@ -168,7 +168,7 @@ def main():
                                     Color='Green',
                                     VisualizationDiameter=2,
                                     Type='Control')
-        connect.await_user_input(
+        rs.await_user_input(
             'Place the point {} at the left acromial-clavicular joint'.format(shoulder_poi_left) +
             ' and continue script.')
 
@@ -182,7 +182,7 @@ def main():
 
     status.next_step('Placing right shoulder blocking point')
     if any(StructureOperations.exists_poi(case=case, pois=shoulder_poi_right)):
-        connect.await_user_input(
+        rs.await_user_input(
             'Ensure the point {} is at the right acromial-clavicular joint'.format(
                 shoulder_poi_right) +
             ' and continue script.')
@@ -194,7 +194,7 @@ def main():
                                     Color='Yellow',
                                     VisualizationDiameter=2,
                                     Type='Control')
-        connect.await_user_input(
+        rs.await_user_input(
             'Place the point {} at the right acromial-clavicular joint'.format(shoulder_poi_right) +
             ' and continue script.')
 

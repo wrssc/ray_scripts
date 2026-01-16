@@ -65,7 +65,7 @@ from typing import List, Optional, Sequence
 from os import path, listdir
 from api.api_structures import delete_geometry
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 
 # TODO: Reexamine this. Seems very odd we need hard coded system paths
 rab_git = "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts"
@@ -742,7 +742,7 @@ def find_targets(case):
             plan_targets.append(r.Name)
     # Add user threat: empty PTV list.
     if not plan_targets:
-        connect.await_user_input(
+        rs.await_user_input(
             'The target list is empty.'
             + ' Please apply type PTV to the targets and continue.'
         )
@@ -895,7 +895,7 @@ def check_structure_exists(
                 logging.info(
                     f"Structure {structure_name} not found on "
                     f"exam {exam.Name}, prompted user to create")
-                connect.await_user_input(
+                rs.await_user_input(
                     f"Create the structure {structure_name} "
                     f"and continue script.")
     else:
@@ -3972,9 +3972,9 @@ def planning_structures(
     InnerAirHU = -900
 
     try:
-        patient = connect.get_current("Patient")
-        case = connect.get_current("Case")
-        examination = connect.get_current("Examination")
+        patient = rs.get_current("Patient")
+        case = rs.get_current("Case")
+        examination = rs.get_current("Examination")
     except:
         logging.warning("patient, case and examination must be loaded")
 

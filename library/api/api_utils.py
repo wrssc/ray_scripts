@@ -17,10 +17,10 @@ def is_attrib(obj, attr_name):
 def detect_api_version():
     """Detect the RayStation API version"""
     try:
-        import connect
+        import connect as rs
     except ImportError:
-        import raystation as connect
-    ui = connect.get_current('ui')
+        import raystation as rs
+    ui = rs.get_current('ui')
     if is_attrib(ui, 'GetApplicationVersion'):
         _version = ui.GetApplicationVersion().split('.')
         version = int(_version[0]) if int(_version[1]) != 99 else int(_version[0]) + 1
@@ -45,13 +45,13 @@ def find_scope(level=None):
 
     # Find the deepest available scope and return a dict with available names
     from library.api.api_rs import import_raystation_api
-    connect = import_raystation_api()
+    rs = import_raystation_api()
     scope = {}
     scope_levels = ["ui", "PatientDB", "Patient", "Case", "Examination", "Plan", "BeamSet"]
 
     for l in scope_levels:
         try:
-            rs_obj = connect.get_current(l)
+            rs_obj = rs.get_current(l)
         except Exception as error:
             if hasattr(error, "Message"):
                 no_current = "Invalid objectHandle"
@@ -78,8 +78,8 @@ def get_machine(machine_name):
     usually this is machine_name = beamset.MachineReference.MachineName
     return: machine (RS object)"""
     from library.api.api_rs import import_raystation_api
-    connect = import_raystation_api()
-    machine_db = connect.get_current("MachineDB")
+    rs = import_raystation_api()
+    machine_db = rs.get_current("MachineDB")
     machine = machine_db.GetTreatmentMachine(machineName=machine_name, lockMode=None)
     return machine
 
@@ -88,8 +88,8 @@ def get_all_commissioned(machine_type=None):
     """Find all machines that have the status commissioned and are not deprecated.
         return: machine_names: List of machine names"""
     from library.api.api_rs import import_raystation_api
-    connect = import_raystation_api()
-    machine_db = connect.get_current("MachineDB")
+    rs = import_raystation_api()
+    machine_db = rs.get_current("MachineDB")
     mm = machine_db.QueryCommissionedMachineInfo(Filter={'IsCommissioned':True, 'IsDeprecated':False})
     machine_names = []
     if machine_type:

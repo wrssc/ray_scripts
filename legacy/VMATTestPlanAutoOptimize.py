@@ -39,7 +39,7 @@ def main():
     import csv
     import os
     from library.api.api_rs import import_raystation_api
-    connect = import_raystation_api()
+    rs = import_raystation_api()
     from OptimizationOperations import optimize_plan
     from collections import namedtuple
     import UserInterface
@@ -77,7 +77,7 @@ def main():
         file_object.close()
         # Header was skipped.  Start with rows[0], the first data line in the csv
         i = 0
-        db = connect.get_current("PatientDB")
+        db = rs.get_current("PatientDB")
         # TODO : look for existing, then add a beamset.
         for r in rows:
             # for i in range(1,10):

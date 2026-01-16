@@ -70,16 +70,16 @@ def main():
         docstring=__doc__,
         help=__help__)
     try:
-        patient = connect.get_current('Patient')
-        case = connect.get_current("Case")
-        examination = connect.get_current("Examination")
-        patient_db = connect.get_current('PatientDB')
+        patient = rs.get_current('Patient')
+        case = rs.get_current("Case")
+        examination = rs.get_current("Examination")
+        patient_db = rs.get_current('PatientDB')
     except:
         WarningBox('This script requires a patient, case, and exam to be loaded')
         sys.exit('This script requires a patient, case, and exam to be loaded')
 
     try:
-        ui = connect.get_current('ui')
+        ui = rs.get_current('ui')
         ui.TitleBar.MenuItem['Patient modeling'].Button_Patient_modeling.Click()
         ui.TabControl_ToolBar.TabItem['POI tools'].Select()
         ui.ToolPanel.TabItem['POIs'].Select()
@@ -98,7 +98,7 @@ def main():
             plan_targets.append(r.Name)
     # Add user threat: empty target list.
     if not plan_targets:
-        connect.await_user_input("The target list is empty." +
+        rs.await_user_input("The target list is empty." +
                                  " Please apply type PTV to the targets and continue.")
         for r in case.PatientModel.RegionsOfInterest:
             if r.OrganData.OrganType == 'Target':
@@ -113,7 +113,7 @@ def main():
     if sim_point_found:
         logging.warning("POI SimFiducials Exists")
         status.next_step(text="SimFiducials Point found, ensure that it is placed properly")
-        connect.await_user_input('Ensure Correct placement of the SimFiducials Point and continue script.')
+        rs.await_user_input('Ensure Correct placement of the SimFiducials Point and continue script.')
     else:
         case.PatientModel.CreatePoi(Examination=examination,
                                     Point={'x': 0,
@@ -124,7 +124,7 @@ def main():
                                     Color="Green",
                                     Type="LocalizationPoint")
         status.next_step(text="SimFiducials POI created, ensure that it is placed properly")
-        connect.await_user_input('Ensure Correct placement of the SimFiducials Point and continue script.')
+        rs.await_user_input('Ensure Correct placement of the SimFiducials Point and continue script.')
 
 
         # Get some user data
@@ -193,7 +193,7 @@ def main():
     status.next_step(text="Making plan.")
 
     try:
-        ui = connect.get_current('ui')
+        ui = rs.get_current('ui')
         ui.TitleBar.MenuItem['Plan design'].Button_Plan_design.Click()
     except:
         logging.debug("Could not click on the plan design window")
@@ -226,7 +226,7 @@ def main():
 
         plan = case.TreatmentPlans[p]
         plan.SetCurrent()
-        connect.get_current('Plan')
+        rs.get_current('Plan')
 
         plan.AddNewBeamSet(
             Name=p,

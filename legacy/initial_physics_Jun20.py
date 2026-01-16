@@ -125,7 +125,7 @@ except ImportError:
 import re
 from dateutil import parser
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
 import GeneralOperations
@@ -1469,7 +1469,7 @@ def get_machine(machine_name):
     :param: machine_name (name of the machine in raystation,
     usually this is machine_name = beamset.MachineReference.MachineName
     return: machine (RS object)"""
-    machine_db = connect.get_current("MachineDB")
+    machine_db = rs.get_current("MachineDB")
     machine = machine_db.GetTreatmentMachine(machineName=machine_name, lockMode=None)
     return machine
 

@@ -208,9 +208,9 @@ def export_beamset_rtplan(case, exam, beamset):
     SOP Class UID matches RTPlanStorage, reads it with pydicom, and returns it.
 
     Args:
-        case (object): RayStation Case object (e.g., from get_current('Case')).
-        exam (object): RayStation Examination object (e.g., from get_current('Examination')).
-        beamset (object): RayStation BeamSet object (e.g., from get_current('BeamSet')).
+        case (object): RayStation Case object (e.g., fromrs.get_current('Case')).
+        exam (object): RayStation Examination object (e.g., from rs.get_current('Examination')).
+        beamset (object): RayStation BeamSet object (e.g., from rs.get_current('BeamSet')).
 
     Returns:
         pydicom.dataset.FileDataset: The RT Plan dataset read from the exported DICOM file.

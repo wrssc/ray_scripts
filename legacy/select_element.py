@@ -51,7 +51,7 @@ import re
 
 # Local imports
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import BeamOperations
 import Objectives
 import Beams

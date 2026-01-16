@@ -16,7 +16,7 @@ __help__ = None
 __copyright__ = "Copyright (C) 2023, University of Wisconsin Board of Regents"
 
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 try:
     import FreeSimpleGUI as sg
 except ImportError:
@@ -30,10 +30,10 @@ import ImplantedDeviceOperations_MLC as ido
 
 
 def main():
-    case = get_current("Case")
-    plan = get_current("Plan")
-    beam_set = get_current("BeamSet")
-    examination = get_current("Examination")
+    case = rs.get_current("Case")
+    plan = rs.get_current("Plan")
+    beam_set = rs.get_current("BeamSet")
+    examination = rs.get_current("Examination")
 
     list_of_ROIs = [roi.Name for roi in case.PatientModel.RegionsOfInterest]
     if "Pacemaker" in list_of_ROIs:

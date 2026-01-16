@@ -1006,7 +1006,7 @@ def check_structure_exists(
                 # logging.info("Structure {} has contours on exam {}".format(structure_name, exam.Name))
                 return True
             else:
-                connect.await_user_input("Create the structure {} and continue script."
+                rs.await_user_input("Create the structure {} and continue script."
                                          .format(structure_name))
     else:
         return False

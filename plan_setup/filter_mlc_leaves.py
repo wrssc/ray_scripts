@@ -45,7 +45,7 @@ def main():
     """
 
     try:
-        beamset = connect.get_current("BeamSet")
+        beamset = rs.get_current("BeamSet")
     except Exception as e:
         logging.error(f"No BeamSet is currently loaded in RayStation. Exiting. {e}")
         sys.exit(1)

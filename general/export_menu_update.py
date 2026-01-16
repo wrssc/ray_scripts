@@ -32,7 +32,7 @@ import time
 import math
 
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import UserInterface
 import DicomExport
 import TomoExport
@@ -436,14 +436,14 @@ def check_approval_status(patient, case, exam, plan, beamset):
         #         'Approve Plan'
         #     )
         #     if approve.yes:
-        #         ui = connect.get_current('ui')
+        #         ui = rs.get_current('ui')
         #         try:
         #             ui.TitleBar.Navigation.MenuItem['Plan evaluation'].Click()
         #             ui.TitleBar.Navigation.MenuItem['Plan evaluation'].Popup.MenuItem['Plan evaluation'].Click()
         #             ui.TabControl_ToolBar.TabItem._Approval.Select()
         #         except Exception as e:
         #             logging.debug(f'Could not navigate to plan approval tab: {e}')
-        #         connect.await_user_input('Approve the plan now, then continue the script')
+        #         rs.await_user_input('Approve the plan now, then continue the script')
         #     else:
         #         logging.warning('The user chose to export the plan without approval')
         #         ignore = True
@@ -466,11 +466,11 @@ def check_approval_status(patient, case, exam, plan, beamset):
                 'Approve Structure Set'
             )
             if approve.yes:
-                ui = connect.get_current('ui')
+                ui = rs.get_current('ui')
                 ui.TitleBar.Navigation.MenuItem['Patient modeling'].Click()
                 ui.TitleBar.Navigation.MenuItem['Patient modeling'].Popup.MenuItem['Structure definition'].Click()
                 ui.TabControl_ToolBar.TabItem['Approval'].Select()
-                connect.await_user_input('Approve the structure set now, then continue the script')
+                rs.await_user_input('Approve the structure set now, then continue the script')
             else:
                 logging.warning('The user chose to export the structure set without approval')
                 ignore = True
@@ -560,16 +560,16 @@ def main():
     #       disabled.
     # Get current patient, case, exam, plan, and beamset
     try:
-        patient = connect.get_current('Patient')
-        case = connect.get_current('Case')
-        exam = connect.get_current('Examination')
+        patient = rs.get_current('Patient')
+        case = rs.get_current('Case')
+        exam = rs.get_current('Examination')
     except Exception:
         WarningBox('This script requires a patient to be loaded')
         sys.exit('This script requires a patient to be loaded')
 
     try:
-        plan = connect.get_current('Plan')
-        beamset = connect.get_current('BeamSet')
+        plan = rs.get_current('Plan')
+        beamset = rs.get_current('BeamSet')
 
         beamset_list = [b.DicomPlanLabel for b in plan.BeamSets]
         machine_list = DicomExport.machines(beamset)

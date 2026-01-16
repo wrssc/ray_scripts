@@ -2,7 +2,7 @@ import re
 import pandas as pd
 import numpy as np
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 from collections import namedtuple
 import matplotlib.pyplot as plt
 import time
@@ -34,7 +34,7 @@ def re_init_rso(rso, patient, case_name):
         c_name = c.CaseName
         if c_name == case_name:
             c.SetCurrent()
-            connect.get_current("Case")
+            rs.get_current("Case")
             new_exam = c.Examinations[0]
             new_rso = Pd(error=[],
                          patient=patient,

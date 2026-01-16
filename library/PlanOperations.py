@@ -1,5 +1,5 @@
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import logging
 import sys
 
@@ -13,7 +13,7 @@ def check_localization(case, exam, create=False, confirm=False):
     if sim_point_found:
         if confirm:
             logging.info("POI SimFiducials Exists")
-            connect.await_user_input(
+            rs.await_user_input(
                 'Ensure Correct placement of the SimFiducials Point and continue script.')
             return True
         else:
@@ -28,7 +28,7 @@ def check_localization(case, exam, create=False, confirm=False):
                                         Name="SimFiducials",
                                         Color="Green",
                                         Type="LocalizationPoint")
-            connect.await_user_input(
+            rs.await_user_input(
                 'Ensure Correct placement of the SimFiducials Point and continue script.')
             return True
         else:

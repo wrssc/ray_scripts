@@ -38,14 +38,14 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import xml.etree.ElementTree
 
 # Define the protocol XML directory
 protocol_folder = r'../protocols'
 
 tree = xml.etree.ElementTree.parse('dicom_verification.xml')
-case = connect.get_current("Case")
+case = rs.get_current("Case")
 for p in tree.findall('//plan'):
     plan_name = p.find('plan_name')
     plan_comment = p.find('plan_comment')
@@ -86,7 +86,7 @@ for p in tree.findall('//plan'):
 patient.Save()
 #plan = case.TreatmentPlans[plan_name]
 #plan.SetCurrent()
-#connect.get_current('Plan')
+#rs.get_current('Plan')
 
 #plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2})
 

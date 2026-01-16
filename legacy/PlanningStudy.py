@@ -51,7 +51,7 @@ from collections import OrderedDict
 from io import BytesIO
 
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import GeneralOperations
 import StructureOperations
 import BeamOperations
@@ -148,7 +148,7 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
                     'Patient': None,
                     'Exam': None,
                     'Plan': None}
-    db = connect.get_current("PatientDB")
+    db = rs.get_current("PatientDB")
     # Find the patient in the database
     patient_info = db.QueryPatientInfo(
         Filter={
@@ -595,9 +595,9 @@ def main():
             case = patient_data['Case']
             plan = patient_data['Plan']
             case.SetCurrent()
-            connect.get_current('Case')
+            rs.get_current('Case')
             plan.SetCurrent()
-            connect.get_current('Plan')
+            rs.get_current('Plan')
             patient_load = True
         # Check the HU to density status of this exam.
         if not exam.EquipmentInfo.ImagingSystemReference:
@@ -686,7 +686,7 @@ def main():
         # ok, now make the beamset current
         patient.Save()
         rs_beam_set.SetCurrent()
-        connect.get_current('BeamSet')
+        rs.get_current('BeamSet')
         beams = BeamOperations.load_beams_xml(filename=row.BeamsetFile,
                                               beamset_name=row.ProtocolBeamset,
                                               path=path_protocols)
@@ -774,7 +774,7 @@ def main():
 
         # Manually add directional blocking
         # if beamset_defs.technique == 'TomoHelical':
-        #     connect.await_user_input('Add any directional blocking')
+        #     rs.await_user_input('Add any directional blocking')
         #
         # Optimize the plan
         opt_status = load_configuration_optimize_beamset(s=row,patient=patient,case=case,exam=exam,plan=plan,beamset=rs_beam_set)

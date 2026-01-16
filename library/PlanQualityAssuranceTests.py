@@ -183,7 +183,7 @@ class Tomo_Couch_Valid:
 
 def tomo_couch_check(case, exam, beamset, tomo_couch_name='TomoCouch', limit=2.0, shift=False):
     from library.api.api_rs import import_raystation_api
-    connect = import_raystation_api()
+    rs = import_raystation_api()
     """
     Test of the couch centering relative to isocenter
     :param case: RS Case
@@ -199,7 +199,7 @@ def tomo_couch_check(case, exam, beamset, tomo_couch_name='TomoCouch', limit=2.0
     if not all(couch_exists):
         error = f'Exam: {exam.Name}. Tomotherapy couch structures {tomo_couch_name} does not exist ' \
                 f'but this is a Tomo Plan! Cancel the script or continue.'
-        connect.await_user_input(error)
+        rs.await_user_input(error)
         couch_exists = StructureOperations.check_roi(case=case, exam=exam, rois='TrueBeamCouch')
         if not all(couch_exists):
             error = f'Exam: {exam.Name} appears to have no couch! Cannot proceed'

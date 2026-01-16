@@ -4,7 +4,7 @@
 import UserInterface
 import PlanQualityAssuranceTests
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import logging
 import os
 import webbrowser
@@ -21,11 +21,11 @@ def main():
     plan = GeneralOperations.find_scope(level='Plan')
     beamset = GeneralOperations.find_scope(level='BeamSet')
     #try:
-    #    patient = connect.get_current('Patient')
-    #    case = connect.get_current("Case")
-    #    exam = connect.get_current("Examination")
-    #    plan = connect.get_current("Plan")
-    #    beamset = connect.get_current("Beamset")
+    #    patient = rs.get_current('Patient')
+    #    case = rs.get_current("Case")
+    #    exam = rs.get_current("Examination")
+    #    plan = rs.get_current("Plan")
+    #    beamset = rs.get_current("Beamset")
     #except:
     #    logging.warning("patient, case and examination must be loaded")
 
@@ -96,7 +96,7 @@ def main():
     dialog = UserInterface.RichTextBox(text=message)
     dialog.show()
     # webbrowser.open(infile)
-    # connect.await_user_input('Check it out')
+    # rs.await_user_input('Check it out')
 
 
 

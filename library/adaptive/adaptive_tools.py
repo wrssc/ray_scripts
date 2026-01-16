@@ -1,5 +1,5 @@
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import pydicom
 from typing import List
 import datetime
@@ -503,7 +503,7 @@ def initialize_cbct(rso):
     renamed_exams = []
     for fx_number, exam in enumerate(sorted_exams, start=1):
         print(f"Processing exam {exam.Name} for fraction {fx_number}")
-        with connect.CompositeAction("Initialization CBCT"):
+        with rs.CompositeAction("Initialization CBCT"):
             renamed_exams.append((rename_cbct_exam(exam, fx_number), fx_number, exam))
             # Set the imaging system reference for each exam
             set_imaging_system_reference(exam)
@@ -512,7 +512,7 @@ def initialize_cbct(rso):
     # Create the FOV ROI for exam
     fov_name = make_fov_roi(rso, f"FOV_m01cm")
     for renamed_exam, fx_number, exam in renamed_exams:
-        with connect.CompositeAction("Create FOV ROI"):
+        with rs.CompositeAction("Create FOV ROI"):
             create_fov_geometry(rso, fov_name, renamed_exam)
             print(f"Creating FOV geometry for {renamed_exam}, fraction {fx_number}")
     # Rename the rigid registrations
@@ -530,7 +530,7 @@ def initialize_cbct(rso):
     # for cbct in sorted_exams:
     #     cbct_name = f"c{cbct.Name}"
     #     print(f"Creating Corrected CBCT for {cbct.Name} as {cbct_name}")
-    #     with connect.CompositeAction("Create Corrected CBCT"):
+    #     with rs.CompositeAction("Create Corrected CBCT"):
 
      #        case.CreateNewCorrectedCbct(CorrectedCbctName=cbct_name,
      #                                    ReferenceExaminationName=rso.exam.Name,
@@ -561,7 +561,7 @@ def initialize_cbct(rso):
     # plan.InitializeDoseTrackingFromPlan(TreatmentDelivery=case.TreatmentDelivery,
     #                                     DoseAccumulationExamination=examination)
 
-    # with CompositeAction('Apply image set properties'):
+    # with rs.CompositeAction('Apply image set properties'):
 
     #     case.Examinations['CT 1'].ImportFraction = 1
 

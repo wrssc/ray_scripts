@@ -48,7 +48,7 @@ def main():
     # Distance from s-frame center to couch edge
     shift_to_couch_edge_s_frame = 17.38
     tolerance = 2
-    db = connect.get_current('PatientDB')
+    db = rs.get_current('PatientDB')
     male_patients = db.QueryPatientInfo(Filter={'Gender':'Male'})
     female_patients = db.QueryPatientInfo(Filter={'Gender':'Female'})
     all_patients = male_patients + female_patients
@@ -82,7 +82,7 @@ def main():
                            min_extent = min(min_extent,b[0].z)
                            max_extent = max(max_extent,b[1].z)
                 if not support:
-                    connect.await_user_input('No support structures found, declare a support and continue')
+                    rs.await_user_input('No support structures found, declare a support and continue')
                 else:
                     logging.debug('Support type has min position {} and max position {}'.format(min_extent, max_extent))
                 # S-frame loop
@@ -112,7 +112,7 @@ def main():
                                                                                                     x=b_t[1].z,
                                                                                                     sx=min_extent,
                                                                                                     sn=max_extent))
-                                connect.await_user_input('Target {} exists past the end of {}'.format(t, min_extent))
+                                rs.await_user_input('Target {} exists past the end of {}'.format(t, min_extent))
                             if b_t[1].z > max_extent:
                                 logging.debug('Target {name}: [max, min]=[{x}, {n}] exceeds support [{sx}, {sn}]'.format(
                                                                                                     name=t,
@@ -120,14 +120,14 @@ def main():
                                                                                                     x=b_t[1].z,
                                                                                                     sx=min_extent,
                                                                                                     sn=max_extent))
-                                connect.await_user_input('Target {} exists past the end of {}'.format(t, max_extent))
+                                rs.await_user_input('Target {} exists past the end of {}'.format(t, max_extent))
                             if (b_t[0].z < couch_edge - tolerance) and (b_t[1].z > couch_edge + tolerance):
                                 logging.debug('Target {t}: Couch edge at {e} cm, min at {n}, max at {x}'.format(
                                                                                                     t=t,
                                                                                                     e=couch_edge,
                                                                                                     n=couch_edge-tolerance,
                                                                                                     x=couch_edge+tolerance))
-                                connect.await_user_input('Structure {} appears to traverse the s-frame/table edge')
+                                rs.await_user_input('Structure {} appears to traverse the s-frame/table edge')
                 # c.PatientModel.CreatePoi(Examination=exam,
                 #                          Point={'x':center_roi.x,
                 #                                 'y':center_roi.y,

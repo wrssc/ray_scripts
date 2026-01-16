@@ -83,7 +83,7 @@ __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
 __raystation__ = '2024SP3'
-__maintainer__ = 'One maintainer'
+__maintainer__ = 'Adam Bayliss'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
@@ -92,7 +92,7 @@ __credits__ = []
 
 import logging
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import os
 import traceback
 
@@ -247,13 +247,13 @@ def check_external(patient_data) -> bool:
     external_roi = next((r for r in roi_list if r.Type == "External"), None)
     if not external_roi:
         logging.debug('No external contour designated')
-        connect.await_user_input(
+        rs.await_user_input(
             'No External contour type designated. Give a contour an External type and continue script.')
         return any(roi.Type == "External" for roi in roi_list)
 
     if not roi_has_contours(patient_data, external_roi.Name):
         logging.debug(f'External {external_roi.Name} is missing contours on {patient_data.exam}')
-        connect.await_user_input(f'External {external_roi.Name} is missing contours on {patient_data.exam}')
+        rs.await_user_input(f'External {external_roi.Name} is missing contours on {patient_data.exam}')
         return roi_has_contours(patient_data, external_roi.Name)
 
     logging.debug(f'External {external_roi.Name} checked for contours: {patient_data.exam}')
@@ -769,11 +769,11 @@ def make_hfs_plan(values) -> None:
     #
     beamset_fractions = pd_hfs.beamset.FractionationPattern.NumberOfFractions
     while beamset_fractions != nfx:
-        connect.await_user_input(f'Set the number of fractions in {output_beamset_name}')
+        rs.await_user_input(f'Set the number of fractions in {output_beamset_name}')
         beamset_fractions = pd_hfs.beamset.FractionationPattern.NumberOfFractions
     is_clinical_dose = pd_hfs.beamset.IsApprovedToUseAsBackgroundDose()
     while not is_clinical_dose:
-        connect.await_user_input(f'Edit the plan {output_beamset_name}: '
+        rs.await_user_input(f'Edit the plan {output_beamset_name}: '
                                  f'select "Consider imported dose clinical"')
         is_clinical_dose = pd_hfs.beamset.IsApprovedToUseAsBackgroundDose()
 
@@ -815,7 +815,7 @@ def export_ffs_dose_to_hfs_plan(values) -> None:
     # Export the FFS dose to the HFS plan
     export_background_dose(pd_ffs, pd_hfs)
     if plan_transfer_successful(pd_hfs, pd_ffs, nfx):
-        connect.await_user_input('Plan transfer successful, resume the script')
+        rs.await_user_input('Plan transfer successful, resume the script')
 
 
 def tbi_gui() -> Dict:
@@ -937,7 +937,7 @@ def tbi_gui() -> Dict:
             selections.update(values)
             break
         elif event == PAUSE_KEY:
-            connect.await_user_input('Script paused. Resume script to continue.')
+            rs.await_user_input('Script paused. Resume script to continue.')
             window[event].update(button_color=('black', 'lightgray'))
         elif event in ['-FFS STRUCTURES-', '-FFS PLAN-', '-OPT FFS-', '-HFS PLAN-', '-CALC FFS ON HFS-',
                        '-EXPORT FFS-', '-OPT HFS-']:

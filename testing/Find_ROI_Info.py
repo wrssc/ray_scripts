@@ -131,14 +131,14 @@ def find_targets(case):
 def get_doses_relative(roi_names):
     # Find all exams with roi_name and return dose information
     target_name = "All_PTVs"
-    db = connect.get_current('PatientDB')
+    db = rs.get_current('PatientDB')
     chests = db.QueryPatientInfo(Filter={'BodySite': 'Chest'})
     found_patients = []
     patient_data = {}
     for infos in chests:
         try:
             db.LoadPatient(PatientInfo=infos, AllowPatientUpgrade=False)
-            patient = connect.get_current("Patient")
+            patient = rs.get_current("Patient")
             for case in patient.Cases:
                 for exam in case.Examinations:
                     matches = get_roi_geometries(case, exam.Name, roi_names)
@@ -172,7 +172,7 @@ def bladder_volumes():
     dt_string = now.strftime("%m%d%Y_%H%M%S")
 
     # Distance from s-frame center to couch edge
-    db = connect.get_current('PatientDB')
+    db = rs.get_current('PatientDB')
     # male_patients = db.QueryPatientInfo(Filter={'Gender':'Male'})
     # female_patients = db.QueryPatientInfo(Filter={'Gender':'Female'})
     # all_patients = male_patients + female_patients
@@ -184,7 +184,7 @@ def bladder_volumes():
     for infos in prostates:
         try:
             db.LoadPatient(PatientInfo=infos, AllowPatientUpgrade=False)
-            patient = connect.get_current("Patient")
+            patient = rs.get_current("Patient")
             for case in patient.Cases:
                 for p in case.TreatmentPlans:
                     for b in p.BeamSets:

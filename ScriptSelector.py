@@ -68,7 +68,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     import System
 
     try:
-        patient = connect.get_current('Patient')
+        patient = rs.get_current('Patient')
         pat_id = patient.PatientID
     except Exception:
         patient = False
@@ -85,7 +85,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
                             format='%(asctime)s\t%(levelname)s\t%(filename)s: %(message)s')
 
     # Log system, RayStation, and patient info
-    ui = connect.get_current('ui')
+    ui = rs.get_current('ui')
     logging.debug('*** Python {} ***'.format(sys.version))
 
     logging.debug('*** RayStation {} ***'.format(ui.GetApplicationVersion()))
@@ -99,21 +99,21 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
         logging.info('*** Patient: NO_PATIENT ***')
 
     try:
-        case = connect.get_current('Case')
+        case = rs.get_current('Case')
         logging.info('*** Case: {} ***'.format(case.CaseName))
 
     except Exception:
         logging.info('*** Case: NO_CASE ***')
 
     try:
-        plan = connect.get_current('Case')
+        plan = rs.get_current('Case')
         logging.info('*** Plan: {} ***'.format(plan.Name))
 
     except Exception:
         logging.info('*** Plan: NO_PLAN ***')
 
     try:
-        beamset = connect.get_current('BeamSet')
+        beamset = rs.get_current('BeamSet')
         logging.info('*** Beamset: {} ***'.format(beamset.DicomPlanLabel))
 
     except Exception:

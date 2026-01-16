@@ -52,7 +52,7 @@ class OpenCaseWindow(Window):
   
 
 if __name__ == "__main__":
-  patient = get_current('Patient')
+  patient = rs.get_current('Patient')
   cases = patient.Cases
 
   app = Application()

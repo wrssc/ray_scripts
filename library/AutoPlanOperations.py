@@ -44,7 +44,7 @@ from collections import OrderedDict, namedtuple
 from typing import NamedTuple, Union, Optional
 
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import StructureOperations
 import BeamOperations
 import UserInterface
@@ -360,7 +360,7 @@ def place_fiducial(rso, poi_name):
     location with user.
     """
     try:
-        ui = connect.get_current('ui')
+        ui = rs.get_current('ui')
         ui.TitleBar.MenuItem['Patient modeling'].Button_Patient_modeling.Click()
         ui.TabControl_ToolBar.TabItem['POI tools'].Select()
         ui.ToolPanel.TabItem['POIs'].Select()
@@ -374,10 +374,10 @@ def place_fiducial(rso, poi_name):
                                                                 exam=rso.exam,
                                                                 poi=poi_name)
         if poi_has_coord:
-            connect.await_user_input(
+            rs.await_user_input(
                 'Ensure Correct placement of the {} Point and continue script.'.format(poi_name))
         else:
-            connect.await_user_input(
+            rs.await_user_input(
                 f'Localization point {poi_name} has no coordinates in this exam.'
                 f' Place the point and continue the script.')
 
@@ -388,13 +388,13 @@ def place_fiducial(rso, poi_name):
                                        name=poi_name,
                                        color='Green',
                                        rs_type='LocalizationPoint')
-        connect.await_user_input(
+        rs.await_user_input(
             f'Ensure Correct placement of the {poi_name} '
             f'Point and continue script.')
 
 
 def query_patient_info(patient_id, first_name, last_name):
-    db = connect.get_current("PatientDB")
+    db = rs.get_current("PatientDB")
     # Find the patient in the database
     patient_info = db.QueryPatientInfo(
         Filter={
@@ -410,13 +410,13 @@ def query_patient_info(patient_id, first_name, last_name):
 
 
 def load_patient(patient_info):
-    db = connect.get_current("PatientDB")
+    db = rs.get_current("PatientDB")
     patient = db.LoadPatient(PatientInfo=patient_info)
     return patient
 
 
 def load_case(patient_info, case_name, patient=None):
-    db = connect.get_current("PatientDB")
+    db = rs.get_current("PatientDB")
     if not patient:
         patient = load_patient(patient_info)
     cases = db.QueryCaseInfo(PatientInfo=patient_info)
@@ -804,7 +804,7 @@ def load_supports(rso, supports, quiet=False):
             InitializationOption='AlignImageCenters'
         )
     if not quiet:
-        connect.await_user_input(
+        rs.await_user_input(
             f'Ensure the supports {supports} are loaded correctly, '
             f'on exam {rso.exam.Name} and continue script')
 
@@ -1119,13 +1119,13 @@ def load_configuration_optimize_beamset(
     block_prompt = df_wf.block_prompt.values[0]
     if block_prompt and not bypass_user_prompts:
         try:
-            ui = connect.get_current('ui')
+            ui = rs.get_current('ui')
             ui.TitleBar.MenuItem['Plan optimization'].Button_Plan_optimization.Click()
             ui.TabControl_Modules.TabItem['Plan optimization'].Button_Plan_optimization.Click()
             ui.Workspace.TabControl['Objectives/constraints'].TabItem['Protect'].Select()
         except:
             logging.debug("Could not click on the patient protection window")
-        connect.await_user_input(
+        rs.await_user_input(
             'Navigate to the Plan design page and set any blocking.')
     # Optimize the plan
     if optimize:

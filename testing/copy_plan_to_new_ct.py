@@ -18,7 +18,7 @@ import platform
 from connect import *
 
 ##### RayWindow selection #####
-ui = get_current('ui')
+ui = rs.get_current('ui')
 _version = ui.GetApplicationVersion().split('.')
 version = int(_version[0]) if int(_version[1]) != 99 else int(_version[0]) + 1
 subversion = int(_version[1])
@@ -225,7 +225,7 @@ def createControlPoints(dose):
         pass
 
     # create OUR dummyPTV roi
-    with CompositeAction('Create dummy'):
+    with rs.CompositeAction('Create dummy'):
         dummy = root.PatientModel.CreateRoi(Name='dummyPTV', Color='Red'
                 , Type='Ptv', TissueName=None, RoiMaterial=None)
 
@@ -239,7 +239,7 @@ def createControlPoints(dose):
             f.DeleteFunction()
 
     # add OUR optimization objectives
-    with CompositeAction('Add objective'):
+    with rs.CompositeAction('Add objective'):
         function = po.AddOptimizationFunction(
             FunctionType='UniformDose',
             RoiName='dummyPTV',
@@ -254,7 +254,7 @@ def createControlPoints(dose):
         function.DoseFunctionParameters.Weight = 90
 
     # set the arc spacing and create teh segments
-    with CompositeAction('Dummy optimization'):
+    with rs.CompositeAction('Dummy optimization'):
         po.OptimizationParameters.Algorithm.MaxNumberOfIterations = 2
         po.OptimizationParameters.DoseCalculation.IterationsInPreparationsPhase = \
             1
@@ -563,9 +563,9 @@ class Rx(object):
 def main():
     # Check if a patient is loaded
     try:
-        machine_db = get_current('MachineDB')
-        patient = get_current('Patient')
-        ui = get_current('ui')
+        machine_db = rs.get_current('MachineDB')
+        patient = rs.get_current('Patient')
+        ui = rs.get_current('ui')
         _version = ui.GetApplicationVersion().split('.')
         version = int(_version[0]) if int(_version[1]) != 99 else int(_version[0]) + 1
         subversion = int(_version[1])
@@ -577,9 +577,9 @@ def main():
 
     #check the version of RayStation
     if version > 4:
-        root = get_current('Case')
+        root = rs.get_current('Case')
     else:
-        root = get_current('Patient')
+        root = rs.get_current('Patient')
 
     dialog = MyWindow()
     dialog.ShowDialog()

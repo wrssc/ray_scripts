@@ -35,7 +35,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 # Import packages
 import sys
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import UserInterface
 import logging
 import time
@@ -49,10 +49,10 @@ edw_list = ['EDW10IN', 'EDW15IN', 'EDW20IN', 'EDW25IN', 'EDW30IN', 'EDW45IN', 'E
 def main():
 
     # Get current patient, case, and machine DB
-    machine_db = connect.get_current('MachineDB')
+    machine_db = rs.get_current('MachineDB')
     try:
-        patient = connect.get_current('Patient')
-        case = connect.get_current('Case')
+        patient = rs.get_current('Patient')
+        case = rs.get_current('Case')
         patient.Save()
 
     except Exception:
@@ -71,9 +71,9 @@ def main():
                           'overridden to water.')
     time.sleep(1)
 
-    examination = connect.get_current('Examination')
+    examination = rs.get_current('Examination')
     if examination.EquipmentInfo.ImagingSystemReference is None:
-        connect.await_user_input('The CT imaging system is not set. Set it now, then continue the script.')
+        rs.await_user_input('The CT imaging system is not set. Set it now, then continue the script.')
         patient.Save()
 
     else:
@@ -165,7 +165,7 @@ def main():
 
     # If a water density override was not set, do so now
     if water is None:
-        connect.await_user_input('Either Box_1 or Box_2 must be overridden to water. Do so, then continue the script')
+        rs.await_user_input('Either Box_1 or Box_2 must be overridden to water. Do so, then continue the script')
         patient.Save()
         try:
             for i in range(20):
@@ -510,7 +510,7 @@ def main():
                     patient.Save()
                     plan.SetCurrent()
                     beamset.SetCurrent()
-                    connect.await_user_input('Manually set wedge to {}. Then continue.'.format(w))
+                    rs.await_user_input('Manually set wedge to {}. Then continue.'.format(w))
                     patient.Save()
                     time.sleep(1)
 

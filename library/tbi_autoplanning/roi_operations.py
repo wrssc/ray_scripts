@@ -3,7 +3,7 @@ from typing import Optional, List
 import sys
 import logging
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import math
 import numpy as np
 
@@ -452,12 +452,9 @@ def make_central_junction_contour(pdata, z_inf_box,
     if color is None:
         color = [192, 192, 192]
     prefix = determine_prefix(pdata.exam)
-    if prefix == 'ffs':
-        si = 1.
-    elif prefix == 'hfs':
-        si = 1.
-    else:
+    if pif prefix not in ('ffs', 'hfs'):
         sys.exit(f'Unknown patient orientation {prefix}')
+    si = 1.
     # Find the name of the external contour
     if not source_roi_name:
         external_name = find_types(pdata.case,
@@ -1225,7 +1222,7 @@ def load_normal_mbs(pd_hfs: Pd, pd_ffs: Pd, quiet: bool = False) -> None:
             CreateNewRois=True,
             Examination=pd_hfs.exam,
             UseAtlasBasedInitialization=True)
-        connect.await_user_input('Review placement of MBS structures')
+        rs.await_user_input('Review placement of MBS structures')
 
     if adapt_list:
         pd_hfs.case.PatientModel.AdaptMbsMeshes(
@@ -1253,7 +1250,7 @@ def load_normal_mbs(pd_hfs: Pd, pd_ffs: Pd, quiet: bool = False) -> None:
             CustomStatistics=None,
             CustomSettings=None)
     if not quiet:
-        connect.await_user_input('Check the MBS loaded structures on both exams.')
+        rs.await_user_input('Check the MBS loaded structures on both exams.')
 
 
 def make_derived_rois(pd_hfs: Pd, pd_ffs: Pd) -> None:
@@ -1487,7 +1484,7 @@ def make_structures(pd_hfs: Pd, pd_ffs: Pd, make_vmat_plan: bool, make_tomo_plan
     if no_registrations(pd_hfs):
         register_images(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, testing)
         if not testing:
-            connect.await_user_input(
+            rs.await_user_input(
                 'Check the fusion alignment of the boney anatomy in the hips.\n '
                 'Approve the registration.\n Then continue script.')
     else:

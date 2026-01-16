@@ -7,22 +7,22 @@ Aria.
 # RayStation Header
 
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 
 try:
-    patient = connect.get_current("Patient")  # type: ignore #pylint: disable=undefined-variable
+    patient = rs.get_current("Patient")  # type: ignore #pylint: disable=undefined-variable
 except:
     pass
 
 plan = None
 try:
-    plan = connect.get_current("Plan")  # type: ignore #pylint: disable=undefined-variable
+    plan = rs.get_current("Plan")  # type: ignore #pylint: disable=undefined-variable
 except:
     pass
 
 case = None
 try:
-    case = connect.get_current("Case")
+    case = rs.get_current("Case")
 except:
     pass
 
@@ -306,7 +306,7 @@ def rs_beamset_list(rs_plan=plan):
     not supplied, defaults to the plan currently open in RayStation right now.
 
     The input plan object must be of the type returned by 
-    plan = get_current("Plan") from RayStation.
+    plan = rs.get_current("Plan") from RayStation.
 
     Method returns an empty list if no valid plan is sent in, or if there
     are no beamsets in this plan.
@@ -507,7 +507,7 @@ def aria_qr(root_dir=None, beamset_name=None):
             "You must save to run the APTR tool. Do you want to save the patient?"
         )
         if yes_or_no == "Yes":
-            get_current("Patient").Save()  # type: ignore #pylint: disable=undefined-variable
+            rs.get_current("Patient").Save()  # type: ignore #pylint: disable=undefined-variable
 
             case.ScriptableDicomExport(
                 ExportFolderPath=str(root_dir),

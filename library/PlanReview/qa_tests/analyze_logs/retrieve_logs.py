@@ -20,7 +20,7 @@ def read_log_file(patient_id):
         file_contents: lines of file
     """
     from library.api.api_rs import import_raystation_api
-    connect = import_raystation_api()
+    rs = import_raystation_api()
     log_file = f"{patient_id}.txt"
     log_input_file = os.path.join(LOG_DIR, patient_id, log_file)
     dev_log_file = f"{patient_id}.txt"
@@ -41,7 +41,7 @@ def read_log_file(patient_id):
         pass
 
     if not file_contents:
-        connect.await_user_input(
+        rs.await_user_input(
             f"Neither file:{log_file} not found in dir:{LOG_DIR} "
             + f"nor file:{dev_log_file} not found in dir:{DEV_LOG_DIR} "
             + f"this is likely a major error. Proceed? "

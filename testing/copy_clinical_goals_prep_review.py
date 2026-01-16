@@ -75,10 +75,10 @@ def find_max_dose_in_plan(examination, case, plan):
 def main():
     """ Temp chunk of code to try to open an xml file"""
     try:
-        ui = connect.get_current("ui")
-        patient = connect.get_current('Patient')
-        case = connect.get_current("Case")
-        examination = connect.get_current("Examination")
+        ui = rs.get_current("ui")
+        patient = rs.get_current('Patient')
+        case = rs.get_current("Case")
+        examination = rs.get_current("Examination")
     except:
         logging.warning("patient, case and examination must be loaded")
 
@@ -109,9 +109,9 @@ def main():
         # Save any user changes
         patient.Save()
         c.TreatmentPlans[source_plan].SetCurrent()
-        plan = connect.get_current("Plan")
+        plan = rs.get_current("Plan")
         c.TreatmentPlans[source_plan].BeamSets[source_beamset].SetCurrent()
-        beamset = connect.get_current('BeamSet')
+        beamset = rs.get_current('BeamSet')
         clinical_beamset = c.TreatmentPlans[destination_plan].BeamSets[destination_beamset]
         # Goals
         if left_breast:

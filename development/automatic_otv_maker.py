@@ -18,8 +18,7 @@ __help__ = None
 __copyright__ = "Copyright (C) 2024, University of Wisconsin Board of Regents"
 
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
-from connect import get_current
+rs = import_raystation_api()
 try:
     import FreeSimpleGUI as sg
 except ImportError:
@@ -156,8 +155,8 @@ def create_optimized_otv(
         cold_roi,
         otv_name):
 
-    case = get_current("Case")
-    examination = get_current("Examination")
+    case = rs.get_current("Case")
+    examination = rs.get_current("Examination")
 
     otv_auto = case.PatientModel.CreateRoi(Name=otv_name, Color="Green", Type="Ptv")
 
@@ -209,8 +208,8 @@ def create_optimized_otv(
     )
 
 def union_of_rois(name_of_roi, list_of_rois, color_of_roi="Green"):
-    case = get_current("Case")
-    examination = get_current("Examination")
+    case = rs.get_current("Case")
+    examination = rs.get_current("Examination")
 
     union_roi = case.PatientModel.CreateRoi(Name=name_of_roi, Color=color_of_roi, Type="Organ")
 
@@ -265,8 +264,8 @@ def union_of_rois(name_of_roi, list_of_rois, color_of_roi="Green"):
 
 def create_otv(ptv_name, dose_name):
 
-    case = get_current("Case")
-    examination = get_current("Examination")
+    case = rs.get_current("Case")
+    examination = rs.get_current("Examination")
 
     if "PTV" in ptv_name:
         otv_name = ptv_name.replace("PTV", "OTV", 1) + "_AUTO"
@@ -359,7 +358,7 @@ def create_otv(ptv_name, dose_name):
     cold_roi.DeleteRoi()
 
 def main():
-    case = get_current("Case")
+    case = rs.get_current("Case")
 
     list_of_ROIs = [roi.Name for roi in case.PatientModel.RegionsOfInterest]
     if "PTV1" in list_of_ROIs:

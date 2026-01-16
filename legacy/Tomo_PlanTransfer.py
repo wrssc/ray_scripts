@@ -41,7 +41,7 @@ import sys
 import logging
 import time
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import UserInterface
 import DicomExport
 import PlanOperations
@@ -57,17 +57,17 @@ def main():
 
     # Get current patient, case, exam, plan, and beamset
     try:
-        patient = connect.get_current('Patient')
-        case = connect.get_current('Case')
-        exam = connect.get_current('Examination')
+        patient = rs.get_current('Patient')
+        case = rs.get_current('Case')
+        exam = rs.get_current('Examination')
 
     except Exception:
         UserInterface.WarningBox('This script requires a patient to be loaded')
         sys.exit('This script requires a patient to be loaded')
 
     try:
-        parent_plan = connect.get_current('Plan')
-        parent_beamset = connect.get_current('BeamSet')
+        parent_plan = rs.get_current('Plan')
+        parent_beamset = rs.get_current('BeamSet')
 
     except Exception:
         logging.debug('A plan and/or beamset is not loaded; plan export options will be disabled')
@@ -109,9 +109,9 @@ def main():
             sys.exit('Could not find transferred beamset for export')
 
         daughter_plan.SetCurrent()
-        connect.get_current('Plan')
+        rs.get_current('Plan')
         daughter_beamset.SetCurrent()
-        connect.get_current('BeamSet')
+        rs.get_current('BeamSet')
         daughter_beamset.ComputeDose(
             ComputeBeamDoses=True,
             DoseAlgorithm="CCDose",
@@ -123,7 +123,7 @@ def main():
 
         patient.Save()
         # Plans must be approved in iDMS prior to sending the transfer plan.
-        connect.await_user_input(
+        rs.await_user_input(
             'Please go to the iDMS workstation and approve plan {}, '.format(parent_plan.Name) +
             'Then continue script')
         parent_plan_iDMS_name = parent_plan.Name + ':' + parent_beamset_name

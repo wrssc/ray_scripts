@@ -56,21 +56,21 @@ __credits__ = []
 
 def main():
     from library.api.api_rs import import_raystation_api
-    connect = import_raystation_api()
+    rs = import_raystation_api()
     import UserInterface
     import sys
     from api.api_ui import ui_click_qa_preparation
     from api.api_beamsets import create_electron_qa_plan
 
     try:
-        beam_set = connect.get_current("BeamSet")
+        beam_set = rs.get_current("BeamSet")
     except Exception:
         UserInterface.WarningBox('This script requires a Beam Set to be loaded')
         sys.exit('This script requires a Beam Set to be loaded')
 
     QA_Plan_Name = beam_set.DicomPlanLabel + "QA"
     # Go to the QA preparation workspace
-    ui = connect.get_current('ui')
+    ui = rs.get_current('ui')
     ui_click_qa_preparation(ui)
 
     try:

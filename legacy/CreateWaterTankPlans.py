@@ -44,7 +44,7 @@ __copyright__ = 'Copyright (C) 2017-2018, University of Wisconsin Board of Regen
 # Import packages
 import sys
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import UserInterface
 import logging
 import time
@@ -57,10 +57,10 @@ edws = ['EDW10IN', 'EDW10OUT', 'EDW15IN', 'EDW15OUT', 'EDW20IN', 'EDW20OUT', 'ED
 def main():
 
     # Get current patient, case, and machine DB
-    machine_db = connect.get_current('MachineDB')
+    machine_db = rs.get_current('MachineDB')
     try:
-        patient = connect.get_current('Patient')
-        case = connect.get_current('Case')
+        patient = rs.get_current('Patient')
+        case = rs.get_current('Case')
         patient.Save()
 
     except Exception:
@@ -76,9 +76,9 @@ def main():
     # Confirm a CT density table and external contour was set
     status.next_step(text='Prior to execution, the script will make sure that a CT density table and External ' +
                           'contour are set for the current plan. These are required for dose calculation.')
-    examination = connect.get_current('Examination')
+    examination = rs.get_current('Examination')
     if examination.EquipmentInfo.ImagingSystemReference is None:
-        connect.await_user_input('The CT imaging system is not set. Set it now, then continue the script.')
+        rs.await_user_input('The CT imaging system is not set. Set it now, then continue the script.')
         patient.Save()
 
     else:
@@ -372,7 +372,7 @@ def main():
                 refset.SetCurrent()
                 status.update_text('Manually set the EDW beams for {} according to the beam name. ' +
                                    'Then continue the script.'.format(m))
-                connect.await_user_input('Manually set EDWs for {}. Then continue the script.'.format(m))
+                rs.await_user_input('Manually set EDWs for {}. Then continue the script.'.format(m))
                 time.sleep(1)
                 patient.Save()
 
@@ -811,7 +811,7 @@ def main():
                 beamset.SetCurrent()
                 status.update_text('Manually set the number of Monte Carlo histories for this plan (5e6 is ' +
                                    'recommended). Then continue the script.')
-                connect.await_user_input('Update the number of Monte Carlo histories (5e6 recommended)')
+                rs.await_user_input('Update the number of Monte Carlo histories (5e6 recommended)')
 
                 # Calculate dose on beamset
                 if calc:

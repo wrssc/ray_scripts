@@ -224,7 +224,7 @@ def create_external_fb(case):
     # First, verify that the pre-requisites for the script are present
 
     # The case must have two or more image sets.
-    # Note: case.Examination has type "connect.connect_cpython.PyScriptObjectCollection", and
+    # Note: case.Examination has type "PyScriptObjectCollection", and
     # len() is defined for this object.
     if len(case.Examinations) < 2:
         logging.error(
@@ -265,7 +265,7 @@ def create_external_fb(case):
             "'ExternalClean'.".format(roi_external.Name),
         )
 
-    with CompositeAction("Rename DIBH and free-breathing examinations"):
+    with rs.CompositeAction("Rename DIBH and free-breathing examinations"):
         (DIBH_exam, FB_exam) = get_DIBH_and_FB_exams(case)
 
         original_DIBH_exam_name = DIBH_exam.Name
@@ -276,7 +276,7 @@ def create_external_fb(case):
         logging.info("Renaming exam {} to Free-breathing".format(FB_exam.Name))
         FB_exam.Name = "Free-breathing"
 
-    with CompositeAction("Rename External on DIBH scan to 'External_DIBH'"):
+    with rs.CompositeAction("Rename External on DIBH scan to 'External_DIBH'"):
         logging.info("Renaming the ROI of type 'External' to 'DIBH'.")
         roi_external.Name = "External_DIBH"
         # This action renames the External to External_DIBH on all examinations.
@@ -291,7 +291,7 @@ def create_external_fb(case):
                 logging.info(log_str)
                 delete_geometry(case, ss.OnExamination, "External_DIBH")
 
-    with CompositeAction("Create External_FB on Free-breathing Image Set"):
+    with rs.CompositeAction("Create External_FB on Free-breathing Image Set"):
 
         roi_names = [roi.Name for roi in case.PatientModel.RegionsOfInterest]
         if "External_FB" in roi_names:
@@ -324,7 +324,7 @@ def create_external_fb(case):
         logging.info("Setting External_DIBH as the 'External' ROI.")
         roi_external.SetAsExternal()
 
-    with CompositeAction("Copy External_FB to DIBH Image Set"):
+    with rs.CompositeAction("Copy External_FB to DIBH Image Set"):
         logging.info("Copying External_FB to the DIBH examination.")
         case.PatientModel.CopyRoiGeometry(
             SourceExamination=case.Examinations["Free-breathing"],
@@ -377,19 +377,19 @@ def clean(
     """
 
     # Delete External_FB
-    with CompositeAction("Delete External_FB"):
+    with rs.CompositeAction("Delete External_FB"):
         logging.info("Deleting External_FB")
         case.PatientModel.RegionsOfInterest["External_FB"].DeleteRoi()
 
     # Undo renaming of external DIBH
-    with CompositeAction("Reverse rename of External_DIBH"):
+    with rs.CompositeAction("Reverse rename of External_DIBH"):
         logging.info("Renaming 'External_DIBH' to 'External'")
         case.PatientModel.RegionsOfInterest[
             "External_DIBH"
         ].Name = original_roi_external_name
 
     # Undo renaming of examinations
-    with CompositeAction("Reverse rename of DIBH and free-breathing examinations"):
+    with rs.CompositeAction("Reverse rename of DIBH and free-breathing examinations"):
         logging.info("Renaming examinations to original names")
         case.Examinations["DIBH"].Name = original_DIBH_exam_name
         case.Examinations["Free-breathing"].Name = original_FB_exam_name
@@ -401,7 +401,7 @@ def main():
     """The main function for this file"""
 
     logging.debug("Beginning execution of create_external_fb in main()")
-    case = get_current("Case")
+    case = rs.get_current("Case")
     create_external_fb(case)
 
 

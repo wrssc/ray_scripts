@@ -75,7 +75,7 @@ def create_external_alignrt_su(case, shift_size=10):
     """
 
     # This script is designed to be used for prone breast patients:
-    exam = get_current("Examination")
+    exam = rs.get_current("Examination")
 
     if exam.PatientPosition != "HFP":
         logging.error("Current exam in not in prone position. Exiting script.")
@@ -86,7 +86,7 @@ def create_external_alignrt_su(case, shift_size=10):
         messagebox.showerror("Patient Orientation Error", message)
         exit()
 
-    with CompositeAction("Create Ext_AlignRT_SU"):
+    with rs.CompositeAction("Create Ext_AlignRT_SU"):
 
         # The case must have a region of interest set to the "External" type
         roi_external = StructureOperations.find_types(case, "External")
@@ -186,7 +186,7 @@ def main():
     """The main function for this file"""
 
     logging.debug("Beginning execution of CreateExternalAlignRTSetup.py in main()")
-    case = get_current("Case")
+    case = rs.get_current("Case")
     create_external_alignrt_su(case)
 
 

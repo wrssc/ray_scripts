@@ -1,0 +1,18 @@
+{
+  "directory": "general",
+  "description": "Test manifest",
+  "tests": [
+    {
+      "script_path": "general/create_goals.py",
+      "test_type": "modification",
+      "test_patient": {
+        "patient_id": "ZZUWQA_ScTest_Test",
+        "patient_lastname": "ScTest",
+        "patient_firstname": "Test",
+        "case_name": "TestCase",
+        "plan_name": "HN",
+        "beamset_name" : ""
+      }
+    }
+  ]
+}

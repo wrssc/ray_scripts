@@ -63,7 +63,7 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
                     'Patient': None,
                     'Exam': None,
                     'Plan': None}
-    db = connect.get_current("PatientDB")
+    db = rs.get_current("PatientDB")
     # Find the patient in the database
     patient_info = db.QueryPatientInfo(
         Filter={
@@ -166,7 +166,7 @@ def main():
         if patient_data['Plan']:
             patient_data['Plan'].SetCurrent()
         StructureMatching.main()
-        connect.await_user_input(
+        rs.await_user_input(
         'Fill in input.csv with target data and output.csv with clinical plan')
         patient_data['Patient'].Save()
 

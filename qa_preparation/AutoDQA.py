@@ -526,15 +526,15 @@ def main():
     destinations = ['Delta4']
     shifts = {}
     try:
-        patient = connect.get_current('Patient')
-        case = connect.get_current('Case')
+        patient = rs.get_current('Patient')
+        case = rs.get_current('Case')
 
     except Exception:
         UserInterface.WarningBox('This script requires a patient to be loaded')
         sys.exit('This script requires a patient to be loaded')
 
     try:
-        plan = connect.get_current('Plan')
+        plan = rs.get_current('Plan')
 
     except Exception:
         logging.debug('A plan is not loaded; plan export options will be disabled')
@@ -597,7 +597,7 @@ def main():
         logging.info("Selected Beamset:QAPlan {}:{}"
                      .format(beamset.DicomPlanLabel, qa_beamset.DicomPlanLabel))
         if not bypass_review:
-            connect.await_user_input('Please review and adjust the plan.\n'
+            rs.await_user_input('Please review and adjust the plan.\n'
                                      + 'Resume the script to export\n'
                                      + 'Final Plan Parameters will be copied to the clipboard')
         comment_str = comment_to_clipboard(beamset, user_prompt, verification_plan)

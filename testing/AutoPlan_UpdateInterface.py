@@ -847,7 +847,7 @@ def autoplan(testing_bypass_dialogs={}):
     # ok, now make the beamset current
     pd.patient.Save()
     rs_beam_set.SetCurrent()
-    pd = pd._replace(beamset=connect.get_current('BeamSet'))
+    pd = pd._replace(beamset=rs.get_current('BeamSet'))
     # Set beams from the protocol
     beams = BeamOperations.load_beams_xml(filename=protocol_file,
                                           beamset_name=beamset_name,
@@ -893,7 +893,7 @@ def autoplan(testing_bypass_dialogs={}):
     auto_status.next_step(text=script_steps[i][1])
     i += 1
     if user_prompts:
-        connect.await_user_input(
+        rs.await_user_input(
             'Set any required material overrides and continue the script.')
     # TODO: The following line of code can be activated in RS 11
     # AutoPlanOperations.set_overrides(rso)
@@ -911,7 +911,7 @@ def autoplan(testing_bypass_dialogs={}):
     auto_status.next_step(text=script_steps[i][1])
     i += 1
     try:
-        ui = connect.get_current('ui')
+        ui = rs.get_current('ui')
         ui.TitleBar.MenuItem['Plan optimization'].Button_Plan_optimization.Click()
         ui.TabControl_Modules.TabItem['Plan optimization'].Button_Plan_optimization.Click()
         ui.Workspace.TabControl['Objectives/constraints'].TabItem['Protect'].Select()
@@ -920,13 +920,13 @@ def autoplan(testing_bypass_dialogs={}):
     if testing_bypass_dialogs:
         logging.info('Blocking page skipped for testing')
     else:
-        connect.await_user_input(
+        rs.await_user_input(
             'Navigate to the Plan design page, set any blocking or bolus.')
     #
     if testing_bypass_dialogs:
         logging.info('Custom goal additions skipped for debugging.')
     else:
-        connect.await_user_input('Add any custom goals from the TPO.')
+        rs.await_user_input('Add any custom goals from the TPO.')
     #
     # Add support structures here
     # Support structures come from beamset data.

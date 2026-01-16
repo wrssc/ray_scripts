@@ -4,11 +4,11 @@
     information. The following example illustrates how to use this function:
 
     from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
     import UserInterface
     tpo = UserInterface.TpoDialog()
     tpo.load_protocols(os.path.join(os.path.dirname(__file__), '../../protocols/'))
-    tpo.show(connect.get_current('Case'), connect.get_current('Examination'))
+    tpo.show(rs.get_current('Case'), rs.get_current('Examination'))
 
     This program is free software: you can redistribute it and/or modify it under the
     terms of the GNU General Public License as published by the Free Software Foundation,

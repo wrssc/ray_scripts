@@ -42,7 +42,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 import sys
 import logging
 import xml.etree.Elementtree

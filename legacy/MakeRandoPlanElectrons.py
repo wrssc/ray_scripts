@@ -38,9 +38,9 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
 from library.api.api_rs import import_raystation_api
-connect = import_raystation_api()
+rs = import_raystation_api()
 
-case = connect.get_current("Case")
+case = rs.get_current("Case")
 plan_name = 'HFS_DICOM_Export'
 beam_set_names = [
     "HFS_MeV_3DC_TB",
@@ -65,7 +65,7 @@ case.AddNewPlan(PlanName=plan_name,
 patient.Save()
 plan = case.TreatmentPlans[plan_name]
 plan.SetCurrent()
-connect.get_current('Plan')
+rs.get_current('Plan')
 
 plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2})
 
@@ -167,7 +167,7 @@ retval_6.AddDosePrescriptionToRoi(RoiName="PTV1", DoseVolume=95, PrescriptionTyp
 
 # Unscriptable Action 'Save' Completed : SaveAction(...)
 
-with CompositeAction('Add beam (1_6MeV_06x06, Beam Set: HFS_MeV_3DC_TB)'):
+with rs.CompositeAction('Add beam (1_6MeV_06x06, Beam Set: HFS_MeV_3DC_TB)'):
     retval_7 = beam_set.CreateElectronBeam(ApplicatorName="Varian 6x6", Energy=6, InsertName="333",
                                            IsAddCutoutChecked=True, IsocenterData={
             'Position': {'x': -0.0968178451119894, 'y': -32.0682494405771, 'z': -0.465064539760374},
@@ -182,7 +182,7 @@ with CompositeAction('Add beam (1_6MeV_06x06, Beam Set: HFS_MeV_3DC_TB)'):
 
 # Unscriptable Action 'PTV5_Surface Checked' Completed : DelegateSyncAction(...)
 
-with CompositeAction('Add beam (2_9MeV_10x10, Beam Set: HFS_MeV_3DC_TB)'):
+with rs.CompositeAction('Add beam (2_9MeV_10x10, Beam Set: HFS_MeV_3DC_TB)'):
     retval_8 = beam_set.CreateElectronBeam(ApplicatorName="Varian 10x10", Energy=9, InsertName="334",
                                            IsAddCutoutChecked=True, IsocenterData={
             'Position': {'x': -0.0968178451119894, 'y': -32.0682494405771, 'z': -0.465064539760374},
@@ -196,12 +196,12 @@ with CompositeAction('Add beam (2_9MeV_10x10, Beam Set: HFS_MeV_3DC_TB)'):
 
     # CompositeAction ends
 
-with CompositeAction('Bolus selected (Bolus, Beam: 2_9MeV_10x10, Beam Set: HFS_MeV_3DC_TB)'):
+with rs.CompositeAction('Bolus selected (Bolus, Beam: 2_9MeV_10x10, Beam Set: HFS_MeV_3DC_TB)'):
     retval_8.SetBolus(BolusName="Bolus")
 
     # CompositeAction ends
 
-with CompositeAction('Add beam (3_12MeV_15x15, Beam Set: HFS_MeV_3DC_TB)'):
+with rs.CompositeAction('Add beam (3_12MeV_15x15, Beam Set: HFS_MeV_3DC_TB)'):
     retval_9 = beam_set.CreateElectronBeam(ApplicatorName="Varian 15x15", Energy=12, InsertName="335",
                                            IsAddCutoutChecked=True, IsocenterData={
             'Position': {'x': -0.0968178451119894, 'y': -32.0682494405771, 'z': -0.465064539760374},
@@ -215,7 +215,7 @@ with CompositeAction('Add beam (3_12MeV_15x15, Beam Set: HFS_MeV_3DC_TB)'):
 
     # CompositeAction ends
 
-with CompositeAction('Add beam (4_12MeV_20x20, Beam Set: HFS_MeV_3DC_TB)'):
+with rs.CompositeAction('Add beam (4_12MeV_20x20, Beam Set: HFS_MeV_3DC_TB)'):
     retval_10 = beam_set.CreateElectronBeam(ApplicatorName="Varian 20x20", Energy=12, InsertName="336",
                                             IsAddCutoutChecked=True, IsocenterData={
             'Position': {'x': -0.0968178451119894, 'y': -32.0682494405771, 'z': -0.465064539760374},
@@ -231,12 +231,12 @@ with CompositeAction('Add beam (4_12MeV_20x20, Beam Set: HFS_MeV_3DC_TB)'):
 
 # Unscriptable Action 'Edit Beam (4_12MeV_20x20, Beam Set: HFS_MeV_3DC_TB)' Completed : EditElectronBeamAction(...)
 
-with CompositeAction('Edit Beam (4_12MeV_20x20, Beam Set: HFS_MeV_3DC_TB)'):
+with rs.CompositeAction('Edit Beam (4_12MeV_20x20, Beam Set: HFS_MeV_3DC_TB)'):
     beam_set.Beams['4_12MeV_20x20'].Name = "4_15MeV_20x20"
 
     # CompositeAction ends
 
-with CompositeAction('Add beam (5_15MeV_25x25, Beam Set: HFS_MeV_3DC_TB)'):
+with rs.CompositeAction('Add beam (5_15MeV_25x25, Beam Set: HFS_MeV_3DC_TB)'):
     retval_11 = beam_set.CreateElectronBeam(ApplicatorName="Varian 25x25", Energy=15, InsertName="337",
                                             IsAddCutoutChecked=True, IsocenterData={
             'Position': {'x': -0.0968178451119894, 'y': -32.0682494405771, 'z': -0.465064539760374},
@@ -268,7 +268,7 @@ with CompositeAction('Add beam (5_15MeV_25x25, Beam Set: HFS_MeV_3DC_TB)'):
 
 # Unscriptable Action 'Setting 5 for PTV5_Surface' Completed : DelegateSyncAction(...)
 
-with CompositeAction('Conform all'):
+with rs.CompositeAction('Conform all'):
     retval_2.TreatAndProtect(ShowProgress=True)
 
     # CompositeAction ends
