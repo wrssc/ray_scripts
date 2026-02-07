@@ -13,6 +13,7 @@ except ImportError:
     import PySimpleGUI as Sg
 
 from typing import Optional, List, Tuple
+from library.api.api_beamsets import compute_beamset_dose
 from .tbi_definitions import TOMO_FFS_TRANSFER_NAME, VMAT_FFS_TRANSFER_NAME, HFS_TOMO_PLAN_NAME, \
     HFS_VMAT_PLAN_NAME, FFS_PLACEHOLDER_NAME, DICOM_PATH, FFS_VMAT_PLAN_NAME
 from .tbi_utils import Pd
@@ -453,8 +454,10 @@ def calculate_ffs_on_hfs_logic(pd_ffs: Pd, pd_hfs: Pd, nfx: int, rx: int, make_v
     # If the dose grid changed, re-compute
     try:
         if grid_updated:
-            pd_ffs.beamset.ComputeDose(ComputeBeamDoses=False, DoseAlgorithm='CCDose',
-                                       ForceRecompute=False)
+            compute_beamset_dose(beamset=pd_ffs.beamset,
+                                 compute_beam_doses=False,
+                                 dose_algorithm='CCDose',
+                                 force_recompute=False)
             pd_ffs.patient.Save()
     except Exception as e:
         logging.debug(f"During dose summation, dose computation failed: {e}")

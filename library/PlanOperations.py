@@ -2,6 +2,7 @@ from library.api.api_rs import import_raystation_api
 rs = import_raystation_api()
 import logging
 import sys
+from library.api.api_beamsets import compute_beamset_dose
 
 
 def check_localization(case, exam, create=False, confirm=False):
@@ -119,9 +120,7 @@ def compute_dose(beamset, dose_algorithm):
     # Computes the dose if necessary and returns success message or
     # failure
     try:
-        beamset.ComputeDose(ComputeBeamDoses=True,
-                            DoseAlgorithm=dose_algorithm,
-                            ForceRecompute=False)
+        compute_beamset_dose(beamset=beamset, compute_beam_doses=True, dose_algorithm=dose_algorithm, force_recompute=False)
         message = 'Recomputed Dose'
     except Exception as e:
         logging.debug(u'Message is {}'.format(e.Message))

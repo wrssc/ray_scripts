@@ -67,7 +67,7 @@
           minimum X2, Y2
     2.0.5 Updated to RS 11
     2.0.6 Added check on existing dimension of dose grid. If current dimension is less than default
-          don't reset
+    2.0.7 RayStation 2025: ComputeDose moved to api.api_beamsets
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -85,24 +85,25 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2022-Jun-27'
+__date__ = '2026-Jan-30'
 __version__ = '2.0.5'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Someone else'
 __reviewed__ = 'YYYY-MM-DD'
-__raystation__ = '11B'
+__raystation__ = '11B, 17'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __help__ = ''
-__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
 #
 
 import logging
 from library.api.api_rs import import_raystation_api
+
 rs = import_raystation_api()
 import UserInterface
 import datetime
@@ -114,7 +115,7 @@ import numpy as np
 import PlanOperations
 import BeamOperations
 from GeneralOperations import logcrit as logcrit
-from api.api_beamsets import set_treat_or_protect_roi_all_beams, set_treat_or_protect_margins
+from api.api_beamsets import set_treat_or_protect_roi_all_beams, set_treat_or_protect_margins, compute_beamset_dose
 
 
 def get_node_text(node, name, default=""):
@@ -549,12 +550,13 @@ def reduce_oar_dose(plan_optimization):
     # attribute
     composite_objectives = []
     for index, objective in enumerate(plan_optimization.Objective.ConstituentFunctions):
-        if hasattr(objective.OfDoseDistribution, 'ForBeamSet'):
+        if hasattr(objective, 'OfDoseDistribution') and \
+            hasattr(objective.OfDoseDistribution, 'ForBeamSet'):
             composite_objectives.append(index)
     # If composite objectives are found warn the user
     if composite_objectives:
         rs.await_user_input("ReduceOAR with composite optimization is not supported " +
-                                 "by RaySearch as of RS 11")
+                            "by RaySearch as of RS 11")
         logging.warning("reduce_oar_dose: " +
                         "RunReduceOARDoseOptimization not executed due to the presence of" +
                         "CompositeDose objectives")
@@ -1101,7 +1103,7 @@ def update_background_dose(plan, plan_optimization):
     """
     # Determine the optimization for this beamset. If background dose is
     # used, then compute it.
-    if plan_optimization.BackgroundDose:
+    if hasattr(plan_optimization, "BackgroundDose"):
         modality = plan_optimization.BackgroundDose.ForBeamSet.DeliveryTechnique
         if modality == 'TomoHelical':
             optimized_beamsets = [bs.DicomPlanLabel for bs in plan.BeamSets
@@ -1113,9 +1115,10 @@ def update_background_dose(plan, plan_optimization):
                                   if all([b.HasValidSegments for b in bs.Beams])]
         for obs in optimized_beamsets:
             try:
-                plan.BeamSets[obs].ComputeDose(ComputeBeamDoses=False,
-                                               DoseAlgorithm='CCDose',
-                                               ForceRecompute=False)
+                compute_beamset_dose(beamset=plan.BeamSets[obs],
+                                     compute_beam_dose=False,
+                                     dose_algorithm='CCDose',
+                                     force_recompute=False)
             except Exception as e:
                 pass
 
@@ -1277,6 +1280,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     }
     if vary_grid and lock_dose_grid:
         raise ValueError('Cannot vary grid and lock grid at the same time')
+    dose_dim_initial = beamset.FractionDose.InDoseGrid.VoxelSize.x
     if lock_dose_grid:
         # Do nothing since the dose grid is locked
         if dose_dim1 is None:
@@ -1300,7 +1304,8 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                 'y': dose_dim_initial,
                 'z': dose_dim_initial})
     elif any(a in beamset.DicomPlanLabel for a in small_field_names):
-        dose_dim_initial = 0.15
+        if dose_dim_initial> 0.15:
+            dose_dim_initial = 0.15
         beamset.SetDefaultDoseGrid(
             VoxelSize={
                 'x': dose_dim_initial,

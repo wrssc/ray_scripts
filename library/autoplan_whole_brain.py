@@ -67,6 +67,7 @@ __help__ = ''
 __credits__ = []
 
 from library.api.api_rs import import_raystation_api
+
 rs = import_raystation_api()
 import logging
 import UserInterface
@@ -75,7 +76,7 @@ import sys
 import BeamOperations
 import StructureOperations
 from GeneralOperations import logcrit
-from library.api.api_beamsets import add_dose_prescription_to_roi
+from library.api.api_beamsets import add_dose_prescription_to_roi, compute_beamset_dose
 
 
 def check_external(roi_list):
@@ -91,7 +92,7 @@ def check_external(roi_list):
             return False
 
 
-def check_structure_exists(case, structure_name, roi_list, option,bypass_dialogs=False):
+def check_structure_exists(case, structure_name, roi_list, option, bypass_dialogs=False):
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
         if option == 'Delete':
             case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
@@ -186,7 +187,7 @@ def main(bypass_dialogs=False):
         status.next_step(text="SimFiducials Point found, ensure that it is placed properly")
         if not bypass_dialogs:
             rs.await_user_input(
-             'Ensure Correct placement of the SimFiducials Point and continue script.')
+                'Ensure Correct placement of the SimFiducials Point and continue script.')
     else:
         poi_status = StructureOperations.create_poi(
             case=case, exam=examination, coords=[0., 0., 0.],
@@ -843,7 +844,7 @@ def main(bypass_dialogs=False):
             # Set the BTV type above to allow dose grid to cover
             case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
             case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
-            
+
             # Set treat/protect and minimum MU
             for beam in beamset.Beams:
                 beam.BeamMU = 1
@@ -852,10 +853,10 @@ def main(bypass_dialogs=False):
 
             beamset.TreatAndProtect(ShowProgress=True)
             # Compute the dose
-            beamset.ComputeDose(
-                ComputeBeamDoses=True,
-                DoseAlgorithm="CCDose",
-                ForceRecompute=True)
+            compute_beamset_dose(beamset=beamset,
+                                 compute_beam_doses=True,
+                                 dose_algorithm="CCDose",
+                                 force_recompute=True)
             beamset.ScaleToPrimaryPrescriptionDoseReference()
 
         # RS 8 delete next three lines
@@ -893,10 +894,11 @@ def main(bypass_dialogs=False):
     # logging.debug('Checking for jaw rounding')
     # BeamOperations.round_jaws(beamset=beamset)
     # Compute the dose
-    beamset.ComputeDose(
-        ComputeBeamDoses=True,
-        DoseAlgorithm="CCDose",
-        ForceRecompute=True)
+    compute_beamset_dose(
+        beamset=beamset,
+        compute_beam_doses=True,
+        dose_algorithm="CCDose",
+        force_recompute=True)
     # Exclude these from export
     case.PatientModel.ToggleExcludeFromExport(
         ExcludeFromExport=True,

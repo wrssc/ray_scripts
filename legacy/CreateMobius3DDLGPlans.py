@@ -48,6 +48,7 @@ rs = import_raystation_api()
 import UserInterface
 import logging
 import time
+from library.api.api_beamsets import compute_beamset_dose
 
 
 def main():
@@ -328,7 +329,7 @@ def main():
                         # Calculate dose on beamset
                         if calc:
                             logging.debug('Calculating dose for plan {}mm-{}mm'.format(g * 10, o * 10))
-                            beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='CCDose')
+                            compute_beamset_dose(beamset=beamset, compute_beam_doses=True, dose_algorithm='CCDose',)
                             time.sleep(1)
                             patient.Save()
                             time.sleep(1)

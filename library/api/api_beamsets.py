@@ -1,3 +1,4 @@
+import logging
 from library.api.dispatcher import APIDispatcher
 
 dispatcher = APIDispatcher()  # Create an instance of the dispatcher
@@ -166,6 +167,19 @@ def create_electron_qa_plan_v15(beamset, phantom_name, phantom_id, qa_plan_name,
         DesiredStatisticalUncertaintyForElectrons=uncertainty
     )
 
+def compute_beamset_dose_v12(beamset, compute_beam_doses, dose_algorithm=None, force_recompute=None):
+    # Version 12 specific code to compute dose
+    beamset.ComputeDose(ComputeBeamDoses=compute_beam_doses,
+                        DoseAlgorithm=dose_algorithm,
+                        ForceRecalculation=force_recompute)
+def compute_beamset_dose_v17(beamset, compute_beam_doses, dose_algorithm=None, force_recompute=None):
+    # Version 17 specific code to compute dose
+    logging.info("Computing dose for beamset with Version 17 specific implementation. Note that"
+    "ComputeBeamDoses, DoseAlgorithm, and ForceRecalculation parameters are not used in this version.")
+    beamset.ComputeDose()
+
+
+
 
 # Register these functions with the dispatcher
 dispatcher.register('get_unique_id_beamset', 12, get_unique_id_beamset_v12)
@@ -204,6 +218,11 @@ dispatcher.register('adjust_emc_calculation', 17, adjust_emc_calculation_v15)
 dispatcher.register('create_electron_qa_plan', 12, create_electron_qa_plan_v12)
 dispatcher.register('create_electron_qa_plan', 15, create_electron_qa_plan_v15)
 dispatcher.register('create_electron_qa_plan', 17, create_electron_qa_plan_v15)
+
+dispatcher.register('compute_dose', 12, compute_beamset_dose_v12)
+dispatcher.register('compute_dose', 15, compute_beamset_dose_v12)
+dispatcher.register('compute_dose', 17, compute_beamset_dose_v17)
+
 
 
 @dispatcher.dispatch('get_unique_id_beamset')
@@ -254,3 +273,8 @@ def create_electron_qa_plan(beamset, phantom_name, phantom_id, qa_plan_name,
                             collimator_angle, couch_rotation_angle,
                             compute_dose, number_histories, uncertainty):
     pass
+
+@dispatcher.dispatch('compute_dose')
+def compute_beamset_dose(beamset, compute_beam_doses, dose_algorithm=None, force_recompute=None):
+    pass
+

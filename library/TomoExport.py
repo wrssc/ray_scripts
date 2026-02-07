@@ -14,6 +14,9 @@
 
     -Send the daughter plan to RayGateway
 
+    1.0.1 Update for 2025 SP1 compatibility
+            change the ComputeDose method call to match new RS API
+
     Version:
     1.0 Support for multiple beamsets (all assumed to be sent at once).
 
@@ -54,6 +57,7 @@ __credits__ = []
 import sys
 import logging
 from library.api.api_rs import import_raystation_api
+from library.api.api_beamsets import compute_beamset_dose
 rs = import_raystation_api()
 import UserInterface
 import DicomExport
@@ -230,10 +234,11 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
             rs.get_current('Plan')
             daughter_beamset.SetCurrent()
             rs.get_current('BeamSet')
-            daughter_beamset.ComputeDose(
-                ComputeBeamDoses=True,
-                DoseAlgorithm="CCDose",
-                ForceRecompute=False)
+            compute_beamset_dose(
+                beamset=daughter_beamset,
+                compute_beam_doses=True,
+                dose_algorithm='CCDose',
+                force_recompute=False)
 
             daughter_beamset.DicomPlanLabel = parent_beamset_name[:8] + '_Tr' + daughter_machine[-3:]
             patient.Save()
@@ -293,7 +298,7 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
                                            machine=None,
                                            table=None,
                                            round_jaws=False,
-                                           aria_prescription_filters=False,
+                                           aria_compatibility_mode=False,
                                            block_accessory=False,
                                            block_tray_id=False,
                                            bar=True)

@@ -120,6 +120,7 @@ import AutoPlanOperations
 import StructureOperations
 from collections import namedtuple
 import numpy as np
+from library.api.api_beamsets import compute_beamset_dose
 try:
     import FreeSimpleGUI as sg
 except ImportError:
@@ -1579,8 +1580,9 @@ def main():
         for p in pd_ffs.case.TreatmentPlans:
             for b in p.BeamSets:
                 try:
-                    b.ComputeDose(ComputeBeamDoses=False, DoseAlgorithm='CCDose',
-                                  ForceRecompute=False)
+
+                    compute_beamset_dose(beamset=b, compute_beam_dose=False, dose_algorithm='CCDose',
+                     force_recompute=False)
                 except Exception as e:
                     # Invalid operation error when trying to compute already computed doses
                     pass

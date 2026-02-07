@@ -141,6 +141,7 @@ except ImportError:
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
 from AutoPlan import autoplan
+from library.api.api_beamsets import compute_beamset_dose
 
 # Structure template defaults
 COUCH_SUPPORT_STRUCTURE_TEMPLATE = "UW Support"
@@ -2053,8 +2054,8 @@ def main():
         for p in pd_ffs.case.TreatmentPlans:
             for b in p.BeamSets:
                 try:
-                    b.ComputeDose(ComputeBeamDoses=False, DoseAlgorithm='CCDose',
-                                  ForceRecompute=False)
+                    compute_beamset_dose(beamset=b, compute_beam_doses=False, dose_algorithm='CCDose',
+                                         force_recompute=False)
                 except Exception as e:
                     # Invalid operation error when trying to compute already computed doses
                     pass

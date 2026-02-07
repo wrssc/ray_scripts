@@ -20,6 +20,7 @@ import numpy as np
 from library.api.api_rs import import_raystation_api
 rs = import_raystation_api()
 import logging
+from library.api.api_beamsets import compute_beamset_dose
 
 clr.AddReference('System')
 
@@ -144,7 +145,9 @@ def set_dsp(plan, beam_set):
 
     algorithm = beam_set.FractionDose.DoseValues.AlgorithmProperties.DoseAlgorithm
     # print "\n\nComputing Dose..."
-    beam_set.ComputeDose(DoseAlgorithm=algorithm, ForceRecompute='TRUE')
+    compute_beamset_dose(beamset=beam_set,
+                         dose_algorithm=algorithm,
+                         force_recompute=True)
 
 
 def main():

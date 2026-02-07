@@ -27,6 +27,8 @@
     1.0.1 Minor changes:
             Delete 01 (UH) and 03 (EC) Add 06 (UH)
             Added a copy to clipboard button for the last dialog
+    1.0.2 Update to Raystation 2025
+            compute_dose: modfied fo api call
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -62,10 +64,14 @@ import logging
 import os
 import re
 import numpy as np
-import connect
 from collections import namedtuple, OrderedDict
 from datetime import datetime
 import pyperclip
+from library.api.api_rs import import_raystation_api
+rs = import_raystation_api()
+
+from api_beamsets import compute_beamset_dose
+
 try:
     import FreeSimpleGUI as sg
 except ImportError:
@@ -591,7 +597,8 @@ def main():
         #
         # Update log
         if any(shifts.values()) > 0.:
-            verification_plan.BeamSet.ComputeDose(DoseAlgorithm='CCDose')
+            compute_beamset_dose(beamset=verification_plan.BeamSet,
+                                 dose_algorithm='CCDose',)
         qa_beamset = verification_plan.BeamSet
         current_technique = qa_beamset.DeliveryTechnique
         logging.info("Selected Beamset:QAPlan {}:{}"

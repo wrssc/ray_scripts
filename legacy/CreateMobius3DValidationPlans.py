@@ -36,6 +36,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import sys
 from library.api.api_rs import import_raystation_api
 rs = import_raystation_api()
+from library.api.api_beamsets import compute_beamset_dose
 import UserInterface
 import logging
 import time
@@ -404,7 +405,7 @@ def main():
                     # Calculate dose on beamset
                     if calc:
                         logging.debug('Calculating dose for plan {} x {}'.format(j, j))
-                        beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='CCDose')
+                        compute_beamset_dose(beamset=beamset, compute_beam_doses=True, dose_algorithm='CCDose')
                         time.sleep(1)
                         patient.Save()
                         time.sleep(1)
@@ -517,7 +518,7 @@ def main():
                     # Calculate dose on beamset
                     if calc:
                         logging.debug('Calculating dose for plan {}'.format(w))
-                        beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='CCDose')
+                        compute_beamset_dose(beamset=beamset, compute_beam_doses=True, dose_algorithm='CCDose',)
                         time.sleep(1)
                         patient.Save()
                         time.sleep(1)
@@ -619,6 +620,7 @@ def main():
                     # Calculate dose on beamset
                     if calc:
                         logging.debug('Calculating dose for plan {}'.format(s))
+                        compute_beamset_dose()
                         beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='CCDose')
                         time.sleep(1)
                         patient.Save()

@@ -24,6 +24,7 @@
 
     2.0.1 Reformatted import of FinalDose to move the launching function to OldPlanReview
     2.0.2 Eliminated jaw rounding and MU rounding since they are default in 2024A
+    2.0.3 Updated to version 17 with new compute dose call
 
 
     Validation Notes:
@@ -53,21 +54,21 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2022-Sep-22'
+__date__ = '2025-Jan-30'
 
-__version__ = '2.0.1'
+__version__ = '2.0.3'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
 
-__reviewed__ = '2019-Nov-12'
-__raystation__ = '11B'
+__reviewed__ = '2025-Jan-30'
+__raystation__ = '2025'
 __maintainer__ = 'Adam Bayliss'
 
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __help__ = None
-__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2025, University of Wisconsin Board of Regents'
 
 import logging
 import sys
@@ -82,7 +83,7 @@ import re
 
 clr.AddReference("System.Xml")
 import os
-from api.api_beamsets import adjust_emc_calculation
+from library.api.api_beamsets import adjust_emc_calculation, compute_beamset_dose
 from api.api_ui import ui_click_plan_optimization
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library/OldPlanReview'))
@@ -194,16 +195,17 @@ def set_prescription_description(patient, beamset):
     for pdr in prescription_dose_references:
         rx_type, name_of_pdr = determine_prescription_type(pdr)
         logging.info(f'Processing primary prescription dose reference of type: {rx_type} for beamset: {beamset_name},'
-                      f' with name: {name_of_pdr}')
+                     f' with name: {name_of_pdr}')
         proposed_description = f'{beamset_name}'
         if not check_description_unique(patient, proposed_description):
             raise ValueError('This beamset {beamset_name} name is already defined for this patient in another '
-                            f' plan, please revise the beamset name to be unique')
+                             f' plan, please revise the beamset name to be unique')
         if rx_type == 'Site-based':
             # Make sure this has not already been named
             pdr.Description = proposed_description  # fix_description_suffix(pdr.Description, beamset_name)
         elif rx_type == 'Unknown':
-            logging.warning(f'Beamset {beamset_name} has an unknown prescription type for primary dose reference: {pdr}')
+            logging.warning(
+                f'Beamset {beamset_name} has an unknown prescription type for primary dose reference: {pdr}')
             pdr.Description = proposed_description
         else:
             pdr.Description = proposed_description  # format_prescription_description(name_of_pdr, beamset_name)
@@ -214,9 +216,8 @@ def compute_dose(beamset, dose_algorithm):
     # Computes the dose if necessary and returns success message or
     # failure
     try:
-        beamset.ComputeDose(ComputeBeamDoses=True,
-                            DoseAlgorithm=dose_algorithm,
-                            ForceRecompute=False)
+        compute_beamset_dose(beamset=beamset, compute_beam_doses=True,
+                             dose_algorithm=dose_algorithm, force_recompute=False)
         _ = 'Recomputed Dose, finding DSP'
     except Exception as e:
         logging.debug(f'Message is {e}')
@@ -420,18 +421,18 @@ def final_dose_v15(site=None, technique=None, rso=None, beamset_name=None):
                                    beam_set=beamset)
             BeamOperations.delete_unused_dsps(plan=plan)
             BeamOperations.change_dsp_visualization_diameter(plan=plan)
-            beamset.ComputeDose(ComputeBeamDoses=True,
-                                DoseAlgorithm=dose_algorithm,
-                                ForceRecompute=True)
+            compute_beamset_dose(beamset=beamset, compute_beam_doses=True,
+                                 dose_algorithm=dose_algorithm,
+                                 force_recompute=True)
             status.next_step('DSP set and minimized. Script complete')
         else:
             # Compute dose in case it hasn't been done yet
-            _ = compute_dose(beamset=beamset, dose_algorithm=dose_algorithm)
+            _ = compute_beamset_dose(beamset=beamset, dose_algorithm=dose_algorithm)
 
             status.next_step('Setting DSP')
 
             # Recompute dose if needed
-            _ = compute_dose(beamset=beamset, dose_algorithm=dose_algorithm)
+            _ = compute_beamset_dose(beamset=beamset, dose_algorithm=dose_algorithm)
 
             # Set the DSP for the plan
             BeamOperations.set_dsp(plan=plan, beam_set=beamset)
@@ -441,7 +442,8 @@ def final_dose_v15(site=None, technique=None, rso=None, beamset_name=None):
             status.next_step('Recomputing Dose if needed')
             # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)
             try:
-                beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+                compute_beamset_dose(beamset=beamset, compute_beam_doses=True, dose_algorithm=dose_algorithm,
+                                     force_recompute=True)
             except Exception as e:
                 logging.debug(f' error type is {type(e)}, with e = {e}')
             status.next_step('Script Complete')
@@ -454,7 +456,8 @@ def final_dose_v15(site=None, technique=None, rso=None, beamset_name=None):
             if not beamset.FractionDose.DoseValues.IsClinical:
                 beamset.AccurateDoseAlgorithm.MonteCarloHistoriesPerAreaFluence = 10000
                 status.next_step('Computing dose with small number of histories')
-                beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=False)
+                compute_beamset_dose(beamset=beamset, compute_beam_doses=True, dose_algorithm=dose_algorithm,
+                                     force_recompute=False)
         except Exception as e:
             status.next_step('Dose was clinical, no need for recompute')
             logging.info(f'Beamset {beamset.DicomPlanLabel} did not need to be recomputed: {e}')
@@ -469,9 +472,11 @@ def final_dose_v15(site=None, technique=None, rso=None, beamset_name=None):
         # If the test returns an insufficient uncertainty, change the number of histories
         if emc_result.ok is False:
             adjust_emc_calculation(beamset, histories=emc_result.hist, uncertainty=0.005)
-            beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+            compute_beamset_dose(beamset=beamset, compute_beam_doses=True, dose_algorithm=dose_algorithm,
+                                 force_recompute=True)
         # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)
-        beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+        compute_beamset_dose(beamset=beamset, compute_beam_doses=True, dose_algorithm=dose_algorithm,
+                             force_recompute=True)
         status.next_step('Script Complete')
 
     logcrit('Final Dose Script Run Successfully')
@@ -553,9 +558,9 @@ def final_dose_v12(site=None, technique=None, rso=None, beamset_name=None):
             # Set the DSP for the plan and recompute dose to force an update of the DSP
             BeamOperations.set_dsp(plan=plan,
                                    beam_set=beamset)
-            beamset.ComputeDose(ComputeBeamDoses=True,
-                                DoseAlgorithm=dose_algorithm,
-                                ForceRecompute=True)
+            compute_beamset_dose(beamset=beamset, compute_beam_doses=True,
+                                 dose_algorithm=dose_algorithm,
+                                 force_recompute=True)
             status.next_step('DSP set. Script complete')
         else:
             # Compute dose in case it hasn't been done yet
@@ -582,7 +587,8 @@ def final_dose_v12(site=None, technique=None, rso=None, beamset_name=None):
             status.next_step('Recomputing Dose if needed')
             # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)
             try:
-                beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+                compute_beamset_dose(beamset=beamset, compute_beam_doses=True, dose_algorithm=dose_algorithm,
+                                     force_recompute=True)
             except Exception as e:
                 logging.debug(f' error type is {type(e)}, with e = {e}')
             status.next_step('Script Complete')
@@ -595,7 +601,8 @@ def final_dose_v12(site=None, technique=None, rso=None, beamset_name=None):
             if not beamset.FractionDose.DoseValues.IsClinical:
                 beamset.AccurateDoseAlgorithm.MonteCarloHistoriesPerAreaFluence = 10000
                 status.next_step('Computing dose with small number of histories')
-                beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=False)
+                compute_beamset_dose(beamset=beamset, compute_beam_doses=True, dose_algorithm=dose_algorithm,
+                                     force_recompute=False)
         except Exception as e:
             status.next_step('Dose was clinical, no need for recompute')
             logging.info(f'Beamset {beamset.DicomPlanLabel} did not need to be recomputed: {e}')
@@ -608,14 +615,16 @@ def final_dose_v12(site=None, technique=None, rso=None, beamset_name=None):
         # If the test returns an insufficient uncertainty, change the number of histories
         if emc_result.ok is False:
             adjust_emc_calculation(beamset, histories=emc_result.hist, uncertainty=0.005)
-            beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+            compute_beamset_dose(beamset=beamset, compute_beam_doses=True, dose_algorithm=dose_algorithm,
+                                 force_recompute=True)
         # Autoscale must be turned off to round the MU.
         # Round MU
         beamset.SetAutoScaleToPrimaryPrescription(AutoScale=False)
         BeamOperations.round_mu(beamset)
         status.next_step('Rounded MU, recomputing doses')
         # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)
-        beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+        compute_beamset_dose(beamset=beamset, compute_beam_doses=True, dose_algorithm=dose_algorithm,
+                             force_recompute=True)
         status.next_step('Script Complete')
 
     logcrit('Final Dose Script Run Successfully')
