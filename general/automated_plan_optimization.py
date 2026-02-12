@@ -1,4 +1,20 @@
 """ Automated Plan Optimization
+    =========================
+
+    2024-May-06 RAB
+
+    1.1.2 Updated to RayStation Version 2025
+
+    1.1.2 Updated to RayStation Version 2024A
+
+    1.1.1 Updated to RayStation Version 11B
+
+    1.1.0 Updated to RayStation Version 10A SP1
+
+    1.0.0 Moved Most functions to the OptimizeOperations library
+
+    Description:
+    ------------
 
     Automatically optimize the current case, examination, plan, beamset using
     input optimization parameters
@@ -41,6 +57,7 @@
                         Name: Script_Testing^Automated Plan – Whole Brain
     Test Patient: 2024A: MR#: ZUWQA_ScTest_08Jun2022_AutoOptimization,
                         Name: Script_Testing^Automated Plan Optimization
+    Te
 
     Version history:
     1.0.0 Moved Most functions to the OptimizeOperations library
