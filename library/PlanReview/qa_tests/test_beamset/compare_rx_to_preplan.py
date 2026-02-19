@@ -84,9 +84,14 @@ def find_background_dependency(rso: NamedTuple, beamset_name: str) -> Optional[s
     Returns:
         Optional[str]: The label of the background dependency, if found; otherwise, None.
     """
+    def _get_background_dose(po):
+        if hasattr(po, 'BackgroundDose') and po.BackgroundDose is not None:
+            return po.BackgroundDose
+        else:
+            return None
     for po in rso.plan.PlanOptimizations:
         for obs in po.OptimizedBeamSets:
-            if obs.DicomPlanLabel == beamset_name and po.BackgroundDose is not None:
+            if obs.DicomPlanLabel == beamset_name and _get_background_dose(obs) is not None:
                 return getattr(po.BackgroundDose.ForBeamSet, 'DicomPlanLabel', None)
     return None
 

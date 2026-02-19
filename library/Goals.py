@@ -46,6 +46,8 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import logging
 
+from library.api.api_goals import add_clinical_goal
+
 
 def print_goal(goal, goal_type='eval'):
     left = None
@@ -228,6 +230,7 @@ def print_goal(goal, goal_type='eval'):
             text = 'HI{}% &gt; {} '.format(goal.PlanningGoal.ParameterValue * 100, goal.PlanningGoal.AcceptanceLevel)
 
         return text
+
 
 
 def add_goal(goal, plan, beamset, roi=None, targets=None, exam=None, case=None):
@@ -432,32 +435,32 @@ def add_goal(goal, plan, beamset, roi=None, targets=None, exam=None, case=None):
                   format(roi, criteria, goal_type, acceptance, parameter, priority))
 
     try:
-        if parameter is None:
-            plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=roi,
-                                                                 GoalCriteria=criteria,
-                                                                 GoalType=goal_type,
-                                                                 AcceptanceLevel=acceptance,
-                                                                 IsComparativeGoal=False,
-                                                                 BeamSet=beamset_association,
-                                                                 Priority=priority,
-                                                                 AssociateToPlan=plan_association
-                                                                 )
-
-        else:
-            plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=roi,
-                                                                 GoalCriteria=criteria,
-                                                                 GoalType=goal_type,
-                                                                 AcceptanceLevel=acceptance,
-                                                                 ParameterValue=parameter,
-                                                                 IsComparativeGoal=False,
-                                                                 BeamSet=beamset_association,
-                                                                 Priority=priority,
-                                                                 AssociateToPlan=plan_association
-                                                                 )
-
+        add_clinical_goal(
+        plan=plan,
+        roi_name=roi,
+        goal_criteria=criteria,
+        goal_type=goal_type,
+        primary_acceptance_level=acceptance,
+        secondary_acceptance_level=None,
+        parameter_value=parameter,
+        is_comparative_goal=False,
+        beamset_association=beamset_association,
+        priority=priority,
+        associate_to_plan=plan_association
+        )
         return True
-
     except Exception as e:
-        logging.warning('{} constraint {}, {}, {}, {}, priority {} could not be added: {}'.
-                        format(roi, criteria, goal_type, acceptance, parameter, priority, str(e).splitlines()[0]))
-        return False
+        if 'An identical clinical goal already exists' in str(e):
+            logging.info(f'Goal {roi}, criteria {criteria}, goal type {goal_type}, acceptance {acceptance}, '
+                         f'parameter {parameter}, priority {priority} already exists; skipping.')
+            return True
+        elif f"No ROI or POI named '{roi}' exists" in str(e):
+            # No problem, many protocols include goals for ROIs that may not be present in a given patient.
+            # Just log and skip.
+            logging.info(f'Goal {roi}, criteria {criteria}, goal type {goal_type}, acceptance {acceptance}, '
+                            f'parameter {parameter}, priority {priority} skipped as ROI not found.')
+            return True
+        else:
+            logging.warning(f'Error adding clinical goal for roi {roi}, criteria {criteria}, goal type {goal_type},'
+                       f' acceptance {acceptance}, parameter {parameter}, priority {priority}: {str(e)}')
+            raise e

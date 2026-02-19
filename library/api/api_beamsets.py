@@ -172,7 +172,7 @@ def compute_beamset_dose_v12(beamset, compute_beam_doses, dose_algorithm=None, f
     beamset.ComputeDose(ComputeBeamDoses=compute_beam_doses,
                         DoseAlgorithm=dose_algorithm,
                         ForceRecalculation=force_recompute)
-def compute_beamset_dose_v17(beamset, compute_beam_doses, dose_algorithm=None, force_recompute=None):
+def compute_beamset_dose_v17(beamset, compute_beam_doses=None, dose_algorithm=None, force_recompute=None):
     # Version 17 specific code to compute dose
     logging.info("Computing dose for beamset with Version 17 specific implementation. Note that"
     "ComputeBeamDoses, DoseAlgorithm, and ForceRecalculation parameters are not used in this version.")
