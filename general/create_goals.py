@@ -36,14 +36,17 @@
     2.1.0 Python 3.6 conversion and update to RS 10A SP1 and converted to use the
           new create_goals_and_objectives function
     2.1.1 Python 3.8 Conversion and 11B Update
+    2.1.2 Update to use new create_goals_and_objectives_from_protocol function
+          which takes in the exam and beamset as arguments, as is compatible with Raystation 17
 
 """
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__version__ = '2.1.1'
+__version__ = '2.1.2'
+__raystation__ = ['11B', '2024A', '2025SP1']
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrssc/ray_scripts/wiki/CreateGoals'
-__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2026, University of Wisconsin Board of Regents'
 
 import logging
 import Objectives
@@ -72,11 +75,8 @@ def main():
     if not error_message:
         logging.info('Clinical goals/objectives added successfully')
     else:
-        output_message =''
-        for e in error_message:
-            output_message.append('{} '.format(e))
+        output_message = ' '.join(str(e) for e in error_message)
         logging.warning('Error adding clinical goals. {}'.format(output_message))
-
 
 
 if __name__ == '__main__':
