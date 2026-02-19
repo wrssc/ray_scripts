@@ -16,9 +16,9 @@ def is_attrib(obj, attr_name):
 
 def detect_api_version():
     try:
-        import raystation as connect
+        import raystation as rs
     except ImportError:
-        import connect
+        import connect as rs
     ui = rs.get_current('ui')
     if is_attrib(ui, 'GetApplicationVersion'):
         _version = ui.GetApplicationVersion().split('.')
