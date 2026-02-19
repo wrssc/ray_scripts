@@ -1,3 +1,19 @@
+"""
+Integration test runner for optimize_plan sweeps (named variants + grid sweeps).
+Sample usage in Jupyter:
+
+
+from testing.integration.optimize_plan_sweep import (
+    run_optimize_plan_named_and_grid_sweeps
+)
+
+results = run_optimize_plan_named_and_grid_sweeps(
+    include_baseline=True,
+    include_named_variants=True,
+    include_grid_sweep=True,
+)
+
+"""
 from __future__ import annotations
 
 from dataclasses import replace
@@ -7,6 +23,7 @@ import logging
 
 from library.api.api_utils import find_scope
 from library.OptimizationOperations import optimize_plan
+
 
 
 def _normalize_inputs_for_technique(beamset: Any, inputs: Dict[str, Any]) -> Dict[str, Any]:
