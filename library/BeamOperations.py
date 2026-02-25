@@ -559,7 +559,7 @@ def create_beamset(patient, case, exam, plan,
             new_bs_name = b.DicomName
             while beamset_exists:
                 try:
-                    info = [bs.DicomPlanLabel for bs in plan.BeamSets if b.DicomName in bs.DicomPlanLabel]
+                    info = [bs.DicomPlanLabel for bs in plan.BeamSets if bs.DicomPlanLabel==new_bs_name]
                     # info = plan.QueryBeamSetInfo(Filter={'Name': '^{0}'.format(new_bs_name)})
                     logging.debug('Beamset info: {}'.format(info))
                     if info and info[0] == new_bs_name:
