@@ -54,9 +54,12 @@ __license__ = "GPLv3"
 __help__ = None
 __copyright__ = "Copyright (C) 2024, University of Wisconsin Board of Regents"
 
-from connect import CompositeAction, get_current
-from api.api_structures import delete_geometry
+from library.api.api_rs import import_raystation_api
+rs = import_raystation_api()
+from api.api_structures import delete_geometry, copy_geometries
 import StructureOperations
+
+
 import logging
 
 try:  # for Python 3
@@ -326,13 +329,21 @@ def create_external_fb(case):
 
     with rs.CompositeAction("Copy External_FB to DIBH Image Set"):
         logging.info("Copying External_FB to the DIBH examination.")
-        case.PatientModel.CopyRoiGeometry(
-            SourceExamination=case.Examinations["Free-breathing"],
-            TargetExamination=case.Examinations["DIBH"],
-            RoiName="External_FB",
-            ImageRegistrationName=None,
-            UseAddedRigidRegistrationIfOneExists=False
-        )
+        copy_geometries(
+            case=case,
+            source_examination=case.Examinations["Free-breathing"],
+            source_roi_names="External_FB",
+            target_examination=case.Examinations["DIBH"],
+            image_registration_name=None,
+            use_added_rigid_registration_if_one_exists=False,
+        poi_names=None)
+        # case.PatientModel.CopyRoiGeometry(
+        #     SourceExamination=case.Examinations["Free-breathing"],
+        #     TargetExamination=case.Examinations["DIBH"],
+        #     RoiName="External_FB",
+        #     ImageRegistrationName=None,
+        #     UseAddedRigidRegistrationIfOneExists=False
+        # )
 
     message_text = "The script has finished, please review the results\n"
     message_text += "If the External_FB and External_DIBH are acceptable, click OK.\n"
