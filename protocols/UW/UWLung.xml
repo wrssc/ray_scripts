@@ -2435,7 +2435,7 @@
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="%" roi="PTV">125</dose>
-                <priority>4</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV</name>
@@ -2862,7 +2862,7 @@
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="%" roi="PTV">125</dose>
-                <priority>4</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV</name>
@@ -3289,7 +3289,7 @@
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="%" roi="PTV">125</dose>
-                <priority>4</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV</name>
