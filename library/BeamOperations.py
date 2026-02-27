@@ -569,6 +569,8 @@ def create_beamset(patient, case, exam, plan,
                         else:
                             new_bs_name = b.DicomName + str(i).zfill(2)
                         i += 1
+                    else:
+                        beamset_exists = False
                 except IndexError:
                     beamset_exists = False
             # Replace input beamset_defs name with update
