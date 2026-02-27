@@ -4,6 +4,7 @@ import sys
 import logging
 from library.api.api_rs import import_raystation_api
 rs = import_raystation_api()
+from library.api.api_structures import map_roi_geometries_rigidly, map_poi_geometries_rigidly
 import math
 import numpy as np
 
@@ -452,7 +453,7 @@ def make_central_junction_contour(pdata, z_inf_box,
     if color is None:
         color = [192, 192, 192]
     prefix = determine_prefix(pdata.exam)
-    if pif prefix not in ('ffs', 'hfs'):
+    if prefix not in ('ffs', 'hfs'):
         sys.exit(f'Unknown patient orientation {prefix}')
     si = 1.
     # Find the name of the external contour
@@ -885,18 +886,35 @@ def transform_object(source: Pd, destination: Pd,
         trans = convert_array_to_transform(trans_list)
         # Apply transformation to POIs and ROIs if provided
         if pois:
-            source.case.MapPoiGeometriesRigidly(
-                PoiGeometryNames=pois, CreateNewPois=False,
-                ReferenceExaminationName=source.exam.Name,
-                TargetExaminationNames=[destination.exam.Name],
-                Transformations=[trans])
+            map_poi_geometries_rigidly(
+                case=source.case,
+                poi_geometry_names=pois,
+                create_new_pois=False,
+                reference_examination=source.exam,
+                target_examinations=[destination.exam],
+                transformations=[trans]
+            )
+
+            # source.case.MapPoiGeometriesRigidly(
+            #     PoiGeometryNames=pois, CreateNewPois=False,
+            #     ReferenceExaminationName=source.exam.Name,
+            #     TargetExaminationNames=[destination.exam.Name],
+            #     Transformations=[trans])
 
         if rois:
-            source.case.MapRoiGeometriesRigidly(
-                RoiGeometryNames=rois, CreateNewRois=False,
-                ReferenceExaminationName=source.exam.Name,
-                TargetExaminationNames=[destination.exam.Name],
-                Transformations=[trans])
+            map_roi_geometries_rigidly(
+                case=source.case,
+                roi_geometry_names=rois,
+                create_new_rois=False,
+                reference_examination=source.exam,
+                target_examinations=[destination.exam],
+                transformations=[trans]
+            )
+            # source.case.MapRoiGeometriesRigidly(
+            #     RoiGeometryNames=rois, CreateNewRois=False,
+            #     ReferenceExaminationName=source.exam.Name,
+            #     TargetExaminationNames=[destination.exam.Name],
+            #     Transformations=[trans])
 
 
 def make_midfield_junctions(rs_obj: Pd, poi_name_list: List[str], junction_width: float) -> None:

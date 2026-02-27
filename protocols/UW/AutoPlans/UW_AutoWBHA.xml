@@ -432,6 +432,7 @@
     -->
         <!-- AA Template -->
         <objectives>
+            <!-- Eyes -->
             <roi>
                 <name>Eye_L</name>
                 <type a="1">MaxEud</type>
@@ -444,6 +445,7 @@
                 <dose units="Gy">10</dose>
                 <weight>1</weight>
             </roi>
+            <!-- Hippocampi -->
             <roi>
                 <name>Hippocampus_L</name>
                 <type a="1">MaxEud</type>
@@ -462,7 +464,7 @@
                 <type dir="lt">DX</type>
                 <volume units="%">50</volume>
                 <dose units="Gy">9</dose>
-                <weight>3</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Hippocampus_L</name>
@@ -494,7 +496,7 @@
                 <type dir="lt">DX</type>
                 <volume units="%">50</volume>
                 <dose units="Gy">9</dose>
-                <weight>3</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Hippocampus_R</name>
@@ -508,6 +510,7 @@
                 <dose units="Gy">15</dose>
                 <weight>100</weight>
             </roi>
+            <!-- Lenses -->
             <roi>
                 <name>Lens_L_PRV07</name>
                 <type>Max</type>
@@ -520,17 +523,18 @@
                 <dose units="Gy">7</dose>
                 <weight>1</weight>
             </roi>
+            <!-- Target Coverage -->
             <roi>
                 <name>OTV1_</name>
                 <type>Min</type>
                 <dose units="%" roi="PTV_Brain">102.5</dose>
-                <weight>100</weight>
+                <weight>400</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_Brain">102.5</dose>
-                <weight>80</weight>
+                <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
@@ -538,12 +542,33 @@
                 <dose units="%" roi="PTV_Brain">110.0</dose>
                 <weight>400</weight>
             </roi>
+            <!-- Optics -->
+            <roi>
+                <name>OpticChiasm_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">32</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>OpticNrv_L_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">31</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>OpticNrv_R_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">31</dose>
+                <weight>1</weight>
+            </roi>
+            <!-- PTV_Brain -->
             <roi>
                 <name>PTV_p</name>
                 <type>Min</type>
                 <dose units="%" roi="PTV_Brain">102.5</dose>
                 <weight>0.1</weight>
             </roi>
+            <!-- Rings and Normal Tissue Objectives -->
             <roi>
                 <name>Ring_LD</name>
                 <type dist="4" adapt="True" constraint="False">DFO</type>
@@ -719,7 +744,9 @@
                 <priority>3</priority>
             </roi>
         </goals>
+        <!-- AA Template -->
         <objectives>
+            <!-- Eyes -->
             <roi>
                 <name>Eye_L</name>
                 <type a="1">MaxEud</type>
@@ -732,6 +759,7 @@
                 <dose units="Gy">10</dose>
                 <weight>1</weight>
             </roi>
+            <!-- Hippocampi -->
             <roi>
                 <name>Hippocampus_L</name>
                 <type a="1">MaxEud</type>
@@ -750,13 +778,19 @@
                 <type dir="lt">DX</type>
                 <volume units="%">50</volume>
                 <dose units="Gy">9</dose>
-                <weight>3</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Hippocampus_L</name>
                 <type>Max</type>
                 <dose units="Gy">14</dose>
                 <weight>2</weight>
+            </roi>
+            <roi>
+                <name>Hippocampus_L</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Hippocampus_R</name>
@@ -776,7 +810,7 @@
                 <type dir="lt">DX</type>
                 <volume units="%">50</volume>
                 <dose units="Gy">9</dose>
-                <weight>3</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Hippocampus_R</name>
@@ -784,6 +818,13 @@
                 <dose units="Gy">14</dose>
                 <weight>2</weight>
             </roi>
+            <roi>
+                <name>Hippocampus_R</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
+                <weight>100</weight>
+            </roi>
+            <!-- Lenses -->
             <roi>
                 <name>Lens_L_PRV07</name>
                 <type>Max</type>
@@ -796,17 +837,18 @@
                 <dose units="Gy">7</dose>
                 <weight>1</weight>
             </roi>
+            <!-- Target Coverage -->
             <roi>
                 <name>OTV1_</name>
                 <type>Min</type>
                 <dose units="%" roi="PTV_Brain">102.5</dose>
-                <weight>100</weight>
+                <weight>400</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_Brain">102.5</dose>
-                <weight>80</weight>
+                <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
@@ -814,12 +856,33 @@
                 <dose units="%" roi="PTV_Brain">110.0</dose>
                 <weight>400</weight>
             </roi>
+            <!-- Optics -->
+            <roi>
+                <name>OpticChiasm_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">32</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>OpticNrv_L_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">31</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>OpticNrv_R_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">31</dose>
+                <weight>1</weight>
+            </roi>
+            <!-- PTV_Brain -->
             <roi>
                 <name>PTV_p</name>
                 <type>Min</type>
                 <dose units="%" roi="PTV_Brain">102.5</dose>
                 <weight>0.1</weight>
             </roi>
+            <!-- Rings and Normal Tissue Objectives -->
             <roi>
                 <name>Ring_LD</name>
                 <type dist="4" adapt="True" constraint="False">DFO</type>
@@ -1164,7 +1227,7 @@
         <technique>TomoHelical</technique>
         <DicomName>Brai_THI_R_A_</DicomName>
         <description>Protocol for TomoBrain, e.g. Hippocampal avoidance</description>
-        <roi_support>TomoCouch,Black Board External Final</roi_support>
+        <roi_support>TomoCouch,QFix_Board_Only</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
