@@ -728,6 +728,7 @@ def load_supports(rso, supports, quiet=False):
     # template name: name of the RS template
     #
     # TODO: Move this to general operations and evaluate patient position
+    logging.debug(f'User prompts are set to {quiet}')
     rs_template = rso.db.LoadTemplatePatientModel(
         templateName=InstitutionInputsSupportStructureTemplate,
         lockMode='Read'
@@ -790,6 +791,11 @@ def load_supports(rso, supports, quiet=False):
     if couch:
         remain.remove(couch.OfRoi.Name)
     if remain:
+        logging.debug(
+            f"Attempting to load the supports from template: {rs_template},"
+            f" template exam: {InstitutionInputsSupportStructuresExamination},"
+            f" rois: {remain} on exam {rso.exam.Name}"
+        )
         _ = rso.db.LoadTemplatePatientModel(
             templateName=InstitutionInputsSupportStructureTemplate,
             lockMode='Read')
