@@ -42,6 +42,7 @@
     this program. If not, see <http://www.gnu.org/licenses/>.
     """
 
+from __future__ import annotations
 __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
 __version__ = '1.0.1'
@@ -52,7 +53,9 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 # Import packages
 import sys
 import clr
-import multiprocessing
+import threading
+import queue as pyqueue
+import time
 import webbrowser
 import logging
 
@@ -71,18 +74,20 @@ class ScriptStatus:
         self.current_step = -1
 
         # Initialize thread communication pathways
-        self.__kill = multiprocessing.Event()
-        self.__abort = multiprocessing.Event()
-        self.__queue = multiprocessing.Queue()
+        # Thread communication pathways
+        self.__kill = threading.Event()
+        self.__abort = threading.Event()
+        self.__queue: pyqueue.Queue = pyqueue.Queue()
 
-        # Launch separate thread
-        self.__process = multiprocessing.Process(target=_child_process,
-                                                 args=(self.__args, self.__queue, self.__abort, self.__kill))
+        # UI thread handle (created lazily on first next_step)
+        self.__thread: threading.Thread | None = None
 
     def __del__(self):
         """ScriptStatus class destructor"""
-        if self.__process.is_alive():
-            self.__process.terminate()
+        try:
+            self.close()
+        except Exception:
+            pass
 
     def next_step(self, text='', num=None):
         """status.next_step('new status')"""
@@ -106,7 +111,10 @@ class ScriptStatus:
 
             # Wait for child to be closed
             while not self.__kill.is_set():
-                self.__process.join(0.1)
+                if self.__thread:
+                    self.__thread.join(0.1)
+                else:
+                    time.sleep(0.1)
 
             sys.exit('The script was aborted')
 
@@ -124,10 +132,17 @@ class ScriptStatus:
             logging.debug('ScriptStatus updated to step {}'.format(self.current_step + 1))
             self.__queue.put([self.current_step, text])
 
-            # If the child is not yet started
-            if not self.__process.is_alive():
-                self.__process.start()
-                self.__process.join(0.1)
+            # If the UI thread is not yet started
+            if self.__thread is None or not self.__thread.is_alive():
+                self.__thread = threading.Thread(
+                    target=_child_process,
+                    args=(self.__args, self.__queue, self.__abort, self.__kill),
+                    daemon=True,
+                    name="ScriptStatusUI",
+                )
+                self.__thread.start()
+                # brief yield
+                time.sleep(0.05)
 
     def add_step(self, text=''):
         """status.add_step('new step')"""
@@ -143,15 +158,17 @@ class ScriptStatus:
         logging.debug('ScriptStatus finished at step {}'.format(self.current_step + 1))
         self.__queue.put([-2, text])
         while not self.__kill.is_set():
-            self.__process.join(0.1)
-
-        self.__process.terminate()
+            if self.__thread:
+                self.__thread.join(0.1)
+            else:
+                time.sleep(0.1)
 
     def close(self):
         """status.close()"""
         logging.debug('ScriptStatus closed')
-        if self.__process.is_alive():
-            self.__process.terminate()
+        self.__kill.set()
+        if self.__thread and self.__thread.is_alive():
+            self.__thread.join(0.5)
 
     def aborted(self):
         """bool = status.aborted()"""
@@ -165,7 +182,15 @@ def _child_process(args, queue, aborted, kill):
     clr.AddReference('System.Drawing')
     import System
 
-    current_step, status_text = queue.get()
+    # Wait for first message, but allow early kill
+    while not kill.is_set():
+        try:
+            current_step, status_text = queue.get(timeout=0.1)
+            break
+        except pyqueue.Empty:
+            continue
+    else:
+        return
 
     # Initialize form
     form = System.Windows.Forms.Form()
@@ -309,42 +334,49 @@ def _child_process(args, queue, aborted, kill):
     System.Windows.Forms.Application.DoEvents()
 
     while True:
-        if not queue.empty():
-            current_step, status_text = queue.get()
+        if kill.is_set():
+            try:
+                form.Close()
+            except Exception:
+                pass
+            return
 
-            # -3 indicates a step should be added
-            if current_step == -3:
-                args['steps'].append(status_text)
-                steps.Items.Add(status_text)
-                steps.Height = max(50, min(500, 20 * len(args['steps'])))
-                current_step = steps.SelectedIndex
+        try:
+            current_step, status_text = queue.get(timeout=0.1)
+        except pyqueue.Empty:
+            System.Windows.Forms.Application.DoEvents()
+            continue
 
-            else:
-                status.Text = status_text
+        # -3 indicates a step should be added
+        if current_step == -3:
+            args['steps'].append(status_text)
+            steps.Items.Add(status_text)
+            steps.Height = max(50, min(500, 20 * len(args['steps'])))
+            current_step = steps.SelectedIndex
+        else:
+            status.Text = status_text
 
-            # -2 indicates script is done
-            if current_step == -2:
+        # -2 indicates script is done
+        if current_step == -2:
+            if args['steps'] is not None and steps.SelectedIndex >= 0:
                 steps.SetItemChecked(steps.SelectedIndex, True)
-                form.Visible = False
-                bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
-                bar.Minimum = 1
-                bar.Value = 2
-                bar.Maximum = 2
-                abort.Text = 'Close'
-                form.ShowDialog()
+            form.Visible = False
+            bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
+            bar.Minimum = 1
+            bar.Value = 2
+            bar.Maximum = 2
+            abort.Text = 'Close'
+            form.ShowDialog()
+            # user closed dialog => kill gets set by stop_script()
+        else:
+            form.Visible = False
+            if args['steps'] is not None:
+                steps.SelectedIndex = current_step
+                if current_step > 0:
+                    steps.SetItemChecked(current_step - 1, True)
+            bar.Style = System.Windows.Forms.ProgressBarStyle.Marquee
+            form.Visible = True
 
-            # Otherwise assume this is a step index
-            else:
-                form.Visible = False
-                if args['steps'] is not None:
-                    steps.SelectedIndex = current_step
-                    if current_step > 0:
-                        steps.SetItemChecked(current_step - 1, True)
-
-                bar.Style = System.Windows.Forms.ProgressBarStyle.Marquee
-                form.Visible = True
-
-        # Allow the UI time to catch up
         System.Windows.Forms.Application.DoEvents()
 
 
