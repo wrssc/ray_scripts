@@ -2,6 +2,7 @@
 from dataclasses import dataclass, replace
 import logging
 from library.api.api_rs import import_raystation_api
+from library.api.api_case import compute_gray_level_based_rigid_registration
 rs = import_raystation_api()
 from typing import TYPE_CHECKING, Tuple, Optional
 
@@ -69,24 +70,39 @@ def register_images(pd_hfs: Pd, pd_ffs: Pd, hfs_scan_name: str, ffs_scan_name: s
     approved = check_registration(pdata_hfs=pd_hfs, pdata_ffs=pd_ffs, allow_missing=True)
 
     if not approved:
-        pd_ffs.case.ComputeGrayLevelBasedRigidRegistration(
-            FloatingExaminationName=hfs_scan_name,
-            ReferenceExaminationName=ffs_scan_name,
-            UseOnlyTranslations=False,
-            HighWeightOnBones=False,
-            InitializeImages=True,
-            FocusRoisNames=[],
-            RegistrationName=None)
+        # First do a rough registration without high weight on bones, then  refine with high weight on bones
+        refine_config = [False, True]
+        for high_weight_on_bones in refine_config:
+            compute_gray_level_based_rigid_registration(
+                case=pd_ffs.case,
+                floating_examination=pd_hfs.exam,
+                reference_examination=pd_ffs.exam,
+                use_only_translation=False,
+                high_weight_on_bones=high_weight_on_bones,
+                initialize_images=True,
+                focus_rois_names=[],
+                registration_name=None,
+                focus_volume_of_interest=[],
+            )
+
+        # pd_ffs.case.ComputeGrayLevelBasedRigidRegistration(
+        #     FloatingExaminationName=hfs_scan_name,
+        #     ReferenceExaminationName=ffs_scan_name,
+        #     UseOnlyTranslations=False,
+        #     HighWeightOnBones=False,
+        #     InitializeImages=True,
+        #     FocusRoisNames=[],
+        #     RegistrationName=None)
 
         # Refine on bones
-        pd_ffs.case.ComputeGrayLevelBasedRigidRegistration(
-            FloatingExaminationName=hfs_scan_name,
-            ReferenceExaminationName=ffs_scan_name,
-            UseOnlyTranslations=False,
-            HighWeightOnBones=True,
-            InitializeImages=False,
-            FocusRoisNames=[],
-            RegistrationName=None)
+        # pd_ffs.case.ComputeGrayLevelBasedRigidRegistration(
+        #     FloatingExaminationName=hfs_scan_name,
+        #     ReferenceExaminationName=ffs_scan_name,
+        #     UseOnlyTranslations=False,
+        #     HighWeightOnBones=True,
+        #     InitializeImages=False,
+        #     FocusRoisNames=[],
+        #     RegistrationName=None)
     else:
         logging.info(f'Approved registration found between {pd_ffs.exam.Name} and {pd_hfs.exam.Name}.')
 
