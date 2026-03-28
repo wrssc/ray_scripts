@@ -52,7 +52,7 @@ EXPORT_OPTIONS = {
     'USE_GATED': ('Internal Target RPM Gated Treatment (NOT ALIGN RT)',
                   RADIO_OFF, ENABLED, ['Photons', 'Electrons']),
     'NO_REF_POINT_LOCATION': ('Reference Point has no geometric location in non-ARIA plans', RADIO_OFF, ENABLED, []),
-    'USE_SRS_COORDS': ('Use SRS table calculation', RADIO_OFF, ENABLED, ['Photons', 'Electrons']),
+    'USE_SRS_COORDS': ('Use SRS-style table calculation', RADIO_OFF, ENABLED, ['Photons', 'Electrons']),
     # Filters that are currently disabled in the script
     'COPY_ELECTRON_BLOCK_NAME_TO_ID': ('Copy Electron Block Name to ID', RADIO_ON, DISABLED, ['Electrons']),
     'APPLY_BLOCK_ACCESSORY_TO_ELECTRON_FIELDS': (
@@ -758,7 +758,7 @@ def main():
                 # Filters to always be applied
                 # Set Couch
 
-                frameless_beamnames = ['_FSR_', '_SRS_']
+                frameless_beamnames = ['_FSR_', '_SRS_', 'Brai', 'Eye']
 
                 if use_srs_coords or any(a in beamset.DicomPlanLabel for a in frameless_beamnames) and \
                         'HeadFirstSupine' in beamset.PatientSetup.OfTreatmentSetup.PatientPosition:
@@ -782,19 +782,25 @@ def main():
                         poi_coordinates = [poi_geometry.Point.x,
                                        poi_geometry.Point.y,
                                        poi_geometry.Point.z]
+                        iso_lat = bs.Beams[0].Isocenter.Position.x
+                        iso_vert = bs.Beams[0].Isocenter.Position.y
+                        iso_long = bs.Beams[0].Isocenter.Position.z
                         if all(math.isclose(c, 0) for c in poi_coordinates):
-                            iso_lat = bs.Beams[0].Isocenter.Position.x
-                            iso_vert = bs.Beams[0].Isocenter.Position.y
-                            iso_long = bs.Beams[0].Isocenter.Position.z
                             initial_table_position[bs.DicomPlanLabel] = {
                                 'TableTopVerticalPosition': (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
                                 'TableTopLongitudinalPosition': (beta - iso_long) * 10.,
                                 'TableTopLateralPosition': (gamma - iso_lat) * 10.,
                             }
                         else:
+                            initial_table_position[bs.DicomPlanLabel] = {
+                                'TableTopVerticalPosition': (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
+                                'TableTopLongitudinalPosition': (beta - iso_long) * 10.,
+                                'TableTopLateralPosition': (gamma - iso_lat) * 10.,
+                            }
                             WarningBox(
                                 'The set-up reference point is not at the DICOM origin. '
-                                'The table position will not be updated to match the isocenter.'
+                                'This may not be the right choice for the table position for SRS plans. '
+                                'Please verify the table position after export.'
                             )
                         logging.debug(f'For {user_machine_name}: Beamset {bs.DicomPlanLabel}: Table positions will be'
                                       f' updated to {initial_table_position[bs.DicomPlanLabel]}')
