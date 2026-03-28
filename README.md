@@ -3,8 +3,10 @@ DHO_RayScripts
 
 Python tools for the RayStation treatment planning system
 
-Authors:Mark Geurts – mark.w.geurts@gmail.com  
-Adam Bayliss – bayliss@humonc.wisc.edu  
+Authors:  Adam Bayliss – rabayliss@wisc.edu,
+Dustin Jacqmin - dustin.jacqmin@wisc.edu, 
+Zac Labby - Zac Labby@wisc.edu,
+Mark Geurts – mark.w.geurts@gmail.com
 Copyright © 2018–2025, University of Wisconsin Board of Regents  
 
 ## 🧭 Overview
