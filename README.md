@@ -19,18 +19,20 @@ Supports centralized launch via a ScriptSelector GUI
 
 Includes internal tools used in production at the University of Wisconsin Cancer Center
 The application of these scripts varies from efficient creation of QA plans to automated planning and plan checks. This repository is actively being developed, so please see our [Projects](../../projects) page for more information on what is coming soon!
-
+## Installation 
+Installation instructions are here [installation](https://github.com/wrssc/ray_scripts/wiki/Installation). Essentially, its a single script to rule them all... The ScriptSelector.py file is configured then loaded into RayStation. Once imported,all scripts in the repository are accessible.
 ## 🚀 Highlighted Capabilities
 The following features are available in this repository. Some of these features are still in development, while others are actively used in clinical practice. The list below is not exhaustive, but it highlights the most important features.
 
 | Feature | Description |
 |---------|-------------|
-| AutoPlan | Protocol-driven end-to-end plan creation using XML-based templates |
+| AutoPlan | Protocol-driven end-to-end plan creation using XML-based templates (including whole brain, Total Body (VMAT/Tomo), Head and Neck Definitive, Spine SBRT, WMHA |
 | Goal/Objective | Relative goal scaling (e.g., V95% Rx > 95%) not supported natively in RayStation |
 | BeaVIS | Automated beamset-level QA system with physics and dosimetry review integration |
 | DITTO | Cross-platform DICOM integrity checking (e.g., RayStation ↔ Aria) with UID, grid, and structural validation |
 | Electron QA Planning | Monte Carlo vs Mobius QA phantom plan generator for e- QA |
 | Structure Generation | Helper tool for building derived planning rings, standoffs, uniform dose zones |
+| Structure Matching | Match structures to TG 263 Naming and add planning risk volumes | 
 | Export Tools | GUI menu for sending DICOM data to preconfigured systems (iDMS, Mobius, MIM) |
 | Plan Review PDFs | Auto-generates structured checklists and physics review documents |
 
@@ -107,7 +109,7 @@ A future tool will allow fetching just a script + its dependencies automatically
 
 ## 📚 Documentation and Support
 
-Detailed documentation and clinical workflow examples are available in the Wiki:
+Detailed documentation and clinical workflow examples are available in the Wiki (In progress...working on Sphinx mirorring)
 
 Installation Guide
 
