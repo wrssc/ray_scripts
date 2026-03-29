@@ -1,5 +1,5 @@
 # Python scripts for RayStation treatment planning system
-DHO_RayScripts
+RayScripts
 
 Python tools for the RayStation treatment planning system
 
